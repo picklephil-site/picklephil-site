@@ -1,0 +1,40 @@
+{
+  "hero": {
+    "title": "Pickle Phil\u2019s Disc Golf Adventures",
+    "tagline": "Courses, bag, and scorecards \u2014 crisp and dill-icious."
+  },
+  "bag": [
+    {
+      "name": "Aviar (Putter)",
+      "note": "Trusty inside 25\u201330 ft; straight putts."
+    },
+    {
+      "name": "Buzzz (Midrange)",
+      "note": "Point-and-shoot. Straight with a gentle fade."
+    },
+    {
+      "name": "Destroyer (Driver)",
+      "note": "Distance lines with some turn and late fade."
+    }
+  ],
+  "courses": [
+    {
+      "name": "Dolese Park DGC (OKC)",
+      "link": "https://udisc.com/courses/dolese-park"
+    },
+    {
+      "name": "Mitch Park",
+      "link": "https://udisc.com/courses/mitch-park"
+    },
+    {
+      "name": "Eagles Nest",
+      "link": "https://udisc.com/courses/eagles-nest"
+    }
+  ],
+  "latest_scorecard": {
+    "title": "Latest Round \u2014 Dolese Park",
+    "summary": "Par 58 \u00b7 Shot +3 \u00b7 Personal best this month.",
+    "image": "static/latest-scorecard.png",
+    "date": "2025-10-15"
+  }
+}
