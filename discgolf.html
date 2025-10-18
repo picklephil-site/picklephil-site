@@ -2,127 +2,156 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Disc Golf | Pickle Phil</title>
-  <meta name="description" content="Pickle Phil’s Disc Golf hub: bag, courses, and latest rounds." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pickle Phil’s Disc Golf Adventures</title>
+  <meta name="description" content="Courses, bag, and scorecards — crisp and dill-icious." />
   <style>
-    :root{ --bg:#145a32; --bg2:#2ecc71; --panel:rgba(255,255,255,.06); --text:#f5f5f5; --btn:#f5f5f5; --btnText:#145a32; --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35); }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Segoe UI, Tahoma, sans-serif;color:var(--text);
-         background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);}
-    .wrap{width:min(1120px,100%);padding:22px;margin-inline:auto}
-    header{display:flex;align-items:center;gap:10px;justify-content:center;margin:12px 0 6px}
-    header .pickle{font-size:2.2rem}
-    h1{margin:6px 0 0;font-size:clamp(28px,4vw,42px)}
-    p.lead{opacity:.95;margin:4px 0 16px;text-align:center}
-    .btn{color:var(--btnText);background:var(--btn);padding:10px 14px;border-radius:12px;
-         text-decoration:none;font-weight:700;display:inline-block;margin:4px;transition:.2s}
-    .btn:hover{filter:brightness(.95);transform:translateY(-1px)}
-    .grid{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
-    .card{grid-column:span 12;background:var(--panel);border:1px solid rgba(255,255,255,.12);
-          border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-    .card h2{margin:2px 0 10px}
-    ul{margin:8px 0 0 18px}
-    .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-    .kv{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 10px}
-    .score{display:grid;gap:10px;grid-template-columns:repeat(12,1fr)}
-    .score .img{grid-column:span 7}
-    .score .meta{grid-column:span 5}
-    .score img{max-width:100%;border-radius:12px;box-shadow:var(--shadow)}
-    footer{opacity:.85;margin:28px 0 10px;text-align:center}
-    @media (max-width: 860px){
-      .score .img, .score .meta{grid-column:span 12}
+    :root {
+      --bg: #145a32;
+      --bg2: #2ecc71;
+      --panel: rgba(255, 255, 255, 0.15);
+      --text: #fefefe;
+      --link: #111;
+      --btn-bg: #fff;
+      --btn-text: #145a32;
+      --radius: 16px;
+      --shadow: 0 8px 24px rgba(0,0,0,.35);
     }
-    a.inline{color:#fff;text-underline-offset:3px}
-    code{background:rgba(255,255,255,.12);padding:2px 6px;border-radius:8px}
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
+      text-align: center;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 40px 20px 10px;
+    }
+
+    header h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      margin: 0;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    .nav {
+      margin: 20px 0 30px;
+    }
+
+    .btn {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      margin: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+    }
+
+    .btn:hover {
+      filter: brightness(0.9);
+      transform: translateY(-2px);
+    }
+
+    section {
+      width: min(900px, 92%);
+      margin: 0 auto 20px;
+      text-align: left;
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    section h2 {
+      margin-top: 0;
+    }
+
+    a,
+    a:visited {
+      color: var(--link);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: #000;
+      text-decoration-thickness: 2px;
+    }
+
+    footer {
+      margin: 40px 0 20px;
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    .pickle {
+      font-size: 2rem;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap" id="app">
-    <header>
-      <div class="pickle">🥒</div>
-      <div>
-        <h1 id="hero-title">Disc Golf Adventures</h1>
-        <p id="hero-tagline" class="lead">Loading…</p>
-      </div>
-    </header>
+  <header>
+    <div class="pickle">🥒</div>
+    <h1>Pickle Phil’s Disc Golf Adventures</h1>
+    <p>Courses, bag, and scorecards — crisp and dill-icious.</p>
+  </header>
 
-    <div class="row">
-      <a class="btn" href="/" title="Back to main site">⬅️ Back</a>
-      <a class="btn" href="#bag">👜 What's in my Bag</a>
-      <a class="btn" href="#courses">🌲 Courses</a>
-      <a class="btn" href="#scorecard">📊 Latest Score</a>
-    </div>
-
-    <section id="bag" class="card">
-      <h2>👜 What's in my Bag</h2>
-      <div id="bag-list"></div>
-    </section>
-
-    <section id="courses" class="card">
-      <h2>🌲 Courses I've Been Playing</h2>
-      <ul id="course-list"></ul>
-    </section>
-
-    <section id="scorecard" class="card">
-      <h2>📊 Latest Scorecard</h2>
-      <div class="score">
-        <div class="img"><img id="score-img" alt="Latest scorecard"></div>
-        <div class="meta">
-          <h3 id="score-title">—</h3>
-          <div class="kv" id="score-summary"></div>
-          <div class="kv">Date: <span id="score-date"></span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>📬 Contact</h2>
-      <p>🥒 <a class="inline" href="mailto:{EMAIL}">{EMAIL}</a></p>
-    </section>
-
-    <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
+  <div class="nav">
+    <a href="/" class="btn">⬅️ Back</a>
+    <a href="#bag" class="btn">👜 What’s in my Bag</a>
+    <a href="#courses" class="btn">🌲 Courses</a>
+    <a href="#score" class="btn">📋 Latest Score</a>
   </div>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    async function loadData(){
-      try{
-        const res = await fetch('data/discgolf.json', {cache: 'no-store'});
-        const data = await res.json();
-        document.getElementById('hero-title').textContent = data.hero?.title || 'Disc Golf Adventures';
-        document.getElementById('hero-tagline').textContent = data.hero?.tagline || '';
+  <section id="bag">
+    <h2>👜 What's in my Bag</h2>
+    <ul>
+      <li><strong>Aviar (Putter)</strong> — Trusty inside 25–30 ft; straight putts.</li>
+      <li><strong>Buzzz (Midrange)</strong> — Point-and-shoot. Straight with a gentle fade.</li>
+      <li><strong>Destroyer (Driver)</strong> — Distance lines with some turn and late fade.</li>
+    </ul>
+  </section>
 
-        const bagRoot = document.getElementById('bag-list');
-        const ul = document.createElement('ul');
-        (data.bag||[]).forEach(item => {
-          const li = document.createElement('li');
-          li.innerHTML = `<strong>${item.name}</strong> — ${item.note || ''}`;
-          ul.appendChild(li);
-        });
-        bagRoot.appendChild(ul);
+  <section id="courses">
+    <h2>🌲 Courses I've Been Playing</h2>
+    <ul>
+      <li><a href="https://www.discgolfscene.com/courses/Dolese_Park_DGC_OKC" target="_blank">Dolese Park DGC (OKC)</a></li>
+      <li><a href="https://www.discgolfscene.com/courses/Mitch_Park" target="_blank">Mitch Park</a></li>
+      <li><a href="https://www.discgolfscene.com/courses/Eagles_Nest_DGC" target="_blank">Eagles Nest</a></li>
+    </ul>
+  </section>
 
-        const courseRoot = document.getElementById('course-list');
-        (data.courses||[]).forEach(c => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a href='${c.link}' target='_blank' rel='noopener'>${c.name}</a>`;
-          courseRoot.appendChild(li);
-        });
+  <section id="score">
+    <h2>📋 Latest Scorecard</h2>
+    <p><strong>Latest Round — Dolese Park</strong></p>
+    <p>Par 58 · Shot +3 · Personal best this month.</p>
+    <p>Date: 2025-10-15</p>
+  </section>
 
-        const sc = data.latest_scorecard || {};
-        document.getElementById('score-title').textContent = sc.title || 'Latest Round';
-        document.getElementById('score-summary').textContent = sc.summary || '';
-        document.getElementById('score-date').textContent = sc.date || '';
-        const img = document.getElementById('score-img');
-        if (sc.image){ img.src = sc.image; img.alt = sc.title || 'Scorecard'; }
-        else { img.style.display='none'; }
+  <section id="contact">
+    <h2>📫 Contact</h2>
+    <p>🥒 <a href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
+  </section>
 
-      } catch(e){
-        console.error('Failed to load disc golf data', e);
-        document.getElementById('hero-tagline').textContent = 'Could not load data/discgolf.json';
-      }
-    }
-    loadData();
-  </script>
+  <footer>
+    © 2025 Pickle Phil · Stay Crunchy 🥒
+  </footer>
 </body>
 </html>
