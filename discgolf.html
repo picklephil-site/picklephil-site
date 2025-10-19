@@ -10,7 +10,7 @@
   --scene-h: 260px;
   --disc-size: 90px;
   --basket-size: 80px;
-  --tree-size: 70px;
+  --tree-size: 80px;
   --flight-distance: 360px;
   --arc-height: 120px;
   --flight-time: 6s;
@@ -64,10 +64,10 @@ p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
 }
 .basket::after { content: "🧺"; }
 
-/* Tree on the far right, beyond the basket */
+/* Tree clearly visible on far right */
 .tree {
   position: absolute;
-  left: calc(50% + var(--flight-distance) / 2);
+  left: calc(50% + var(--flight-distance) * 0.6);
   bottom: 8px;
   width: var(--tree-size);
   height: var(--tree-size);
@@ -79,10 +79,16 @@ p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
 }
 .tree::after { content: "🌳"; }
 
+/* Tree appears & shakes when hit */
 @keyframes treePop {
-  0%, 55% { opacity: 0; }
-  60%, 80% { opacity: 1; } /* visible during impact */
-  90%, 100% { opacity: 0; }
+  0%, 55% { opacity: 0; transform: rotate(0deg); }
+  60% { opacity: 1; transform: rotate(0deg); }
+  62% { transform: rotate(10deg); }
+  64% { transform: rotate(-8deg); }
+  66% { transform: rotate(6deg); }
+  68% { transform: rotate(-4deg); }
+  70% { transform: rotate(0deg); opacity: 1; }
+  85%, 100% { opacity: 0; }
 }
 
 /* Pickle disc flight animation */
@@ -106,10 +112,10 @@ p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
   0%   { transform: translate(0, 0) rotateZ(-25deg); }
   15%  { transform: translate(calc(var(--flight-distance) * 0.25), calc(var(--arc-height) * -0.4)) rotateZ(60deg); }
   35%  { transform: translate(calc(var(--flight-distance) * 0.55), calc(var(--arc-height) * -0.9)) rotateZ(160deg); }
-  55%  { transform: translate(calc(var(--flight-distance) * 1.0), -10px) rotateZ(260deg) scale(1.1); } /* passes basket, hits tree */
+  55%  { transform: translate(calc(var(--flight-distance) * 1.05), -10px) rotateZ(260deg) scale(1.1); } /* passes basket, hits tree */
   65%  { transform: translate(calc(var(--flight-distance) * 0.85), calc(var(--arc-height) * -0.3)) rotateZ(330deg) scale(0.95); }
   80%  { transform: translate(calc(var(--flight-distance) * 0.5), 0) rotateZ(360deg); } /* bounces back */
-  85%  { transform: translate(calc(var(--flight-distance) * 0.5), 0) rotateZ(10deg); } /* lands in basket area */
+  85%  { transform: translate(calc(var(--flight-distance) * 0.5), 0) rotateZ(10deg); } /* lands in basket */
   100% { transform: translate(0, 0) rotateZ(-25deg); }
 }
 
