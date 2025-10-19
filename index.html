@@ -3,15 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pickle Phil | Welcome to the Jar</title>
-<meta name="description" content="Pickle Phil — briny joy, requests, media, and more." />
+<title>The Real Dill Phil’s Jar</title>
+<meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
 <link rel="icon" href="favicon.svg">
+
+<!-- Farmhouse-style title font -->
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
     --bg:#145a32; --bg2:#2ecc71;
     --text:#f5f5f5;
     --btn:#f5f5f5; --btnText:#145a32;
     --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
+    /* Green glass */
     --panel-a: rgba(46,204,113,.20);
     --panel-b: rgba(46,204,113,.12);
   }
@@ -39,17 +44,41 @@
   footer{margin:28px 0 10px; opacity:.85}
   @media (max-width:860px){ .grid .card{grid-column:span 12} }
 
+  /* HERO */
   .hero{width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto;}
-  .hero-wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:center;}
-  .hero h1{font-size:clamp(36px,6.2vw,72px); margin:0 0 8px; letter-spacing:.5px}
+  .hero-wrap{display:grid; grid-template-columns:1.05fr .95fr; gap:20px; align-items:center;}
+  .farmhouse{
+    font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-weight:700; letter-spacing:1px;
+    font-size: clamp(44px, 8.5vw, 96px);
+    line-height:1;
+    margin:0 0 8px;
+  }
   .hero p.lead{margin:0 0 14px; font-size:1.1rem; opacity:.95}
-  .pickle-hero{width:100%; max-width:520px; border-radius:18px; filter:drop-shadow(0 10px 25px rgba(0,0,0,.35)); will-change:transform;}
-  @keyframes groove{0%{transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg)}50%{transform:translateX(1.6%) rotate(4.5deg) skewX(1deg)}100%{transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg)}}
-  .pickle-hero.dance{transform-origin:50% 85%; animation:groove 3.6s ease-in-out infinite}
-  .pickle-dance{display:inline-block; font-size:1.3rem; margin-right:.35rem; animation:groove 1.2s ease-in-out infinite; transform-origin:50% 80%}
 
+  /* New jar image (with gentle dance) */
+  .jar-frame{
+    position:relative;
+    width:min(520px, 92vw);
+    margin-inline:auto;
+  }
+  .pickle-jar-img{
+    width:100%; height:auto; display:block;
+    filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
+    will-change:transform;
+    transform-origin:50% 80%;
+    animation:groove 3.6s ease-in-out infinite;
+  }
+  @keyframes groove{
+    0%   { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
+    50%  { transform: translateX( 1.2%) rotate( 3.2deg) skewX( 0.6deg); }
+    100% { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
+  }
+
+  /* Links (keep non-blue for readability on green) */
   a, a:visited, a:hover, a:active { color: var(--text); text-decoration:none; }
 
+  /* Hidden admin + modal */
   .admin-block{display:none} .admin-block.revealed{display:block}
   .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:50}
   .modal{background:var(--bg); border:1px solid rgba(255,255,255,.15); color:#e9f7ee; border-radius:12px; max-width:520px; padding:18px; box-shadow:var(--shadow); text-align:left}
@@ -58,23 +87,38 @@
 </style>
 </head>
 <body>
+
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-wrap">
       <div class="hero-cta">
-        <h1>Pickle Phil</h1>
+        <h1 class="farmhouse">The Real Dill Phil’s Jar</h1>
         <p class="lead">Welcome to the Jar — bringing briny joy and media magic.</p>
+
         <div>
           <a class="btn" href="https://overseerr-philina609.venom.mygiga.cloud/login" target="_blank" rel="noopener">🎬 Make a Request</a>
           <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
         </div>
+
+        <!-- Plex access note with non-blue email link -->
+        <p class="meta" style="margin:12px 0 0; font-size:1.05rem; color:#f5f5f5;">
+          🎬 Don’t have Plex access yet?
+          <a href="mailto:realdillphil@philliphinshaw.com" style="color:#f5f5f5; font-weight:700; text-decoration:underline;">Email</a>
+          me your Plex username and I’ll toss you in the brine!
+        </p>
       </div>
+
+      <!-- Big jar image (with dancing pickle baked in) -->
       <div class="hero-image">
-        <img src="pickle-phil.png" alt="Pickle Phil dancing with microphone" class="pickle-hero dance">
+        <div class="jar-frame">
+          <img src="pickle-in-jar.png" alt="Pickle Phil dancing in a glass pickle jar" class="pickle-jar-img">
+        </div>
       </div>
     </div>
   </section>
 
   <div class="wrap">
+    <!-- Verse + Guestbook link -->
     <section class="grid" aria-label="Welcome widgets">
       <article class="card card--accent" style="grid-column:span 12;">
         <h3>📖 Daily Dill-votional</h3>
@@ -133,6 +177,7 @@
       </article>
     </section>
 
+    <!-- Contact -->
     <h2 class="section-title">Contact</h2>
     <section class="grid" aria-label="Contact">
       <article class="card" style="grid-column:span 12;">
@@ -142,6 +187,7 @@
       </article>
     </section>
 
+    <!-- Hidden Admin -->
     <section id="hidden-admin" class="admin-block">
       <h2 class="section-title">Site Admin</h2>
       <section class="grid" aria-label="Site Admin">
@@ -155,6 +201,7 @@
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
+  <!-- Under-construction modal -->
   <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
       <h3 id="modal-title">Under Construction</h3>
@@ -165,12 +212,42 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
-  (function(){ const secret='pickle'; let buf=''; const admin=document.getElementById('hidden-admin'); window.addEventListener('keydown',e=>{ const k=(e.key||'').toLowerCase(); if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.classList.toggle('revealed'); buf=''; } } else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; } }); })();
+
+  // Reveal admin when typing 'pickle'
+  (function(){
+    const secret='pickle'; let buf='';
+    const admin=document.getElementById('hidden-admin');
+    window.addEventListener('keydown',e=>{
+      const k=(e.key||'').toLowerCase();
+      if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.classList.toggle('revealed'); buf=''; } }
+      else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
+    });
+  })();
+
+  // Copy helpers
   async function copyText(t){ try{ await navigator.clipboard.writeText(t); alert('Copied: '+t); }catch{ alert('Copy failed. Text: '+t); } }
   document.getElementById('copy-java').addEventListener('click',()=>copyText('mine.philliphinshaw.com:25565'));
   document.getElementById('copy-bedrock').addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
   document.getElementById('copy-email').addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
-  (async function loadVOTD(){ const txt=document.getElementById('votd-text'); const ref=document.getElementById('votd-ref'); try{ const r=await fetch('https://beta.ourmanna.com/api/v1/get/?format=json'); const j=await r.json(); const d=j.verse&&(j.verse.details||j.verse)||{}; const verse=(d.text||j.verse&&j.verse.text||'').trim(); const reference=(d.reference||j.verse&&j.verse.details&&j.verse.details.reference||'').trim(); if(verse){ txt.textContent=verse; ref.textContent=reference||''; return; } throw new Error('empty'); }catch{ const V=[{t:"For God so loved the world...",r:"John 3:16"},{t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},{t:"Trust in the LORD with all your heart...",r:"Proverbs 3:5"},{t:"I can do all things through Christ who strengthens me.",r:"Philippians 4:13"},{t:"Be strong and courageous... for the LORD your God is with you.",r:"Joshua 1:9"}]; const day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000); const pick=V[day%V.length]; txt.textContent=pick.t; ref.textContent=pick.r; } })();
+
+  // Daily Bible Verse (with fallback rotation)
+  (async function loadVOTD(){
+    const txt=document.getElementById('votd-text'); const ref=document.getElementById('votd-ref');
+    try{
+      const r=await fetch('https://beta.ourmanna.com/api/v1/get/?format=json'); const j=await r.json();
+      const d=j.verse&&(j.verse.details||j.verse)||{};
+      const verse=(d.text||j.verse&&j.verse.text||'').trim();
+      const reference=(d.reference||j.verse&&j.verse.details&&j.verse.details.reference||'').trim();
+      if(verse){ txt.textContent=verse; ref.textContent=reference||''; return; }
+      throw new Error('empty');
+    }catch{
+      const V=[{t:"For God so loved the world...",r:"John 3:16"},{t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},{t:"Trust in the LORD with all your heart...",r:"Proverbs 3:5"},{t:"I can do all things through Christ who strengthens me.",r:"Philippians 4:13"},{t:"Be strong and courageous... for the LORD your God is with you.",r:"Joshua 1:9"}];
+      const day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000); const pick=V[day%V.length];
+      txt.textContent=pick.t; ref.textContent=pick.r;
+    }
+  })();
+
+  // UC modal
   const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
   const modal=document.getElementById('modal-backdrop'), body=document.getElementById('modal-body');
   document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{body.textContent=puns[b.dataset.key]||body.textContent; modal.style.display='flex';}));
