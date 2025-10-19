@@ -1,174 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pickle Phil’s Disc Golf Adventures</title>
-  <meta name="description" content="Courses, bag, and scorecards — crisp and dill-icious." />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+
   <style>
-    :root {
-      --bg: #145a32;
-      --bg2: #2ecc71;
-      --panel: rgba(255, 255, 255, 0.15);
-      --text: #fefefe;
-      --link: #111;
-      --btn-bg: #fff;
-      --btn-text: #145a32;
-      --radius: 16px;
-      --shadow: 0 8px 24px rgba(0,0,0,.35);
+    :root{
+      --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
+      --panel-a: rgba(46,204,113,.20);
+      --panel-b: rgba(46,204,113,.12);
+      --shadow: 0 10px 35px rgba(0,0,0,.35);
+      --muted: #e3f3e6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+      background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
     }
 
-    * { box-sizing: border-box; }
+    .wrap{width:min(980px,100%); margin:0 auto; padding:18px 18px 40px}
 
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      margin: 0;
-      padding: 0;
-      color: var(--text);
-      background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
-      text-align: center;
-      min-height: 100vh;
+    /* Hero */
+    .title{font-family:"Amatic SC",system-ui; font-weight:700; letter-spacing:1px;
+      font-size:clamp(36px, 8vw, 64px); line-height:1.05; text-align:center; margin:18px 0 6px;}
+    .subtitle{max-width:760px; margin:0 auto 18px; text-align:center; opacity:.95}
+
+    /* Toolbar chips */
+    .toolbar{
+      display:flex; flex-wrap:wrap; gap:12px;
+      justify-content:center; margin:10px auto 18px;
+      padding:0 6px;
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:12px 16px; border-radius:16px;
+      background:rgba(0,0,0,.85); color:#fff; text-decoration:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.35);
+      white-space:nowrap;
+    }
+    .chip:focus{outline:2px solid #fff4}
+
+    /* Cards */
+    .card{
+      background:linear-gradient(180deg,var(--panel-a),var(--panel-b));
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px; padding:18px; box-shadow:var(--shadow);
+      margin:14px 0;
+    }
+    h2{margin:4px 0 10px}
+    h3{margin:4px 0 8px}
+    .meta{opacity:.95}
+    .list{margin:0; padding-left:18px}
+    .list li{margin:.35rem 0}
+    .badge{display:inline-block; background:rgba(0,0,0,.25); padding:2px 8px; border-radius:999px; font-size:.9rem}
+
+    /* Small devices polish */
+    @media (max-width: 540px){
+      .chip{ padding:10px 12px; font-size:.95rem; border-radius:14px; white-space:normal; }
+      .toolbar{ gap:10px; }
+      .title{ font-size: clamp(30px, 9vw, 46px); margin-bottom:8px; }
+      .subtitle{ font-size:1rem; }
+      .card{ padding:14px; border-radius:12px; }
     }
 
-    header {
-      padding: 40px 20px 10px;
-    }
-
-    header h1 {
-      font-size: clamp(32px, 5vw, 56px);
-      margin: 0;
-    }
-
-    header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
-      margin-top: 4px;
-    }
-
-    .nav {
-      margin: 20px 0 30px;
-    }
-
-    .btn {
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border: none;
-      padding: 10px 18px;
-      border-radius: var(--radius);
-      margin: 6px;
-      cursor: pointer;
-      font-weight: 700;
-      text-decoration: none;
-      box-shadow: var(--shadow);
-      transition: 0.2s;
-    }
-
-    .btn:hover {
-      filter: brightness(0.9);
-      transform: translateY(-2px);
-    }
-
-    section {
-      width: min(900px, 92%);
-      margin: 0 auto 20px;
-      text-align: left;
-      background: var(--panel);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    section h2 {
-      margin-top: 0;
-    }
-
-    a,
-    a:visited {
-      color: var(--link);
-      font-weight: 600;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    a:hover {
-      color: #000;
-      text-decoration-thickness: 2px;
-    }
-
-    footer {
-      margin: 40px 0 20px;
-      opacity: 0.8;
-      font-size: 0.9rem;
-    }
-
-    .pickle {
-      font-size: 2rem;
+    /* Safe area on notched phones */
+    @supports (padding-top: env(safe-area-inset-top)){
+      body{ padding-top: env(safe-area-inset-top); }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="pickle">🥒</div>
-    <h1>Pickle Phil’s Disc Golf Adventures</h1>
-    <p>Courses, bag, and scorecards — crisp and dill-icious.</p>
-  </header>
+  <div class="wrap">
+    <div style="text-align:center; font-size:28px; margin-top:6px">🥒</div>
+    <h1 class="title">Pickle Phil’s Disc Golf Adventures</h1>
+    <p class="subtitle">Courses, bag, and scorecards — crisp and dill-icious.</p>
 
-  <div class="nav">
-    <a href="/" class="btn">⬅️ Back</a>
-    <a href="#bag" class="btn">👜 What’s in my Bag</a>
-    <a href="#courses" class="btn">🌲 Courses</a>
-    <a href="#score" class="btn">📋 Latest Score</a>
+    <!-- WRAPS ON MOBILE -->
+    <nav class="toolbar" aria-label="Disc golf quick actions">
+      <a class="chip" href="/"><span>⬅</span> Back</a>
+      <a class="chip" href="#bag">👜 What’s in my Bag</a>
+      <a class="chip" href="#courses">🌲 Courses</a>
+      <a class="chip" href="#score">📋 Latest Score</a>
+    </nav>
+
+    <!-- What's in my Bag -->
+    <section id="bag" class="card" aria-labelledby="bag-title">
+      <h2 id="bag-title">What’s in my Bag</h2>
+
+      <h3>🥏 Putter Pocket</h3>
+      <ol class="list">
+        <li><strong>Shogun</strong> — Main putter</li>
+        <li><strong>Aviar</strong> — Backup putter</li>
+      </ol>
+
+      <h3>🎯 Main Compartment <span class="badge">(left → right)</span></h3>
+      <ol class="list" start="3">
+        <li><strong>Stingray (Mid Range)</strong> — Understable mid (turnovers / hyzer flips)</li>
+        <li><strong>Mako3 (Mid Range)</strong> — Dead-straight mid</li>
+        <li><strong>Truth (Mid Range)</strong> — Stable mid with gentle fade</li>
+        <li><strong>Escape (Driver)</strong> — Neutral fairway driver</li>
+        <li><strong>Shryke (Distance Driver)</strong> — Glidey distance (tailwinds, open holes)</li>
+        <li><strong>Destroyer (Distance Driver)</strong> — Stable distance (headwinds, flex lines)</li>
+        <li><strong>TDSA (Utility)</strong> — Mystery Innova, utility slot</li>
+        <li><strong>Thunderbird (OS Fairway)</strong> — Reliable fade, wind fighter</li>
+        <li><strong>F1 (Beefy Fairway)</strong> — Skips, forehand, headwind control</li>
+      </ol>
+    </section>
+
+    <!-- Courses -->
+    <section id="courses" class="card" aria-labelledby="courses-title">
+      <h2 id="courses-title">Courses I’ve Been Playing</h2>
+      <ul class="list">
+        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Dolese Park DGC (OKC)</a></li>
+        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Mitch Park</a></li>
+        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Eagles Nest</a></li>
+      </ul>
+    </section>
+
+    <!-- Latest Score -->
+    <section id="score" class="card" aria-labelledby="score-title">
+      <h2 id="score-title">Latest Scorecard</h2>
+      <p class="meta">Latest round — <strong>Dolese Park</strong></p>
+      <div class="card" style="background:rgba(0,0,0,.15); box-shadow:none; margin:10px 0 0">
+        <p class="meta"><strong>Par 58</strong> · <strong>Shot +3</strong> · Personal best this month.</p>
+        <p class="meta">Date: <time datetime="2025-10-15">2025-10-15</time></p>
+      </div>
+    </section>
   </div>
-
-  <section id="bag">
-  <h2>👜 What's in my Bag</h2>
-
-  <h3>🥏 Putter Pocket</h3>
-  <ol>
-    <li><strong>Shogun</strong> — Main putter</li>
-    <li><strong>Aviar</strong> — backup Putter</li>
-  </ol>
-
-  <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 1rem 0;">
-
-  <h3>🎯 Main Compartment <small>(left → right)</small></h3>
-  <ol start="3">
-    <li><strong>Stingray (Mid Range) </strong> — Understable Mid Range(turnovers / hyzer flips)</li>
-    <li><strong>Mako3(Mid Range) </strong> — Dead-straight Mid Range</li>
-    <li><strong>Truth (Mid Range) </strong> — Stable Mid Range with gentle fade</li>
-    <li><strong>Escape (Driver) </strong> — Neutral fairway Driver</li>
-    <li><strong>Shryke (Driver) </strong> — Glidey distance Driver (tailwinds, open holes)</li>
-    <li><strong>Destroyer (Driver) </strong> — Stable distance Driver (headwinds, flex lines)</li>
-    <li><strong>TDSA Disc</strong> — Mystery Innova, utility slot</li>
-    <li><strong>Thunderbird (Driver) </strong> — Overstable Fairway Driver (wind, reliable fade)</li>
-    <li><strong>F1 (Driver)</strong> — Beefy Fairway Driver (skips, forehand, headwind control)</li>
-  </ol>
-</section>
-
-
-  <section id="courses">
-    <h2>🌲 Courses I've Been Playing</h2>
-    <ul>
-      <li><a href="https://www.discgolfscene.com/courses/Dolese_Park_DGC_OKC" target="_blank">Dolese Park DGC (OKC)</a></li>
-      <li><a href="https://www.discgolfscene.com/courses/Mitch_Park" target="_blank">Mitch Park</a></li>
-      <li><a href="https://www.discgolfscene.com/courses/Eagles_Nest_DGC" target="_blank">Eagles Nest</a></li>
-    </ul>
-  </section>
-
-  <section id="score">
-    <h2>📋 Latest Scorecard</h2>
-    <p><strong>Latest Round — Dolese Park</strong></p>
-    <p>Par 58 · Shot +3 · Personal best this month.</p>
-    <p>Date: 2025-10-15</p>
-  </section>
-
-  <section id="contact">
-    <h2>📫 Contact</h2>
-    <p>🥒 <a href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
-  </section>
-
-  <footer>
-    © 2025 Pickle Phil · Stay Crunchy 🥒
-  </footer>
 </body>
 </html>
