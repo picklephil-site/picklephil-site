@@ -6,79 +6,56 @@
 <title>The Real Dill Phil’s Jar</title>
 <meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
 <link rel="icon" href="favicon.svg">
-
-<!-- Farmhouse-style title font -->
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --bg:#145a32; --bg2:#2ecc71;
-    --text:#f5f5f5;
+    --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
     --btn:#f5f5f5; --btnText:#145a32;
     --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
-    /* Green glass */
-    --panel-a: rgba(46,204,113,.20);
-    --panel-b: rgba(46,204,113,.12);
+    --panel-a: rgba(46,204,113,.20); --panel-b: rgba(46,204,113,.12);
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+  body{ margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
     background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
-    min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center;
-  }
+    min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center; }
   .wrap{width:min(1120px,100%); padding:22px}
   .btn{color:var(--btnText); background:var(--btn); text-decoration:none; padding:12px 18px; border-radius:12px; font-weight:700; transition:.2s; margin:6px; display:inline-block; box-shadow:var(--shadow)}
   .btn:hover{filter:brightness(.95); transform:translateY(-1px)}
   .section-title{margin:28px 0 10px; font-size:1.6rem}
   .grid{display:grid; gap:16px; grid-template-columns:repeat(12,1fr); text-align:left}
-  .card{
-    grid-column:span 6;
-    background:linear-gradient(180deg,var(--panel-a),var(--panel-b));
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:var(--radius);
-    padding:18px; box-shadow:var(--shadow)
-  }
-  .card--accent{ background:linear-gradient(180deg, rgba(46,204,113,.26), rgba(46,204,113,.16)); }
+  .card{ grid-column:span 12; background:linear-gradient(180deg,var(--panel-a),var(--panel-b));
+    border:1px solid rgba(255,255,255,.18); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow) }
   .card h3{margin:2px 0 6px}
   .meta{opacity:.95}
   footer{margin:28px 0 10px; opacity:.85}
+
   @media (max-width:860px){ .grid .card{grid-column:span 12} }
 
   /* HERO */
   .hero{width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto;}
   .hero-wrap{display:grid; grid-template-columns:1.05fr .95fr; gap:20px; align-items:center;}
-  .farmhouse{
-    font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    font-weight:700; letter-spacing:1px;
-    font-size: clamp(44px, 8.5vw, 96px);
-    line-height:1;
-    margin:0 0 8px;
-  }
+  .farmhouse{ font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight:700; letter-spacing:1px; font-size:clamp(44px, 8.5vw, 96px); line-height:1; margin:0 0 8px; }
   .hero p.lead{margin:0 0 14px; font-size:1.1rem; opacity:.95}
 
-  /* New jar image (with gentle dance) */
-  .jar-frame{
-    position:relative;
-    width:min(520px, 92vw);
-    margin-inline:auto;
-  }
-  .pickle-jar-img{
-    width:100%; height:auto; display:block;
-    filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
-    will-change:transform;
-    transform-origin:50% 80%;
-    animation:groove 3.6s ease-in-out infinite;
-  }
-  @keyframes groove{
-    0%   { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
-    50%  { transform: translateX( 1.2%) rotate( 3.2deg) skewX( 0.6deg); }
-    100% { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
-  }
+  .jar-frame{ position:relative; width:min(520px, 92vw); margin-inline:auto; }
+  .pickle-jar-img{ width:100%; height:auto; display:block; filter:drop-shadow(0 10px 25px rgba(0,0,0,.35)); transform-origin:50% 80%; animation:groove 3.6s ease-in-out infinite; }
+  @keyframes groove{ 0%{transform:translateX(-1.2%) rotate(-3.2deg) skewX(-.6deg)} 50%{transform:translateX(1.2%) rotate(3.2deg) skewX(.6deg)} 100%{transform:translateX(-1.2%) rotate(-3.2deg) skewX(-.6deg)} }
 
-  /* Links (keep non-blue for readability on green) */
+  /* Now Playing styles */
+  .nowplaying{display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap}
+  .np-item{display:flex; gap:14px; align-items:flex-start; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px}
+  .np-poster{width:92px; height:138px; border-radius:8px; object-fit:cover; box-shadow:var(--shadow)}
+  .np-meta{display:flex; flex-direction:column}
+  .np-title{font-weight:700}
+  .np-sub{opacity:.9}
+  .np-user{opacity:.95; margin-top:4px}
+  .np-progress{height:6px; background:rgba(255,255,255,.22); border-radius:999px; overflow:hidden; margin-top:8px}
+  .np-bar{height:100%; background:#e9f7ee}
+  .np-empty{opacity:.9}
+
   a, a:visited, a:hover, a:active { color: var(--text); text-decoration:none; }
 
-  /* Hidden admin + modal */
   .admin-block{display:none} .admin-block.revealed{display:block}
   .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:50}
   .modal{background:var(--bg); border:1px solid rgba(255,255,255,.15); color:#e9f7ee; border-radius:12px; max-width:520px; padding:18px; box-shadow:var(--shadow); text-align:left}
@@ -100,15 +77,13 @@
           <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
         </div>
 
-        <!-- Plex access note with non-blue email link -->
         <p class="meta" style="margin:12px 0 0; font-size:1.05rem; color:#f5f5f5;">
-          🎬 Don’t have access to my Plex yet?
+          🎬 Don’t have Plex access yet?
           <a href="mailto:realdillphil@philliphinshaw.com" style="color:#f5f5f5; font-weight:700; text-decoration:underline;">Email</a>
           me your Plex username and I’ll toss you in the brine!
         </p>
       </div>
 
-      <!-- Big jar image (with dancing pickle baked in) -->
       <div class="hero-image">
         <div class="jar-frame">
           <img src="pickle-in-jar.png" alt="Pickle Phil dancing in a glass pickle jar" class="pickle-jar-img">
@@ -118,15 +93,26 @@
   </section>
 
   <div class="wrap">
-    <!-- Verse + Guestbook link -->
+
+    <!-- Now Streaming on Plex -->
+    <h2 class="section-title">Now Streaming on Plex</h2>
+    <section class="grid" aria-label="Now Streaming">
+      <article class="card">
+        <div id="plex-nowplaying" class="nowplaying">
+          <div class="np-empty meta">Nobody’s in the jar right now. 🥒</div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Verse + Guestbook -->
     <section class="grid" aria-label="Welcome widgets">
-      <article class="card card--accent" style="grid-column:span 12;">
+      <article class="card" style="background:linear-gradient(180deg, rgba(46,204,113,.26), rgba(46,204,113,.16));">
         <h3>📖 Daily Dill-votional</h3>
         <p id="votd-text" class="meta">Loading verse…</p>
         <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
       </article>
 
-      <article class="card" style="grid-column:span 12;">
+      <article class="card">
         <h3>📝 Brine &amp; Sign</h3>
         <p class="meta">Swing by the guestbook and leave your crunchy mark in the jar.</p>
         <p><a class="btn" href="/guestbook.html">✍️ Sign the Jar</a></p>
@@ -135,6 +121,7 @@
 
     <p>🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update!</p>
 
+    <!-- Groups & Portals (unchanged) -->
     <h2 class="section-title">Groups &amp; Portals</h2>
     <section id="groups" class="grid" aria-label="Groups &amp; Portals">
       <article class="card">
@@ -153,7 +140,7 @@
       </article>
 
       <article class="card">
-        <h3><span class="pickle-dance" aria-hidden="true">🥒</span> PickleGrams</h3>
+        <h3>🥒 PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
         <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
       </article>
@@ -180,7 +167,7 @@
     <!-- Contact -->
     <h2 class="section-title">Contact</h2>
     <section class="grid" aria-label="Contact">
-      <article class="card" style="grid-column:span 12;">
+      <article class="card">
         <h3>📧 Email</h3>
         <p class="meta">🥒 <a href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
         <p><button id="copy-email" class="btn">Copy Email</button></p>
@@ -201,7 +188,7 @@
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <!-- Under-construction modal -->
+  <!-- UC modal -->
   <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
       <h3 id="modal-title">Under Construction</h3>
@@ -214,23 +201,19 @@
   document.getElementById('year').textContent = new Date().getFullYear();
 
   // Reveal admin when typing 'pickle'
-  (function(){
-    const secret='pickle'; let buf='';
-    const admin=document.getElementById('hidden-admin');
-    window.addEventListener('keydown',e=>{
-      const k=(e.key||'').toLowerCase();
+  (function(){ const secret='pickle'; let buf=''; const admin=document.getElementById('hidden-admin');
+    window.addEventListener('keydown',e=>{ const k=(e.key||'').toLowerCase();
       if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.classList.toggle('revealed'); buf=''; } }
       else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
-    });
-  })();
+    }); })();
 
   // Copy helpers
   async function copyText(t){ try{ await navigator.clipboard.writeText(t); alert('Copied: '+t); }catch{ alert('Copy failed. Text: '+t); } }
-  document.getElementById('copy-java').addEventListener('click',()=>copyText('mine.philliphinshaw.com:25565'));
-  document.getElementById('copy-bedrock').addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
-  document.getElementById('copy-email').addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
+  document.getElementById('copy-java')?.addEventListener('click',()=>copyText('mine.philliphinshaw.com:25565'));
+  document.getElementById('copy-bedrock')?.addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
+  document.getElementById('copy-email')?.addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
 
-  // Daily Bible Verse (with fallback rotation)
+  // Daily Verse (with fallback)
   (async function loadVOTD(){
     const txt=document.getElementById('votd-text'); const ref=document.getElementById('votd-ref');
     try{
@@ -246,6 +229,43 @@
       txt.textContent=pick.t; ref.textContent=pick.r;
     }
   })();
+
+  // Now Playing (pulls from Cloudflare Function)
+  function escapeHtml(t){ return (t||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;'}[c])); }
+  async function loadNowPlaying(){
+    const root=document.getElementById('plex-nowplaying');
+    try{
+      const r=await fetch('/api/nowplaying',{cache:'no-store'});
+      const {sessions}=await r.json();
+      root.innerHTML='';
+      if(!sessions||!sessions.length){
+        root.innerHTML='<div class="np-empty meta">Nobody’s in the jar right now. 🥒</div>';
+        return;
+      }
+      sessions.forEach(s=>{
+        const sub=[s.subtitle,s.year].filter(Boolean).join(' • ');
+        const poster=s.thumb?`/api/thumb?path=${encodeURIComponent(s.thumb)}`:'';
+        const pct=Math.min(100,Math.max(0,Number(s.progress||0)));
+        const who=s.user?`👤 ${escapeHtml(s.user)}`:'';
+        const state=s.state?` • ${escapeHtml(s.state)}`:'';
+        const div=document.createElement('div');
+        div.className='np-item';
+        div.innerHTML=`
+          ${poster?`<img class="np-poster" src="${poster}" alt="">`:''}
+          <div class="np-meta">
+            <div class="np-title">${escapeHtml(s.title||'(Untitled)')}</div>
+            <div class="np-sub">${escapeHtml(sub)}</div>
+            <div class="np-user meta">${who}${state}</div>
+            <div class="np-progress"><div class="np-bar" style="width:${pct}%"></div></div>
+          </div>`;
+        root.appendChild(div);
+      });
+    }catch(e){
+      root.innerHTML='<div class="np-empty meta">Can’t reach the jar right now.</div>';
+    }
+  }
+  loadNowPlaying();
+  setInterval(loadNowPlaying, 20000);
 
   // UC modal
   const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
