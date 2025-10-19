@@ -1,195 +1,214 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pickle Phil’s Disc Golf Adventures</title>
-  <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pickle Phil’s Disc Golf Adventures</title>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
-      --panel-a: rgba(46,204,113,.20);
-      --panel-b: rgba(46,204,113,.12);
-      --shadow: 0 10px 35px rgba(0,0,0,.35);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
-      background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
-      overflow-x:hidden;
-    }
-    .wrap{width:min(980px,100%); margin:0 auto; padding:18px 18px 40px}
-    .title{font-family:"Amatic SC",system-ui; font-weight:700; letter-spacing:1px;
-      font-size:clamp(36px,8vw,64px); line-height:1.05; text-align:center; margin:18px 0 6px;}
-    .subtitle{max-width:760px; margin:0 auto 18px; text-align:center; opacity:.95}
+<style>
+:root{
+  /* Tweak these to fine-tune landing/alignment */
+  --scene-height: 180px;      /* vertical space for the animation block */
+  --pickle-size: 88px;        /* pickle visual size */
+  --basket-size: 72px;        /* basket visual size */
+  --basket-right: 14px;       /* how far the basket sits from the right edge */
+  --basket-bottom: 8px;       /* how high the basket sits from the bottom */
+  --arc-x: 140px;             /* horizontal travel of the pickle */
+  --arc-y: 54px;              /* peak of the arc (positive is upward) */
 
-    /* toolbar chips */
-    .toolbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:10px auto 18px;padding:0 6px;}
-    .chip{display:inline-flex;align-items:center;gap:.5rem;padding:12px 16px;border-radius:16px;
-      background:rgba(0,0,0,.85);color:#fff;text-decoration:none;box-shadow:0 10px 24px rgba(0,0,0,.35);}
-    .chip:focus{outline:2px solid #fff4}
+  --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
+  --panelA: rgba(46,204,113,.22); --panelB: rgba(46,204,113,.12);
+  --radius:16px; --shadow:0 10px 35px rgba(0,0,0,.35);
+}
 
-    /* cards */
-    .card{background:linear-gradient(180deg,var(--panel-a),var(--panel-b));
-      border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:18px;
-      box-shadow:var(--shadow);margin:14px 0;}
-    h2{margin:4px 0 10px}
-    h3{margin:4px 0 8px}
-    .meta{opacity:.95}
-    .list{margin:0;padding-left:18px}
-    .list li{margin:.35rem 0}
-    .badge{display:inline-block;background:rgba(0,0,0,.25);padding:2px 8px;border-radius:999px;font-size:.9rem}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--text);
+  background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
 
-    /* mobile polish */
-    @media (max-width:540px){
-      .chip{padding:10px 12px;font-size:.95rem;border-radius:14px;white-space:normal;}
-      .toolbar{gap:10px;}
-      .title{font-size:clamp(30px,9vw,46px);margin-bottom:8px;}
-      .subtitle{font-size:1rem;}
-      .card{padding:14px;border-radius:12px;}
-    }
+.wrap{width:min(1100px,100%); margin:0 auto; padding:20px 18px}
 
-    /* animations */
-    @keyframes pickleWiggle {
-      0%,100%{transform:rotate(0deg);}
-      25%{transform:rotate(-8deg);}
-      50%{transform:rotate(8deg);}
-      75%{transform:rotate(-5deg);}
-    }
-    #pickle-hero{
-      display:block;
-      animation:pickleWiggle 2.5s ease-in-out infinite;
-      transform-origin:center bottom;
-      text-align:center;
-      font-size:64px;
-      margin-top:16px;
-    }
+/* ---------- HERO ---------- */
+.hero{padding-top:16px}
+.title{
+  text-align:center;
+  margin-top:8px;
+}
+.title h1{
+  font-family:"Amatic SC", system-ui, sans-serif;
+  font-size: clamp(40px, 7.5vw, 80px);
+  line-height:1.05;
+  margin:4px 0 8px;
+}
+.title p{ margin:0 0 16px; opacity:.95 }
 
-    /* Disc realistic glide — arc to right */
-    @keyframes discGlide {
-      0%   { transform: translate(-12vw, 0vh) rotate(0deg); opacity:0; }
-      10%  { opacity:1; }
-      40%  { transform: translate(40vw, -7vh) rotate(8deg);  opacity:1; }
-      70%  { transform: translate(82vw, 4vh) rotate(-10deg); opacity:1; }
-      87%  { transform: translate(92vw, 0vh) rotate(-15deg); opacity:1; } /* over basket */
-      100% { transform: translate(92vw, 5vh) rotate(-18deg); opacity:0; }  /* drops in */
-    }
-    #flying-disc {
-      position:fixed;
-      top:14vh; left:-100px;
-      font-size:2.5rem;
-      opacity:0;
-      pointer-events:none;
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
-      animation: discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) 3s forwards;
-    }
+.navbtns{display:flex; gap:12px; flex-wrap:wrap; justify-content:center}
+.btn{
+  background:#f5f5f5; color:#145a32; font-weight:700; text-decoration:none;
+  padding:10px 16px; border-radius:12px; box-shadow:var(--shadow);
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn:hover{filter:brightness(.95); transform:translateY(-1px)}
 
-    /* 🧺 Basket emoji on the right */
-    #basket-emoji{
-      position:fixed;
-      top:16vh; right:5vw;
-      font-size:64px;
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
-      transform-origin: center bottom;
-    }
-    @keyframes basketJiggle {
-      0% { transform: translateY(0) rotate(0deg) scale(1); }
-      20%{ transform: translateY(2px) rotate(-2deg) scale(1.05); }
-      40%{ transform: translateY(-1px) rotate(1.5deg) scale(1.03); }
-      60%{ transform: translateY(1px) rotate(-1deg) scale(1.02); }
-      80%{ transform: translateY(-1px) rotate(.5deg) scale(1.01); }
-      100%{ transform: translateY(0) rotate(0deg) scale(1); }
-    }
-    .jiggle{ animation: basketJiggle .6s ease-in-out; }
+/* ---------- SCENE (pickle + basket) ---------- */
+.scene{
+  height:var(--scene-height);
+  position:relative;
+  max-width:720px;
+  margin:0 auto 6px;
+  pointer-events:none;       /* don’t block taps */
+}
 
-    @supports (padding-top: env(safe-area-inset-top)){
-      body{padding-top:env(safe-area-inset-top);}
-    }
-  </style>
+/* Basket (right/bottom) */
+.basket{
+  position:absolute; right:var(--basket-right); bottom:var(--basket-bottom);
+  width:var(--basket-size); height:var(--basket-size);
+  display:grid; place-items:center; font-size:calc(var(--basket-size) * .9);
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.35));
+}
+.basket.use-image{ background-size:contain; background-repeat:no-repeat; background-position:center }
+.basket:not(.use-image)::after{ content:"🧺"; }
+
+/* Pickle starts left/mid, travels to basket on an arc */
+.pickle{
+  position:absolute; left:12px; bottom:calc(var(--basket-bottom) + 6px);
+  width:var(--pickle-size); height:var(--pickle-size);
+  display:grid; place-items:center; font-size:calc(var(--pickle-size) * .9);
+  transform-origin:center;
+  animation: arc 3.2s ease-in-out infinite;
+  filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
+}
+.pickle.use-image{ background-size:contain; background-repeat:no-repeat; background-position:center }
+.pickle:not(.use-image)::after{ content:"🥒"; }
+
+/* Arc path: left → up & over → settle into basket → reset */
+@keyframes arc{
+  0%   { transform: translate(0, 0) rotate(-15deg); }
+  35%  { transform: translate(calc(var(--arc-x)*.55), calc(var(--arc-y)*-1)) rotate(10deg); }
+  55%  { transform: translate(calc(var(--arc-x)*.92), -6px) rotate(4deg); }   /* over rim */
+  62%  { transform: translate(var(--arc-x), 0) rotate(0deg); }                /* “in basket” */
+  100% { transform: translate(0, 0) rotate(-15deg); }
+}
+
+/* Reduced motion: hold the pickle “in” the basket */
+@media (prefers-reduced-motion: reduce){
+  .pickle{ animation:none; transform: translate(var(--arc-x), 0); }
+}
+
+/* ---------- PANELS ---------- */
+.section-title{ margin:26px 0 10px; font-size:1.6rem; text-align:center }
+.card{
+  background:linear-gradient(180deg,var(--panelA),var(--panelB));
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--radius); padding:18px; box-shadow:var(--shadow);
+  margin:10px auto;
+}
+.card h3{ margin:2px 0 8px }
+.meta{ opacity:.95 }
+ul.clean{ margin:0; padding-left:1.1rem }
+.kicker{ display:inline-block; background:rgba(0,0,0,.18); padding:.2rem .6rem; border-radius:999px; font-size:.9rem }
+
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;}
+</style>
 </head>
-
 <body>
-  <!-- Centered wiggle pickle -->
-  <div id="pickle-hero">🥒</div>
+<div class="wrap">
 
-  <!-- Flying disc -->
-  <div id="flying-disc">🥏</div>
-
-  <!-- The comedy "basket" -->
-  <div id="basket-emoji" aria-hidden="true">🧺</div>
-
-  <div class="wrap">
-    <h1 class="title">Pickle Phil’s Disc Golf Adventures</h1>
-    <p class="subtitle">Courses, bag, and scorecards — crisp and dill-icious.</p>
-
-    <nav class="toolbar" aria-label="Disc golf quick actions">
-      <a class="chip" href="/"><span>⬅</span> Back</a>
-      <a class="chip" href="#bag">👜 What’s in my Bag</a>
-      <a class="chip" href="#courses">🌲 Courses</a>
-      <a class="chip" href="#score">📋 Latest Score</a>
-    </nav>
-
-    <section id="bag" class="card">
-      <h2>What’s in my Bag</h2>
-      <h3>🥏 Putter Pocket</h3>
-      <ol class="list">
-        <li><strong>Shogun</strong> — Main putter</li>
-        <li><strong>Aviar</strong> — Backup putter</li>
-      </ol>
-      <h3>🎯 Main Compartment <span class="badge">(left → right)</span></h3>
-      <ol class="list" start="3">
-        <li><strong>Stingray</strong> — Understable mid (turnovers / hyzer flips)</li>
-        <li><strong>Mako3</strong> — Dead-straight mid</li>
-        <li><strong>Truth</strong> — Stable mid with gentle fade</li>
-        <li><strong>Escape</strong> — Neutral fairway driver</li>
-        <li><strong>Shryke</strong> — Glidey distance driver</li>
-        <li><strong>Destroyer</strong> — Stable distance driver</li>
-        <li><strong>TDSA</strong> — Mystery Innova, utility slot</li>
-        <li><strong>Thunderbird</strong> — Overstable fairway</li>
-        <li><strong>F1</strong> — Beefy fairway (skips, forehand, headwind)</li>
-      </ol>
-    </section>
-
-    <section id="courses" class="card">
-      <h2>Courses I’ve Been Playing</h2>
-      <ul class="list">
-        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Dolese Park DGC (OKC)</a></li>
-        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Mitch Park</a></li>
-        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Eagles Nest</a></li>
-      </ul>
-    </section>
-
-    <section id="score" class="card">
-      <h2>Latest Scorecard</h2>
-      <p class="meta">Latest round — <strong>Dolese Park</strong></p>
-      <div class="card" style="background:rgba(0,0,0,.15); box-shadow:none; margin:10px 0 0">
-        <p class="meta"><strong>Par 58</strong> · <strong>Shot +3</strong> · Personal best this month.</p>
-        <p class="meta">Date: <time datetime="2025-10-15">2025-10-15</time></p>
-      </div>
-    </section>
+  <!-- animation scene (sits ABOVE the title and no longer overlaps text) -->
+  <div class="scene" aria-hidden="true">
+    <div class="pickle" id="pickle"></div>
+    <div class="basket" id="basket"></div>
   </div>
 
-  <script>
-    // Repeat the flight every 15 seconds and jiggle the basket on "catch"
-    function fly(){
-      const disc = document.getElementById('flying-disc');
-      const basket = document.getElementById('basket-emoji');
-      // restart disc animation
-      disc.style.animation = 'none';
-      void disc.offsetWidth;
-      disc.style.animation = 'discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) forwards';
-      // trigger basket jiggle near landing
-      setTimeout(()=> {
-        basket.classList.add('jiggle');
-        setTimeout(()=> basket.classList.remove('jiggle'), 700);
-      }, 3600); // just before the disc drops in
-    }
+  <header class="hero">
+    <div class="title">
+      <h1>Pickle Phil’s Disc Golf Adventures</h1>
+      <p>Courses, bag, and scorecards — crisp and dill-icious.</p>
 
-    // initial and interval
-    setTimeout(fly, 2000);
-    setInterval(fly, 15000);
-  </script>
+      <div class="navbtns">
+        <a class="btn" href="/">← Back</a>
+        <a class="btn" href="#bag">👜 What’s in my Bag</a>
+        <a class="btn" href="#courses">🌲 Courses</a>
+        <a class="btn" href="#score">🧾 Latest Score</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- What's in my Bag -->
+  <section id="bag" class="card">
+    <h2>What’s in my Bag</h2>
+
+    <h3>🥏 Putter Pocket</h3>
+    <ol class="clean">
+      <li><strong>Shogun</strong> — Main putter</li>
+      <li><strong>Aviar</strong> — Backup putter</li>
+    </ol>
+
+    <h3>🎯 Main Compartment <span class="kicker">(left → right)</span></h3>
+    <ol class="clean" start="3">
+      <li><strong>Stingray</strong> — Understable mid (turnovers / hyzer flips)</li>
+      <li><strong>Mako3</strong> — Dead-straight mid</li>
+      <li><strong>Truth</strong> — Stable mid with gentle fade</li>
+      <li><strong>Escape</strong> — Neutral fairway driver</li>
+      <li><strong>Shryke</strong> — Glidey distance driver</li>
+      <li><strong>Destroyer</strong> — Stable distance driver</li>
+      <li><strong>TDSA disc</strong> — Mystery Innova, utility slot</li>
+      <li><strong>Thunderbird</strong> — Overstable fairway (reliable fade)</li>
+      <li><strong>F1</strong> — Beefy fairway (skips, FH, headwind control)</li>
+    </ol>
+  </section>
+
+  <!-- Courses -->
+  <section id="courses" class="card">
+    <h2>Courses I’ve Been Playing</h2>
+    <ul class="clean">
+      <li><a href="https://www.google.com/maps/search/Dolese+Park+DGC" target="_blank" rel="noopener">Dolese Park DGC (OKC)</a></li>
+      <li><a href="https://www.google.com/maps/search/Mitch+Park+Disc+Golf" target="_blank" rel="noopener">Mitch Park</a></li>
+      <li><a href="https://www.google.com/maps/search/Eagles+Nest+Disc+Golf" target="_blank" rel="noopener">Eagles Nest</a></li>
+    </ul>
+  </section>
+
+  <!-- Latest Score -->
+  <section id="score" class="card">
+    <h2>Latest Scorecard</h2>
+    <p class="meta"><strong>Latest Round —</strong> Dolese Park</p>
+    <div class="card" style="margin-top:10px">
+      <div class="meta"><strong>Par 58</strong> · <strong>Shot +3</strong> · Personal best this month.</div>
+      <div class="meta">Date: <span class="mono">2025-10-15</span></div>
+    </div>
+  </section>
+
+  <p class="meta" style="text-align:center; margin:24px 0 10px;">© <span id="year"></span> Pickle Phil · Stay crunchy 🥒</p>
+</div>
+
+<script>
+  // Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // OPTIONAL: use image files if present. If they exist at /img/pickle.png and /img/basket.png,
+  // we’ll swap the emoji for images automatically.
+  (async () => {
+    function exists(url){ return fetch(url, {method:'HEAD'}).then(r=>r.ok).catch(()=>false); }
+    const pickle = document.getElementById('pickle');
+    const basket = document.getElementById('basket');
+
+    const pickleUrl = '/img/pickle.png';   // change path if needed
+    const basketUrl = '/img/basket.png';   // change path if needed
+
+    try{
+      if (await exists(pickleUrl)) {
+        pickle.classList.add('use-image');
+        pickle.style.backgroundImage = `url(${pickleUrl})`;
+      }
+      if (await exists(basketUrl)) {
+        basket.classList.add('use-image');
+        basket.style.backgroundImage = `url(${basketUrl})`;
+      }
+    }catch{}
+  })();
+</script>
 </body>
 </html>
