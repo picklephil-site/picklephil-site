@@ -85,7 +85,10 @@ p{font-size:1.1rem;max-width:760px;margin:0 auto 1rem}
   font-size:calc(var(--disc-size)*.9);
   transform-origin:center;
   filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
-  animation:flyBehindTree var(--flight-time) cubic-bezier(.44,.03,.25,1) infinite;
+  /* Add the fade animation alongside the flight animation */
+  animation:
+    flyBehindTree var(--flight-time) cubic-bezier(.44,.03,.25,1) infinite,
+    fadeOnLanding var(--flight-time) linear infinite;
   z-index:1;
 }
 .disc::after{ content:"🥒"; }
@@ -101,6 +104,21 @@ p{font-size:1.1rem;max-width:760px;margin:0 auto 1rem}
   78%  { transform:translate(var(--flight-distance), 0) rotateZ(5deg); } /* in basket */
   86%  { transform:translate(var(--flight-distance), 0) rotateZ(5deg); } /* hold briefly */
   100% { transform:translate(0,0) rotateZ(-25deg); } /* reset */
+}
+
+/* NEW: Fade out as it lands, stay invisible during reset, reappear at next loop */
+@keyframes fadeOnLanding{
+  0%, 76%  { opacity: 1; }
+  80%      { opacity: .6; }
+  84%      { opacity: .25; }
+  86%, 98% { opacity: 0; }  /* invisible while it resets to the start */
+  100%     { opacity: 1; }
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce){
+  .disc { animation: none !important; opacity: 1 !important; }
+  .tree { animation: none !important; opacity: 1 !important; }
 }
 
 /* ---------- CONTENT ---------- */
