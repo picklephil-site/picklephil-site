@@ -23,16 +23,16 @@
       --bg2: #2ecc71;
       --panel: rgba(255,255,255,.06);
       --text: #f5f5f5;
-      --muted: #e3f3e6;
       --btn: #f5f5f5;
       --btnText: #145a32;
       --radius: 14px;
       --shadow: 0 10px 35px rgba(0,0,0,.35);
 
       /* Hero jar */
-      --jar-size: clamp(140px, 22vw, 220px);
-      --jar-tilt-deg: 6deg;
-      --jar-tilt-speed: 4.5s;
+      --jar-size: clamp(140px, 22vw, 220px);  /* static size */
+      --jar-tilt-deg: 6deg;                   /* tilt amount */
+      --jar-bob: 8px;                         /* bob distance */
+      --jar-dance-speed: 3.8s;                /* dance speed */
     }
     *{box-sizing:border-box}
     body {
@@ -59,19 +59,25 @@
       margin: 0;
       font-size: clamp(36px, 4.5vw, 56px);
     }
+
+    /* Tilt-and-bob dancing jar (static size) */
     .pickle-jar {
       width: var(--jar-size);
       height: var(--jar-size);
       background: center / contain no-repeat url('/img/pickle-in-jar.png');
-      animation: jarTilt var(--jar-tilt-speed) ease-in-out infinite;
+      animation: jarDance var(--jar-dance-speed) ease-in-out infinite;
       transform-origin: 50% 85%;
       filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
+      will-change: transform;
     }
-    @keyframes jarTilt {
-      0%   { transform: rotate(var(--jar-tilt-deg)); }
-      50%  { transform: rotate(calc(var(--jar-tilt-deg) * -1)); }
-      100% { transform: rotate(var(--jar-tilt-deg)); }
+    @keyframes jarDance {
+      0%   { transform: translateY(0) rotate(var(--jar-tilt-deg)); }
+      25%  { transform: translateY(calc(var(--jar-bob) * -1)) rotate(calc(var(--jar-tilt-deg) * -0.7)); }
+      50%  { transform: translateY(0) rotate(calc(var(--jar-tilt-deg) * -1)); }
+      75%  { transform: translateY(var(--jar-bob)) rotate(calc(var(--jar-tilt-deg) * 0.7)); }
+      100% { transform: translateY(0) rotate(var(--jar-tilt-deg)); }
     }
+
     @media (max-width: 700px){
       .hero { grid-template-columns: 1fr; justify-items: center; text-align:center; }
     }
@@ -134,7 +140,7 @@
 
         <!-- Plex access note, non-blue email link with pickle -->
         <p style="margin:.25rem 0 0;">
-          Don’t have access to Plex? <span>🥒</span>
+          Don’t have access to Plex? <span aria-hidden="true">🥒</span>
           <a class="muted-link" href="mailto:realdillphil@philliphinshaw.com">Email</a>
           me your Plex username and I’ll hook you up.
         </p>
@@ -149,7 +155,7 @@
         <div class="verse" id="daily-verse" aria-live="polite"></div>
       </div>
 
-      <!-- Jar image (place your asset at /img/pickle-in-jar.png) -->
+      <!-- Dancing jar image (place your asset at /img/pickle-in-jar.png) -->
       <div class="pickle-jar" aria-hidden="true"></div>
     </div>
 
@@ -185,7 +191,7 @@
       <article class="card">
         <h3>🎤 PickleGrams</h3>
         <p class="meta">Singing-telegram memories from the brined glory days.</p>
-        <p><a class="btn" href="https://www.youtube.com/@RealDillPhil/playlists" target="_blank" rel="noopener">Open PickleGrams</a></p>
+        <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGrams</a></p>
       </article>
 
       <!-- Disc Tracker (UC) -->
@@ -235,7 +241,7 @@
     // Footer year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Daily Bible Verse (local rotation to avoid API/CORS issues)
+    // Daily Bible Verse (local rotation)
     const verses = [
       { ref: "Psalm 27:1", text: "The LORD is my light and my salvation—whom shall I fear?" },
       { ref: "Proverbs 3:5-6", text: "Trust in the LORD with all your heart and lean not on your own understanding." },
@@ -250,8 +256,7 @@
       el.innerHTML = `<strong>Daily Verse:</strong> “${v.text}” <em>— ${v.ref}</em>`;
     })();
 
-    // Copy buttons (Minecraft)
-    // Update these data-copy values to your actual server/whitelist format
+    // Copy buttons (Minecraft) — update data-copy values to your real info
     document.querySelectorAll('.copy-btn').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         try {
