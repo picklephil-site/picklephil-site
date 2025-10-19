@@ -13,7 +13,7 @@
       --text:#f5f5f5;
       --btn:#f5f5f5; --btnText:#145a32;
       --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
-      --ink:#0f2d18;
+      --ink:#145a32;           /* fixed from dark “blackish” */
     }
     *{box-sizing:border-box} html,body{height:100%}
     body{
@@ -34,7 +34,7 @@
     footer{margin:28px 0 10px; opacity:.85}
     @media (max-width:860px){ .grid .card{grid-column:span 12} }
 
-    /* ===== Groovin' Pickle Phil (hero) — color-safe ===== */
+    /* Hero */
     .hero{width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto;}
     .hero-wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:center;}
     .hero h1{font-size:clamp(36px,6.2vw,72px); margin:0 0 8px; letter-spacing:.5px}
@@ -46,41 +46,26 @@
       will-change:transform;
     }
     @keyframes pickle-groove{
-      0%   { transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg); }
-      25%  { transform:translateX(0) rotate(0) skewX(0); }
-      50%  { transform:translateX(1.6%) rotate(4.5deg) skewX(1deg); }
-      75%  { transform:translateX(0) rotate(0) skewX(0); }
-      100% { transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg); }
+      0%{transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg)}
+      25%{transform:translateX(0) rotate(0) skewX(0)}
+      50%{transform:translateX(1.6%) rotate(4.5deg) skewX(1deg)}
+      75%{transform:translateX(0) rotate(0) skewX(0)}
+      100%{transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg)}
     }
     .pickle-hero.dance{ transform-origin:50% 85%; animation:pickle-groove 3.6s ease-in-out infinite; }
     .pickle-dance{ display:inline-block; font-size:1.3rem; margin-right:.35rem; animation:pickle-groove 1.2s ease-in-out infinite; transform-origin:50% 80%; }
 
-    /* Make links (like your email) white & non-underlined for readability */
+    /* links (email white) */
     a, a:visited, a:hover, a:active { color: var(--text); text-decoration: none; }
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
 
-    /* Hidden Admin */
-    .admin-block{display:none}
-    .admin-block.revealed{display:block}
-
-    /* Modal */
+    /* admin + modal */
+    .admin-block{display:none} .admin-block.revealed{display:block}
     .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:50}
-    .modal{background:#0f2d18; border:1px solid rgba(255,255,255,.15); color:#e9f7ee; border-radius:12px; max-width:520px; padding:18px; box-shadow:var(--shadow); text-align:left}
+    .modal{background:var(--bg); border:1px solid rgba(255,255,255,.15); color:#e9f7ee; border-radius:12px; max-width:520px; padding:18px; box-shadow:var(--shadow); text-align:left}
     .modal h3{margin:0 0 8px}
     .modal .row{display:flex; gap:10px; justify-content:flex-end; margin-top:14px}
     .modal .btn{background:#e9f7ee; color:#0f2d18}
-
-    /* Guestbook styles */
-    .guest-list{margin-top:12px; display:flex; flex-direction:column; gap:10px}
-    .guest-item{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); padding:10px 12px; border-radius:10px}
-    .guest-item b{color:#fff}
-    .guest-note{font-style:italic; opacity:.9}
-    .guest-form input, .guest-form textarea{
-      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.18);
-      background:rgba(255,255,255,.08); color:#fff; outline:none;
-    }
-    .guest-form textarea{resize:vertical; min-height:90px}
-    .flex{display:flex; gap:10px; flex-wrap:wrap}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
   </style>
 </head>
 <body>
@@ -102,31 +87,19 @@
   </section>
 
   <div class="wrap">
-    <!-- NEW: Verse + Guestbook row -->
+    <!-- Daily Verse -->
     <section class="grid" aria-label="Welcome widgets">
-      <!-- Daily Bible Verse -->
-      <article class="card" style="grid-column:span 6;">
+      <article class="card" style="grid-column:span 12;">
         <h3>📖 Daily Dill-votional</h3>
         <p id="votd-text" class="meta">Loading verse…</p>
         <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
       </article>
 
-      <!-- Guestbook -->
-      <article class="card" style="grid-column:span 6;">
-        <h3>📝 Brine &amp; Sign (Guestbook)</h3>
-        <p class="guest-note">Say hi and leave a crunchy note!</p>
-        <form id="guestbook" class="guest-form" autocomplete="on">
-          <div class="flex">
-            <input name="name" placeholder="Your name" required>
-            <input name="email" type="email" placeholder="Email (optional)">
-          </div>
-          <textarea name="message" placeholder="Your message…" required></textarea>
-          <div class="flex" style="justify-content:flex-end">
-            <button class="btn" type="submit">Sign the Jar</button>
-          </div>
-        </form>
-        <div id="guest-list" class="guest-list" aria-live="polite"></div>
-        <p class="meta" style="margin-top:8px">Psst — entries are stored on the site later when we hook up a form backend. For now they’ll show here instantly.</p>
+      <!-- Guestbook: link out to separate page -->
+      <article class="card" style="grid-column:span 12;">
+        <h3>📝 Brine &amp; Sign</h3>
+        <p class="meta">Swing by the guestbook and leave your crunchy mark in the jar.</p>
+        <p><a class="btn" href="/guestbook.html">✍️ Sign the Jar</a></p>
       </article>
     </section>
 
@@ -134,7 +107,6 @@
 
     <h2 class="section-title">Groups &amp; Portals</h2>
     <section id="groups" class="grid" aria-label="Groups &amp; Portals">
-      <!-- Minecraft -->
       <article class="card">
         <h3>🧱 Minecraft</h3>
         <p class="meta">Connect: <span class="mono">mine.philliphinshaw.com</span> · Java <span class="mono">25565</span> · Bedrock <span class="mono">19132</span></p>
@@ -144,35 +116,30 @@
         </p>
       </article>
 
-      <!-- Disc Golf -->
       <article class="card">
         <h3>🥏 Disc Golf Adventures</h3>
         <p class="meta">Bag breakdowns, courses I’m playing, and round highlights.</p>
         <p><a class="btn" href="/discgolf.html">Open Disc Golf Hub</a></p>
       </article>
 
-      <!-- PickleGrams -->
       <article class="card">
         <h3><span class="pickle-dance" aria-hidden="true">🥒</span> PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
         <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
       </article>
 
-      <!-- Playground (UC) -->
       <article class="card">
         <h3>🎡 Pickle Playground</h3>
         <p class="meta">Mini-apps, experiments, and fun tools — where the briny ideas play.</p>
         <p><button class="btn uc" data-key="playground">Enter Playground</button></p>
       </article>
 
-      <!-- Family (UC) -->
       <article class="card">
         <h3>👨‍👩‍👧 Family Portal</h3>
         <p class="meta">Shared calendars, photo drops, and links for the Hinshaw crew.</p>
         <p><button class="btn uc" data-key="family">Open Family Portal</button></p>
       </article>
 
-      <!-- Roast (UC) -->
       <article class="card">
         <h3>🔥 Random Roast Generator</h3>
         <p class="meta">Good-natured zingers, extra crunchy — toggle spice level to mild/medium/dill-icious.</p>
@@ -190,7 +157,7 @@
       </article>
     </section>
 
-    <!-- Hidden Admin (type 'pickle') -->
+    <!-- Hidden Admin -->
     <section id="hidden-admin" class="admin-block">
       <h2 class="section-title">Site Admin</h2>
       <section class="grid" aria-label="Site Admin">
@@ -216,15 +183,16 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Reveal admin when typing 'pickle'
+    // Hidden admin reveal: type "pickle"
     (function(){
       const secret='pickle'; let buf='';
       const admin=document.getElementById('hidden-admin');
       window.addEventListener('keydown',e=>{
         const k=(e.key||'').toLowerCase();
-        if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length);
+        if(/[a-z]/.test(k)){
+          buf=(buf+k).slice(-secret.length);
           if(buf===secret){ admin.classList.toggle('revealed'); buf=''; }
-        } else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
+        }else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
       });
     })();
 
@@ -234,25 +202,19 @@
     document.getElementById('copy-bedrock').addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
     document.getElementById('copy-email').addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
 
-    // -------- Daily Bible Verse (OurManna API, with fallback) --------
+    // Daily Bible Verse (with fallback rotation)
     (async function loadVOTD(){
       const txt = document.getElementById('votd-text');
       const ref = document.getElementById('votd-ref');
       try{
         const r = await fetch('https://beta.ourmanna.com/api/v1/get/?format=json');
         const j = await r.json();
-        // Handle common shapes
         const details = j.verse && (j.verse.details || j.verse) || {};
-        const verseText = (details.text || j.verse && j.verse.text || j.verse && j.verse.details && j.verse.details.text || '').trim();
+        const verseText = (details.text || j.verse && j.verse.text || '').trim();
         const reference = (details.reference || j.verse && j.verse.details && j.verse.details.reference || '').trim();
-        if(verseText){
-          txt.textContent = verseText;
-          ref.textContent = reference || '';
-          return;
-        }
+        if(verseText){ txt.textContent = verseText; ref.textContent = reference || ''; return; }
         throw new Error('empty');
       }catch(e){
-        // Fallback: small local set rotated by day-of-year
         const verses = [
           {t:"For God so loved the world that he gave his one and only Son...", r:"John 3:16"},
           {t:"The LORD is my shepherd; I shall not want.", r:"Psalm 23:1"},
@@ -262,57 +224,14 @@
         ];
         const day = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
         const pick = verses[day % verses.length];
-        txt.textContent = pick.t;
-        ref.textContent = pick.r;
+        txt.textContent = pick.t; ref.textContent = pick.r;
       }
     })();
 
-    // -------- Guestbook ----------
-    // To send entries to an external service later, set GUESTBOOK_ENDPOINT to your Formspree/Web3Forms/Cloudflare Function URL.
-    const GUESTBOOK_ENDPOINT = ""; // e.g., "https://formspree.io/f/XXXXXXX"
-    const guestForm = document.getElementById('guestbook');
-    const guestList = document.getElementById('guest-list');
-
-    function addGuestItem(n, m){
-      const el = document.createElement('div');
-      el.className = 'guest-item';
-      el.innerHTML = `<b>${n}</b><div>${m}</div>`;
-      guestList.prepend(el);
-    }
-
-    guestForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const fd = new FormData(guestForm);
-      const name = (fd.get('name')||'Someone').toString().slice(0,60);
-      const email = (fd.get('email')||'').toString();
-      const message = (fd.get('message')||'').toString().slice(0,1000);
-      addGuestItem(name, message);
-      guestForm.reset();
-
-      if(GUESTBOOK_ENDPOINT){
-        try{
-          await fetch(GUESTBOOK_ENDPOINT, {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name,email,message,site:'philliphinshaw.com'})
-          });
-        }catch{ /* ignore for now */ }
-      } else {
-        // fallback: open mailto prefilled (optional; comment out if you don't want it)
-        // window.location.href = `mailto:realdillphil@philliphinshaw.com?subject=Guestbook%20-%20${encodeURIComponent(name)}&body=${encodeURIComponent(message)}`;
-      }
-    });
-
-    // -------- Under-construction modal --------
-    const puns={
-      playground:'🥒 Playground is in a pickle — rides under construction!',
-      family:'🥒 Family Portal is curing behind sign-in.',
-      roast:'🥒 Roast Generator is marinating the roasts!'
-    };
+    // UC modal
+    const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
     const modal=document.getElementById('modal-backdrop'), body=document.getElementById('modal-body');
-    document.querySelectorAll('.btn.uc').forEach(btn=>{
-      btn.addEventListener('click',()=>{ body.textContent=puns[btn.dataset.key]||body.textContent; modal.style.display='flex'; });
-    });
+    document.querySelectorAll('.btn.uc').forEach(btn=>btn.addEventListener('click',()=>{body.textContent=puns[btn.dataset.key]||body.textContent; modal.style.display='flex';}));
     document.getElementById('modal-close').addEventListener('click',()=>modal.style.display='none');
     modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
   </script>
