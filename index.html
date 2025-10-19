@@ -4,328 +4,132 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The Real Dill Phil’s Jar</title>
-<meta name="description" content="Welcome to The Real Dill Phil’s Jar — a briny hub of fun, faith, and pickle-powered projects!" />
+<meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
 
-<!-- 🥒 Favicon -->
-<link rel="icon" type="image/png" href="/img/pickle-jar-icon.png">
+<!-- Favicon (jar with pickle) -->
+<link rel="icon" type="image/png" href="/img/pickle-jar-icon.png" />
 
-<!-- Google Font: Farmhouse-style -->
+<!-- Farmhouse-style heading -->
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --bg: #145a32;
-  --bg2: #2ecc71;
-  --text: #f5f5f5;
-  --btn-bg: #f5f5f5;
-  --btn-text: #145a32;
-  --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-  --radius: 14px;
+:root{
+  --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
+  --btn:#f5f5f5; --btnText:#145a32;
+  --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
+  --panelA: rgba(46,204,113,.22); --panelB: rgba(46,204,113,.12);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--text);
+  background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
+  font-family: Segoe UI, Tahoma, sans-serif;
+  text-align:center; min-height:100vh;
+}
+.wrap{width:min(1120px,100%); margin:0 auto; padding:22px}
+
+/* Headings & text */
+h1{
+  font-family:"Amatic SC", system-ui, sans-serif;
+  font-size:clamp(48px,6vw,84px); line-height:1.05;
+  margin:12px 0 8px;
+}
+p{font-size:1.08rem; max-width:780px; margin:8px auto}
+.section-title{margin:32px 0 12px; font-size:1.8rem}
+
+/* Buttons */
+.btn{
+  display:inline-block; background:var(--btn); color:var(--btnText);
+  text-decoration:none; padding:12px 18px; border-radius:var(--radius);
+  font-weight:700; margin:8px; box-shadow:var(--shadow); transition:.2s;
+}
+.btn:hover{filter:brightness(.95); transform:translateY(-1px)}
+
+/* Grid / cards */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin:0 auto; max-width:1100px; padding:0 12px}
+.card{
+  background:linear-gradient(180deg,var(--panelA),var(--panelB));
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); text-align:left;
+}
+.card h3{margin:2px 0 6px}
+.meta{opacity:.95}
+
+/* HERO pickle: stable size & gentle bob */
+img.pickle-jar{
+  width:min(340px,45vw); height:auto; display:block; margin:18px auto 10px;
+  transform-origin:50% 80%; animation:jarGroove 3.6s ease-in-out infinite;
+  filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
+}
+@keyframes jarGroove{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+  100%{transform:translateY(0)}
 }
 
-* { box-sizing: border-box; }
+/* Links non-blue for readability */
+a, a:visited, a:hover, a:active{ color:var(--text); text-decoration:none }
+a.underline{ text-decoration:underline }
 
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
-  color: var(--text);
-  text-align: center;
-  min-height: 100vh;
-}
+/* Code mono for addresses */
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono","Courier New",monospace}
 
-h1 {
-  font-family: "Amatic SC", sans-serif;
-  font-size: clamp(48px, 6vw, 84px);
-  margin: 12px 0 8px;
-  color: var(--text);
+/* Modal (guestbook + UC) */
+.modal{
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.65);
+  z-index:1000; align-items:center; justify-content:center; padding:16px;
 }
+.modal-card{
+  background:#ffffff; color:#145a32; width:min(420px,95vw);
+  border-radius:14px; padding:20px; text-align:center; box-shadow:var(--shadow);
+}
+.modal-title{margin:4px 0 6px; font-weight:800}
+.modal-text{margin:0 0 12px}
+.modal-btn{background:#145a32; color:#fff; border:0; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer}
+.bouncy-pickle{display:inline-block; font-size:28px; margin-bottom:8px; animation:pickleBounce 1.6s ease-in-out infinite}
+@keyframes pickleBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
-p {
-  font-size: 1.15rem;
-  margin: 8px auto;
-  max-width: 760px;
-}
-
-.btn {
-  display: inline-block;
-  background: var(--btn-bg);
-  color: var(--btn-text);
-  text-decoration: none;
-  padding: 12px 20px;
-  border-radius: var(--radius);
-  font-weight: 700;
-  margin: 8px;
-  box-shadow: var(--shadow);
-  transition: 0.2s;
-}
-.btn:hover { filter: brightness(.95); transform: translateY(-1px); }
-
-.pickle-jar {
-  width: 220px;
-  margin: 22px auto;
-  animation: bounce 3s ease-in-out infinite;
-}
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.section-title {
-  margin: 32px 0 12px;
-  font-size: 1.8rem;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 16px;
-  margin: 0 auto;
-  max-width: 1100px;
-  padding: 0 20px;
-}
-
-.card {
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
-}
-
-footer {
-  margin: 40px 0 16px;
-  opacity: 0.85;
-}
-
-/* Modal popup for Guestbook */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
-  justify-content: center; align-items: center;
-  z-index: 1000;
-}
-.modal-content {
-  background: #fff;
-  color: #145a32;
-  padding: 24px;
-  border-radius: 12px;
-  max-width: 360px;
-  box-shadow: var(--shadow);
-}
-.modal-content h3 { margin-top: 0; }
-.close-btn {
-  background: #145a32;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 14px;
-  margin-top: 12px;
-  cursor: pointer;
-}
+footer{margin:40px 0 16px; opacity:.85}
 </style>
 </head>
 
 <body>
   <div class="wrap">
-    <img src="/img/pickle-in-jar.png" alt="Pickle Phil in a Jar" class="pickle-jar" />
-
+    <!-- HERO -->
+    <img src="pickle-in-jar.png" alt="Pickle Phil in a Jar" class="pickle-jar" />
     <h1>The Real Dill Phil’s Jar</h1>
-    <p>Welcome to the jar! I’m Pickle Phil — the original brine-time legend spreading flavor, fun, and faith.</p>
+    <p>Welcome to the Jar — bringing briny joy and media magic.</p>
 
     <div>
-      <a class="btn" href="https://overseerr-philina609.venom.mygiga.cloud/login" target="_blank">🎬 Make a Request</a>
-      <a class="btn" href="https://app.plex.tv/desktop" target="_blank">📺 Plex Library</a>
+      <a class="btn" href="https://overseerr-philina609.venom.mygiga.cloud/login" target="_blank" rel="noopener">🎬 Make a Request</a>
+      <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
     </div>
 
-    <p><strong>Need Plex access?</strong> Email me your Plex username and I’ll hook you up: 
-      <span style="color:#f5f5f5;">🥒 
-      <a href="mailto:realdillphil@philliphinshaw.com" style="color:#f5f5f5; text-decoration:underline;">
-        realdillphil@philliphinshaw.com
-      </a></span>
+    <p>
+      <strong>Need Plex access?</strong>
+      Email me your Plex username and I’ll hook you up:
+      <span>🥒
+        <a class="underline" href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a>
+      </span>
     </p>
 
-    <p class="construction">🥒 This site’s still brining up some fresh content — check back soon for more dill-ightful updates!</p>
+    <p class="meta">🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update!</p>
 
     <!-- Daily Bible Verse -->
     <h2 class="section-title">Daily Dill-votional</h2>
     <div class="card" id="verse">
-      <em>Loading a verse fresh from the brine...</em>
+      <em>Loading a verse fresh from the brine…</em>
     </div>
 
-    <!-- Groups Section -->
-    <h2 class="section-title">Groups & Portals</h2>
-    <section id="groups" class="grid">
-      <article class="card">
-        <h3>🧱 Minecraft</h3>
-        <p>World info, whitelist, and downloads for the Picklecraft realm.</p>
-      </article>
-
-      <article class="card">
-        <h3>🥏 Disc Golf Hub</h3>
-        <p>Bag setup, course adventures, and scorecards from the green.</p>
-        <p><a class="btn" href="discgolf.html">Open Disc Golf Hub</a></p>
-      </article>
-
-      <article class="card">
-        <h3>🎞️ PickleGrams</h3>
-        <p>Relive the singing pickle days — telegrams, costumes, and good vibes.</p>
-        <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank">View PickleGrams</a></p>
-      </article>
-
-      <article class="card">
-        <h3>👨‍👩‍👧 Family Portal</h3>
-        <p>Private family space for photos and shared moments. Coming soon!</p>
-      </article>
-
-      <article class="card">
-        <h3>🔥 Random Roast Generator</h3>
-        <p>Wholesome burns, extra crunchy — coming soon from the brine lab.</p>
-      </article>
-
-      <article class="card">
-        <h3>🫙 Brine & Sign Guestbook</h3>
-        <p>Leave your mark in the jar (coming soon... still fermenting!)</p>
-        <p><button id="guestbook-btn" class="btn">🥒 Sign the Jar</button></p>
-      </article>
-    </section>
-
-    <footer>
-      © <span id="year"></span> The Real Dill Phil · Stay Crunchy 🥒
-    </footer>
-  </div>
-
-  <!-- Modal Popup -->
-  <div id="guestModal" class="modal">
-    <div class="modal-content">
-      <h3>🚧 Still in the Brine!</h3>
-      <p>This guestbook’s still fermenting — check back soon to leave your crunchy signature in the jar! 🥒</p>
-      <button class="close-btn" onclick="closeModal()">Got it!</button>
-    </div>
-  </div>
-
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
-
-// Guestbook popup
-const modal = document.getElementById('guestModal');
-document.getElementById('guestbook-btn').addEventListener('click', ()=>modal.style.display='flex');
-function closeModal(){ modal.style.display='none'; }
-window.onclick = function(e){ if(e.target===modal) modal.style.display='none'; }
-
-// Daily Bible verse
-async function getVerse() {
-  try {
-    const res = await fetch("https://beta.ourmanna.com/api/v1/get/?format=json");
-    const data = await res.json();
-    const verseObj = data.verse.details;
-    document.getElementById("verse").innerHTML = `<strong>${verseObj.text}</strong><br><em>${verseObj.reference}</em>`;
-  } catch {
-    document.getElementById("verse").innerHTML = "Couldn’t load a verse today — stay salty and try again later!";
-  }
-}
-getVerse();
-</script>
-</body>
-</html>  .hero-wrap{display:grid; grid-template-columns:1.05fr .95fr; gap:20px; align-items:center;}
-  .farmhouse{ font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-weight:700; letter-spacing:1px; font-size:clamp(44px, 8.5vw, 96px); line-height:1; margin:0 0 8px; }
-  .hero p.lead{margin:0 0 14px; font-size:1.1rem; opacity:.95}
-
-  .jar-frame{ position:relative; width:min(520px, 92vw); margin-inline:auto; }
-  .pickle-jar-img{ width:100%; height:auto; display:block; filter:drop-shadow(0 10px 25px rgba(0,0,0,.35)); transform-origin:50% 80%; animation:groove 3.6s ease-in-out infinite; }
-  @keyframes groove{ 0%{transform:translateX(-1.2%) rotate(-3.2deg) skewX(-.6deg)} 50%{transform:translateX(1.2%) rotate(3.2deg) skewX(.6deg)} 100%{transform:translateX(-1.2%) rotate(-3.2deg) skewX(-.6deg)} }
-
-  /* Now Playing styles */
-  .nowplaying{display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap}
-  .np-item{display:flex; gap:14px; align-items:flex-start; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px}
-  .np-poster{width:92px; height:138px; border-radius:8px; object-fit:cover; box-shadow:var(--shadow)}
-  .np-meta{display:flex; flex-direction:column}
-  .np-title{font-weight:700}
-  .np-sub{opacity:.9}
-  .np-user{opacity:.95; margin-top:4px}
-  .np-progress{height:6px; background:rgba(255,255,255,.22); border-radius:999px; overflow:hidden; margin-top:8px}
-  .np-bar{height:100%; background:#e9f7ee}
-  .np-empty{opacity:.9}
-
-  a, a:visited, a:hover, a:active { color: var(--text); text-decoration:none; }
-
-  .admin-block{display:none} .admin-block.revealed{display:block}
-  .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:50}
-  .modal{background:var(--bg); border:1px solid rgba(255,255,255,.15); color:#e9f7ee; border-radius:12px; max-width:520px; padding:18px; box-shadow:var(--shadow); text-align:left}
-  .modal h3{margin:0 0 8px} .modal .row{display:flex; gap:10px; justify-content:flex-end; margin-top:14px} .modal .btn{background:#e9f7ee; color:#0f2d18}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
-</style>
-</head>
-<body>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-wrap">
-      <div class="hero-cta">
-        <h1 class="farmhouse">The Real Dill Phil’s Jar</h1>
-        <p class="lead">Welcome to the Jar — bringing briny joy and media magic.</p>
-
-        <div>
-          <a class="btn" href="https://overseerr-philina609.venom.mygiga.cloud/login" target="_blank" rel="noopener">🎬 Make a Request</a>
-          <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
-        </div>
-
-        <p class="meta" style="margin:12px 0 0; font-size:1.05rem; color:#f5f5f5;">
-          🎬 Don’t have Plex access yet?
-          <a href="mailto:realdillphil@philliphinshaw.com" style="color:#f5f5f5; font-weight:700; text-decoration:underline;">Email</a>
-          me your Plex username and I’ll toss you in the brine!
-        </p>
-      </div>
-
-      <div class="hero-image">
-        <div class="jar-frame">
-          <img src="pickle-in-jar.png" alt="Pickle Phil dancing in a glass pickle jar" class="pickle-jar-img">
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="wrap">
-
-    <!-- Now Streaming on Plex -->
-    <h2 class="section-title">Now Streaming on Plex</h2>
-    <section class="grid" aria-label="Now Streaming">
-      <article class="card">
-        <div id="plex-nowplaying" class="nowplaying">
-          <div class="np-empty meta">Nobody’s in the jar right now. 🥒</div>
-        </div>
-      </article>
-    </section>
-
-    <!-- Verse + Guestbook -->
-    <section class="grid" aria-label="Welcome widgets">
-      <article class="card" style="background:linear-gradient(180deg, rgba(46,204,113,.26), rgba(46,204,113,.16));">
-        <h3>📖 Daily Dill-votional</h3>
-        <p id="votd-text" class="meta">Loading verse…</p>
-        <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
-      </article>
-
-      <article class="card">
-        <h3>📝 Brine &amp; Sign</h3>
-        <p class="meta">Swing by the guestbook and leave your crunchy mark in the jar.</p>
-        <p><a class="btn" href="/guestbook.html">✍️ Sign the Jar</a></p>
-      </article>
-    </section>
-
-    <p>🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update!</p>
-
-    <!-- Groups & Portals (unchanged) -->
+    <!-- Groups & Portals -->
     <h2 class="section-title">Groups &amp; Portals</h2>
     <section id="groups" class="grid" aria-label="Groups &amp; Portals">
       <article class="card">
         <h3>🧱 Minecraft</h3>
         <p class="meta">Connect: <span class="mono">mine.philliphinshaw.com</span> · Java <span class="mono">25565</span> · Bedrock <span class="mono">19132</span></p>
         <p>
-          <button class="btn" id="copy-java">Copy Java Address</button>
-          <button class="btn" id="copy-bedrock">Copy Bedrock Address</button>
+          <a class="btn" id="copy-java" href="#">Copy Java Address</a>
+          <a class="btn" id="copy-bedrock" href="#">Copy Bedrock Address</a>
         </p>
       </article>
 
@@ -336,7 +140,7 @@ getVerse();
       </article>
 
       <article class="card">
-        <h3>🥒 PickleGrams</h3>
+        <h3>🎞️ PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
         <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
       </article>
@@ -358,6 +162,13 @@ getVerse();
         <p class="meta">Good-natured zingers, extra crunchy.</p>
         <p><button class="btn uc" data-key="roast">Launch Roaster</button></p>
       </article>
+
+      <!-- Guestbook (POP-UP ONLY, no navigation) -->
+      <article class="card">
+        <h3>🫙 Brine &amp; Sign Guestbook</h3>
+        <p class="meta">Leave your mark in the jar (coming soon… still fermenting!)</p>
+        <p><a class="btn" id="guestbook-link" href="#">✍️ Sign the Jar</a></p>
+      </article>
     </section>
 
     <!-- Contact -->
@@ -365,110 +176,111 @@ getVerse();
     <section class="grid" aria-label="Contact">
       <article class="card">
         <h3>📧 Email</h3>
-        <p class="meta">🥒 <a href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
-        <p><button id="copy-email" class="btn">Copy Email</button></p>
+        <p class="meta">🥒 <a class="underline" href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
+        <p><a id="copy-email" class="btn" href="#">Copy Email</a></p>
       </article>
     </section>
 
-    <!-- Hidden Admin -->
-    <section id="hidden-admin" class="admin-block">
+    <!-- Hidden Admin (type “pickle” to toggle) -->
+    <section id="hidden-admin" class="admin-block" style="display:none;">
       <h2 class="section-title">Site Admin</h2>
       <section class="grid" aria-label="Site Admin">
         <article class="card">
           <h3>🛠️ Edit Site</h3>
-          <p><a class="btn" href="admin/" target="_blank" rel="noopener">Open Admin Portal</a></p>
+          <p><a class="btn" href="/admin/" target="_blank" rel="noopener">Open Admin Portal</a></p>
         </article>
       </section>
     </section>
 
-    <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
+    <footer>© <span id="year"></span> The Real Dill Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <!-- UC modal -->
-  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal">
-      <h3 id="modal-title">Under Construction</h3>
-      <p class="meta" id="modal-body">🥒 This feature is still fermenting — check back soon for a dill-ightful surprise!</p>
-      <div class="row"><button class="btn" id="modal-close">OK</button></div>
+  <!-- Guestbook Modal -->
+  <div id="guestModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="guestModalTitle">
+    <div class="modal-card">
+      <div class="bouncy-pickle" aria-hidden="true">🥒</div>
+      <h3 id="guestModalTitle" class="modal-title">🚧 Still in the Brine!</h3>
+      <p class="modal-text">Our “Brine &amp; Sign” guestbook is still fermenting — check back soon to leave your crunchy mark in the jar!</p>
+      <button id="guestClose" class="modal-btn">Got it!</button>
+    </div>
+  </div>
+
+  <!-- Under-Construction Modal (for other placeholders) -->
+  <div id="ucModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="ucModalTitle">
+    <div class="modal-card">
+      <div class="bouncy-pickle" aria-hidden="true">🥒</div>
+      <h3 id="ucModalTitle" class="modal-title">Under Construction</h3>
+      <p id="ucBody" class="modal-text">🥒 This feature is still fermenting — check back soon for a dill-ightful surprise!</p>
+      <button id="ucClose" class="modal-btn">OK</button>
     </div>
   </div>
 
 <script>
+  // Footer year
   document.getElementById('year').textContent = new Date().getFullYear();
 
   // Reveal admin when typing 'pickle'
-  (function(){ const secret='pickle'; let buf=''; const admin=document.getElementById('hidden-admin');
-    window.addEventListener('keydown',e=>{ const k=(e.key||'').toLowerCase();
-      if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.classList.toggle('revealed'); buf=''; } }
-      else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
-    }); })();
+  (function(){
+    const secret='pickle'; let buf=''; const admin=document.getElementById('hidden-admin');
+    window.addEventListener('keydown',e=>{
+      const k=(e.key||'').toLowerCase();
+      if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.style.display = admin.style.display==='none'?'block':'none'; buf=''; } }
+      else if(k==='escape'){ admin.style.display='none'; buf=''; }
+    });
+  })();
 
   // Copy helpers
   async function copyText(t){ try{ await navigator.clipboard.writeText(t); alert('Copied: '+t); }catch{ alert('Copy failed. Text: '+t); } }
-  document.getElementById('copy-java')?.addEventListener('click',()=>copyText('mine.philliphinshaw.com:25565'));
-  document.getElementById('copy-bedrock')?.addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
-  document.getElementById('copy-email')?.addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
+  document.getElementById('copy-java')?.addEventListener('click',e=>{e.preventDefault();copyText('mine.philliphinshaw.com:25565');});
+  document.getElementById('copy-bedrock')?.addEventListener('click',e=>{e.preventDefault();copyText('mine.philliphinshaw.com:19132');});
+  document.getElementById('copy-email')?.addEventListener('click',e=>{e.preventDefault();copyText('realdillphil@philliphinshaw.com');});
 
-  // Daily Verse (with fallback)
+  // Daily Verse (with fallback rotation)
   (async function loadVOTD(){
-    const txt=document.getElementById('votd-text'); const ref=document.getElementById('votd-ref');
+    const el=document.getElementById('verse');
     try{
       const r=await fetch('https://beta.ourmanna.com/api/v1/get/?format=json'); const j=await r.json();
       const d=j.verse&&(j.verse.details||j.verse)||{};
       const verse=(d.text||j.verse&&j.verse.text||'').trim();
       const reference=(d.reference||j.verse&&j.verse.details&&j.verse.details.reference||'').trim();
-      if(verse){ txt.textContent=verse; ref.textContent=reference||''; return; }
+      if(verse){ el.innerHTML=`<strong>${verse}</strong><br><em>${reference||''}</em>`; return; }
       throw new Error('empty');
     }catch{
       const V=[{t:"For God so loved the world...",r:"John 3:16"},{t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},{t:"Trust in the LORD with all your heart...",r:"Proverbs 3:5"},{t:"I can do all things through Christ who strengthens me.",r:"Philippians 4:13"},{t:"Be strong and courageous... for the LORD your God is with you.",r:"Joshua 1:9"}];
       const day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000); const pick=V[day%V.length];
-      txt.textContent=pick.t; ref.textContent=pick.r;
+      el.innerHTML=`<strong>${pick.t}</strong><br><em>${pick.r}</em>`;
     }
   })();
 
-  // Now Playing (pulls from Cloudflare Function)
-  function escapeHtml(t){ return (t||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;'}[c])); }
-  async function loadNowPlaying(){
-    const root=document.getElementById('plex-nowplaying');
-    try{
-      const r=await fetch('/api/nowplaying',{cache:'no-store'});
-      const {sessions}=await r.json();
-      root.innerHTML='';
-      if(!sessions||!sessions.length){
-        root.innerHTML='<div class="np-empty meta">Nobody’s in the jar right now. 🥒</div>';
-        return;
-      }
-      sessions.forEach(s=>{
-        const sub=[s.subtitle,s.year].filter(Boolean).join(' • ');
-        const poster=s.thumb?`/api/thumb?path=${encodeURIComponent(s.thumb)}`:'';
-        const pct=Math.min(100,Math.max(0,Number(s.progress||0)));
-        const who=s.user?`👤 ${escapeHtml(s.user)}`:'';
-        const state=s.state?` • ${escapeHtml(s.state)}`:'';
-        const div=document.createElement('div');
-        div.className='np-item';
-        div.innerHTML=`
-          ${poster?`<img class="np-poster" src="${poster}" alt="">`:''}
-          <div class="np-meta">
-            <div class="np-title">${escapeHtml(s.title||'(Untitled)')}</div>
-            <div class="np-sub">${escapeHtml(sub)}</div>
-            <div class="np-user meta">${who}${state}</div>
-            <div class="np-progress"><div class="np-bar" style="width:${pct}%"></div></div>
-          </div>`;
-        root.appendChild(div);
-      });
-    }catch(e){
-      root.innerHTML='<div class="np-empty meta">Can’t reach the jar right now.</div>';
+  // Guestbook pop-up
+  (function(){
+    const link=document.getElementById('guestbook-link');
+    const modal=document.getElementById('guestModal');
+    const close=document.getElementById('guestClose');
+    if(link&&modal&&close){
+      link.addEventListener('click',e=>{e.preventDefault(); modal.style.display='flex';});
+      close.addEventListener('click',()=>modal.style.display='none');
+      modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
     }
-  }
-  loadNowPlaying();
-  setInterval(loadNowPlaying, 20000);
+  })();
 
-  // UC modal
-  const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
-  const modal=document.getElementById('modal-backdrop'), body=document.getElementById('modal-body');
-  document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{body.textContent=puns[b.dataset.key]||body.textContent; modal.style.display='flex';}));
-  document.getElementById('modal-close').addEventListener('click',()=>modal.style.display='none');
-  modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
+  // Under-construction modal for placeholders
+  (function(){
+    const ucModal=document.getElementById('ucModal');
+    const ucBody=document.getElementById('ucBody');
+    const ucClose=document.getElementById('ucClose');
+    const puns={
+      playground:'🥒 Playground is in a pickle — rides under construction!',
+      family:'🥒 Family Portal is curing behind sign-in.',
+      roast:'🥒 Roast Generator is marinating the roasts!'
+    };
+    document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{
+      ucBody.textContent = puns[b.dataset.key] || '🥒 This feature is still fermenting — check back soon!';
+      ucModal.style.display='flex';
+    }));
+    ucClose.addEventListener('click',()=> ucModal.style.display='none');
+    ucModal.addEventListener('click',e=>{ if(e.target===ucModal) ucModal.style.display='none'; });
+  })();
 </script>
 </body>
 </html>
