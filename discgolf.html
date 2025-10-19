@@ -7,105 +7,140 @@
 <link rel="icon" type="image/png" href="/img/pickle-jar-icon.png" />
 <style>
 :root {
-  /* Tuning knobs */
-  --scene-h: 200px;         /* vertical space for the animation block */
-  --disc-size: 88px;        /* pickle disc size */
-  --basket-size: 76px;      /* basket size */
-  --arc-x: 220px;           /* horizontal travel of the disc */
-  --arc-y: 80px;            /* arc peak height (upwards) */
-  --basket-offset: 60px;    /* basket offset from center (px, + = right) */
+  --scene-h: 220px;
+  --disc-size: 90px;
+  --basket-size: 80px;
+  --arc-x: 220px;
+  --arc-y: 85px;
+  --basket-offset: 65px;
 
-  --bg: #145a32; --bg2: #2ecc71; --text: #f5f5f5;
-  --panel: rgba(255,255,255,.08); --radius: 14px;
-  --btn: #f5f5f5; --btnText:#145a32;
+  --bg: #145a32;
+  --bg2: #2ecc71;
+  --text: #f5f5f5;
+  --panel: rgba(255,255,255,.08);
+  --radius: 14px;
+  --btn: #f5f5f5;
+  --btnText: #145a32;
   --shadow: 0 10px 35px rgba(0,0,0,.35);
 }
 
 * { box-sizing: border-box; }
+
 body {
-  margin: 0; color: var(--text);
+  margin: 0;
+  color: var(--text);
   font-family: 'Segoe UI', Tahoma, sans-serif;
   background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
-  text-align: center; min-height: 100vh;
+  text-align: center;
+  min-height: 100vh;
 }
-.wrap { width: min(1120px, 100%); margin: 0 auto; padding: 22px; }
-h1 { font-size: clamp(36px, 4vw, 64px); margin: 6px 0 14px; }
-p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
 
-/* ---------- SCENE: CENTERED + FLY-IN ARC (no disappearing) ---------- */
+.wrap {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 22px;
+}
+
+h1 {
+  font-size: clamp(36px, 4vw, 64px);
+  margin: 6px 0 14px;
+}
+
+p {
+  font-size: 1.1rem;
+  max-width: 760px;
+  margin: 0 auto 1rem;
+}
+
+/* ---------- Scene: Disc animation ---------- */
 .scene {
   position: relative;
   height: var(--scene-h);
   max-width: 760px;
-  margin: 0 auto 8px; /* centered */
+  margin: 0 auto 8px;
   pointer-events: none;
 }
+
 .basket {
   position: absolute;
   left: calc(50% + var(--basket-offset));
   bottom: 10px;
-  width: var(--basket-size); height: var(--basket-size);
-  display: grid; place-items: center;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
+  width: var(--basket-size);
+  height: var(--basket-size);
+  display: grid;
+  place-items: center;
   font-size: calc(var(--basket-size) * .9);
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
   transform: translateX(-50%);
 }
-.basket.use-image { background: center / contain no-repeat; font-size: 0; }
-.basket:not(.use-image)::after { content: "🧺"; }
+
+.basket::after { content: "🧺"; }
 
 .disc {
   position: absolute;
-  left: calc(50% - var(--arc-x)); /* start left of center */
+  left: calc(50% - var(--arc-x));
   bottom: 14px;
-  width: var(--disc-size); height: var(--disc-size);
-  display: grid; place-items: center;
+  width: var(--disc-size);
+  height: var(--disc-size);
+  display: grid;
+  place-items: center;
   font-size: calc(var(--disc-size) * .9);
   transform-origin: center;
   filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
-  animation: flyArc 3.6s ease-in-out infinite;
-}
-.disc.use-image { background: center / contain no-repeat; font-size: 0; }
-.disc:not(.use-image)::after { content: "🥒"; }
-
-/* No opacity changes = no blinking/disappearing */
-@keyframes flyArc {
-  0%   { transform: translate(0, 0) rotate(-18deg); }
-  35%  { transform: translate(calc(var(--arc-x)*.58), calc(var(--arc-y)*-1)) rotate(8deg); }
-  58%  { transform: translate(calc(var(--arc-x)*.98), -6px) rotate(4deg); }   /* over rim */
-  70%  { transform: translate(var(--arc-x), 0) rotate(0deg); }                 /* in basket */
-  85%  { transform: translate(var(--arc-x), 0) rotate(0deg); }                 /* hold briefly */
-  100% { transform: translate(0, 0) rotate(-18deg); }                          /* reset to start */
+  animation: discFly 4.5s cubic-bezier(.44,.03,.25,1) infinite;
 }
 
-/* Reduced motion: place disc in basket, no animation */
-@media (prefers-reduced-motion: reduce) {
-  .disc { animation: none; transform: translate(var(--arc-x), 0); }
+.disc::after { content: "🥒"; }
+
+@keyframes discFly {
+  0%   { transform: translate(0, 0) rotate(-15deg); }
+  20%  { transform: translate(calc(var(--arc-x)*.45), calc(var(--arc-y)*-1)) rotate(10deg); }
+  50%  { transform: translate(calc(var(--arc-x)*.95), -5px) rotate(5deg); }
+  70%  { transform: translate(var(--arc-x), 0) rotate(0deg); }
+  85%  { transform: translate(var(--arc-x), 0) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(-15deg); }
 }
 
-/* ---------- Shared UI ---------- */
+/* ---------- Layout + Cards ---------- */
 .section-title { margin: 28px 0 10px; font-size: 1.6rem; }
+
 .card {
   background: var(--panel);
   border-radius: var(--radius);
-  padding: 18px; box-shadow: var(--shadow);
-  border: 1px solid rgba(255,255,255,.12); text-align: left;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,.12);
+  text-align: left;
 }
+
 .btn {
-  color: var(--btnText); background: var(--btn);
-  text-decoration: none; padding: 12px 18px; border-radius: 12px;
-  font-weight: 700; transition: .2s; margin: 6px; display: inline-block;
+  color: var(--btnText);
+  background: var(--btn);
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all .2s ease;
+  margin: 6px;
+  display: inline-block;
 }
-.btn:hover { filter: brightness(.95); transform: translateY(-1px); }
-footer { margin: 28px 0 10px; opacity:.85; }
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono","Courier New",monospace}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 12px rgba(255,255,255,0.5);
+}
+
+footer {
+  margin: 28px 0 10px;
+  opacity: .85;
+}
 </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- Centered scene with fly-in disc -->
-    <div class="scene" aria-hidden="true">
-      <div class="disc"   id="disc"></div>
-      <div class="basket" id="basket"></div>
+    <div class="scene">
+      <div class="disc"></div>
+      <div class="basket"></div>
     </div>
 
     <h1>Pickle Phil’s Disc Golf Adventures</h1>
@@ -143,9 +178,9 @@ footer { margin: 28px 0 10px; opacity:.85; }
     <!-- Latest Scorecard -->
     <h2 class="section-title">🧾 Latest Scorecard</h2>
     <div class="card">
-      <p class="meta"><strong>Latest Round —</strong> Dolese Park</p>
-      <p class="meta"><strong>Par 58</strong> · <strong>Shot +3</strong> · Personal best this month.</p>
-      <p class="meta">Date: <span class="mono">2025-10-15</span></p>
+      <p><strong>Course:</strong> Dolese Park</p>
+      <p><strong>Par 58</strong> · Shot +3 · Personal best this month</p>
+      <p>Date: 2025-10-15</p>
     </div>
 
     <div style="margin-top:30px;">
@@ -156,19 +191,7 @@ footer { margin: 28px 0 10px; opacity:.85; }
   </div>
 
 <script>
-// Footer year
 document.getElementById('year').textContent = new Date().getFullYear();
-
-// Optional: auto-swap emoji with images if present
-(async () => {
-  async function exists(url){ try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch{ return false; } }
-  const disc   = document.getElementById('disc');
-  const basket = document.getElementById('basket');
-  const discUrl   = '/img/pickle.png';   // place your pickle disc image here (optional)
-  const basketUrl = '/img/basket.png';   // place your basket image here (optional)
-  if (await exists(discUrl))   { disc.classList.add('use-image');   disc.style.backgroundImage   = `url(${discUrl})`; }
-  if (await exists(basketUrl)) { basket.classList.add('use-image'); basket.style.backgroundImage = `url(${basketUrl})`; }
-})();
 </script>
 </body>
 </html>
