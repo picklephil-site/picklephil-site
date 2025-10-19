@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pickle Phil | Welcome to the Jar</title>
-  <meta name="description" content="Landing page for Pickle Phil — the one and only pickle legend." />
+  <meta name="description" content="Pickle Phil — briny joy, requests, media, and more." />
   <link rel="icon" href="favicon.svg">
   <style>
     :root{
@@ -17,7 +17,7 @@
     *{box-sizing:border-box}
     body{
       margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
-      background:radial-gradient(circle at top left,var(--bg2) 0%, var(--bg) 100%);
+      background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
       min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center;
     }
     .wrap{width:min(1120px,100%); padding:22px}
@@ -38,8 +38,17 @@
     .hero-wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:center;}
     .hero h1{font-size:clamp(36px,6.2vw,72px); margin:0 0 8px; letter-spacing:.5px}
     .hero p.lead{margin:0 0 14px; font-size:1.1rem; opacity:.95}
-    .pickle-hero{width:100%; max-width:520px; image-rendering:-webkit-optimize-contrast;
-      border-radius:18px; filter:contrast(1.06) saturate(1.05) brightness(1.03) drop-shadow(0 10px 25px rgba(0,0,0,.35));}
+
+    .pickle-hero{
+      width:100%; max-width:520px; border-radius:18px;
+      filter:contrast(1.06) saturate(1.05) brightness(1.03)
+             drop-shadow(0 10px 25px rgba(0,0,0,.35));
+      /* visually removes white on green bg if your PNG isn't transparent */
+      mix-blend-mode:multiply;
+      image-rendering:-webkit-optimize-contrast;
+      will-change:transform,filter;
+    }
+
     @keyframes pickle-groove{
       0%{transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg)}
       25%{transform:translateX(0) rotate(0) skewX(0)}
@@ -53,11 +62,10 @@
     }
     .pickle-hero.dance{
       transform-origin:50% 85%;
-      animation: pickle-groove 3.6s ease-in-out infinite, mic-pop 1.8s ease-in-out infinite;
+      animation: pickle-groove 3.6s ease-in-out infinite,
+                 mic-pop     1.8s ease-in-out infinite;
     }
-    .pickle-hero.dance:hover{animation-play-state:paused}
-    @media (max-width:860px){ .hero-wrap{grid-template-columns:1fr} }
-    @media (prefers-reduced-motion:reduce){ .pickle-hero.dance{animation:none} }
+    /* .pickle-hero.dance:hover{ animation-play-state:paused } */
 
     /* Hidden admin (type 'pickle' to toggle) */
     .admin-block{display:none}
@@ -82,6 +90,11 @@
     }
     .pickle-dance{display:inline-block; font-size:1.3rem; margin-right:.35rem; animation:pickle-wiggle 1.2s ease-in-out infinite; transform-origin:50% 80%;}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;}
+
+    /* Make links (like your email) white & non-underlined for readability */
+    a, a:visited, a:hover, a:active { color: var(--text); text-decoration: none; }
+    /* Keep buttons looking like buttons */
+    .btn { text-decoration: none !important; }
   </style>
 </head>
 <body>
@@ -97,7 +110,7 @@
         </div>
       </div>
       <div class="hero-image">
-        <!-- Put pickle-phil.png next to this file (or change path) -->
+        <!-- Put pickle-phil.png next to this file (or update path) -->
         <img src="pickle-phil.png" alt="Pickle Phil with microphone" class="pickle-hero dance">
       </div>
     </div>
@@ -130,7 +143,7 @@
       <article class="card">
         <h3><span class="pickle-dance" aria-hidden="true">🥒</span> PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
-        <p><a class="btn" href="https://drive.google.com/drive/folders/YOUR_FOLDER_ID" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
+        <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
       </article>
 
       <!-- Playground (UC) -->
