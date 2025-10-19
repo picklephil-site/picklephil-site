@@ -8,87 +8,56 @@
   <link rel="icon" href="favicon.svg">
   <style>
     :root {
-      --bg:#145a32;
-      --bg2:#2ecc71;
+      --bg:#145a32; --bg2:#2ecc71;
       --panel:rgba(255,255,255,.06);
       --text:#f5f5f5;
-      --btn:#f5f5f5;
-      --btnText:#145a32;
-      --radius:14px;
-      --shadow:0 10px 35px rgba(0,0,0,.35);
+      --btn:#f5f5f5; --btnText:#145a32;
+      --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
+      --ink:#0f2d18;
     }
-    * { box-sizing:border-box }
-    body {
-      margin:0;
-      font-family:Segoe UI,Tahoma,sans-serif;
-      color:var(--text);
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
       background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
-      min-height:100vh;
-      text-align:center;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
+      min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center;
     }
-    .wrap { width:min(1120px,100%); padding:22px }
-    .btn {
-      color:var(--btnText);
-      background:var(--btn);
-      text-decoration:none;
-      padding:12px 18px;
-      border-radius:12px;
-      font-weight:700;
-      transition:.2s;
-      margin:6px;
-      display:inline-block;
-      box-shadow:var(--shadow);
-    }
-    .btn:hover { filter:brightness(.95); transform:translateY(-1px) }
-    .section-title { margin:28px 0 10px; font-size:1.6rem }
-    .grid { display:grid; gap:16px; grid-template-columns:repeat(12,1fr); text-align:left }
-    .card {
-      grid-column:span 6;
-      background:var(--panel);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-    .card h3 { margin:2px 0 6px }
-    .meta { opacity:.9 }
-    footer { margin:28px 0 10px; opacity:.85 }
+    .wrap{width:min(1120px,100%); padding:22px}
+    .btn{color:var(--btnText); background:var(--btn); text-decoration:none; padding:12px 18px;
+         border-radius:12px; font-weight:700; transition:.2s; margin:6px; display:inline-block; box-shadow:var(--shadow)}
+    .btn:hover{filter:brightness(.95); transform:translateY(-1px)}
+    .section-title{margin:28px 0 10px; font-size:1.6rem}
+    .grid{display:grid; gap:16px; grid-template-columns:repeat(12,1fr); text-align:left}
+    .card{grid-column:span 6; background:var(--panel); border:1px solid rgba(255,255,255,.12);
+          border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+    .card h3{margin:2px 0 6px}
+    .meta{opacity:.9}
+    footer{margin:28px 0 10px; opacity:.85}
     @media (max-width:860px){ .grid .card{grid-column:span 12} }
 
-    /* HERO PICKLE */
-    .hero { width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto; }
-    .hero-wrap { display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:center; }
-    .hero h1 { font-size:clamp(36px,6.2vw,72px); margin:0 0 8px; letter-spacing:.5px }
-    .hero p.lead { margin:0 0 14px; font-size:1.1rem; opacity:.95 }
-
-    .pickle-hero {
-      width:100%;
-      max-width:520px;
-      border-radius:18px;
+    /* ===== Groovin' Pickle Phil (hero) — color-safe ===== */
+    .hero{width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto;}
+    .hero-wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:center;}
+    .hero h1{font-size:clamp(36px,6.2vw,72px); margin:0 0 8px; letter-spacing:.5px}
+    .hero p.lead{margin:0 0 14px; font-size:1.1rem; opacity:.95}
+    .pickle-hero{
+      width:100%; max-width:520px; border-radius:18px;
       filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
       image-rendering:-webkit-optimize-contrast;
       will-change:transform;
     }
-
-    @keyframes pickle-groove {
+    @keyframes pickle-groove{
       0%   { transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg); }
-      25%  { transform:translateX(0) rotate(0deg) skewX(0deg); }
+      25%  { transform:translateX(0) rotate(0) skewX(0); }
       50%  { transform:translateX(1.6%) rotate(4.5deg) skewX(1deg); }
-      75%  { transform:translateX(0) rotate(0deg) skewX(0deg); }
+      75%  { transform:translateX(0) rotate(0) skewX(0); }
       100% { transform:translateX(-1.6%) rotate(-4.5deg) skewX(-1deg); }
     }
+    .pickle-hero.dance{ transform-origin:50% 85%; animation:pickle-groove 3.6s ease-in-out infinite; }
+    .pickle-dance{ display:inline-block; font-size:1.3rem; margin-right:.35rem; animation:pickle-groove 1.2s ease-in-out infinite; transform-origin:50% 80%; }
 
-    .pickle-hero.dance {
-      transform-origin:50% 85%;
-      animation:pickle-groove 3.6s ease-in-out infinite;
-    }
-
-    .pickle-dance { display:inline-block; font-size:1.3rem; margin-right:.35rem; animation:pickle-groove 1.2s ease-in-out infinite; transform-origin:50% 80%; }
-
-    a, a:visited, a:hover, a:active { color: var(--text); text-decoration:none; }
+    /* Make links (like your email) white & non-underlined for readability */
+    a, a:visited, a:hover, a:active { color: var(--text); text-decoration: none; }
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
 
     /* Hidden Admin */
     .admin-block{display:none}
@@ -100,6 +69,18 @@
     .modal h3{margin:0 0 8px}
     .modal .row{display:flex; gap:10px; justify-content:flex-end; margin-top:14px}
     .modal .btn{background:#e9f7ee; color:#0f2d18}
+
+    /* Guestbook styles */
+    .guest-list{margin-top:12px; display:flex; flex-direction:column; gap:10px}
+    .guest-item{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); padding:10px 12px; border-radius:10px}
+    .guest-item b{color:#fff}
+    .guest-note{font-style:italic; opacity:.9}
+    .guest-form input, .guest-form textarea{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08); color:#fff; outline:none;
+    }
+    .guest-form textarea{resize:vertical; min-height:90px}
+    .flex{display:flex; gap:10px; flex-wrap:wrap}
   </style>
 </head>
 <body>
@@ -121,10 +102,39 @@
   </section>
 
   <div class="wrap">
+    <!-- NEW: Verse + Guestbook row -->
+    <section class="grid" aria-label="Welcome widgets">
+      <!-- Daily Bible Verse -->
+      <article class="card" style="grid-column:span 6;">
+        <h3>📖 Daily Dill-votional</h3>
+        <p id="votd-text" class="meta">Loading verse…</p>
+        <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
+      </article>
+
+      <!-- Guestbook -->
+      <article class="card" style="grid-column:span 6;">
+        <h3>📝 Brine &amp; Sign (Guestbook)</h3>
+        <p class="guest-note">Say hi and leave a crunchy note!</p>
+        <form id="guestbook" class="guest-form" autocomplete="on">
+          <div class="flex">
+            <input name="name" placeholder="Your name" required>
+            <input name="email" type="email" placeholder="Email (optional)">
+          </div>
+          <textarea name="message" placeholder="Your message…" required></textarea>
+          <div class="flex" style="justify-content:flex-end">
+            <button class="btn" type="submit">Sign the Jar</button>
+          </div>
+        </form>
+        <div id="guest-list" class="guest-list" aria-live="polite"></div>
+        <p class="meta" style="margin-top:8px">Psst — entries are stored on the site later when we hook up a form backend. For now they’ll show here instantly.</p>
+      </article>
+    </section>
+
     <p>🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update!</p>
 
-    <h2 class="section-title">Groups & Portals</h2>
-    <section class="grid">
+    <h2 class="section-title">Groups &amp; Portals</h2>
+    <section id="groups" class="grid" aria-label="Groups &amp; Portals">
+      <!-- Minecraft -->
       <article class="card">
         <h3>🧱 Minecraft</h3>
         <p class="meta">Connect: <span class="mono">mine.philliphinshaw.com</span> · Java <span class="mono">25565</span> · Bedrock <span class="mono">19132</span></p>
@@ -134,52 +144,59 @@
         </p>
       </article>
 
+      <!-- Disc Golf -->
       <article class="card">
         <h3>🥏 Disc Golf Adventures</h3>
         <p class="meta">Bag breakdowns, courses I’m playing, and round highlights.</p>
         <p><a class="btn" href="/discgolf.html">Open Disc Golf Hub</a></p>
       </article>
 
+      <!-- PickleGrams -->
       <article class="card">
-        <h3><span class="pickle-dance">🥒</span> PickleGrams</h3>
+        <h3><span class="pickle-dance" aria-hidden="true">🥒</span> PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
-        <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank">Open PickleGram Gallery</a></p>
+        <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
       </article>
 
+      <!-- Playground (UC) -->
       <article class="card">
         <h3>🎡 Pickle Playground</h3>
-        <p class="meta">Mini-apps and fun tools — where the briny ideas play.</p>
+        <p class="meta">Mini-apps, experiments, and fun tools — where the briny ideas play.</p>
         <p><button class="btn uc" data-key="playground">Enter Playground</button></p>
       </article>
 
+      <!-- Family (UC) -->
       <article class="card">
         <h3>👨‍👩‍👧 Family Portal</h3>
         <p class="meta">Shared calendars, photo drops, and links for the Hinshaw crew.</p>
         <p><button class="btn uc" data-key="family">Open Family Portal</button></p>
       </article>
 
+      <!-- Roast (UC) -->
       <article class="card">
         <h3>🔥 Random Roast Generator</h3>
-        <p class="meta">Good-natured zingers — extra crunchy.</p>
+        <p class="meta">Good-natured zingers, extra crunchy — toggle spice level to mild/medium/dill-icious.</p>
         <p><button class="btn uc" data-key="roast">Launch Roaster</button></p>
       </article>
     </section>
 
+    <!-- Contact -->
     <h2 class="section-title">Contact</h2>
-    <section class="grid">
+    <section class="grid" aria-label="Contact">
       <article class="card" style="grid-column:span 12;">
         <h3>📧 Email</h3>
-        <p class="meta">🥒 <a href="mailto:realdillphil@philliphinshaw.com" style="color:white;">realdillphil@philliphinshaw.com</a></p>
+        <p class="meta">🥒 <a href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
         <p><button id="copy-email" class="btn">Copy Email</button></p>
       </article>
     </section>
 
+    <!-- Hidden Admin (type 'pickle') -->
     <section id="hidden-admin" class="admin-block">
       <h2 class="section-title">Site Admin</h2>
-      <section class="grid">
+      <section class="grid" aria-label="Site Admin">
         <article class="card">
           <h3>🛠️ Edit Site</h3>
-          <p><a class="btn" href="admin/" target="_blank">Open Admin Portal</a></p>
+          <p><a class="btn" href="admin/" target="_blank" rel="noopener">Open Admin Portal</a></p>
         </article>
       </section>
     </section>
@@ -187,10 +204,11 @@
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <div id="modal-backdrop" class="modal-backdrop">
+  <!-- Under-construction modal -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
       <h3 id="modal-title">Under Construction</h3>
-      <p class="meta" id="modal-body">🥒 This feature is still fermenting — check back soon!</p>
+      <p class="meta" id="modal-body">🥒 This feature is still fermenting — check back soon for a dill-ightful surprise!</p>
       <div class="row"><button class="btn" id="modal-close">OK</button></div>
     </div>
   </div>
@@ -198,24 +216,94 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    const admin=document.getElementById('hidden-admin');
-    let buf=''; const secret='pickle';
-    window.addEventListener('keydown',e=>{
-      const k=(e.key||'').toLowerCase();
-      if(/[a-z]/.test(k)){
-        buf=(buf+k).slice(-secret.length);
-        if(buf===secret){ admin.classList.toggle('revealed'); buf=''; }
-      } else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
-    });
+    // Reveal admin when typing 'pickle'
+    (function(){
+      const secret='pickle'; let buf='';
+      const admin=document.getElementById('hidden-admin');
+      window.addEventListener('keydown',e=>{
+        const k=(e.key||'').toLowerCase();
+        if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length);
+          if(buf===secret){ admin.classList.toggle('revealed'); buf=''; }
+        } else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
+      });
+    })();
 
-    async function copyText(t){
-      try{ await navigator.clipboard.writeText(t); alert('Copied: '+t); }
-      catch{ alert('Copy failed: '+t); }
-    }
+    // Copy helpers
+    async function copyText(t){ try{ await navigator.clipboard.writeText(t); alert('Copied: '+t); }catch{ alert('Copy failed. Text: '+t); } }
     document.getElementById('copy-java').addEventListener('click',()=>copyText('mine.philliphinshaw.com:25565'));
     document.getElementById('copy-bedrock').addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
     document.getElementById('copy-email').addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
 
+    // -------- Daily Bible Verse (OurManna API, with fallback) --------
+    (async function loadVOTD(){
+      const txt = document.getElementById('votd-text');
+      const ref = document.getElementById('votd-ref');
+      try{
+        const r = await fetch('https://beta.ourmanna.com/api/v1/get/?format=json');
+        const j = await r.json();
+        // Handle common shapes
+        const details = j.verse && (j.verse.details || j.verse) || {};
+        const verseText = (details.text || j.verse && j.verse.text || j.verse && j.verse.details && j.verse.details.text || '').trim();
+        const reference = (details.reference || j.verse && j.verse.details && j.verse.details.reference || '').trim();
+        if(verseText){
+          txt.textContent = verseText;
+          ref.textContent = reference || '';
+          return;
+        }
+        throw new Error('empty');
+      }catch(e){
+        // Fallback: small local set rotated by day-of-year
+        const verses = [
+          {t:"For God so loved the world that he gave his one and only Son...", r:"John 3:16"},
+          {t:"The LORD is my shepherd; I shall not want.", r:"Psalm 23:1"},
+          {t:"Trust in the LORD with all your heart and lean not on your own understanding.", r:"Proverbs 3:5"},
+          {t:"I can do all things through Christ who strengthens me.", r:"Philippians 4:13"},
+          {t:"Be strong and courageous... for the LORD your God is with you wherever you go.", r:"Joshua 1:9"}
+        ];
+        const day = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+        const pick = verses[day % verses.length];
+        txt.textContent = pick.t;
+        ref.textContent = pick.r;
+      }
+    })();
+
+    // -------- Guestbook ----------
+    // To send entries to an external service later, set GUESTBOOK_ENDPOINT to your Formspree/Web3Forms/Cloudflare Function URL.
+    const GUESTBOOK_ENDPOINT = ""; // e.g., "https://formspree.io/f/XXXXXXX"
+    const guestForm = document.getElementById('guestbook');
+    const guestList = document.getElementById('guest-list');
+
+    function addGuestItem(n, m){
+      const el = document.createElement('div');
+      el.className = 'guest-item';
+      el.innerHTML = `<b>${n}</b><div>${m}</div>`;
+      guestList.prepend(el);
+    }
+
+    guestForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(guestForm);
+      const name = (fd.get('name')||'Someone').toString().slice(0,60);
+      const email = (fd.get('email')||'').toString();
+      const message = (fd.get('message')||'').toString().slice(0,1000);
+      addGuestItem(name, message);
+      guestForm.reset();
+
+      if(GUESTBOOK_ENDPOINT){
+        try{
+          await fetch(GUESTBOOK_ENDPOINT, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name,email,message,site:'philliphinshaw.com'})
+          });
+        }catch{ /* ignore for now */ }
+      } else {
+        // fallback: open mailto prefilled (optional; comment out if you don't want it)
+        // window.location.href = `mailto:realdillphil@philliphinshaw.com?subject=Guestbook%20-%20${encodeURIComponent(name)}&body=${encodeURIComponent(message)}`;
+      }
+    });
+
+    // -------- Under-construction modal --------
     const puns={
       playground:'🥒 Playground is in a pickle — rides under construction!',
       family:'🥒 Family Portal is curing behind sign-in.',
