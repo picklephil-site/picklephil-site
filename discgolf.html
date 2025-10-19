@@ -37,7 +37,7 @@ p{font-size:1.1rem;max-width:760px;margin:0 auto 1rem}
 .scene{
   position:relative; height:var(--scene-h);
   max-width:760px; margin:0 auto 8px; pointer-events:none;
-  overflow:hidden; /* ensure nothing scrolls the layout */
+  overflow:hidden;
 }
 
 /* Basket centered */
@@ -86,13 +86,12 @@ p{font-size:1.1rem;max-width:760px;margin:0 auto 1rem}
   transform-origin:center;
   filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
   animation:flyBehindTree var(--flight-time) cubic-bezier(.44,.03,.25,1) infinite;
-  z-index:1; /* let tree/basket sit above if they overlap */
+  z-index:1;
 }
 .disc::after{ content:"🥒"; }
 
 /* Flight path:
-   - Arc up to basket, continue to the right tree, BONK, bounce back, drop in basket, reset.
-   (We use translate() pixels relative to start; basket is at +var(--flight-distance)) */
+   - Arc up to basket, continue to the right tree, BONK, bounce back, drop in basket, reset. */
 @keyframes flyBehindTree{
   0%   { transform:translate(0,0) rotateZ(-25deg); }
   18%  { transform:translate(calc(var(--flight-distance)*0.28), calc(var(--arc-height)*-0.55)) rotateZ(80deg); }
@@ -132,38 +131,44 @@ footer{ margin:28px 0 10px; opacity:.85 }
     <h1>Pickle Phil’s Disc Golf Adventures</h1>
     <p>Follow my disc golf journey — what’s in my bag, where I’m throwing, and how it all lands (or doesn’t!).</p>
 
+    <!-- Bag -->
     <h2 class="section-title">🥏 What’s in My Bag</h2>
-    <ul style="text-align:left; display:inline-block; line-height:1.6; font-size:1.05rem;">
-      <li><strong>🥏 Putter Pocket</strong> – Front of bag</li>
-      <li><strong>Shogun</strong> – main putter</li>
-      <li><strong>Aviar</strong> – backup/throwing putter</li>
-      <br>
-      <li><strong>🎯 Main Compartment</strong> – (left → right)</li>
-      <li><strong>Stingray</strong> – understable mid (turnovers / hyzer flips)</li>
-      <li><strong>Mako3</strong> – dead-straight mid</li>
-      <li><strong>Truth</strong> – stable mid w/ gentle fade</li>
-      <li><strong>Escape</strong> – neutral fairway driver</li>
-      <li><strong>Shryke</strong> – glidey distance driver (tailwinds, open holes)</li>
-      <li><strong>Destroyer</strong> – stable distance driver (headwinds, flex lines)</li>
-      <li><strong>TDSA Disc</strong> – mystery Innova, utility slot</li>
-      <li><strong>Thunderbird</strong> – overstable fairway (wind, reliable fade)</li>
-      <li><strong>F1</strong> – beefy fairway (skips, forehand, headwind control)</li>
-    </ul>
+    <div style="text-align:left; display:inline-block; line-height:1.6; font-size:1.05rem;">
+      <p><strong>🥏 Putter Pocket</strong> – Front of bag</p>
+      <ul style="padding-left:1.2rem;">
+        <li><strong>Shogun</strong> – main putter</li>
+        <li><strong>Aviar</strong> – backup/throwing putter</li>
+      </ul>
 
-    <h2 class="section-title">🌲 Courses I’ve Been Playing</h2>
-    <div class="card">
-      <ul style="margin:0; padding-left:1.1rem; line-height:1.6; font-size:1.05rem;">
-        <li><a href="https://www.google.com/maps/search/Dolese+Park+DGC" target="_blank" rel="noopener">Dolese Park DGC (OKC)</a></li>
-        <li><a href="https://www.google.com/maps/search/Mitch+Park+Disc+Golf" target="_blank" rel="noopener">Mitch Park</a></li>
-        <li><a href="https://www.google.com/maps/search/Eagles+Nest+Disc+Golf" target="_blank" rel="noopener">Eagles Nest</a></li>
+      <p><strong>🎯 Main Compartment</strong> – (left → right)</p>
+      <ul style="padding-left:1.2rem;">
+        <li><strong>Stingray</strong> – understable mid (turnovers / hyzer flips)</li>
+        <li><strong>Mako3</strong> – dead-straight mid</li>
+        <li><strong>Truth</strong> – stable mid w/ gentle fade</li>
+        <li><strong>Escape</strong> – neutral fairway driver</li>
+        <li><strong>Shryke</strong> – glidey distance driver (tailwinds, open holes)</li>
+        <li><strong>Destroyer</strong> – stable distance driver (headwinds, flex lines)</li>
+        <li><strong>TDSA Disc</strong> – mystery Innova, utility slot</li>
+        <li><strong>Thunderbird</strong> – overstable fairway (wind, reliable fade)</li>
+        <li><strong>F1</strong> – beefy fairway (skips, forehand, headwind control)</li>
       </ul>
     </div>
 
+    <!-- Courses -->
+    <h2 class="section-title">🌲 Courses I’ve Been Playing</h2>
+    <div class="card">
+      <ul style="margin:0; padding-left:1.1rem; line-height:1.6; font-size:1.05rem;">
+        <li><a href="https://www.google.com/maps/search/Will+Rogers+Disc+Golf+Course+OKC" target="_blank" rel="noopener">Will Rogers Disc Golf Course – OKC</a></li>
+        <li><a href="https://www.google.com/maps/search/Mid+America+Disc+Golf+Course+Midwest+City+OK" target="_blank" rel="noopener">Mid America Disc Golf Course – Midwest City, OK</a></li>
+      </ul>
+    </div>
+
+    <!-- Scorecard -->
     <h2 class="section-title">🧾 Latest Scorecard</h2>
     <div class="card">
-      <p><strong>Course:</strong> Dolese Park</p>
+      <p><strong>Course:</strong> Will Rogers DGC (OKC)</p>
       <p><strong>Par 58</strong> · Shot +3 · Tree save from behind basket 😆</p>
-      <p>Date: 2025-10-19</p>
+      <p>Date: <span class="mono">2025-10-19</span></p>
     </div>
 
     <div style="margin-top:30px;">
