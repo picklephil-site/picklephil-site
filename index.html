@@ -78,18 +78,37 @@
   /* Links (keep non-blue for readability on green) */
   a, a:visited, a:hover, a:active { color: var(--text); text-decoration:none; }
 
-  /* Hidden admin + modal */
+  /* Hidden admin */
   .admin-block{display:none} .admin-block.revealed{display:block}
-  .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:50}
-  .modal{background:var(--bg); border:1px solid rgba(255,255,255,.15); color:#e9f7ee; border-radius:12px; max-width:520px; padding:18px; box-shadow:var(--shadow); text-align:left}
-  .modal h3{margin:0 0 8px} .modal .row{display:flex; gap:10px; justify-content:flex-end; margin-top:14px} .modal .btn{background:#e9f7ee; color:#0f2d18}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
 
-  /* Bouncy pickle for guest modal */
-  @keyframes pickleBounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+  /* Pretty modal theme (dark style like your screenshot) */
+  .pretty-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.55);
+    display:none; align-items:center; justify-content:center; z-index:1000;
   }
+  .pretty-modal{
+    background:#0f2d18; color:#e9f7ee;
+    width:min(560px,92vw);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:16px; padding:22px 20px; text-align:center;
+    box-shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+  .pretty-modal h3{ margin:8px 0 6px; font-size:1.4rem; }
+  .pretty-modal p{ margin:0 0 12px; }
+  .pretty-modal .pickle{
+    display:inline-block; font-size:30px; margin-bottom:8px;
+    animation:pickleBounce 1.6s ease-in-out infinite;
+  }
+  .btn--confirm{
+    background:#2ecc71; color:#0d2b1a; border:none;
+    border-radius:12px; padding:10px 16px; font-weight:800;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
+  }
+  .btn--confirm:hover{ filter:brightness(.95); transform:translateY(-1px); }
+
+  /* Bouncy pickle keyframes */
+  @keyframes pickleBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
 </style>
 </head>
 <body>
@@ -208,25 +227,23 @@
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <!-- Existing generic UC modal (unchanged) -->
-  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal">
-      <h3 id="modal-title">Under Construction</h3>
-      <p class="meta" id="modal-body">🥒 This feature is still fermenting — check back soon for a dill-ightful surprise!</p>
-      <div class="row"><button class="btn" id="modal-close">OK</button></div>
+  <!-- Under-Construction Modal (dark style) -->
+  <div id="ucModal" class="pretty-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="pretty-modal">
+      <div class="pickle" aria-hidden="true">🥒</div>
+      <h3>Under Construction</h3>
+      <p id="ucModalBody">Playground is in a pickle — rides under construction!</p>
+      <button id="ucClose" class="btn btn--confirm">OK</button>
     </div>
   </div>
 
-  <!-- NEW: Guestbook Modal -->
-  <div id="guestModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="guestModalTitle"
-       style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:1000; align-items:center; justify-content:center; padding:16px;">
-    <div class="modal-card"
-         style="background:#ffffff; color:#145a32; width:min(420px,95vw); border-radius:14px; padding:20px; text-align:center; box-shadow:0 8px 28px rgba(0,0,0,.35);">
-      <div class="bouncy-pickle" aria-hidden="true"
-           style="display:inline-block; font-size:28px; margin-bottom:8px; animation:pickleBounce 1.6s ease-in-out infinite">🥒</div>
-      <h3 id="guestModalTitle" style="margin:4px 0 6px; font-weight:800">🚧 Still in the Brine!</h3>
-      <p style="margin:0 0 12px">Our “Brine &amp; Sign” guestbook is still fermenting — check back soon to leave your crunchy mark in the jar!</p>
-      <button id="guestClose" class="btn" style="background:#145a32; color:#fff;">Got it!</button>
+  <!-- Guestbook Modal (dark style) -->
+  <div id="guestModal" class="pretty-backdrop" role="dialog" aria-modal="true" aria-labelledby="guestModalTitle" aria-hidden="true">
+    <div class="pretty-modal">
+      <div class="pickle" aria-hidden="true">🥒</div>
+      <h3 id="guestModalTitle">Still in the Brine!</h3>
+      <p>Our “Brine &amp; Sign” guestbook is still fermenting — check back soon to leave your crunchy mark in the jar!</p>
+      <button id="guestClose" class="btn btn--confirm">Got it!</button>
     </div>
   </div>
 
@@ -267,14 +284,26 @@
     }
   })();
 
-  // Existing UC modal for other buttons
-  const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
-  const modal=document.getElementById('modal-backdrop'), body=document.getElementById('modal-body');
-  document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{body.textContent=puns[b.dataset.key]||body.textContent; modal.style.display='flex';}));
-  document.getElementById('modal-close').addEventListener('click',()=>modal.style.display='none');
-  modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
+  // Under-Construction modal (new pretty modal)
+  const puns = {
+    playground: '🥒 Playground is in a pickle — rides under construction!',
+    family:     '🥒 Family Portal is curing behind sign-in.',
+    roast:      '🥒 Roast Generator is marinating the roasts!'
+  };
+  const ucModal = document.getElementById('ucModal');
+  const ucBody  = document.getElementById('ucModalBody');
+  const ucClose = document.getElementById('ucClose');
 
-  // NEW: Guestbook modal behavior
+  document.querySelectorAll('.btn.uc').forEach(b => {
+    b.addEventListener('click', () => {
+      ucBody.textContent = puns[b.dataset.key] || ucBody.textContent;
+      ucModal.style.display = 'flex';
+    });
+  });
+  ucClose.addEventListener('click', () => ucModal.style.display = 'none');
+  ucModal.addEventListener('click', e => { if (e.target === ucModal) ucModal.style.display = 'none'; });
+
+  // Guestbook modal behavior
   (function(){
     const btn = document.getElementById('guestBtn');
     const gModal = document.getElementById('guestModal');
