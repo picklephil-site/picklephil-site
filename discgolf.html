@@ -13,7 +13,7 @@
   --tree-size: 70px;
   --flight-distance: 360px;
   --arc-height: 120px;
-  --flight-time: 5.8s;
+  --flight-time: 6s;
 
   --bg: #145a32;
   --bg2: #2ecc71;
@@ -49,10 +49,25 @@ p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
   pointer-events: none;
 }
 
-/* Tree midway through the shot */
+/* Basket (center-ish) */
+.basket {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  width: var(--basket-size);
+  height: var(--basket-size);
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--basket-size) * .9);
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
+  transform: translateX(-50%);
+}
+.basket::after { content: "🧺"; }
+
+/* Tree on the far right, beyond the basket */
 .tree {
   position: absolute;
-  left: calc(50% - var(--flight-distance) / 2);
+  left: calc(50% + var(--flight-distance) / 2);
   bottom: 8px;
   width: var(--tree-size);
   height: var(--tree-size);
@@ -65,51 +80,36 @@ p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
 .tree::after { content: "🌳"; }
 
 @keyframes treePop {
-  0%, 20% { opacity: 0; }
-  25%, 60% { opacity: 1; } /* tree visible during impact */
-  70%, 100% { opacity: 0; }
+  0%, 55% { opacity: 0; }
+  60%, 80% { opacity: 1; } /* visible during impact */
+  90%, 100% { opacity: 0; }
 }
 
-/* Basket at right */
-.basket {
-  position: absolute;
-  left: 50%;
-  bottom: 10px;
-  width: var(--basket-size); height: var(--basket-size);
-  display: grid; place-items: center;
-  font-size: calc(var(--basket-size) * .9);
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
-  transform: translateX(-50%);
-}
-.basket::after { content: "🧺"; }
-
-/* Pickle disc */
+/* Pickle disc flight animation */
 .disc {
   position: absolute;
   left: calc(50% - var(--flight-distance));
   bottom: 14px;
-  width: var(--disc-size); height: var(--disc-size);
-  display: grid; place-items: center;
+  width: var(--disc-size);
+  height: var(--disc-size);
+  display: grid;
+  place-items: center;
   font-size: calc(var(--disc-size) * .9);
   transform-origin: center;
   filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
-  animation: flyHitTree var(--flight-time) ease-in-out infinite;
+  animation: flyBehindTree var(--flight-time) ease-in-out infinite;
 }
 .disc::after { content: "🥒"; }
 
-/* Flight arc with a tree impact */
-@keyframes flyHitTree {
+/* Flight path: passes basket, hits tree, bounces BACK in */
+@keyframes flyBehindTree {
   0%   { transform: translate(0, 0) rotateZ(-25deg); }
-  15%  { transform: translate(calc(var(--flight-distance) * 0.25), calc(var(--arc-height) * -0.6)) rotateZ(90deg); }
-  30%  { transform: translate(calc(var(--flight-distance) * 0.45), calc(var(--arc-height) * -0.4)) rotateZ(160deg); }
-  /* impact at tree! */
-  35%  { transform: translate(calc(var(--flight-distance) * 0.5), -10px) rotateZ(220deg) scale(1.1); }
-  45%  { transform: translate(calc(var(--flight-distance) * 0.45), calc(var(--arc-height) * -0.5)) rotateZ(270deg) scale(0.95); }
-  /* rebounds forward */
-  60%  { transform: translate(calc(var(--flight-distance) * 0.7), calc(var(--arc-height) * -0.3)) rotateZ(340deg); }
-  75%  { transform: translate(calc(var(--flight-distance) * 0.9), -10px) rotateZ(360deg); }
-  /* lands in basket */
-  85%  { transform: translate(var(--flight-distance), 0) rotateZ(15deg); }
+  15%  { transform: translate(calc(var(--flight-distance) * 0.25), calc(var(--arc-height) * -0.4)) rotateZ(60deg); }
+  35%  { transform: translate(calc(var(--flight-distance) * 0.55), calc(var(--arc-height) * -0.9)) rotateZ(160deg); }
+  55%  { transform: translate(calc(var(--flight-distance) * 1.0), -10px) rotateZ(260deg) scale(1.1); } /* passes basket, hits tree */
+  65%  { transform: translate(calc(var(--flight-distance) * 0.85), calc(var(--arc-height) * -0.3)) rotateZ(330deg) scale(0.95); }
+  80%  { transform: translate(calc(var(--flight-distance) * 0.5), 0) rotateZ(360deg); } /* bounces back */
+  85%  { transform: translate(calc(var(--flight-distance) * 0.5), 0) rotateZ(10deg); } /* lands in basket area */
   100% { transform: translate(0, 0) rotateZ(-25deg); }
 }
 
@@ -146,8 +146,8 @@ footer { margin: 28px 0 10px; opacity:.85; }
   <div class="wrap">
     <div class="scene" aria-hidden="true">
       <div class="disc"></div>
-      <div class="tree"></div>
       <div class="basket"></div>
+      <div class="tree"></div>
     </div>
 
     <h1>Pickle Phil’s Disc Golf Adventures</h1>
@@ -183,7 +183,7 @@ footer { margin: 28px 0 10px; opacity:.85; }
     <h2 class="section-title">🧾 Latest Scorecard</h2>
     <div class="card">
       <p><strong>Course:</strong> Dolese Park</p>
-      <p><strong>Par 58</strong> · Shot +3 · Tree saves: 1 😆</p>
+      <p><strong>Par 58</strong> · Shot +3 · Tree save from behind basket 😆</p>
       <p>Date: 2025-10-19</p>
     </div>
 
