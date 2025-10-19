@@ -67,22 +67,42 @@
       margin-top:16px;
     }
 
-    /* smoother disc flight — curved glide path */
+    /* Disc realistic glide — arc to right */
     @keyframes discGlide {
-      0% { transform: translate(-10vw, 0) rotate(0deg); opacity:0; }
-      10% { opacity:1; }
-      40% { transform: translate(40vw, -6vh) rotate(10deg); opacity:1; }
-      70% { transform: translate(90vw, 6vh) rotate(-15deg); opacity:1; }
-      100% { transform: translate(130vw, 0) rotate(-25deg); opacity:0; }
+      0%   { transform: translate(-12vw, 0vh) rotate(0deg); opacity:0; }
+      10%  { opacity:1; }
+      40%  { transform: translate(40vw, -7vh) rotate(8deg);  opacity:1; }
+      70%  { transform: translate(82vw, 4vh) rotate(-10deg); opacity:1; }
+      87%  { transform: translate(92vw, 0vh) rotate(-15deg); opacity:1; } /* over basket */
+      100% { transform: translate(92vw, 5vh) rotate(-18deg); opacity:0; }  /* drops in */
     }
     #flying-disc {
       position:fixed;
-      top:12vh; left:-100px;
+      top:14vh; left:-100px;
       font-size:2.5rem;
       opacity:0;
-      animation:discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) 3s forwards;
       pointer-events:none;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+      animation: discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) 3s forwards;
     }
+
+    /* 🧺 Basket emoji on the right */
+    #basket-emoji{
+      position:fixed;
+      top:16vh; right:5vw;
+      font-size:64px;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+      transform-origin: center bottom;
+    }
+    @keyframes basketJiggle {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      20%{ transform: translateY(2px) rotate(-2deg) scale(1.05); }
+      40%{ transform: translateY(-1px) rotate(1.5deg) scale(1.03); }
+      60%{ transform: translateY(1px) rotate(-1deg) scale(1.02); }
+      80%{ transform: translateY(-1px) rotate(.5deg) scale(1.01); }
+      100%{ transform: translateY(0) rotate(0deg) scale(1); }
+    }
+    .jiggle{ animation: basketJiggle .6s ease-in-out; }
 
     @supports (padding-top: env(safe-area-inset-top)){
       body{padding-top:env(safe-area-inset-top);}
@@ -91,8 +111,14 @@
 </head>
 
 <body>
+  <!-- Centered wiggle pickle -->
   <div id="pickle-hero">🥒</div>
+
+  <!-- Flying disc -->
   <div id="flying-disc">🥏</div>
+
+  <!-- The comedy "basket" -->
+  <div id="basket-emoji" aria-hidden="true">🧺</div>
 
   <div class="wrap">
     <h1 class="title">Pickle Phil’s Disc Golf Adventures</h1>
@@ -146,13 +172,24 @@
   </div>
 
   <script>
-    // repeat flying disc every 15s
-    setInterval(()=>{
-      const disc=document.getElementById("flying-disc");
-      disc.style.animation='none';
+    // Repeat the flight every 15 seconds and jiggle the basket on "catch"
+    function fly(){
+      const disc = document.getElementById('flying-disc');
+      const basket = document.getElementById('basket-emoji');
+      // restart disc animation
+      disc.style.animation = 'none';
       void disc.offsetWidth;
-      disc.style.animation='discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) forwards';
-    },15000);
+      disc.style.animation = 'discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) forwards';
+      // trigger basket jiggle near landing
+      setTimeout(()=> {
+        basket.classList.add('jiggle');
+        setTimeout(()=> basket.classList.remove('jiggle'), 700);
+      }, 3600); // just before the disc drops in
+    }
+
+    // initial and interval
+    setTimeout(fly, 2000);
+    setInterval(fly, 15000);
   </script>
 </body>
 </html>
