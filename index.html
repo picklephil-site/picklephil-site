@@ -28,7 +28,7 @@
       --radius: 14px;
       --shadow: 0 10px 35px rgba(0,0,0,.35);
 
-      /* Hero jar */
+      /* Dancing jar */
       --jar-size: clamp(140px, 22vw, 220px);  /* static size */
       --jar-tilt-deg: 6deg;                   /* tilt amount */
       --jar-bob: 8px;                         /* bob distance */
@@ -60,15 +60,23 @@
       font-size: clamp(36px, 4.5vw, 56px);
     }
 
-    /* Tilt-and-bob dancing jar (static size) */
+    /* Dancing jar: animate the WRAPPER so animation always runs */
     .pickle-jar {
       width: var(--jar-size);
       height: var(--jar-size);
-      background: center / contain no-repeat url('/img/pickle-in-jar.png');
+      display: grid;
+      place-items: center;
       animation: jarDance var(--jar-dance-speed) ease-in-out infinite;
       transform-origin: 50% 85%;
-      filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
       will-change: transform;
+      filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
+    }
+    .pickle-jar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      /* No animation on the image itself — wrapper handles it */
     }
     @keyframes jarDance {
       0%   { transform: translateY(0) rotate(var(--jar-tilt-deg)); }
@@ -155,8 +163,11 @@
         <div class="verse" id="daily-verse" aria-live="polite"></div>
       </div>
 
-      <!-- Dancing jar image (place your asset at /img/pickle-in-jar.png) -->
-      <div class="pickle-jar" aria-hidden="true"></div>
+      <!-- Dancing jar (animation on wrapper so it ALWAYS runs) -->
+      <div class="pickle-jar" aria-hidden="true">
+        <!-- Put your actual transparent image here -->
+        <img src="/img/pickle-in-jar.png" alt="Pickle Phil in a jar dancing" onerror="this.alt='🥒';this.style.fontSize='64px';this.style.width='auto';this.style.height='auto';" />
+      </div>
     </div>
 
     <!-- Groups Section -->
@@ -251,7 +262,7 @@
     ];
     (function renderVerse(){
       const el = document.getElementById('daily-verse');
-      const day = Math.floor((Date.now() / 86400000)); // day index
+      const day = Math.floor((Date.now() / 86400000));
       const v = verses[day % verses.length];
       el.innerHTML = `<strong>Daily Verse:</strong> “${v.text}” <em>— ${v.ref}</em>`;
     })();
