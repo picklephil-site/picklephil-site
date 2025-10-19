@@ -7,118 +7,134 @@
 <link rel="icon" type="image/png" href="/img/pickle-jar-icon.png" />
 <style>
 :root {
-  /* Orbit tuning */
-  --scene-h: 260px;       /* vertical space for animation block */
-  --orbit-r: 110px;       /* orbit radius (distance from center) */
-  --orbit-dur: 5.5s;      /* orbit duration (smaller = faster) */
+  --scene-h: 260px;
+  --disc-size: 90px;
+  --basket-size: 80px;
+  --tree-size: 70px;
+  --flight-distance: 360px;
+  --arc-height: 120px;
+  --flight-time: 5.8s;
 
-  /* Sizes */
-  --disc-size: 90px;      /* pickle disc size */
-  --basket-size: 80px;    /* basket size */
-
-  /* Theme */
-  --bg: #145a32; --bg2: #2ecc71; --text: #f5f5f5;
-  --panel: rgba(255,255,255,.08); --radius: 14px;
-  --btn: #f5f5f5; --btnText:#145a32;
+  --bg: #145a32;
+  --bg2: #2ecc71;
+  --text: #f5f5f5;
+  --panel: rgba(255,255,255,.08);
+  --radius: 14px;
+  --btn: #f5f5f5;
+  --btnText:#145a32;
   --shadow: 0 10px 35px rgba(0,0,0,.35);
 }
 
 * { box-sizing: border-box; }
 
 body {
-  margin: 0; color: var(--text);
+  margin: 0;
+  color: var(--text);
   font-family: 'Segoe UI', Tahoma, sans-serif;
   background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
-  text-align: center; min-height: 100vh;
+  text-align: center;
+  min-height: 100vh;
 }
 
 .wrap { width: min(1120px, 100%); margin: 0 auto; padding: 22px; }
 h1 { font-size: clamp(36px, 4vw, 64px); margin: 6px 0 14px; }
 p  { font-size: 1.1rem; max-width: 760px; margin: 0 auto 1rem; }
 
-/* ---------- SCENE: ORBITING PICKLE DISC ---------- */
+/* ---------- SCENE ---------- */
 .scene {
   position: relative;
   height: var(--scene-h);
   max-width: 760px;
-  margin: 0 auto 8px; /* centered */
+  margin: 0 auto 8px;
   pointer-events: none;
 }
 
-/* Basket centered near the bottom of the orbit */
+/* Tree midway through the shot */
+.tree {
+  position: absolute;
+  left: calc(50% - var(--flight-distance) / 2);
+  bottom: 8px;
+  width: var(--tree-size);
+  height: var(--tree-size);
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--tree-size) * .9);
+  opacity: 0;
+  animation: treePop var(--flight-time) ease-in-out infinite;
+}
+.tree::after { content: "🌳"; }
+
+@keyframes treePop {
+  0%, 20% { opacity: 0; }
+  25%, 60% { opacity: 1; } /* tree visible during impact */
+  70%, 100% { opacity: 0; }
+}
+
+/* Basket at right */
 .basket {
   position: absolute;
   left: 50%;
-  bottom: 14px;
+  bottom: 10px;
   width: var(--basket-size); height: var(--basket-size);
   display: grid; place-items: center;
   font-size: calc(var(--basket-size) * .9);
-  transform: translateX(-50%);
   filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
+  transform: translateX(-50%);
 }
 .basket::after { content: "🧺"; }
 
-/* Orbit wrapper: rotate this to move the disc around a circle */
-.orbit {
-  position: absolute;
-  left: 50%;
-  bottom: calc(14px + var(--basket-size)/2); /* center of orbit above basket rim */
-  width: calc(var(--orbit-r) * 2);
-  height: calc(var(--orbit-r) * 2);
-  margin-left: calc(-1 * var(--orbit-r));
-  margin-bottom: calc(-1 * var(--orbit-r));
-  transform-origin: center center;
-  animation: orbit var(--orbit-dur) linear infinite;
-  filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
-}
-
-/* The disc sits on the right edge of the orbit wrapper */
+/* Pickle disc */
 .disc {
   position: absolute;
-  left: 50%; top: 50%;
+  left: calc(50% - var(--flight-distance));
+  bottom: 14px;
   width: var(--disc-size); height: var(--disc-size);
-  margin-left: calc(var(--orbit-r) - var(--disc-size)/2);
-  margin-top: calc(-1 * var(--disc-size)/2);
   display: grid; place-items: center;
   font-size: calc(var(--disc-size) * .9);
-  transform-origin: center center;
-  /* Disc spins as it orbits */
-  animation: spin var(--orbit-dur) linear infinite;
+  transform-origin: center;
+  filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
+  animation: flyHitTree var(--flight-time) ease-in-out infinite;
 }
 .disc::after { content: "🥒"; }
 
-/* Orbit path (wrapper rotates 360°) */
-@keyframes orbit {
-  to { transform: rotate(360deg); }
+/* Flight arc with a tree impact */
+@keyframes flyHitTree {
+  0%   { transform: translate(0, 0) rotateZ(-25deg); }
+  15%  { transform: translate(calc(var(--flight-distance) * 0.25), calc(var(--arc-height) * -0.6)) rotateZ(90deg); }
+  30%  { transform: translate(calc(var(--flight-distance) * 0.45), calc(var(--arc-height) * -0.4)) rotateZ(160deg); }
+  /* impact at tree! */
+  35%  { transform: translate(calc(var(--flight-distance) * 0.5), -10px) rotateZ(220deg) scale(1.1); }
+  45%  { transform: translate(calc(var(--flight-distance) * 0.45), calc(var(--arc-height) * -0.5)) rotateZ(270deg) scale(0.95); }
+  /* rebounds forward */
+  60%  { transform: translate(calc(var(--flight-distance) * 0.7), calc(var(--arc-height) * -0.3)) rotateZ(340deg); }
+  75%  { transform: translate(calc(var(--flight-distance) * 0.9), -10px) rotateZ(360deg); }
+  /* lands in basket */
+  85%  { transform: translate(var(--flight-distance), 0) rotateZ(15deg); }
+  100% { transform: translate(0, 0) rotateZ(-25deg); }
 }
 
-/* Disc spins around its own center */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Reduced motion: show the disc at top of orbit, no animation */
-@media (prefers-reduced-motion: reduce) {
-  .orbit { animation: none; }
-  .disc  { animation: none; }
-  .disc::after { content: "🥒"; }
-}
-
-/* ---------- UI / Content ---------- */
+/* ---------- CONTENT ---------- */
 .section-title { margin: 28px 0 10px; font-size: 1.6rem; }
 
 .card {
   background: var(--panel);
   border-radius: var(--radius);
-  padding: 18px; box-shadow: var(--shadow);
+  padding: 18px;
+  box-shadow: var(--shadow);
   border: 1px solid rgba(255,255,255,.12);
   text-align: left;
 }
 
 .btn {
-  color: var(--btnText); background: var(--btn);
-  text-decoration: none; padding: 12px 18px; border-radius: 12px;
-  font-weight: 700; transition: .2s; margin: 6px; display: inline-block;
+  color: var(--btnText);
+  background: var(--btn);
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all .2s ease;
+  margin: 6px;
+  display: inline-block;
 }
 .btn:hover { filter: brightness(.95); transform: translateY(-1px); }
 
@@ -128,18 +144,15 @@ footer { margin: 28px 0 10px; opacity:.85; }
 </head>
 <body>
   <div class="wrap">
-    <!-- Centered scene with orbiting disc -->
     <div class="scene" aria-hidden="true">
-      <div class="orbit">
-        <div class="disc"></div>
-      </div>
+      <div class="disc"></div>
+      <div class="tree"></div>
       <div class="basket"></div>
     </div>
 
     <h1>Pickle Phil’s Disc Golf Adventures</h1>
     <p>Follow my disc golf journey — what’s in my bag, where I’m throwing, and how it all lands (or doesn’t!).</p>
 
-    <!-- Bag -->
     <h2 class="section-title">🥏 What’s in My Bag</h2>
     <ul style="text-align:left; display:inline-block; line-height:1.6; font-size:1.05rem;">
       <li><strong>🥏 Putter Pocket</strong> – Front of bag</li>
@@ -158,7 +171,6 @@ footer { margin: 28px 0 10px; opacity:.85; }
       <li><strong>F1</strong> – beefy fairway (skips, forehand, headwind control)</li>
     </ul>
 
-    <!-- Courses -->
     <h2 class="section-title">🌲 Courses I’ve Been Playing</h2>
     <div class="card">
       <ul style="margin:0; padding-left:1.1rem; line-height:1.6; font-size:1.05rem;">
@@ -168,12 +180,11 @@ footer { margin: 28px 0 10px; opacity:.85; }
       </ul>
     </div>
 
-    <!-- Latest Scorecard -->
     <h2 class="section-title">🧾 Latest Scorecard</h2>
     <div class="card">
       <p><strong>Course:</strong> Dolese Park</p>
-      <p><strong>Par 58</strong> · Shot +3 · Personal best this month</p>
-      <p>Date: 2025-10-15</p>
+      <p><strong>Par 58</strong> · Shot +3 · Tree saves: 1 😆</p>
+      <p>Date: 2025-10-19</p>
     </div>
 
     <div style="margin-top:30px;">
