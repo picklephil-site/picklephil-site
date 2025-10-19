@@ -55,4 +55,104 @@
     @keyframes pickleWiggle {
       0%,100%{transform:rotate(0deg);}
       25%{transform:rotate(-8deg);}
-      50%{transform:rotate(8
+      50%{transform:rotate(8deg);}
+      75%{transform:rotate(-5deg);}
+    }
+    #pickle-hero{
+      display:block;
+      animation:pickleWiggle 2.5s ease-in-out infinite;
+      transform-origin:center bottom;
+      text-align:center;
+      font-size:64px;
+      margin-top:16px;
+    }
+
+    /* smoother disc flight — curved glide path */
+    @keyframes discGlide {
+      0% { transform: translate(-10vw, 0) rotate(0deg); opacity:0; }
+      10% { opacity:1; }
+      40% { transform: translate(40vw, -6vh) rotate(10deg); opacity:1; }
+      70% { transform: translate(90vw, 6vh) rotate(-15deg); opacity:1; }
+      100% { transform: translate(130vw, 0) rotate(-25deg); opacity:0; }
+    }
+    #flying-disc {
+      position:fixed;
+      top:12vh; left:-100px;
+      font-size:2.5rem;
+      opacity:0;
+      animation:discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) 3s forwards;
+      pointer-events:none;
+    }
+
+    @supports (padding-top: env(safe-area-inset-top)){
+      body{padding-top:env(safe-area-inset-top);}
+    }
+  </style>
+</head>
+
+<body>
+  <div id="pickle-hero">🥒</div>
+  <div id="flying-disc">🥏</div>
+
+  <div class="wrap">
+    <h1 class="title">Pickle Phil’s Disc Golf Adventures</h1>
+    <p class="subtitle">Courses, bag, and scorecards — crisp and dill-icious.</p>
+
+    <nav class="toolbar" aria-label="Disc golf quick actions">
+      <a class="chip" href="/"><span>⬅</span> Back</a>
+      <a class="chip" href="#bag">👜 What’s in my Bag</a>
+      <a class="chip" href="#courses">🌲 Courses</a>
+      <a class="chip" href="#score">📋 Latest Score</a>
+    </nav>
+
+    <section id="bag" class="card">
+      <h2>What’s in my Bag</h2>
+      <h3>🥏 Putter Pocket</h3>
+      <ol class="list">
+        <li><strong>Shogun</strong> — Main putter</li>
+        <li><strong>Aviar</strong> — Backup putter</li>
+      </ol>
+      <h3>🎯 Main Compartment <span class="badge">(left → right)</span></h3>
+      <ol class="list" start="3">
+        <li><strong>Stingray</strong> — Understable mid (turnovers / hyzer flips)</li>
+        <li><strong>Mako3</strong> — Dead-straight mid</li>
+        <li><strong>Truth</strong> — Stable mid with gentle fade</li>
+        <li><strong>Escape</strong> — Neutral fairway driver</li>
+        <li><strong>Shryke</strong> — Glidey distance driver</li>
+        <li><strong>Destroyer</strong> — Stable distance driver</li>
+        <li><strong>TDSA</strong> — Mystery Innova, utility slot</li>
+        <li><strong>Thunderbird</strong> — Overstable fairway</li>
+        <li><strong>F1</strong> — Beefy fairway (skips, forehand, headwind)</li>
+      </ol>
+    </section>
+
+    <section id="courses" class="card">
+      <h2>Courses I’ve Been Playing</h2>
+      <ul class="list">
+        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Dolese Park DGC (OKC)</a></li>
+        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Mitch Park</a></li>
+        <li><a href="https://goo.gl/maps/" target="_blank" rel="noopener">Eagles Nest</a></li>
+      </ul>
+    </section>
+
+    <section id="score" class="card">
+      <h2>Latest Scorecard</h2>
+      <p class="meta">Latest round — <strong>Dolese Park</strong></p>
+      <div class="card" style="background:rgba(0,0,0,.15); box-shadow:none; margin:10px 0 0">
+        <p class="meta"><strong>Par 58</strong> · <strong>Shot +3</strong> · Personal best this month.</p>
+        <p class="meta">Date: <time datetime="2025-10-15">2025-10-15</time></p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // repeat flying disc every 15s
+    setInterval(()=>{
+      const disc=document.getElementById("flying-disc");
+      disc.style.animation='none';
+      void disc.offsetWidth;
+      disc.style.animation='discGlide 4s cubic-bezier(0.25,0.46,0.45,0.94) forwards';
+    },15000);
+  </script>
+</body>
+</html>
