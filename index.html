@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The Real Dill Phil’s Jar</title>
 <meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
-<link rel="icon" type="image/png" href="favicon.png">
 
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/img/pickle-jar-icon.png" />
 
 <!-- Farmhouse-style title font -->
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
@@ -14,32 +15,33 @@
 <style>
   :root{
     --bg:#145a32; --bg2:#2ecc71;
-    --text:#f5f5f5;
+    --text:#f5f5f5; --muted:#e3f3e6;
     --btn:#f5f5f5; --btnText:#145a32;
+    --panelA: rgba(46,204,113,.22);
+    --panelB: rgba(46,204,113,.12);
     --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
-    /* Green glass */
-    --panel-a: rgba(46,204,113,.20);
-    --panel-b: rgba(46,204,113,.12);
   }
   *{box-sizing:border-box}
   body{
-    margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+    margin:0; font-family: Segoe UI, Tahoma, sans-serif; color:var(--text);
     background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
     min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center;
   }
+  a, a:visited, a:hover{ color:var(--text); text-decoration:none; }
+
   .wrap{width:min(1120px,100%); padding:22px}
-  .btn{color:var(--btnText); background:var(--btn); text-decoration:none; padding:12px 18px; border-radius:12px; font-weight:700; transition:.2s; margin:6px; display:inline-block; box-shadow:var(--shadow)}
+  .btn{color:var(--btnText); background:var(--btn); text-decoration:none; padding:12px 18px; border-radius:12px; font-weight:800; transition:.2s; margin:6px; display:inline-block; box-shadow:var(--shadow)}
   .btn:hover{filter:brightness(.95); transform:translateY(-1px)}
   .section-title{margin:28px 0 10px; font-size:1.6rem}
   .grid{display:grid; gap:16px; grid-template-columns:repeat(12,1fr); text-align:left}
   .card{
     grid-column:span 6;
-    background:linear-gradient(180deg,var(--panel-a),var(--panel-b));
+    background:linear-gradient(180deg,var(--panelA),var(--panelB));
     border:1px solid rgba(255,255,255,.18);
     border-radius:var(--radius);
     padding:18px; box-shadow:var(--shadow)
   }
-  .card--accent{ background:linear-gradient(180deg, rgba(46,204,113,.26), rgba(46,204,113,.16)); }
+  .card--wide{grid-column:span 12}
   .card h3{margin:2px 0 6px}
   .meta{opacity:.95}
   footer{margin:28px 0 10px; opacity:.85}
@@ -48,21 +50,18 @@
   /* HERO */
   .hero{width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto;}
   .hero-wrap{display:grid; grid-template-columns:1.05fr .95fr; gap:20px; align-items:center;}
+  @media (max-width:860px){ .hero-wrap{grid-template-columns:1fr; gap:8px} }
   .farmhouse{
     font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     font-weight:700; letter-spacing:1px;
     font-size: clamp(44px, 8.5vw, 96px);
-    line-height:1;
-    margin:0 0 8px;
+    line-height:1; margin:0 0 8px;
   }
   .hero p.lead{margin:0 0 14px; font-size:1.1rem; opacity:.95}
 
-  /* Dancing jar */
-  .jar-frame{
-    position:relative;
-    width:min(520px, 92vw);
-    margin-inline:auto;
-  }
+  /* Pickle jar image (tilt + bob) */
+  .hero-image{display:flex; justify-content:center}
+  .jar-frame{position:relative; width:min(520px, 92vw); margin-inline:auto;}
   .pickle-jar-img{
     width:100%; height:auto; display:block;
     filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
@@ -71,45 +70,27 @@
     animation:groove 3.6s ease-in-out infinite;
   }
   @keyframes groove{
-    0%   { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
-    50%  { transform: translateX( 1.2%) rotate( 3.2deg) skewX( 0.6deg); }
-    100% { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
+    0%   { transform: translateX(-1.2%) rotate(-3deg) skewX(-0.5deg); }
+    50%  { transform: translateX( 1.2%) rotate( 3deg) skewX( 0.5deg); }
+    100% { transform: translateX(-1.2%) rotate(-3deg) skewX(-0.5deg); }
   }
 
-  /* Links (keep non-blue for readability on green) */
-  a, a:visited, a:hover, a:active { color: var(--text); text-decoration:none; }
-
-  /* Hidden admin */
-  .admin-block{display:none} .admin-block.revealed{display:block}
-
-  /* Pretty modal theme (dark style like your screenshot) */
+  /* Pretty modal (Guestbook UC) */
   .pretty-backdrop{
-    position:fixed; inset:0; background:rgba(0,0,0,.55);
-    display:none; align-items:center; justify-content:center; z-index:1000;
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.65); z-index:1000; padding:16px;
   }
   .pretty-modal{
-    background:#0f2d18; color:#e9f7ee;
-    width:min(560px,92vw);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:16px; padding:22px 20px; text-align:center;
-    box-shadow:0 18px 50px rgba(0,0,0,.45);
+    background:#ffffff; color:#145a32; border-radius:14px; padding:22px; text-align:center;
+    width:min(420px, 92vw); box-shadow:0 8px 28px rgba(0,0,0,.35);
   }
-  .pretty-modal h3{ margin:8px 0 6px; font-size:1.4rem; }
-  .pretty-modal p{ margin:0 0 12px; }
-  .pretty-modal .pickle{
-    display:inline-block; font-size:30px; margin-bottom:8px;
-    animation:pickleBounce 1.6s ease-in-out infinite;
-  }
-  .btn--confirm{
-    background:#2ecc71; color:#0d2b1a; border:none;
-    border-radius:12px; padding:10px 16px; font-weight:800;
-    box-shadow:0 6px 18px rgba(0,0,0,.35);
-  }
-  .btn--confirm:hover{ filter:brightness(.95); transform:translateY(-1px); }
+  .pretty-modal .pickle{font-size:36px; margin-bottom:8px; animation:pickleBounce 1.6s ease-in-out infinite;}
+  @keyframes pickleBounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
-  /* Bouncy pickle keyframes */
-  @keyframes pickleBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
+  /* Accessibility: reduce motion */
+  @media (prefers-reduced-motion: reduce){
+    .pickle-jar-img{ animation:none !important; }
+  }
 </style>
 </head>
 <body>
@@ -120,6 +101,8 @@
       <div class="hero-cta">
         <h1 class="farmhouse">The Real Dill Phil’s Jar</h1>
         <p class="lead">Welcome to the Jar — bringing briny joy and media magic.</p>
+
+        <p style="margin:12px 0 16px;">🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update!</p>
 
         <div>
           <a class="btn" href="https://overseerr-philina609.venom.mygiga.cloud/login" target="_blank" rel="noopener">🎬 Make a Request</a>
@@ -134,33 +117,33 @@
         </p>
       </div>
 
-      <!-- Big jar image (with dancing pickle baked in) -->
+      <!-- Big jar image (with gentle dance) -->
       <div class="hero-image">
         <div class="jar-frame">
-          <img src="pickle-in-jar.png" alt="Pickle Phil dancing in a glass pickle jar" class="pickle-jar-img">
+          <!-- Place pickle-in-jar.png in / (or update path) -->
+          <img src="/pickle-in-jar.png" alt="Pickle Phil dancing in a glass pickle jar" class="pickle-jar-img">
         </div>
       </div>
     </div>
   </section>
 
   <div class="wrap">
-    <!-- Verse + Guestbook link -->
+
+    <!-- Verse -->
     <section class="grid" aria-label="Welcome widgets">
-      <article class="card card--accent" style="grid-column:span 12;">
+      <article class="card card--wide">
         <h3>📖 Daily Dill-votional</h3>
         <p id="votd-text" class="meta">Loading verse…</p>
         <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
       </article>
 
-      <!-- UPDATED GUESTBOOK CARD -->
-      <article class="card" style="grid-column:span 12;">
+      <!-- Guestbook card (shows UC modal) -->
+      <article class="card card--wide">
         <h3>📝 Brine &amp; Sign</h3>
         <p class="meta">Leave your mark in the jar (coming soon... still fermenting!)</p>
         <p><button id="guestBtn" class="btn">✍️ Sign the Jar</button></p>
       </article>
     </section>
-
-    <p>🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update!🥒 </p>
 
     <h2 class="section-title">Groups &amp; Portals</h2>
     <section id="groups" class="grid" aria-label="Groups &amp; Portals">
@@ -180,9 +163,9 @@
       </article>
 
       <article class="card">
-        <h3><span class="pickle-dance" aria-hidden="true">🥒</span> PickleGrams</h3>
+        <h3>🥒 PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
-        <p><a class="btn" href="https://www.youtube.com/@RealDillPhil/playlists"_blank" rel="noopener">Open PickleGram Gallery</a></p>
+        <p><a class="btn" href="https://drive.google.com/drive/folders/1plE6YazIeGMNW5C1J_3I2YYpLQ5f802u?usp=sharing" target="_blank" rel="noopener">Open PickleGram Gallery</a></p>
       </article>
 
       <article class="card">
@@ -207,58 +190,46 @@
     <!-- Contact -->
     <h2 class="section-title">Contact</h2>
     <section class="grid" aria-label="Contact">
-      <article class="card" style="grid-column:span 12;">
+      <article class="card card--wide">
         <h3>📧 Email</h3>
         <p class="meta">🥒 <a href="mailto:realdillphil@philliphinshaw.com">realdillphil@philliphinshaw.com</a></p>
         <p><button id="copy-email" class="btn">Copy Email</button></p>
       </article>
     </section>
 
-    <!-- Hidden Admin -->
-    <section id="hidden-admin" class="admin-block">
-      <h2 class="section-title">Site Admin</h2>
-      <section class="grid" aria-label="Site Admin">
-        <article class="card">
-          <h3>🛠️ Edit Site</h3>
-          <p><a class="btn" href="admin/" target="_blank" rel="noopener">Open Admin Portal</a></p>
-        </article>
-      </section>
+    <!-- Hidden Admin (revealed by typing "pickle") -->
+    <section id="hidden-admin" class="card card--wide" style="display:none;">
+      <h3>🛠️ Site Admin</h3>
+      <p><a class="btn" href="/admin/" target="_blank" rel="noopener">Open Admin Portal</a></p>
     </section>
 
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <!-- Under-Construction Modal (dark style) -->
-  <div id="ucModal" class="pretty-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="pretty-modal">
-      <div class="pickle" aria-hidden="true">🥒</div>
-      <h3>Under Construction</h3>
-      <p id="ucModalBody">Playground is in a pickle — rides under construction!</p>
-      <button id="ucClose" class="btn btn--confirm">OK</button>
-    </div>
-  </div>
-
-  <!-- Guestbook Modal (dark style) -->
+  <!-- Under-construction modal (pretty version) -->
   <div id="guestModal" class="pretty-backdrop" role="dialog" aria-modal="true" aria-labelledby="guestModalTitle" aria-hidden="true">
     <div class="pretty-modal">
       <div class="pickle" aria-hidden="true">🥒</div>
       <h3 id="guestModalTitle">Still in the Brine!</h3>
       <p>Our “Brine &amp; Sign” guestbook is still fermenting — check back soon to leave your crunchy mark in the jar!</p>
-      <button id="guestClose" class="btn btn--confirm">Got it!</button>
+      <button id="guestClose" class="btn">Got it!</button>
     </div>
   </div>
 
 <script>
+  // Footer year
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Reveal admin when typing 'pickle'
+  // Reveal hidden admin when typing 'pickle'
   (function(){
     const secret='pickle'; let buf='';
     const admin=document.getElementById('hidden-admin');
     window.addEventListener('keydown',e=>{
       const k=(e.key||'').toLowerCase();
-      if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.classList.toggle('revealed'); buf=''; } }
-      else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
+      if(/[a-z]/.test(k)){
+        buf=(buf+k).slice(-secret.length);
+        if(buf===secret){ admin.style.display = admin.style.display==='none' ? 'block' : 'none'; buf=''; }
+      }else if(k==='escape'){ admin.style.display='none'; buf=''; }
     });
   })();
 
@@ -285,35 +256,23 @@
     }
   })();
 
-  // Under-Construction modal (new pretty modal)
-  const puns = {
-    playground: '🥒 Playground is in a pickle — rides under construction!',
-    family:     '🥒 Family Portal is curing behind sign-in.',
-    roast:      '🥒 Roast Generator is marinating the roasts!'
-  };
-  const ucModal = document.getElementById('ucModal');
-  const ucBody  = document.getElementById('ucModalBody');
-  const ucClose = document.getElementById('ucClose');
+  // Under-construction modal logic (Guestbook button)
+  const guestBtn = document.getElementById('guestBtn');
+  const guestModal = document.getElementById('guestModal');
+  const guestClose = document.getElementById('guestClose');
+  guestBtn.addEventListener('click', () => { guestModal.style.display = 'flex'; });
+  guestClose.addEventListener('click', () => { guestModal.style.display = 'none'; });
+  guestModal.addEventListener('click', e => { if (e.target === guestModal) guestModal.style.display = 'none'; });
 
-  document.querySelectorAll('.btn.uc').forEach(b => {
-    b.addEventListener('click', () => {
-      ucBody.textContent = puns[b.dataset.key] || ucBody.textContent;
-      ucModal.style.display = 'flex';
-    });
-  });
-  ucClose.addEventListener('click', () => ucModal.style.display = 'none');
-  ucModal.addEventListener('click', e => { if (e.target === ucModal) ucModal.style.display = 'none'; });
+  // UC modal reuse for other "uc" buttons
+  const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
+  document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{
+    // reuse same modal with contextual message
+    const box = guestModal.querySelector('p');
+    box.textContent = puns[b.dataset.key] || '🥒 This feature is still fermenting — check back soon!';
+    guestModal.style.display='flex';
+  }));
 
-  // Guestbook modal behavior
-  (function(){
-    const btn = document.getElementById('guestBtn');
-    const gModal = document.getElementById('guestModal');
-    const gClose = document.getElementById('guestClose');
-    if(!btn || !gModal || !gClose) return;
-    btn.addEventListener('click', ()=> gModal.style.display='flex');
-    gClose.addEventListener('click', ()=> gModal.style.display='none');
-    gModal.addEventListener('click', e=>{ if(e.target===gModal) gModal.style.display='none'; });
-  })();
 </script>
 </body>
 </html>
