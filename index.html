@@ -266,7 +266,7 @@
 
   // UC modal reuse for other "uc" buttons
   const puns={playground:'🥒 Playground is in a pickle — rides under construction!',family:'🥒 Family Portal is curing behind sign-in.',roast:'🥒 Roast Generator is marinating the roasts!'};
-  #document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.btn.uc').forEach(b=>b.addEventListener('click',()=>{
     // reuse same modal with contextual message
     const box = guestModal.querySelector('p');
     box.textContent = puns[b.dataset.key] || '🥒 This feature is still fermenting — check back soon!';
