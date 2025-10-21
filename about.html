@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>About • The Real Dill Phil</title>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
+    --btn:#f5f5f5; --btnText:#145a32; --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
+    --panel-a: rgba(46,204,113,.20); --panel-b: rgba(46,204,113,.12);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+    background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
+    min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center;
+  }
+  a{ color:var(--text); text-decoration:none; }
+  .wrap{width:min(980px,100%); padding:22px}
+  .btn{color:var(--btnText); background:var(--btn); text-decoration:none; padding:12px 18px; border-radius:12px; font-weight:700; transition:.2s; margin:6px; display:inline-block; box-shadow:var(--shadow)}
+  .btn:hover{filter:brightness(.95); transform:translateY(-1px)}
+  .farmhouse{
+    font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-weight:700; letter-spacing:1px;
+    font-size: clamp(42px, 7.5vw, 90px);
+    line-height:1; margin:10px 0 4px;
+  }
+  .card{
+    background:linear-gradient(180deg,var(--panel-a),var(--panel-b));
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:var(--radius);
+    padding:18px; box-shadow:var(--shadow); text-align:left;
+  }
+  .grid{display:grid; gap:20px; grid-template-columns:1.1fr .9fr; align-items:center;}
+  @media (max-width:900px){ .grid{grid-template-columns:1fr} .card{text-align:left} }
+  .hero-img{
+    width:100%; border-radius:16px; display:block;
+    box-shadow:0 18px 55px rgba(0,0,0,.45);
+  }
+  p{font-size:1.1rem; line-height:1.65}
+  ul{margin:10px 0 0 18px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="farmhouse">The Real Dill Phil</h1>
+    <p style="opacity:.95; margin-top:0.2rem">Hi, I’m Phil — thanks for stopping by the Jar.</p>
+
+    <section class="grid" aria-label="About Phil">
+      <div class="card">
+        <p>I’m a certified movie buff — my all-time favorite trilogy is <strong>Back to the Future</strong> (where we’re going, we don’t need roads ✨). When I’m not watching films, you’ll probably catch me building <strong>LEGO</strong> sets, throwing plastics on a disc golf course, or out riding my <strong>Specialized CrossTrail</strong>.</p>
+        <p>I love to travel, try new things, and create fun stuff for friends and family — and most of all, I’m striving to <strong>honor God in every part of life</strong>. Doing life with Christ is the heartbeat behind the Jar.</p>
+        <ul>
+          <li>🎬 Favorite trilogy: <em>Back to the Future</em></li>
+          <li>🧩 LEGO builder & tinkerer</li>
+          <li>🥏 New to disc golf & loving it</li>
+          <li>🚴‍♂️ Rides a Specialized CrossTrail</li>
+          <li>✈️ Always up for a trip</li>
+        </ul>
+        <p style="margin-top:14px;">Want to say hi? <a href="mailto:realdillphil@philliphinshaw.com" style="text-decoration:underline">realdillphil@philliphinshaw.com</a></p>
+        <p><a class="btn" href="/index.html">🏠 Back to the Jar</a></p>
+      </div>
+
+      <div>
+        <img src="/img/about-picklephil.jpg" alt="About Pickle Phil" class="hero-img">
+      </div>
+    </section>
+  </div>
+</body>
+</html>
