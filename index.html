@@ -7,6 +7,7 @@
 <meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
 <link rel="icon" type="image/png" href="/img/favicon.png">
 
+<!-- Farmhouse-style title font -->
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -63,6 +64,7 @@
     transform-origin:50% 80%;
     animation:tilt-bob 3.6s ease-in-out infinite;
   }
+  /* restore tilt + bob */
   @keyframes tilt-bob{
     0%   { transform: translateX(-1.2%) rotate(-3deg); }
     50%  { transform: translateX(1.2%) rotate(3deg); }
@@ -180,14 +182,13 @@
     </article>
   </section>
 
-  <!-- QR Rickroll Card -->
+  <!-- QR Rickroll Card (no caption text) -->
   <h2 class="section-title">🎥 Join the Jar Journey</h2>
   <article class="card qr-card card--wide" style="text-align:center;">
     <p class="meta" style="font-size:1.1rem;">If you want to be part of the making of the Jar — click or scan below 👇</p>
     <a href="/rick.html">
-      <img class="qr-pulse" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fphilliphinshaw.com%2Frick.html" alt="QR code leading to the Jar surprise">
+      <img class="qr-pulse" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fphilliphinshaw.com%2Frick.html" alt="QR to a Jar surprise">
     </a>
-    <p style="margin-top:6px;">You’ve been brined and rolled 🎶</p>
   </article>
 
   <!-- Contact -->
