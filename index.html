@@ -7,9 +7,7 @@
 <meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
 <link rel="icon" type="image/png" href="/img/favicon.png">
 
-<!-- Farmhouse-style title font -->
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
-
 <style>
   :root{
     --bg:#145a32; --bg2:#2ecc71;
@@ -32,7 +30,6 @@
     display:inline-block; box-shadow:var(--shadow)
   }
   .btn:hover{filter:brightness(.95); transform:translateY(-1px)}
-  /* ensure .btn text stays readable in all states */
   .btn, .btn:visited, .btn:hover, .btn:active { color: var(--btnText) !important; }
 
   .section-title{margin:28px 0 10px; font-size:1.6rem}
@@ -82,13 +79,10 @@
     100% { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
   }
 
-  /* Links on green background look white, but not for .btn (overridden above) */
   a, a:hover, a:active, a:visited { color: var(--text); text-decoration:none; }
 
-  /* Hidden admin */
+  /* Admin + modals */
   .admin-block{display:none} .admin-block.revealed{display:block}
-
-  /* Pretty modal theme (dark style) */
   .pretty-backdrop{
     position:fixed; inset:0; background:rgba(0,0,0,.55);
     display:none; align-items:center; justify-content:center; z-index:1000;
@@ -112,7 +106,6 @@
     box-shadow:0 6px 18px rgba(0,0,0,.35);
   }
   .btn--confirm:hover{ filter:brightness(.95); transform:translateY(-1px); }
-
   @keyframes pickleBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;}
 </style>
@@ -129,6 +122,7 @@
         <div>
           <a class="btn" href="https://overseerr-philina609.venom.mygiga.cloud/login" target="_blank" rel="noopener">🎬 Make a Request</a>
           <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
+          <a class="btn" href="/about.html">👋 Meet Pickle Phil</a>
         </div>
 
         <p class="meta" style="margin:12px 0 0; font-size:1.05rem;">
@@ -156,13 +150,17 @@
         <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
       </article>
 
-      <!-- Guestbook (modal for now) -->
       <article class="card card--wide">
         <h3>📝 Brine &amp; Sign</h3>
         <p class="meta">Leave your mark in the jar (coming soon... still fermenting!)</p>
         <p><button id="guestBtn" class="btn">✍️ Sign the Jar</button></p>
       </article>
     </section>
+
+    <!-- 👇 moved here (before Groups & Portals) -->
+    <article class="card card--wide" style="text-align:center;">
+      <img src="/img/nodding.gif" alt="Nodding pickle vibe" style="max-width:360px;width:90%;height:auto;">
+    </article>
 
     <p style="margin-top:8px;">🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update! 🥒</p>
 
@@ -218,18 +216,13 @@
       </article>
     </section>
 
-    <!-- QR Join card -->
+    <!-- QR Join card (links to /rick) -->
     <h2 class="section-title">🧪 Join the Jar Journey</h2>
     <article class="card card--wide" style="text-align:center;">
       <p class="meta" style="font-size:1.1rem;">If you want to be part of the making of the Jar — click or scan the QR code 👇</p>
       <a href="/rick" target="_blank" rel="noopener">
         <img src="/img/rickroll-qr.png" alt="QR code to the Rick Roll page" style="max-width:260px;width:80%;height:auto;">
       </a>
-    </article>
-
-    <!-- Fun nodding GIF at the bottom -->
-    <article class="card card--wide" style="text-align:center;">
-      <img src="/img/nodding.gif" alt="Nodding pickle vibe" style="max-width:360px;width:90%;height:auto;">
     </article>
 
     <!-- Hidden Admin -->
