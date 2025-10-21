@@ -7,7 +7,9 @@
 <meta name="description" content="The Real Dill Phil’s Jar — briny joy, requests, media, and more." />
 <link rel="icon" type="image/png" href="/img/favicon.png">
 
+<!-- Farmhouse-style title font -->
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
     --bg:#145a32; --bg2:#2ecc71;
@@ -79,6 +81,52 @@
     100% { transform: translateX(-1.2%) rotate(-3.2deg) skewX(-0.6deg); }
   }
 
+  /* Speech bubble - LEFT side outside the jar */
+  .speech-bubble{
+    position:absolute;
+    top:2%;
+    left:-16px;               /* push bubble a bit outside the jar edge on the left */
+    max-width:280px;
+    background:#ffffff;
+    color:#0f2d18;
+    border-radius:14px;
+    padding:10px 14px;
+    font-weight:800;
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+    filter:drop-shadow(0 2px 0 rgba(0,0,0,.08));
+    animation:bob 4s ease-in-out infinite;
+    z-index:2;
+  }
+  .speech-bubble::after{
+    /* tail pointing toward the jar (lower-left corner of bubble) */
+    content:"";
+    position:absolute;
+    left:22px; bottom:-12px;
+    width:0; height:0;
+    border-left:12px solid transparent;
+    border-right:12px solid transparent;
+    border-top:14px solid #ffffff;
+    filter:drop-shadow(0 2px 0 rgba(0,0,0,.08));
+  }
+  /* subtle “yell” line */
+  .speech-bubble::before{
+    content:"";
+    position:absolute;
+    left:16px; bottom:-18px;
+    width:24px; height:10px;
+    background:linear-gradient(90deg, rgba(255,255,255,.75), rgba(255,255,255,0));
+    transform:scaleX(-1) skewX(-20deg);
+    border-radius:10px;
+    opacity:.55;
+  }
+  @keyframes bob { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-6px) } }
+
+  @media (max-width:720px){
+    .speech-bubble{ top:-8px; left:6px; max-width:220px; font-size:.95rem; }
+    .speech-bubble::after{ left:18px; }
+  }
+
+  /* Links on green look white (not for .btn, overridden above) */
   a, a:hover, a:active, a:visited { color: var(--text); text-decoration:none; }
 
   /* Admin + modals */
@@ -132,10 +180,13 @@
         </p>
       </div>
 
-      <!-- Dancing jar image -->
+      <!-- Dancing jar image + LEFT speech bubble -->
       <div class="hero-image">
         <div class="jar-frame">
           <img src="/img/pickle-in-jar.png" alt="Pickle Phil dancing in a glass pickle jar" class="pickle-jar-img">
+          <div class="speech-bubble" id="pickleSpeech" role="status" aria-live="polite">
+            Rise &amp; Brine!
+          </div>
         </div>
       </div>
     </div>
@@ -333,6 +384,51 @@
     btn.addEventListener('click', ()=> gModal.style.display='flex');
     gClose.addEventListener('click', ()=> gModal.style.display='none');
     gModal.addEventListener('click', e=>{ if(e.target===gModal) gModal.style.display='none'; });
+  })();
+
+  // Time-aware speech for the LEFT-side jar bubble
+  (function(){
+    const el = document.getElementById('pickleSpeech');
+    if(!el) return;
+
+    const msgs = {
+      morning: [
+        "Rise & Brine!",
+        "Top o’ the brining to ya!",
+        "Morning crunch, coming right up!",
+        "What’s the big dill!?"
+      ],
+      midday: [
+        "Midday munchies? Stay crunchy!",
+        "Keep it dill-icious!",
+        "High noon, high brine.",
+        "What’s the big dill!?"
+      ],
+      evening: [
+        "Good evenin’—time to chill & dill.",
+        "Unwind and brine.",
+        "Evening vibes: extra crunchy.",
+        "What’s the big dill!?"
+      ],
+      late: [
+        "Late-night brine session.",
+        "Past pickle o’clock!",
+        "Crunching after hours…",
+        "What’s the big dill!?"
+      ]
+    };
+    const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+    function setBubble(){
+      const h = new Date().getHours();
+      let text;
+      if (h >= 5 && h < 11) text = pick(msgs.morning);
+      else if (h >= 11 && h < 17) text = pick(msgs.midday);
+      else if (h >= 17 && h < 22) text = pick(msgs.evening);
+      else text = pick(msgs.late);
+      el.textContent = text;
+    }
+    setBubble();
+    setInterval(setBubble, 10*60*1000);
   })();
 </script>
 </body>
