@@ -4,148 +4,163 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Meet Pickle Phil</title>
-<meta name="description" content="About The Real Dill Phil — faith, family, movies, music, disc golf, and more." />
-<link rel="icon" type="image/png" href="/img/favicon.png" />
+<meta name="description" content="Meet The Real Dill Phil — follower of Christ, lover of fun, and brine enthusiast." />
+<link rel="icon" type="image/png" href="img/favicon.png">
 
-<!-- Same farmhouse title font as index -->
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  :root{
-    --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
-    --panel: rgba(255,255,255,.10); --panel2: rgba(255,255,255,.06);
-    --btn:#f5f5f5; --btnText:#145a32; --radius:14px; --shadow:0 10px 35px rgba(0,0,0,.35);
+  :root {
+    --bg:#145a32;
+    --bg2:#2ecc71;
+    --text:#f5f5f5;
+    --panel:rgba(255,255,255,.1);
+    --radius:14px;
+    --shadow:0 10px 35px rgba(0,0,0,.35);
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0; color:var(--text);
-    font-family: Segoe UI, Tahoma, sans-serif;
-    background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
-    min-height:100vh; text-align:center;
-  }
-  .wrap{width:min(1100px,100%); margin:0 auto; padding:22px}
-  .title{
-    font-family:"Amatic SC", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    font-weight:700; letter-spacing:1px;
-    font-size: clamp(42px, 7vw, 84px); line-height:1; margin:6px 0 8px;
-    display:flex; align-items:center; gap:.4ch; justify-content:center;
-  }
-  .title .note{ font-size:.9em; opacity:.9; }
 
-  /* Rock Chalk banner under the title */
-  .rockchalk{
+  body {
+    margin:0;
+    font-family:'Segoe UI', Tahoma, sans-serif;
+    color:var(--text);
+    background:radial-gradient(circle at top left,var(--bg2) 0%,var(--bg) 100%);
+    text-align:center;
+    min-height:100vh;
+  }
+
+  .wrap {
+    width:min(900px,100%);
+    margin:0 auto;
+    padding:20px;
+  }
+
+  h1 {
+    font-family:"Amatic SC", cursive;
+    font-size:clamp(48px,8vw,92px);
+    margin:12px 0 4px;
+    letter-spacing:2px;
+  }
+
+  .rockchalk {
     display:inline-block;
-    margin:6px auto 12px;
-    padding:6px 12px;
+    margin:10px auto 18px;
+    padding:10px 28px;
     border-radius:999px;
-    font-weight:800;
-    letter-spacing:.4px;
-    background: linear-gradient(90deg, #a51c30 0%, #a51c30 45%, #0051ba 55%, #0051ba 100%); /* crimson → blue */
-    color:#ffffff;
-    box-shadow:0 8px 24px rgba(0,0,0,.35);
+    font-weight:900;
+    font-size:1.3rem;
+    letter-spacing:.6px;
+    background:linear-gradient(90deg,#a51c30 0%,#a51c30 50%,#0051ba 50%,#0051ba 100%);
+    color:#fff;
+    box-shadow:0 10px 28px rgba(0,0,0,.45);
+    position:relative;
+    overflow:hidden;
+    animation:rockChalkPulse 10s ease-in-out infinite;
   }
 
-  .lead{max-width:820px; margin:0 auto 14px; font-size:1.1rem}
-  .grid{display:grid; gap:18px; grid-template-columns: 1.2fr 1fr; align-items:start}
-  .card{
-    background: linear-gradient(180deg, var(--panel), var(--panel2));
-    border:1px solid rgba(255,255,255,.15);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding:18px; text-align:left;
+  .rockchalk::before {
+    content:'';
+    position:absolute;
+    top:0; left:-150%;
+    width:150%; height:100%;
+    background:linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255,255,255,.4) 50%,
+      transparent 100%
+    );
+    transform:skewX(-25deg);
+    animation:shine 6s linear infinite;
   }
-  .img-card{
-    display:flex; align-items:center; justify-content:center;
-    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
-  }
-  .img-card img{
-    width:100%; height:auto; border-radius:12px; box-shadow:0 12px 38px rgba(0,0,0,.35);
-  }
-  .section-title{font-size:1.5rem; margin:2px 0 8px}
-  .btn{
-    color:var(--btnText); background:var(--btn);
-    text-decoration:none; padding:12px 18px; border-radius:12px;
-    font-weight:700; box-shadow:var(--shadow); display:inline-block; transition:.2s;
-  }
-  .btn:hover{ filter:brightness(.95); transform:translateY(-1px) }
-  .meta{opacity:.95}
-  ul{margin:0; padding-left:1.2rem}
-  li{margin:.4rem 0}
-  footer{margin:28px 0 8px; opacity:.85}
 
-  /* Mobile: photo first */
-  @media (max-width: 880px){
-    .grid{ grid-template-columns: 1fr; }
-    .img-card{ order:-1; }
+  @keyframes shine {
+    0% { left:-150%; }
+    60% { left:150%; }
+    100% { left:150%; }
+  }
+
+  @keyframes rockChalkPulse {
+    0%, 100% { transform:translateY(0); }
+    50% { transform:translateY(-1px); }
+  }
+
+  .rockchalk:hover {
+    transform:translateY(-2px);
+    filter:brightness(1.1);
+  }
+
+  .about-card {
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:24px;
+    margin-top:18px;
+    text-align:left;
+    font-size:1.05rem;
+    line-height:1.7;
+  }
+
+  .about-card img {
+    width:100%;
+    max-width:300px;
+    height:auto;
+    border-radius:var(--radius);
+    box-shadow:0 10px 25px rgba(0,0,0,.35);
+    margin:0 auto 18px;
+    display:block;
+  }
+
+  .btn {
+    display:inline-block;
+    background:#f5f5f5;
+    color:#145a32;
+    font-weight:700;
+    padding:10px 18px;
+    border-radius:10px;
+    text-decoration:none;
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
+    transition:.2s;
+  }
+
+  .btn:hover { transform:translateY(-2px); filter:brightness(.95); }
+
+  footer {
+    margin:28px 0 10px;
+    opacity:.85;
+  }
+
+  @media (max-width:720px){
+    .about-card{text-align:center;}
   }
 </style>
 </head>
+
 <body>
   <div class="wrap">
-    <h1 class="title">
-      <span>Meet Pickle Phil</span>
-      <span class="note" aria-hidden="true">🎶</span>
-    </h1>
-    <div class="rockchalk" aria-label="Kansas Jayhawks cheer">Rock Chalk!</div>
+    <h1>Meet Pickle Phil</h1>
+    <div class="rockchalk">🏀 Rock Chalk Jayhawk! 🏀</div>
 
-    <p class="lead">Hey! I’m Phil — husband, Jesus-follower, movie buff, music nerd, LEGO tinkerer, rookie disc golfer, and occasional guy-in-a-pickle-suit spreading briny joy.</p>
+    <div class="about-card">
+      <img src="img/about-picklephil.jpg" alt="Pickle Phil smiling with his signature jar">
 
-    <section class="grid" aria-label="About Pickle Phil">
-      <!-- Photo (on mobile this shows first) -->
-      <article class="card img-card" aria-label="Photo of Pickle Phil">
-        <img src="/img/about-picklephil.jpg" alt="Pickle Phil smiling, ready to spread briny joy">
-      </article>
+      <p>Hey there! I’m <strong>Phillip Hinshaw</strong> — but most folks just call me <strong>Pickle Phil</strong>. I’m a movie buff with a soft spot for the <strong>Back to the Future</strong> trilogy, and I’ve got a shelf of <strong>LEGO builds</strong> that may or may not have taken over my desk.</p>
 
-      <!-- Bio -->
-      <article class="card">
-        <h2 class="section-title">The Real Dill</h2>
-        <p class="meta">
-          I’m a <strong>movie buff</strong> (my favorite trilogy is <em>Back to the Future</em>), a recent convert to
-          <strong>disc golf</strong>, and a fan of long rides on my <strong>Specialized CrossTrail</strong> — I’ll be real:
-          I haven’t ridden as much since moving to OKC, but I’m getting back in the saddle.
-        </p>
-        <p class="meta">
-          I love to <strong>sing</strong>. Most recently I sang with an all-men a cappella group called
-          <strong>Accapella Federation</strong> — nothing like stacking harmonies with the fellas. I’m also a big fan of
-          <strong>musicals</strong>; <em>Singin’ in the Rain</em> is a top-tier comfort watch. Gene Kelly and Donald O’Connor
-          absolutely <em>killed it</em>.
-        </p>
-        <p class="meta">
-          Sports? <strong>Kansas Jayhawks</strong> basketball all day. <strong>Rock Chalk!</strong>
-        </p>
-        <p class="meta">
-          My wife <strong>Cristina</strong> and I are <strong>animal lovers</strong>, explorers at heart, and we try to spot
-          God’s fingerprints in every bit of creation. I enjoy traveling, building LEGO, tinkering, serving, and sharing life with people.
-        </p>
-        <p class="meta">
-          But the real core of who I am is <strong>honoring God in everything I do</strong>.
-        </p>
+      <p>I recently got into <strong>disc golf</strong> and I like to ride my <strong>Specialized CrossTrail</strong> bike — though I’ll admit, since moving to OKC, it’s been collecting more dust than miles! I love trying new foods, hitting <strong>Comic Cons</strong>, and wandering through <strong>museums</strong> (mostly history, but I’ll stop for art too).</p>
 
-        <div style="margin-top:10px;">
-          <a class="btn" href="mailto:realdillphil@philliphinshaw.com">👋 Say hi to Pickle Phil</a>
-          <a class="btn" href="/index.html">🏠 Back to the Jar</a>
-        </div>
-      </article>
-    </section>
+      <p>I’m a huge fan of <strong>musicals</strong> — “Singing in the Rain” gets me every time. <strong>Gene Kelly</strong> and <strong>Donald O’Connor</strong> absolutely nailed it. I was also part of an all-men’s a cappella group called <strong>A Cappella Federation</strong> — singing has always been a huge part of who I am.</p>
 
-    <!-- Quick hits -->
-    <section class="card" style="margin-top:16px;" aria-label="Quick facts">
-      <h2 class="section-title">Quick Crunchy Facts</h2>
-      <ul>
-        <li>Favorite Trilogy: <strong>Back to the Future</strong></li>
-        <li>Comfort Musical: <strong>Singin’ in the Rain</strong> (Gene Kelly + Donald O’Connor = magic)</li>
-        <li>Team: <strong>Kansas Jayhawks</strong> — Rock Chalk!</li>
-        <li>Bike: <strong>Specialized CrossTrail</strong> (goal: ride more around OKC!)</li>
-        <li>Hobby Zone: <strong>LEGO builds</strong>, <strong>disc golf</strong>, and <strong>music</strong></li>
-        <li>Life Goal: <strong>Honor God in everything</strong></li>
-      </ul>
-    </section>
+      <p>I share life’s adventures with my amazing wife, <strong>Cristina</strong>. We’re both animal lovers, explorers, and goofballs at heart. Whether we’re traveling, serving, or just laughing our way through the day, we try to see God’s fingerprints in every bit of it. Because at the end of the day, the real core of who I am is <strong>honoring God in everything I do</strong>.</p>
 
-    <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
+      <p style="margin-top:24px; text-align:center;">
+        <a class="btn" href="mailto:realdillphil@philliphinshaw.com">📬 Say Hi to Pickle Phil</a>
+      </p>
+    </div>
+
+    <footer>© <span id="year"></span> The Real Dill Phil · Stay Crunchy 🥒</footer>
   </div>
 
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
