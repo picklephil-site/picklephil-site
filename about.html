@@ -40,6 +40,29 @@
     font-size:clamp(48px,8vw,92px);
     margin:12px 0 4px;
     letter-spacing:2px;
+    position:relative;
+    display:inline-block;
+  }
+
+  /* Mic and music notes */
+  .title-icons {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
+
+  .title-icons span {
+    font-size:2rem;
+    animation:floatIcons 3.5s ease-in-out infinite;
+  }
+
+  .title-icons .mic { animation-delay:0s; }
+  .title-icons .notes { animation-delay:1.5s; }
+
+  @keyframes floatIcons {
+    0%,100% { transform:translateY(0); opacity:0.9; }
+    50% { transform:translateY(-8px); opacity:1; }
   }
 
   .rockchalk {
@@ -137,7 +160,12 @@
 
 <body>
   <div class="wrap">
-    <h1>Meet Pickle Phil</h1>
+    <div class="title-icons">
+      <span class="mic">🎤</span>
+      <h1>Meet Pickle Phil</h1>
+      <span class="notes">🎶</span>
+    </div>
+
     <div class="rockchalk">🏀 Rock Chalk Jayhawk! 🏀</div>
 
     <div class="about-card">
@@ -147,7 +175,7 @@
 
       <p>I recently got into <strong>disc golf</strong> and I like to ride my <strong>Specialized CrossTrail</strong> bike — though I’ll admit, since moving to OKC, it’s been collecting more dust than miles! I love trying new foods, hitting <strong>Comic Cons</strong>, and wandering through <strong>museums</strong> (mostly history, but I’ll stop for art too).</p>
 
-      <p>I’m a huge fan of <strong>musicals</strong> — “Singing in the Rain” gets me every time. <strong>Gene Kelly</strong> and <strong>Donald O’Connor</strong> absolutely nailed it. I was also part of an all-men’s a cappella group called <strong>A Cappella Federation</strong> — singing has always been a huge part of who I am.</p>
+      <p>I’m a huge fan of <strong>musicals</strong> — “Singing in the Rain” gets me every time. <strong>Gene Kelly</strong> and <strong>Donald O’Connor</strong> absolutely nailed it. I was also part of an all-men’s a cappella group called <strong>A Cappella Federation</strong> and sang <strong>Vocal Jazz</strong> in college — a fun, challenging season I truly miss. Jazz speaks to me; it’s freedom and structure all at once, and that’s what I love about it.</p>
 
       <p>I share life’s adventures with my amazing wife, <strong>Cristina</strong>. We’re both animal lovers, explorers, and goofballs at heart. Whether we’re traveling, serving, or just laughing our way through the day, we try to see God’s fingerprints in every bit of it. Because at the end of the day, the real core of who I am is <strong>honoring God in everything I do</strong>.</p>
 
