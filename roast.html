@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pickle Phil’s Roast Barrel</title>
+<meta name="description" content="Step up to the barrel and get a good-natured, brine-soaked roast from Pickle Phil." />
+<link rel="icon" type="image/png" href="/img/pickle-jar-icon.png" />
+<style>
+:root{
+  --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5;
+  --panel: rgba(255,255,255,.08); --radius:14px;
+  --btn:#f5f5f5; --btnText:#145a32; --shadow:0 10px 35px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--text); font-family:'Segoe UI', Tahoma, sans-serif;
+  background:radial-gradient(circle at top left,var(--bg2) 0%, var(--bg) 100%);
+  text-align:center; min-height:100vh;
+}
+.wrap{width:min(820px,100%);margin:0 auto;padding:22px}
+h1{font-size:clamp(34px,5vw,60px);margin:6px 0 6px}
+.lead{font-size:1.1rem;max-width:640px;margin:0 auto 1.2rem;opacity:.95}
+.pickle{display:inline-block;font-size:3.2rem;transform-origin:50% 80%}
+.pickle.shake{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-7deg)}80%{transform:rotate(5deg)}}
+.roast-card{
+  background:var(--panel); border:1px solid rgba(255,255,255,.14);
+  border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:26px 22px; margin:14px auto 18px; min-height:120px;
+  display:flex; align-items:center; justify-content:center;
+}
+#roast{font-size:clamp(1.2rem,2.6vw,1.7rem); line-height:1.45; font-weight:600;}
+.fade{animation:fade .4s ease}
+@keyframes fade{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
+.spice{margin:6px 0 18px; font-size:1.05rem; opacity:.95; min-height:1.4em}
+.btn{
+  color:var(--btnText); background:var(--btn); border:none; cursor:pointer;
+  text-decoration:none; padding:14px 22px; border-radius:12px;
+  font-weight:800; font-size:1.05rem; transition:.15s; margin:6px; display:inline-block;
+}
+.btn:hover{ filter:brightness(.95); transform:translateY(-1px) }
+.btn.big{font-size:1.2rem; padding:16px 28px}
+.muted{opacity:.85; font-size:.95rem; margin-top:8px}
+footer{ margin:30px 0 10px; opacity:.85 }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="pickle" id="pickle">🥒</div>
+    <h1>The Roast Barrel</h1>
+    <p class="lead">Step up to the barrel, brave soul. Pickle Phil’s about to dunk you in the brine. 🔥<br>(All in good fun — extra crunchy, never cruel.)</p>
+
+    <div class="roast-card">
+      <p id="roast">Tap the button and prepare to get pickled…</p>
+    </div>
+    <div class="spice" id="spice"></div>
+
+    <div>
+      <button class="btn big" id="roastBtn">🔥 Roast Me!</button>
+      <button class="btn" id="copyBtn">📋 Copy</button>
+    </div>
+    <p class="muted">🥒 Roasts served: <span id="count">0</span></p>
+
+    <div style="margin-top:28px;">
+      <a class="btn" href="/index.html">🏠 Back to the Jar</a>
+    </div>
+
+    <footer>© <span id="year"></span> The Real Dill Phil · Stay Crunchy 🥒</footer>
+  </div>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const ROASTS = [
+  "You bring everyone so much joy… the moment you leave the room. 🥒",
+  "You're not the dullest pickle in the jar — that title's taken by your fantasy football team.",
+  "I'd roast you harder, but Pickle Phil said be gentle with the soft cucumbers.",
+  "You're proof that even a cucumber can peak in middle school.",
+  "Your secret talent? Turning a 5-minute story into a 45-minute hostage situation.",
+  "If laughter is the best medicine, your dance moves are basically an emergency room.",
+  "You've got a face for radio and a voice for silent films.",
+  "You're so extra, even your pickles come with a backstory.",
+  "I love how confident you are at things you're objectively bad at. Truly inspiring.",
+  "You're the human version of a slow-loading webpage.",
+  "Your wifi has fewer drops than your gym attendance.",
+  "You call it 'fashionably late.' The rest of us call it 'we already ate.'",
+  "You're like a fine wine — you give everyone a headache after about an hour.",
+  "Brining you would be a waste of perfectly good vinegar.",
+  "You've got big 'main character' energy in a movie nobody asked for.",
+  "You're the reason the brine jar says 'do not drink.'",
+  "Even your reflection looks away first.",
+  "You're not lazy — you're just on aggressive energy-saving mode, 24/7.",
+  "You peaked at 'pretty good at parallel parking.'",
+  "If overthinking burned calories, you'd be a pickle-thin supermodel.",
+  "You're the kind of person who claps when the plane lands.",
+  "The group chat goes quiet the second you start typing.",
+  "You're so indecisive you'd get a participation trophy for picking a restaurant.",
+  "You've got the spice tolerance of a saltine and the confidence of a ghost pepper.",
+  "I've met jars of brine with more personality — and they were empty.",
+  "You're the 'I'll just have a bite of yours' friend. We see you.",
+  "Your karaoke performances are, legally speaking, a war crime.",
+  "You're living proof that evolution takes coffee breaks.",
+  "You're the snooze button of human beings.",
+  "Your cooking has one flavor: 'asked everyone if it tastes okay.'",
+  "You bring 'thoughts and prayers' energy to a 'help me move this couch' world.",
+  "You've got the navigational skills of a Roomba stuck in a corner.",
+  "You're sour — and not in the fun pickle way.",
+  "You treat 'I'll start Monday' like a renewable resource.",
+  "Your selfies have more retakes than a Hollywood blockbuster.",
+  "You're the human equivalent of a buffering wheel.",
+  "If being right made a sound, you'd be the quietest person alive.",
+  "You're a limited edition — and there's a reason they didn't make more.",
+  "You're the 'reply-all' of group emails.",
+  "Somewhere out there, a cucumber is grateful it never grew up to be you. 🥒"
+];
+
+const SPICE = [
+  "🌶️ Spice level: 2/10 — barely a tickle.",
+  "🌶️🌶️ Spice level: 4/10 — mild brine.",
+  "🌶️🌶️🌶️ Spice level: 6/10 — that's gonna leave a mark.",
+  "🌶️🌶️🌶️🌶️ Spice level: 8/10 — call a medic.",
+  "🌶️🌶️🌶️🌶️🌶️ Spice level: 11/10 — EXTRA CRUNCHY. 🔥"
+];
+
+let deck = [];
+function reshuffle(){ deck = [...ROASTS]; for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; } }
+reshuffle();
+
+let count = 0;
+const roastEl=document.getElementById('roast'), spiceEl=document.getElementById('spice'),
+      countEl=document.getElementById('count'), pickle=document.getElementById('pickle');
+
+function roast(){
+  if(deck.length===0) reshuffle();
+  const text = deck.pop();
+  roastEl.textContent = text;
+  roastEl.classList.remove('fade'); void roastEl.offsetWidth; roastEl.classList.add('fade');
+  spiceEl.textContent = SPICE[Math.floor(Math.random()*SPICE.length)];
+  pickle.classList.remove('shake'); void pickle.offsetWidth; pickle.classList.add('shake');
+  count++; countEl.textContent = count;
+}
+document.getElementById('roastBtn').addEventListener('click', roast);
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  const t = roastEl.textContent;
+  try{ await navigator.clipboard.writeText(t); const b=document.getElementById('copyBtn'); b.textContent='✅ Copied!'; setTimeout(()=>b.textContent='📋 Copy',1400); }
+  catch{ alert(t); }
+});
+</script>
+</body>
+</html>
