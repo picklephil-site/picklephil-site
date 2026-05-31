@@ -347,15 +347,18 @@
       bubble.innerHTML = sayings[Math.floor(Math.random()*sayings.length)];
     })();
 
-    // Copy Email button
+    // Copy buttons (email + Minecraft server addresses)
     (function(){
-      var b=document.getElementById('copy-email');
-      if(!b) return;
-      b.addEventListener('click', async function(){
-        var email="realdillphil@philliphinshaw.com";
-        try{ await navigator.clipboard.writeText(email); var t=b.textContent; b.textContent="✅ Copied!"; setTimeout(function(){b.textContent=t;},1400); }
-        catch(e){ alert(email); }
-      });
+      function wireCopy(id, text){
+        var b=document.getElementById(id); if(!b) return;
+        b.addEventListener('click', async function(){
+          try{ await navigator.clipboard.writeText(text); var t=b.textContent; b.textContent="✅ Copied!"; setTimeout(function(){b.textContent=t;},1400); }
+          catch(e){ alert(text); }
+        });
+      }
+      wireCopy('copy-email','realdillphil@philliphinshaw.com');
+      wireCopy('copy-java','mine.philliphinshaw.com:25565');
+      wireCopy('copy-bedrock','mine.philliphinshaw.com:19132');
     })();
 
     // "Coming soon" buttons (Playground, Family Portal)
