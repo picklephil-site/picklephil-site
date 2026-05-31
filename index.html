@@ -299,6 +299,39 @@
     // Footer year
     (function(){ var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); })();
 
+    // Daily Dill-votional — verse of the day (API + offline fallback so it never sticks on "Loading")
+    (function(){
+      var txt=document.getElementById('votd-text'), ref=document.getElementById('votd-ref');
+      if(!txt) return;
+      var fallback=[
+        {t:"For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.",r:"John 3:16"},
+        {t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},
+        {t:"Trust in the LORD with all your heart, and do not lean on your own understanding.",r:"Proverbs 3:5"},
+        {t:"I can do all things through Christ who strengthens me.",r:"Philippians 4:13"},
+        {t:"Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God will be with you wherever you go.",r:"Joshua 1:9"},
+        {t:"Cast all your anxiety on him because he cares for you.",r:"1 Peter 5:7"},
+        {t:"This is the day that the LORD has made; let us rejoice and be glad in it.",r:"Psalm 118:24"},
+        {t:"And we know that for those who love God all things work together for good.",r:"Romans 8:28"},
+        {t:"Rejoice always, pray without ceasing, give thanks in all circumstances.",r:"1 Thessalonians 5:16-18"},
+        {t:"She is clothed with strength and dignity, and she laughs without fear of the future.",r:"Proverbs 31:25"}
+      ];
+      function showFallback(){
+        var day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
+        var v=fallback[day%fallback.length];
+        txt.textContent=v.t; if(ref) ref.textContent=v.r;
+      }
+      try{
+        fetch('https://beta.ourmanna.com/api/v1/get/?format=json')
+          .then(function(r){ return r.json(); })
+          .then(function(j){
+            var d=(j.verse&&(j.verse.details||j.verse))||{};
+            var verse=(d.text||'').trim(), reference=(d.reference||'').trim();
+            if(verse){ txt.textContent=verse; if(ref) ref.textContent=reference; } else { showFallback(); }
+          })
+          .catch(showFallback);
+      }catch(e){ showFallback(); }
+    })();
+
     // Rotating jar saying — fresh one each page load
     (function(){
       var bubble=document.getElementById('pickleSpeech');
