@@ -3,89 +3,310 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🥒 Brine & Sign Guestbook</title>
-  <link rel="icon" href="/img/pickle-jar-icon.png" />
+  <title>🥒 Brine & Sign — Pickle Phil</title>
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
   <style>
-    :root{ --bg:#145a32; --bg2:#2ecc71; --text:#f5f5f5; --panel:rgba(255,255,255,.1); --radius:12px; --shadow:0 10px 30px rgba(0,0,0,.35); }
-    *{box-sizing:border-box}
-    body{ font-family: 'Segoe UI', Tahoma, sans-serif; margin:0; color:var(--text);
-          background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%); }
-    .wrap{ max-width: 760px; margin: 0 auto; padding: 22px; text-align:center; }
-    h1{ margin: 8px 0 14px; }
-    .card{ background:var(--panel); border:1px solid rgba(255,255,255,.14); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); }
-    label{ display:block; text-align:left; margin:8px 0 6px; }
-    input, textarea{ width:100%; border:1px solid rgba(255,255,255,.25); border-radius:10px; padding:10px 12px; background:#fff; color:#0f2d18; font-size:1rem; }
-    textarea{ min-height:110px; resize:vertical; }
-    .row{ margin-top:10px; display:flex; gap:10px; justify-content:flex-start; }
-    .btn{ background:#f5f5f5; color:#145a32; padding:10px 16px; border-radius:12px; font-weight:800; border:none; cursor:pointer; }
-    .entries{ margin-top:18px; text-align:left; }
-    .entry{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); border-radius:12px; padding:10px 12px; margin:8px 0; }
-    .entry small{ opacity:.9 }
-    a{ color:var(--text); }
+    :root {
+      --bg: #145a32; --bg2: #2ecc71;
+      --text: #f5f5f5;
+      --panel: rgba(46,204,113,.15);
+      --panel-b: rgba(46,204,113,.08);
+      --radius: 14px;
+      --shadow: 0 10px 35px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0; color: var(--text);
+      background: radial-gradient(circle at top left, var(--bg2) 0%, var(--bg) 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 32px 22px; text-align: center; }
+    h1 {
+      font-family: 'Amatic SC', system-ui, sans-serif;
+      font-size: clamp(42px, 10vw, 72px);
+      margin: 0 0 4px; line-height: 1;
+    }
+    .sub { margin: 0 0 24px; opacity: .9; font-size: 1.05rem; }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-b));
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      padding: 24px 22px;
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+    label { display: block; margin: 16px 0 6px; font-weight: 700; font-size: .95rem; }
+    label span.opt { font-weight: 400; opacity: .7; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 10px;
+      padding: 10px 13px;
+      background: rgba(255,255,255,.95);
+      color: #0f2d18;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid #2ecc71;
+      outline-offset: 1px;
+    }
+    textarea { min-height: 130px; resize: vertical; }
+
+    /* Mood picker */
+    .mood-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 0; }
+    .mood-btn {
+      background: rgba(255,255,255,.12);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: .15s;
+      line-height: 1;
+    }
+    .mood-btn:hover { background: rgba(255,255,255,.25); }
+    .mood-btn.active {
+      background: rgba(255,255,255,.28);
+      border-color: rgba(255,255,255,.7);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.15);
+    }
+
+    .char-count { text-align: right; font-size: .82rem; opacity: .65; margin-top: 4px; }
+
+    .btn {
+      background: #f5f5f5; color: #145a32;
+      padding: 12px 22px; border-radius: 12px;
+      font-weight: 800; border: none; cursor: pointer;
+      font-size: 1rem; margin-top: 18px;
+      box-shadow: var(--shadow); transition: .15s;
+      display: inline-block; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(.95); transform: translateY(-1px); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Thank-you */
+    .thank-you { display: none; padding: 40px 10px; text-align: center; }
+    .thank-you .jar { font-size: 4rem; animation: bounce 1.6s ease-in-out infinite; display: block; }
+    .thank-you h2 { margin: 10px 0 6px; font-size: 1.8rem; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+    /* Admin section */
+    .admin-section { display: none; margin-top: 36px; text-align: left; }
+    .admin-section.revealed { display: block; }
+    .admin-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .admin-header h2 { margin: 0; }
+    .admin-key-row { display: flex; gap: 8px; align-items: center; }
+    .admin-key-row input { width: auto; flex: 1; max-width: 240px; }
+    .btn-sm { padding: 8px 14px; font-size: .9rem; margin-top: 0; }
+
+    .entry {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px;
+      padding: 13px 16px; margin: 8px 0;
+    }
+    .entry-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .entry-name { font-weight: 700; }
+    .entry-mood { font-size: 1.2rem; }
+    .type-tag {
+      background: rgba(255,255,255,.18);
+      border-radius: 20px; padding: 2px 10px;
+      font-size: .78rem; opacity: .9;
+    }
+    .entry-msg { line-height: 1.5; word-break: break-word; }
+    .entry-time { font-size: .8rem; opacity: .6; margin-top: 6px; }
+
+    .back-link { margin-top: 28px; display: block; opacity: .8; font-size: .95rem; }
+    .back-link:hover { opacity: 1; }
+    a { color: var(--text); text-decoration: none; }
+    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>🫙 Brine &amp; Sign Guestbook</h1>
-    <p>Leave your crunchy mark in the jar — entries are saved permanently.</p>
+    <h1>🫙 Brine &amp; Sign</h1>
+    <p class="sub">Drop a thought, a suggestion, or just say hey — Phil reads every one.</p>
 
-    <div class="card">
-      <form id="gb-form">
-        <label for="name">Name</label>
-        <input id="name" name="name" placeholder="Pickle Pal" />
+    <!-- Submission form -->
+    <div id="form-wrap" class="card">
+      <form id="gb-form" novalidate>
+        <label for="gb-name">Your name <span class="opt">(optional)</span></label>
+        <input id="gb-name" name="name" placeholder="Pickle Pal" maxlength="80" autocomplete="name" />
 
-        <label for="message">Message</label>
-        <textarea id="message" name="message" placeholder="Stay crunchy!"></textarea>
+        <label>Pick a vibe</label>
+        <div class="mood-row" id="mood-row" role="group" aria-label="Mood">
+          <button type="button" class="mood-btn active" data-mood="🥒" title="Feeling briny">🥒</button>
+          <button type="button" class="mood-btn" data-mood="😄" title="Happy">😄</button>
+          <button type="button" class="mood-btn" data-mood="🎬" title="Here for the media">🎬</button>
+          <button type="button" class="mood-btn" data-mood="💡" title="Got ideas">💡</button>
+          <button type="button" class="mood-btn" data-mood="🔥" title="Hyped">🔥</button>
+          <button type="button" class="mood-btn" data-mood="🤔" title="Just curious">🤔</button>
+        </div>
 
-        <div class="row">
-          <button class="btn" type="submit">✍️ Sign the Jar</button>
-          <a class="btn" href="/index.html">🏠 Back to the Jar</a>
+        <label for="gb-type">What kind of note is this?</label>
+        <select id="gb-type" name="type">
+          <option value="message">💬 General message</option>
+          <option value="suggestion">💡 Suggestion for the site</option>
+          <option value="media">🎬 Media / Plex request</option>
+          <option value="bug">🐛 Something seems off</option>
+        </select>
+
+        <label for="gb-message">Message <span style="color:#f87171;">*</span></label>
+        <textarea id="gb-message" name="message" placeholder="Stay crunchy!" maxlength="1000" required></textarea>
+        <div class="char-count"><span id="char-num">0</span> / 1000</div>
+
+        <div style="text-align:center;">
+          <button class="btn" type="submit" id="submit-btn">✍️ Drop it in the Jar</button>
         </div>
       </form>
     </div>
 
-    <h2 style="margin:20px 0 8px;">Latest Signatures</h2>
-    <div id="gb-list" class="entries"></div>
+    <!-- Thank-you state -->
+    <div id="thank-you" class="thank-you">
+      <span class="jar">🥒</span>
+      <h2>Dropped in the jar!</h2>
+      <p>Phil will see your note. Stay crunchy!</p>
+      <button class="btn" onclick="showForm()">Send another</button>
+    </div>
+
+    <!-- Hidden admin view (type 'pickle' on keyboard to reveal) -->
+    <div id="admin-section" class="admin-section">
+      <div class="admin-header">
+        <h2>🛠️ Jar Messages</h2>
+        <div class="admin-key-row">
+          <input id="admin-key" type="password" placeholder="Admin key" />
+          <button class="btn btn-sm" onclick="loadEntries()">Load</button>
+        </div>
+      </div>
+      <div id="gb-list"></div>
+    </div>
+
+    <a class="back-link" href="/index.html">← Back to the Jar</a>
   </div>
 
-  <script>
-    const API = "https://guestbook-api.philliphinshaw.workers.dev/entries";
+<script>
+  const API = '/API/guestbook';
+  let selectedMood = '🥒';
 
-    function esc(s){ return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+  // Mood picker
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedMood = btn.dataset.mood;
+    });
+  });
 
-    async function loadEntries(){
-      const r = await fetch(API);
-      const rows = await r.json();
-      const list = document.getElementById('gb-list');
-      if(!Array.isArray(rows) || rows.length === 0){
-        list.innerHTML = '<p>No entries yet — be the first!</p>';
-        return;
+  // Character counter
+  const msgEl = document.getElementById('gb-message');
+  const charNum = document.getElementById('char-num');
+  msgEl.addEventListener('input', () => charNum.textContent = msgEl.value.length);
+
+  // Form submit
+  document.getElementById('gb-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submit-btn');
+    const message = msgEl.value.trim();
+    if (!message) { msgEl.focus(); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Dropping in…';
+
+    try {
+      const r = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('gb-name').value.trim(),
+          message,
+          mood: selectedMood,
+          type: document.getElementById('gb-type').value,
+        }),
+      });
+      if (!r.ok) throw new Error('save failed');
+      document.getElementById('form-wrap').style.display = 'none';
+      document.getElementById('thank-you').style.display = 'block';
+    } catch {
+      alert('Something went wrong — try again in a moment.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '✍️ Drop it in the Jar';
+    }
+  });
+
+  function showForm() {
+    document.getElementById('form-wrap').style.display = 'block';
+    document.getElementById('thank-you').style.display = 'none';
+    document.getElementById('gb-form').reset();
+    charNum.textContent = '0';
+    selectedMood = '🥒';
+    document.querySelectorAll('.mood-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mood === '🥒');
+    });
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').textContent = '✍️ Drop it in the Jar';
+  }
+
+  // Admin reveal: type 'pickle' anywhere on the page
+  (function () {
+    const secret = 'pickle'; let buf = '';
+    const section = document.getElementById('admin-section');
+    window.addEventListener('keydown', e => {
+      const k = (e.key || '').toLowerCase();
+      if (/[a-z]/.test(k)) {
+        buf = (buf + k).slice(-secret.length);
+        if (buf === secret) { section.classList.toggle('revealed'); buf = ''; }
+      } else if (k === 'escape') {
+        section.classList.remove('revealed'); buf = '';
       }
-      list.innerHTML = rows.map(x => `
+    });
+    // Restore saved key from session
+    const saved = sessionStorage.getItem('gb-admin-key');
+    if (saved) document.getElementById('admin-key').value = saved;
+  })();
+
+  // Load admin entries
+  async function loadEntries() {
+    const key = document.getElementById('admin-key').value.trim();
+    if (!key) { alert('Enter the admin key first.'); return; }
+    sessionStorage.setItem('gb-admin-key', key);
+
+    const list = document.getElementById('gb-list');
+    list.innerHTML = '<p>Loading…</p>';
+
+    try {
+      const r = await fetch(`${API}?key=${encodeURIComponent(key)}`);
+      if (r.status === 401) { list.innerHTML = '<p style="color:#f87171;">Wrong key.</p>'; return; }
+      const items = await r.json();
+
+      if (!Array.isArray(items) || items.length === 0) {
+        list.innerHTML = '<p>No entries yet.</p>'; return;
+      }
+
+      const typeLabels = { message: '💬 message', suggestion: '💡 suggestion', media: '🎬 media request', bug: '🐛 bug report' };
+      list.innerHTML = items.map(x => `
         <div class="entry">
-          <strong>${esc(x.name || 'Anonymous Pickle')}</strong>
-          <div>${esc(x.message || '')}</div>
-          <small>${x.time || new Date().toLocaleString()}</small>
+          <div class="entry-top">
+            <span class="entry-mood">${x.mood || '🥒'}</span>
+            <span class="entry-name">${esc(x.name || 'Anonymous Pickle')}</span>
+            <span class="type-tag">${typeLabels[x.type] || '💬 message'}</span>
+          </div>
+          <div class="entry-msg">${esc(x.message)}</div>
+          <div class="entry-time">${x.time ? new Date(x.time).toLocaleString() : ''}</div>
         </div>
       `).join('');
+    } catch {
+      list.innerHTML = '<p style="color:#f87171;">Failed to load entries.</p>';
     }
+  }
 
-    document.getElementById('gb-form').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const message = document.getElementById('message').value.trim();
-      if(!message){ alert('Please write a message.'); return; }
-      const r = await fetch(API, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ name, message })
-      });
-      if(!r.ok){ alert('Could not save your entry.'); return; }
-      e.target.reset();
-      loadEntries();
-    });
-
-    loadEntries();
-  </script>
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g,
+      m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  }
+</script>
 </body>
 </html>
