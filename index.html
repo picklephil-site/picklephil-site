@@ -198,8 +198,8 @@
 
       <article class="card card--wide">
         <h3>📝 Brine &amp; Sign</h3>
-        <p class="meta">Leave your mark in the jar (coming soon... still fermenting!)</p>
-        <p><button id="guestBtn" class="btn">✍️ Sign the Jar</button></p>
+        <p class="meta">Leave your crunchy mark in the jar — entries are saved permanently.</p>
+        <p><a class="btn" href="/guestbook.html">✍️ Sign the Jar</a></p>
       </article>
     </section>
 
@@ -295,6 +295,125 @@
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <!-- Modals + scripts unchanged -->
+  <!-- Under-Construction Modal -->
+  <div id="ucModal" class="pretty-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="pretty-modal">
+      <div class="pickle" aria-hidden="true">🥒</div>
+      <h3>Under Construction</h3>
+      <p id="ucModalBody">Playground is in a pickle — rides under construction!</p>
+      <button id="ucClose" class="btn btn--confirm">OK</button>
+    </div>
+  </div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Reveal admin when typing 'pickle'
+  (function(){
+    const secret='pickle'; let buf='';
+    const admin=document.getElementById('hidden-admin');
+    window.addEventListener('keydown',e=>{
+      const k=(e.key||'').toLowerCase();
+      if(/[a-z]/.test(k)){ buf=(buf+k).slice(-secret.length); if(buf===secret){ admin.classList.toggle('revealed'); buf=''; } }
+      else if(k==='escape'){ admin.classList.remove('revealed'); buf=''; }
+    });
+  })();
+
+  // Copy helpers
+  async function copyText(t){ try{ await navigator.clipboard.writeText(t); alert('Copied: '+t); }catch{ alert('Copy failed. Text: '+t); } }
+  const cj=document.getElementById('copy-java');
+  const cb=document.getElementById('copy-bedrock');
+  if(cj) cj.addEventListener('click',()=>copyText('mine.philliphinshaw.com:25565'));
+  if(cb) cb.addEventListener('click',()=>copyText('mine.philliphinshaw.com:19132'));
+  document.getElementById('copy-email').addEventListener('click',()=>copyText('realdillphil@philliphinshaw.com'));
+
+  // Daily Bible Verse (with fallback rotation)
+  (async function loadVOTD(){
+    const txt=document.getElementById('votd-text'); const ref=document.getElementById('votd-ref');
+    try{
+      const r=await fetch('https://beta.ourmanna.com/api/v1/get/?format=json'); const j=await r.json();
+      const d=j.verse&&(j.verse.details||j.verse)||{};
+      const verse=(d.text||j.verse&&j.verse.text||'').trim();
+      const reference=(d.reference||j.verse&&j.verse.details&&j.verse.details.reference||'').trim();
+      if(verse){ txt.textContent=verse; ref.textContent=reference||''; return; }
+      throw new Error('empty');
+    }catch{
+      const V=[
+        {t:"For God so loved the world that He gave His one and only Son...",r:"John 3:16"},
+        {t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},
+        {t:"Trust in the LORD with all your heart and lean not on your own understanding.",r:"Proverbs 3:5"},
+        {t:"I can do all things through Christ who strengthens me.",r:"Philippians 4:13"},
+        {t:"Be strong and courageous... for the LORD your God is with you.",r:"Joshua 1:9"}
+      ];
+      const day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
+      const pick=V[day%V.length];
+      txt.textContent=pick.t; ref.textContent=pick.r;
+    }
+  })();
+
+  // Under-Construction modal wiring
+  const puns = {
+    playground: '🥒 Playground is in a pickle — rides under construction!',
+    family:     '🥒 Family Portal is curing behind sign-in.',
+    roast:      '🥒 Roast Generator is marinating the roasts!'
+  };
+  const ucModal = document.getElementById('ucModal');
+  const ucBody  = document.getElementById('ucModalBody');
+  const ucClose = document.getElementById('ucClose');
+
+  document.querySelectorAll('.btn.uc').forEach(b => {
+    b.addEventListener('click', () => {
+      ucBody.textContent = puns[b.dataset.key] || ucBody.textContent;
+      ucModal.style.display = 'flex';
+    });
+  });
+  ucClose.addEventListener('click', () => ucModal.style.display = 'none');
+  ucModal.addEventListener('click', e => { if (e.target === ucModal) ucModal.style.display = 'none'; });
+
+  // Time-aware speech for the jar bubble
+  (function(){
+    const el = document.getElementById('pickleSpeech');
+    if(!el) return;
+
+    const msgs = {
+      morning: [
+        "Rise & Brine!",
+        "Top o' the brining to ya!",
+        "Morning crunch, coming right up!",
+        "What's the big dill?"
+      ],
+      midday: [
+        "Midday munchies? Stay crunchy!",
+        "Keep it dill-icious!",
+        "High noon, high brine.",
+        "What's the Big Dill?!"
+      ],
+      evening: [
+        "Good evenin'—time to chill & dill.",
+        "Unwind and brine.",
+        "Evening vibes: extra crunchy.",
+        "What's the Big Dill?!"
+      ],
+      late: [
+        "Late-night brine session.",
+        "Past pickle o'clock!",
+        "Crunching after hours…",
+        "What's the Big Dill?!"
+      ]
+    };
+    const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+    function setBubble(){
+      const h = new Date().getHours();
+      let text;
+      if (h >= 5 && h < 11) text = pick(msgs.morning);
+      else if (h >= 11 && h < 17) text = pick(msgs.midday);
+      else if (h >= 17 && h < 22) text = pick(msgs.evening);
+      else text = pick(msgs.late);
+      el.textContent = text;
+    }
+    setBubble();
+    setInterval(setBubble, 10*60*1000);
+  })();
+</script>
 </body>
 </html>

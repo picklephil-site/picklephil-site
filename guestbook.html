@@ -65,7 +65,7 @@
         <div class="entry">
           <strong>${esc(x.name || 'Anonymous Pickle')}</strong>
           <div>${esc(x.message || '')}</div>
-          <small>${new Date(x.ts || Date.now()).toLocaleString()}</small>
+          <small>${x.time || new Date().toLocaleString()}</small>
         </div>
       `).join('');
     }
