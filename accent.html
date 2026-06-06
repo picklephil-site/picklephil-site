@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Real Dill Phil's Accent Machine</title>
+<meta name="description" content="Type anything, pick an accent, hear it spoken back. Free, instant, ridiculous." />
+<link rel="icon" type="image/png" href="/img/favicon.png" />
+<style>
+:root{
+  --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+  --text:#f5f7f5; --accent:#2ecc71;
+  --btnText:#0d3d24; --radius:16px;
+  --glass:rgba(255,255,255,.10); --glass-border:rgba(255,255,255,.22);
+  --shadow:0 18px 45px rgba(0,0,0,.40);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:'Segoe UI',Tahoma,sans-serif; color:var(--text);
+  background:
+    radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
+    radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
+    radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
+  background-attachment:fixed; min-height:100vh; text-align:center;
+  display:flex; flex-direction:column; align-items:center;
+}
+.wrap{width:min(700px,100%); padding:24px 18px;}
+.back{display:inline-block; margin-bottom:16px; opacity:.65; font-size:.92rem; color:var(--text); text-decoration:none;}
+.back:hover{opacity:1;}
+h1{font-size:clamp(28px,6vw,48px); margin:0 0 6px; font-weight:900;}
+.lead{font-size:1rem; opacity:.8; margin:0 auto 24px; max-width:480px; line-height:1.5;}
+
+.card{
+  background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.28));
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:26px 24px; box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
+  margin-bottom:16px; text-align:left;
+}
+
+.label{font-size:.82rem; font-weight:800; letter-spacing:.6px; text-transform:uppercase; opacity:.65; margin-bottom:8px; display:block;}
+
+textarea{
+  width:100%; background:rgba(255,255,255,.1); border:1px solid var(--glass-border);
+  color:var(--text); border-radius:12px; padding:14px 16px; font-size:1.05rem;
+  font-family:inherit; resize:vertical; outline:none; min-height:110px; line-height:1.5;
+}
+textarea::placeholder{opacity:.4;}
+textarea:focus{border-color:rgba(46,204,113,.6);}
+
+.controls{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
+@media(max-width:480px){.controls{grid-template-columns:1fr;}}
+
+.select-wrap{position:relative;}
+select{
+  width:100%; background:rgba(255,255,255,.1); border:1px solid var(--glass-border);
+  color:var(--text); border-radius:12px; padding:12px 40px 12px 14px;
+  font-size:.95rem; font-weight:600; font-family:inherit; outline:none;
+  appearance:none; cursor:pointer;
+}
+select:focus{border-color:rgba(46,204,113,.6);}
+select option{background:#1c4a2e; color:#fff;}
+.select-wrap::after{
+  content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  pointer-events:none; opacity:.6; font-size:1.1rem;
+}
+
+.slider-row{display:flex; flex-direction:column; gap:4px;}
+.slider-label{font-size:.8rem; font-weight:700; opacity:.65; display:flex; justify-content:space-between;}
+input[type=range]{
+  width:100%; accent-color:#2ecc71; cursor:pointer;
+  height:6px; border-radius:99px; background:rgba(255,255,255,.2);
+}
+
+.btn{
+  color:var(--btnText); background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  border:1px solid rgba(255,255,255,.6); border-radius:12px;
+  padding:12px 24px; font-weight:800; font-size:.98rem; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .15s, box-shadow .15s; margin:5px; display:inline-block;
+  text-decoration:none; width:100%;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.34);}
+.btn:active{transform:translateY(0); box-shadow:0 4px 10px rgba(0,0,0,.2);}
+.btn:disabled{opacity:.45; cursor:default; transform:none !important;}
+.btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border-color:#27ae60;}
+.btn--stop{background:linear-gradient(180deg,#e74c3c,#c0392b); color:#fff; border-color:#c0392b;}
+
+.speak-row{display:flex; gap:10px; margin-top:18px;}
+.speak-row .btn{flex:1; margin:0;}
+
+/* Speaking animation */
+.speaking-indicator{
+  display:none; align-items:center; gap:10px; justify-content:center;
+  margin-top:14px; font-weight:700; font-size:.95rem; opacity:.8;
+}
+.speaking-indicator.active{display:flex;}
+.bars{display:flex; gap:3px; align-items:flex-end; height:24px;}
+.bar{width:4px; border-radius:3px; background:#2ecc71; animation:barBounce 0.6s ease-in-out infinite;}
+.bar:nth-child(1){height:8px; animation-delay:0s;}
+.bar:nth-child(2){height:16px; animation-delay:.1s;}
+.bar:nth-child(3){height:24px; animation-delay:.2s;}
+.bar:nth-child(4){height:14px; animation-delay:.3s;}
+.bar:nth-child(5){height:20px; animation-delay:.15s;}
+@keyframes barBounce{
+  0%,100%{transform:scaleY(0.4); opacity:.6;}
+  50%{transform:scaleY(1); opacity:1;}
+}
+
+/* Accent cards grid */
+.presets{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-top:16px;}
+.preset-btn{
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
+  color:var(--text); border-radius:12px; padding:10px 8px;
+  font-size:.88rem; font-weight:700; cursor:pointer; transition:.18s;
+  text-align:center; line-height:1.4;
+}
+.preset-btn:hover{background:rgba(46,204,113,.18); border-color:rgba(46,204,113,.4); transform:translateY(-2px);}
+.preset-btn .flag{font-size:1.4rem; display:block; margin-bottom:3px;}
+
+.no-support{
+  background:rgba(231,76,60,.15); border:1px solid rgba(231,76,60,.3);
+  border-radius:12px; padding:16px; color:#ff8a8a; font-weight:700;
+  font-size:.95rem; margin-top:16px; display:none;
+}
+
+.voice-count{font-size:.82rem; opacity:.5; margin-top:6px; text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Back to the Jar</a>
+
+  <span style="font-size:3.5rem;display:block;margin-bottom:6px;">🗣️</span>
+  <h1>Accent Machine</h1>
+  <p class="lead">Type anything. Pick an accent. Hear it said back in that voice. Totally free — your browser does the talking.</p>
+
+  <div class="no-support" id="no-support">
+    ⚠️ Your browser doesn't support the Web Speech API. Try Chrome or Edge for the full experience.
+  </div>
+
+  <div class="card">
+    <label class="label" for="speech-text">What do you want to say?</label>
+    <textarea id="speech-text" placeholder="Type something here… the more ridiculous the better." maxlength="500"></textarea>
+
+    <div class="controls">
+      <div>
+        <label class="label" for="voice-select">Accent / Voice</label>
+        <div class="select-wrap">
+          <select id="voice-select"><option>Loading voices…</option></select>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="slider-row">
+          <div class="slider-label"><span>Speed</span><span id="rate-val">1.0×</span></div>
+          <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Pitch</span><span id="pitch-val">1.0</span></div>
+          <input type="range" id="pitch-slider" min="0.5" max="2" step="0.1" value="1" />
+        </div>
+      </div>
+    </div>
+
+    <div class="speak-row">
+      <button class="btn btn--green" id="speak-btn" onclick="speakIt()">🔊 Say It!</button>
+      <button class="btn btn--stop" id="stop-btn" onclick="stopIt()" style="display:none;">⏹ Stop</button>
+    </div>
+
+    <div class="speaking-indicator" id="speaking-indicator">
+      <div class="bars">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div>
+      </div>
+      <span id="speaking-label">Speaking…</span>
+    </div>
+
+    <div class="voice-count" id="voice-count"></div>
+  </div>
+
+  <!-- Quick phrases -->
+  <div class="card">
+    <span class="label">🎭 Quick Phrases (tap to load)</span>
+    <div class="presets" id="phrase-presets"></div>
+  </div>
+
+  <!-- Accent quick-select -->
+  <div class="card">
+    <span class="label">🌍 Quick Accent Pick</span>
+    <div class="presets" id="accent-presets"></div>
+  </div>
+
+</div>
+
+<script>
+var synth = window.speechSynthesis;
+var allVoices = [];
+var speaking = false;
+
+var ACCENT_REGIONS = [
+  { flag:'🇬🇧', label:'British',     langs:['en-GB'] },
+  { flag:'🇺🇸', label:'American',    langs:['en-US'] },
+  { flag:'🇦🇺', label:'Australian',  langs:['en-AU'] },
+  { flag:'🇮🇳', label:'Indian',      langs:['en-IN'] },
+  { flag:'🇮🇪', label:'Irish',       langs:['en-IE'] },
+  { flag:'🇿🇦', label:'S. African',  langs:['en-ZA'] },
+  { flag:'🇨🇦', label:'Canadian',    langs:['en-CA'] },
+  { flag:'🇳🇿', label:'Kiwi',        langs:['en-NZ'] },
+  { flag:'🇫🇷', label:'French',      langs:['fr-FR','fr'] },
+  { flag:'🇩🇪', label:'German',      langs:['de-DE','de'] },
+  { flag:'🇪🇸', label:'Spanish',     langs:['es-ES','es'] },
+  { flag:'🇮🇹', label:'Italian',     langs:['it-IT','it'] },
+  { flag:'🇯🇵', label:'Japanese',    langs:['ja-JP','ja'] },
+  { flag:'🇧🇷', label:'Portuguese',  langs:['pt-BR','pt'] },
+];
+
+var PHRASES = [
+  { flag:'🥒', text:"I'm absolutely pickled with excitement, mate." },
+  { flag:'🍔', text:"Can I get a number 3 with extra pickles please?" },
+  { flag:'☕', text:"Good morning! Have you tried the artisanal cold brew?" },
+  { flag:'🏈', text:"That quarterback just launched a sixty yard spiral!" },
+  { flag:'🎩', text:"I say, that was a rather splendid performance, wasn't it?" },
+  { flag:'🦘', text:"No worries mate, she'll be right." },
+  { flag:'🐄', text:"The cows are out in the paddock, reckon it'll rain." },
+  { flag:'🌶️', text:"This is the most fire hot sauce I have ever tasted in my life!" },
+  { flag:'👽', text:"We have detected an unusual pickle-based life form." },
+  { flag:'💅', text:"Oh my god, did you SEE what she wore to the gala? Absolutely iconic." },
+];
+
+function init() {
+  if (!synth) {
+    document.getElementById('no-support').style.display='block';
+    document.getElementById('speak-btn').disabled=true;
+    return;
+  }
+
+  // Build phrase presets
+  var pp = document.getElementById('phrase-presets');
+  PHRASES.forEach(function(p){
+    var btn = document.createElement('button');
+    btn.className='preset-btn';
+    btn.innerHTML='<span class="flag">'+p.flag+'</span>'+escHtml(p.text.slice(0,28))+(p.text.length>28?'…':'');
+    btn.title=p.text;
+    btn.addEventListener('click', function(){ document.getElementById('speech-text').value=p.text; });
+    pp.appendChild(btn);
+  });
+
+  // Load voices (async on Chrome)
+  loadVoices();
+  if (synth.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = loadVoices;
+  }
+
+  // Sliders
+  document.getElementById('rate-slider').addEventListener('input', function(){
+    document.getElementById('rate-val').textContent=parseFloat(this.value).toFixed(1)+'×';
+  });
+  document.getElementById('pitch-slider').addEventListener('input', function(){
+    document.getElementById('pitch-val').textContent=parseFloat(this.value).toFixed(1);
+  });
+
+  // Keyboard shortcut: Ctrl+Enter to speak
+  document.getElementById('speech-text').addEventListener('keydown', function(e){
+    if ((e.ctrlKey||e.metaKey) && e.key==='Enter') speakIt();
+  });
+}
+
+function loadVoices() {
+  allVoices = synth.getVoices();
+  if (!allVoices.length) return;
+
+  // Sort: English first, then everything else alphabetically by lang
+  allVoices.sort(function(a,b){
+    var aEn = a.lang.startsWith('en') ? 0 : 1;
+    var bEn = b.lang.startsWith('en') ? 0 : 1;
+    if (aEn !== bEn) return aEn-bEn;
+    return a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name);
+  });
+
+  var sel = document.getElementById('voice-select');
+  sel.innerHTML='';
+  allVoices.forEach(function(v, i){
+    var opt = document.createElement('option');
+    opt.value=i;
+    var flag = flagForLang(v.lang);
+    opt.textContent=flag+' '+friendlyName(v);
+    sel.appendChild(opt);
+  });
+
+  // Default to first en-GB, else first en-US, else first voice
+  var gbIdx = allVoices.findIndex(function(v){ return v.lang==='en-GB'; });
+  var usIdx = allVoices.findIndex(function(v){ return v.lang==='en-US'; });
+  sel.selectedIndex = gbIdx>=0 ? gbIdx : (usIdx>=0 ? usIdx : 0);
+
+  document.getElementById('voice-count').textContent=allVoices.length+' voices available on this device';
+
+  // Build accent quick-pick buttons
+  buildAccentButtons();
+}
+
+function friendlyName(voice) {
+  var lang = voice.lang;
+  var name = voice.name
+    .replace('Microsoft ','').replace('Google ','').replace(' Online (Natural)','')
+    .replace('(Enhanced)','').replace('(Premium)','').trim();
+  return name+' ('+lang+')';
+}
+
+function flagForLang(lang) {
+  var code = lang.split('-')[1] || lang.split('-')[0];
+  var flags = {
+    US:'🇺🇸',GB:'🇬🇧',AU:'🇦🇺',CA:'🇨🇦',IN:'🇮🇳',IE:'🇮🇪',ZA:'🇿🇦',NZ:'🇳🇿',
+    FR:'🇫🇷',DE:'🇩🇪',ES:'🇪🇸',IT:'🇮🇹',JP:'🇯🇵',BR:'🇧🇷',MX:'🇲🇽',PT:'🇵🇹',
+    CN:'🇨🇳',KR:'🇰🇷',RU:'🇷🇺',PL:'🇵🇱',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',
+    FI:'🇫🇮',TR:'🇹🇷',AR:'🇸🇦',HE:'🇮🇱',TH:'🇹🇭',ID:'🇮🇩',HI:'🇮🇳',
+  };
+  return flags[code.toUpperCase()] || '🌐';
+}
+
+function buildAccentButtons() {
+  var container = document.getElementById('accent-presets');
+  container.innerHTML='';
+  ACCENT_REGIONS.forEach(function(region){
+    // Find first voice matching any of the region's langs
+    var idx = -1;
+    for (var i=0; i<region.langs.length; i++) {
+      var found = allVoices.findIndex(function(v){ return v.lang===region.langs[i] || v.lang.startsWith(region.langs[i]); });
+      if (found>=0) { idx=found; break; }
+    }
+    if (idx<0) return; // not available on this device — skip
+
+    var btn=document.createElement('button');
+    btn.className='preset-btn';
+    btn.innerHTML='<span class="flag">'+region.flag+'</span>'+region.label;
+    btn.addEventListener('click', function(){
+      document.getElementById('voice-select').selectedIndex=idx;
+      // Flash the button
+      btn.style.background='rgba(46,204,113,.3)';
+      setTimeout(function(){ btn.style.background=''; }, 400);
+    });
+    container.appendChild(btn);
+  });
+  if (!container.children.length) {
+    container.innerHTML='<p style="opacity:.5; font-size:.9rem;">No specific accents detected — use the dropdown above to browse all available voices.</p>';
+  }
+}
+
+function speakIt() {
+  if (!synth) return;
+  var text = document.getElementById('speech-text').value.trim();
+  if (!text) { document.getElementById('speech-text').focus(); return; }
+
+  synth.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+
+  var sel = document.getElementById('voice-select');
+  var voiceIdx = parseInt(sel.value, 10);
+  if (!isNaN(voiceIdx) && allVoices[voiceIdx]) utt.voice = allVoices[voiceIdx];
+
+  utt.rate  = parseFloat(document.getElementById('rate-slider').value)  || 1;
+  utt.pitch = parseFloat(document.getElementById('pitch-slider').value) || 1;
+
+  utt.onstart = function(){
+    speaking=true;
+    document.getElementById('speak-btn').style.display='none';
+    document.getElementById('stop-btn').style.display='block';
+    document.getElementById('speaking-indicator').classList.add('active');
+    var voiceName = allVoices[voiceIdx] ? allVoices[voiceIdx].name.split(' ')[0] : 'Speaking';
+    document.getElementById('speaking-label').textContent=voiceName+' is speaking…';
+  };
+  utt.onend = utt.onerror = function(){
+    speaking=false;
+    document.getElementById('speak-btn').style.display='block';
+    document.getElementById('stop-btn').style.display='none';
+    document.getElementById('speaking-indicator').classList.remove('active');
+  };
+
+  synth.speak(utt);
+}
+
+function stopIt() {
+  synth.cancel();
+  speaking=false;
+  document.getElementById('speak-btn').style.display='block';
+  document.getElementById('stop-btn').style.display='none';
+  document.getElementById('speaking-indicator').classList.remove('active');
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+init();
+</script>
+</body>
+</html>
