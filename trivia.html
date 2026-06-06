@@ -13,8 +13,8 @@
   --btnText:#0d3d24; --radius:16px;
   --glass:rgba(255,255,255,.10); --glass-border:rgba(255,255,255,.22);
   --shadow:0 18px 45px rgba(0,0,0,.40);
-  --red:#e74c3c; --red-dim:rgba(231,76,60,.22);
-  --green-dim:rgba(46,204,113,.22);
+  --red:#CC0000; --red-dim:rgba(204,0,0,.22);
+  --blue:#003DA5; --blue-dim:rgba(0,61,165,.22);
 }
 *{box-sizing:border-box}
 body{
@@ -120,7 +120,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
   border:2px solid transparent;
 }
 .team-block.red{ background:var(--red-dim); border-color:var(--red); }
-.team-block.green{ background:var(--green-dim); border-color:var(--accent); }
+.team-block.blue{ background:var(--blue-dim); border-color:var(--blue); }
 .team-block .team-pts{ font-size:2rem; font-weight:900; display:block; line-height:1; }
 .team-block.winner{ transform:scale(1.05); box-shadow:0 0 0 3px rgba(255,255,255,.4); }
 
@@ -132,9 +132,9 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
   background:rgba(255,255,255,.07);
 }
 .team-pick-btn.red{ border-color:var(--red); color:var(--red); }
-.team-pick-btn.green{ border-color:var(--accent); color:var(--accent); }
+.team-pick-btn.blue{ border-color:var(--blue); color:#82b4ff; }
 .team-pick-btn.selected.red{ background:var(--red-dim); box-shadow:0 0 0 2px var(--red); }
-.team-pick-btn.selected.green{ background:var(--green-dim); box-shadow:0 0 0 2px var(--accent); }
+.team-pick-btn.selected.blue{ background:var(--blue-dim); box-shadow:0 0 0 2px var(--blue); }
 
 /* Room code display */
 .room-code{
@@ -152,10 +152,10 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
   border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; gap:7px;
 }
 .player-chip.red{ background:var(--red-dim); border-color:rgba(231,76,60,.4); }
-.player-chip.green{ background:var(--green-dim); border-color:rgba(46,204,113,.35); }
+.player-chip.blue{ background:var(--blue-dim); border-color:rgba(0,61,165,.4); }
 .player-chip .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .player-chip .dot.red{ background:var(--red); }
-.player-chip .dot.green{ background:var(--accent); }
+.player-chip .dot.blue{ background:var(--blue); }
 
 /* Live question */
 .q-meta{ font-size:.82rem; opacity:.6; margin:0 0 7px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
@@ -182,7 +182,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
   padding:18px; border-radius:var(--radius);
 }
 .winner-banner.red{ background:var(--red-dim); border:2px solid var(--red); }
-.winner-banner.green{ background:var(--green-dim); border:2px solid var(--accent); }
+.winner-banner.blue{ background:var(--blue-dim); border:2px solid var(--blue); }
 .winner-banner.tie{ background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.3); }
 
 /* Join code input */
@@ -318,7 +318,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <p style="font-weight:700; margin:0 0 8px;">Pick your team:</p>
       <div class="team-picker">
         <button class="team-pick-btn red selected" id="host-team-red" onclick="selectHostTeam('red')">🔴 Red Team</button>
-        <button class="team-pick-btn green" id="host-team-green" onclick="selectHostTeam('green')">🟢 Green Team</button>
+        <button class="team-pick-btn blue" id="host-team-blue" onclick="selectHostTeam('blue')">🔵 Blue Team</button>
       </div>
       <button class="btn btn--green" id="create-room-btn" style="margin-top:16px; font-size:1.05rem; padding:14px 30px;">Create Room 🚀</button>
       <div id="create-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
@@ -352,7 +352,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <p style="font-weight:700; margin:0 0 8px;">Pick your team:</p>
       <div class="team-picker">
         <button class="team-pick-btn red selected" id="join-team-red" onclick="selectJoinTeam('red')">🔴 Red Team</button>
-        <button class="team-pick-btn green" id="join-team-green" onclick="selectJoinTeam('green')">🟢 Green Team</button>
+        <button class="team-pick-btn blue" id="join-team-blue" onclick="selectJoinTeam('blue')">🔵 Blue Team</button>
       </div>
       <button class="btn btn--green" id="join-room-btn" style="margin-top:16px; font-size:1.05rem; padding:14px 30px;">Join Room 🚀</button>
       <div id="join-setup-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
@@ -562,17 +562,17 @@ document.getElementById('name-input').addEventListener('keydown', function(e){ i
 
 var liveCode=null, liveHostId=null, livePlayerId=null, liveMyTeam='red';
 var livePoll=null, liveCurrentQ=-1, liveMyAnswered=false, liveRoom=null;
-var hostSelectedTeam='red', joinSelectedTeam='red';
+var hostSelectedTeam='red', joinSelectedTeam='blue';
 
 function selectHostTeam(team) {
   hostSelectedTeam=team;
   document.getElementById('host-team-red').classList.toggle('selected', team==='red');
-  document.getElementById('host-team-green').classList.toggle('selected', team==='green');
+  document.getElementById('host-team-blue').classList.toggle('selected', team==='blue');
 }
 function selectJoinTeam(team) {
   joinSelectedTeam=team;
   document.getElementById('join-team-red').classList.toggle('selected', team==='red');
-  document.getElementById('join-team-green').classList.toggle('selected', team==='green');
+  document.getElementById('join-team-blue').classList.toggle('selected', team==='blue');
 }
 
 document.getElementById('live-mode-btn').addEventListener('click', function(){ show('host-setup-screen'); });
@@ -730,7 +730,7 @@ function scoreBar(scores, containerId) {
   var el=document.getElementById(containerId); if (!el) return;
   el.innerHTML=
     '<div class="team-block red"><span class="team-pts">'+( scores.red||0)+'</span>🔴 Red Team</div>'+
-    '<div class="team-block green"><span class="team-pts">'+(scores.green||0)+'</span>🟢 Green Team</div>';
+    '<div class="team-block blue"><span class="team-pts">'+(scores.blue||0)+'</span>🔵 Blue Team</div>';
 }
 
 function renderLiveQuestion(room, isHost) {
@@ -804,14 +804,14 @@ function renderLiveReveal(room, isHost) {
   });
 
   // Score delta this round
-  var redGain=0, greenGain=0;
+  var redGain=0, blueGain=0;
   var answers=room.answers||{};
   (room.players||[]).forEach(function(p){
     var ans=answers[p.id];
-    if (ans&&ans.correct) { if(p.team==='red') redGain++; else greenGain++; }
+    if (ans&&ans.correct) { if(p.team==='red') redGain++; else blueGain++; }
   });
   var delta='';
-  if (redGain||greenGain) delta='This round: '+(redGain?'🔴 +'+redGain+' ':'')+(greenGain?'🟢 +'+greenGain:'');
+  if (redGain||blueGain) delta='This round: '+(redGain?'🔴 +'+redGain+' ':'')+(blueGain?'🔵 +'+blueGain:'');
   document.getElementById('lr-delta').textContent=delta;
 
   // Player results
@@ -820,7 +820,7 @@ function renderLiveReveal(room, isHost) {
     var ans=answers[p.id];
     var got=ans&&ans.correct;
     var cls='result-chip '+(got?'correct-ans':'wrong-ans');
-    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span><span style="color:'+(p.team==='red'?'#e74c3c':'#2ecc71')+'">'+esc(p.name)+'</span></div>';
+    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+'</span></div>';
   }).join('');
 
   document.getElementById('lr-host-controls').style.display=isHost?'block':'none';
@@ -834,22 +834,22 @@ function renderLiveFinished(room, isHost) {
   show('live-finished-screen');
   stopLivePoll();
 
-  var red=room.scores.red||0, green=room.scores.green||0;
+  var red=room.scores.red||0, blue=room.scores.blue||0;
   var banner=document.getElementById('winner-banner');
-  if (red>green) { banner.textContent='🔴 Red Team Wins! 🏆'; banner.className='winner-banner red'; }
-  else if (green>red) { banner.textContent='🟢 Green Team Wins! 🏆'; banner.className='winner-banner green'; }
+  if (red>blue) { banner.textContent='🔴 Red Team Wins! 🏆'; banner.className='winner-banner red'; }
+  else if (blue>red) { banner.textContent='🔵 Blue Team Wins! 🏆'; banner.className='winner-banner blue'; }
   else { banner.textContent="It's a Tie! 🤝"; banner.className='winner-banner tie'; }
 
   // Score bar with winner highlight
   var sb=document.getElementById('lf-score-bar');
   sb.innerHTML=
-    '<div class="team-block red'+(red>green?' winner':'')+'"><span class="team-pts">'+red+'</span>🔴 Red Team</div>'+
-    '<div class="team-block green'+(green>red?' winner':'')+'"><span class="team-pts">'+green+'</span>🟢 Green Team</div>';
+    '<div class="team-block red'+(red>blue?' winner':'')+'"><span class="team-pts">'+red+'</span>🔴 Red Team</div>'+
+    '<div class="team-block blue'+(blue>red?' winner':'')+'"><span class="team-pts">'+blue+'</span>🔵 Blue Team</div>';
 
   // Player scores sorted
   var players=(room.players||[]).slice().sort(function(a,b){ return (b.score||0)-(a.score||0); });
   document.getElementById('lf-players').innerHTML=players.map(function(p,i){
-    return '<div class="result-chip '+(i===0?'correct-ans':'')+'"><span style="color:'+(p.team==='red'?'#e74c3c':'#2ecc71')+'">'+esc(p.name)+'</span><span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+'</span></div>';
+    return '<div class="result-chip '+(i===0?'correct-ans':'')+'"><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+'</span><span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+'</span></div>';
   }).join('');
 
   document.getElementById('lf-host-controls').style.display=isHost?'block':'none';
