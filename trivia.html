@@ -393,6 +393,27 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
     <div id="reveal-chat-wrap"></div>
   </div>
 
+  <!-- ════════════════════════════════════════ LIVE: WAGER -->
+  <div id="wager-screen" style="display:none;">
+    <span style="font-size:3rem;display:block;margin-bottom:6px;">🎯</span>
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:4px;">It's Tied!</h1>
+    <p class="lead">One bonus question decides it. Place your team's bet.</p>
+    <div class="score-bar" id="wager-score-bar"></div>
+    <div class="card" style="text-align:center;">
+      <p style="font-weight:800; font-size:1.05rem; margin:0 0 4px;">Your team has <span id="wager-team-score" style="font-size:1.4rem;">0</span> pts</p>
+      <p style="opacity:.6; font-size:.88rem; margin:0 0 16px;">Bet any amount from 0 up to your score. Correct = +bet. Wrong = −bet.</p>
+      <div id="wager-captain-ui">
+        <input type="number" id="wager-input" min="0" class="name-input" style="width:110px; text-align:center; font-size:1.5rem; font-weight:900; margin-bottom:6px;" value="0" />
+        <p id="wager-range-hint" style="opacity:.5; font-size:.82rem; margin:0 0 12px;">Enter 0 to <span id="wager-max">0</span></p>
+        <button class="btn btn--green" id="wager-submit-btn" onclick="submitWager()" style="font-size:1.05rem; padding:14px 28px;">Lock In 🎯</button>
+      </div>
+      <div id="wager-non-captain-ui" style="display:none;">
+        <p style="opacity:.65; font-size:.95rem;">Your 👑 captain is setting the bet…</p>
+      </div>
+      <div id="wager-status" style="margin-top:14px; font-size:.9rem; opacity:.7; min-height:1.4em;"></div>
+    </div>
+  </div>
+
   <!-- ════════════════════════════════════════ LIVE: FINISHED -->
   <div id="live-finished-screen" style="display:none;">
     <span style="font-size:3.5rem;display:block;margin-bottom:8px;">🎉</span>
@@ -403,6 +424,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <p style="font-weight:700; margin:0 0 10px; opacity:.8; font-size:.9rem;">TEAM CAPTAINS SCORED:</p>
       <div class="results-grid" id="lf-players"></div>
     </div>
+    <div id="lf-tiebreak" style="display:none;"></div>
     <div id="lf-host-controls" style="display:none;">
       <button class="btn btn--green" id="play-again-live-btn" style="margin-top:6px;">Play Again 🚀</button>
     </div>
@@ -417,7 +439,7 @@ var API = 'https://trivia-api.philliphinshaw.workers.dev';
 
 var SCREENS = ['start-screen','loading-screen','quiz-screen','score-screen',
   'host-setup-screen','host-lobby-screen','join-setup-screen','player-lobby-screen',
-  'live-question-screen','live-reveal-screen','live-finished-screen'];
+  'live-question-screen','live-reveal-screen','wager-screen','live-finished-screen'];
 
 function show(id) {
   SCREENS.forEach(function(s){ document.getElementById(s).style.display = s === id ? 'block' : 'none'; });
@@ -861,7 +883,7 @@ function handleRoomState(room) {
     if (liveCurrentQ!==qIdx) {
       liveCurrentQ=qIdx; liveMyAnswered=false; liveMyVote=null;
       ensureChatOnScreen('live-question-screen');
-      renderLiveQuestion(room, isHost);
+      renderLiveQuestion(room, isHost, false);
     } else {
       updateAnsweredStatus(room);
     }
@@ -870,6 +892,20 @@ function handleRoomState(room) {
       liveCurrentQ=qIdx;
       ensureChatOnScreen('live-reveal-screen');
       renderLiveReveal(room, isHost);
+    }
+  } else if (phase==='wager') {
+    if (getCurrentScreen()!=='wager-screen') {
+      renderWager(room, isHost);
+    } else {
+      updateWagerStatus(room);
+    }
+  } else if (phase==='tiebreak') {
+    if (getCurrentScreen()!=='live-question-screen' || !document.getElementById('tiebreak-banner')) {
+      liveMyAnswered=false; liveMyVote=null;
+      ensureChatOnScreen('live-question-screen');
+      renderLiveQuestion(room, isHost, true);
+    } else {
+      updateAnsweredStatus(room);
     }
   } else if (phase==='finished') {
     if (getCurrentScreen()!=='live-finished-screen') {
@@ -931,14 +967,32 @@ function scoreBar(scores, containerId) {
 
 // ─── LIVE QUESTION ────────────────────────────────────────────────────────────
 
-function renderLiveQuestion(room, isHost) {
+function renderLiveQuestion(room, isHost, isTiebreak) {
   show('live-question-screen');
   var q=room.currentQuestion;
-  document.getElementById('lq-meta').textContent='Q '+(room.currentQ+1)+'/'+(room.totalQuestions||10);
+
+  // Tiebreak banner
+  var existing=document.getElementById('tiebreak-banner');
+  if (isTiebreak && !existing) {
+    var banner=document.createElement('div');
+    banner.id='tiebreak-banner';
+    banner.style.cssText='background:linear-gradient(135deg,rgba(240,192,64,.25),rgba(240,192,64,.08));border:2px solid rgba(240,192,64,.5);border-radius:14px;padding:12px 16px;margin-bottom:14px;font-weight:800;font-size:1.1rem;color:#f0c040;text-align:center;';
+    banner.textContent='🎯 TIEBREAKER — Wagers are locked!';
+    document.getElementById('live-question-screen').prepend(banner);
+  } else if (!isTiebreak && existing) {
+    existing.remove();
+  }
+
+  if (isTiebreak) {
+    document.getElementById('lq-meta').textContent='🎯 Tiebreaker';
+    document.getElementById('lq-progress-bar').style.width='100%';
+  } else {
+    document.getElementById('lq-meta').textContent='Q '+(room.currentQ+1)+'/'+(room.totalQuestions||10);
+    document.getElementById('lq-progress-bar').style.width=(room.currentQ/(room.totalQuestions||10)*100)+'%';
+  }
   document.getElementById('lq-cat').textContent=q?q.cat:'';
   document.getElementById('lq-text').textContent=q?q.q:'';
   scoreBar(room.scores,'lq-score-bar');
-  document.getElementById('lq-progress-bar').style.width=(room.currentQ/(room.totalQuestions||10)*100)+'%';
 
   buildAnswerButtons(room, q);
   document.getElementById('lq-host-controls').style.display=isHost?'block':'none';
@@ -1054,6 +1108,67 @@ function forceSubmit() {
   }).catch(function(){});
 }
 
+// ─── WAGER ────────────────────────────────────────────────────────────────────
+
+function renderWager(room, isHost) {
+  show('wager-screen');
+  scoreBar(room.scores, 'wager-score-bar');
+  var myScore = room.scores[liveMyTeam] || 0;
+  document.getElementById('wager-team-score').textContent = myScore;
+  document.getElementById('wager-max').textContent = myScore;
+  var input = document.getElementById('wager-input');
+  if (input) { input.max = myScore; input.value = Math.floor(myScore / 2); }
+
+  var isCaptain = amICaptain();
+  document.getElementById('wager-captain-ui').style.display = isCaptain ? 'block' : 'none';
+  document.getElementById('wager-non-captain-ui').style.display = isCaptain ? 'none' : 'block';
+
+  // If already submitted (came back via poll), show locked state
+  if (room.myWager !== null && room.myWager !== undefined) {
+    lockWagerUI(room.myWager);
+  }
+  updateWagerStatus(room);
+}
+
+function updateWagerStatus(room) {
+  var statusEl = document.getElementById('wager-status');
+  if (!statusEl) return;
+  var wagersIn = room.wagersIn || {};
+  var redIn = wagersIn.red ? '🔴 ✅' : '🔴 waiting…';
+  var blueIn = wagersIn.blue ? '🔵 ✅' : '🔵 waiting…';
+  statusEl.textContent = redIn + '  ' + blueIn;
+  // If own wager just came in, lock the UI
+  if (room.myWager !== null && room.myWager !== undefined) {
+    lockWagerUI(room.myWager);
+  }
+}
+
+function lockWagerUI(wager) {
+  var btn = document.getElementById('wager-submit-btn');
+  var input = document.getElementById('wager-input');
+  if (btn) { btn.disabled=true; btn.textContent='Bet locked: '+wager+' pts ✅'; }
+  if (input) input.disabled=true;
+}
+
+function submitWager() {
+  var input = document.getElementById('wager-input');
+  var wager = Math.max(0, parseInt(input ? input.value : 0, 10) || 0);
+  var myScore = liveRoom && liveRoom.scores ? (liveRoom.scores[liveMyTeam] || 0) : 0;
+  wager = Math.min(wager, myScore);
+  var btn = document.getElementById('wager-submit-btn');
+  if (btn) { btn.disabled=true; btn.textContent='Locking in…'; }
+  fetch(API+'/room/'+liveCode+'/wager', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, wager:wager})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.ok) { lockWagerUI(wager); }
+    else { if (btn) { btn.disabled=false; btn.textContent='Lock In 🎯'; } }
+  })
+  .catch(function(){ if (btn) { btn.disabled=false; btn.textContent='Lock In 🎯'; } });
+}
+
 // ─── LIVE REVEAL ─────────────────────────────────────────────────────────────
 
 function renderLiveReveal(room, isHost) {
@@ -1135,6 +1250,34 @@ function renderLiveFinished(room, isHost) {
       '<span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">👑 '+esc(p.name)+'</span>'+
       '<span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+' pts</span></div>';
   }).join('');
+
+  // Tiebreaker result
+  var tbSection = document.getElementById('lf-tiebreak');
+  if (room.tiebreakResult && tbSection) {
+    var tbr = room.tiebreakResult;
+    var tbq = tbr.question;
+    var tbHtml = '<div style="margin-top:16px; padding:16px; border-radius:14px; background:rgba(240,192,64,.12); border:1px solid rgba(240,192,64,.3); text-align:left;">';
+    tbHtml += '<p style="font-weight:800; color:#f0c040; margin:0 0 8px; font-size:.95rem;">🎯 TIEBREAKER</p>';
+    if (tbq) {
+      tbHtml += '<p style="font-size:.9rem; margin:0 0 10px; font-weight:700;">'+esc(tbq.q)+'</p>';
+      tbHtml += '<p style="font-size:.82rem; opacity:.6; margin:0 0 10px;">Correct answer: <strong>'+esc(tbq.a[tbq.correct])+'</strong></p>';
+    }
+    ['red','blue'].forEach(function(team){
+      var ta = tbr.answers && tbr.answers[team];
+      var wager = tbr.wagers && tbr.wagers[team] !== null ? tbr.wagers[team] : 0;
+      var got = ta && ta.correct;
+      var color = team==='red' ? '#ff6b6b' : '#82b4ff';
+      var teamLabel = team==='red' ? '🔴 Red' : '🔵 Blue';
+      var ansText = ta && tbq ? esc(tbq.a[ta.idx]) : '—';
+      var change = got ? '+'+wager : (wager > 0 ? '−'+wager : '±0');
+      tbHtml += '<div style="font-size:.88rem; margin-bottom:6px; color:'+color+';">'+teamLabel+': bet '+wager+' pts → '+ansText+' '+(got?'✅':'❌')+' ('+change+')</div>';
+    });
+    tbHtml += '</div>';
+    tbSection.innerHTML = tbHtml;
+    tbSection.style.display = 'block';
+  } else if (tbSection) {
+    tbSection.style.display = 'none';
+  }
 
   document.getElementById('lf-host-controls').style.display=isHost?'block':'none';
 }
