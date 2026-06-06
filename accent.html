@@ -81,6 +81,7 @@ select option{background:#1c4a2e; color:#fff;}
 .btn:disabled{opacity:.45; cursor:default; transform:none !important; pointer-events:none;}
 .btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff;}
 .btn--stop{background:linear-gradient(180deg,#e74c3c,#c0392b); color:#fff;}
+.btn--dl{background:linear-gradient(180deg,#8e44ad,#6c3483); color:#fff; text-align:center;}
 
 .speak-row{display:flex; gap:10px; margin-top:18px;}
 .speak-row .btn{flex:1;}
@@ -141,6 +142,7 @@ select option{background:#1c4a2e; color:#fff;}
     <div class="speak-row">
       <button class="btn btn--green" id="speak-btn" onclick="speakIt()">🔊 Say It!</button>
       <button class="btn btn--stop" id="stop-btn" onclick="stopIt()" style="display:none;">⏹ Stop</button>
+      <a class="btn btn--dl" id="dl-btn" style="display:none;" download="accent.mp3">⬇️ Save</a>
     </div>
 
     <div class="speaking-indicator" id="speaking-indicator">
@@ -331,6 +333,13 @@ function speakIt() {
         onDone();
         setStatus('⚠️ Playback error — try again.', true);
       });
+      // Wire up download button
+      var dlBtn = document.getElementById('dl-btn');
+      dlBtn.href = blobUrl;
+      var vObj2 = VOICES.find(function(v) { return v.id === voice; });
+      dlBtn.download = (vObj2 ? vObj2.label : 'accent') + '.mp3';
+      dlBtn.style.display = 'block';
+
       return currentAudio.play();
     })
     .then(function() {
@@ -367,6 +376,7 @@ function onDone() {
   document.getElementById('speak-btn').disabled = false;
   document.getElementById('stop-btn').style.display = 'none';
   document.getElementById('speaking-indicator').classList.remove('active');
+  // Keep download button visible after playback ends so user can still save it
 }
 
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
