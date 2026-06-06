@@ -225,17 +225,19 @@
   <div class="wrap">
     <!-- Faith + Verse + Guestbook -->
     <section class="grid" aria-label="Welcome widgets">
-      <article class="card card--wide" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30)); border-color:rgba(46,204,113,.35);">
-        <h3 style="font-size:1.35rem;">📖 The Word</h3>
-        <p class="meta">Read the Bible — NIV, KJV, Amplified, The Message, and more. Pick up wherever you left off.</p>
-        <p><a class="btn" href="/bible.html">Open Bible Reader</a></p>
-      </article>
-
       <article class="card card--accent card--wide">
         <h3>📖 Daily Dill-votional</h3>
-        <p id="votd-text" class="meta">Loading verse…</p>
-        <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
+        <a id="votd-link" href="/bible.html" style="display:block; text-decoration:none; color:inherit;">
+          <p id="votd-text" class="meta" style="cursor:pointer;">Loading verse…</p>
+          <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700; cursor:pointer;"></p>
+        </a>
         <p><button id="copy-votd" class="btn">📋 Copy Verse</button></p>
+      </article>
+
+      <article class="card card--wide" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30)); border-color:rgba(46,204,113,.35);">
+        <h3 style="font-size:1.35rem;">📖 God's Word</h3>
+        <p class="meta">Read the Bible — KJV, WEB, and LSV. Pick up wherever you left off.</p>
+        <p><a class="btn" href="/bible.html">Open Bible Reader</a></p>
       </article>
 
       <article class="card card--wide">
@@ -326,10 +328,14 @@
         {t:"Rejoice always, pray without ceasing, give thanks in all circumstances.",r:"1 Thessalonians 5:16-18"},
         {t:"She is clothed with strength and dignity, and she laughs without fear of the future.",r:"Proverbs 31:25"}
       ];
+      function setVotdLink(reference){
+        var link=document.getElementById('votd-link');
+        if(link && reference) link.href='/bible.html?ref='+encodeURIComponent(reference);
+      }
       function showFallback(){
         var day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
         var v=fallback[day%fallback.length];
-        txt.textContent=v.t; if(ref) ref.textContent=v.r;
+        txt.textContent=v.t; if(ref) ref.textContent=v.r; setVotdLink(v.r);
       }
       try{
         fetch('https://beta.ourmanna.com/api/v1/get/?format=json')
@@ -337,7 +343,7 @@
           .then(function(j){
             var d=(j.verse&&(j.verse.details||j.verse))||{};
             var verse=(d.text||'').trim(), reference=(d.reference||'').trim();
-            if(verse){ txt.textContent=verse; if(ref) ref.textContent=reference; } else { showFallback(); }
+            if(verse){ txt.textContent=verse; if(ref) ref.textContent=reference; setVotdLink(reference); } else { showFallback(); }
           })
           .catch(showFallback);
       }catch(e){ showFallback(); }

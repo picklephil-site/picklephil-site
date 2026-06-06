@@ -571,7 +571,40 @@ function updateCollapsedLabel(){
     xlatSel.value = savedBible;
   }
 
-  onTranslationChange();
+  // Parse ?ref=Book Chapter:Verse from homepage votd link
+  var refParam = '';
+  try { refParam = new URLSearchParams(window.location.search).get('ref') || ''; } catch(e){}
+
+  if (refParam) {
+    // e.g. "John 3:16", "1 Peter 5:7", "Psalm 23:1"
+    var refMatch = refParam.match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
+    if (refMatch) {
+      var refBook = refMatch[1].trim().toLowerCase();
+      var refChapNum = refMatch[2];
+      // After books load, find + navigate
+      onTranslationChange(function(){
+        var found = state.books.find(function(b){
+          return b.name.toLowerCase() === refBook ||
+                 b.name.toLowerCase().startsWith(refBook) ||
+                 b.abbreviation && b.abbreviation.toLowerCase() === refBook;
+        });
+        if (!found) found = state.books.find(function(b){
+          return b.name.toLowerCase().indexOf(refBook) === 0;
+        });
+        if (found) {
+          bookSel.value = found.id;
+          onBookChange(function(){
+            var ch = state.chapters.find(function(c){ return c.number === refChapNum; });
+            if (ch) { chapSel.value = ch.id; onChapterChange(); }
+          });
+        }
+      });
+    } else {
+      onTranslationChange();
+    }
+  } else {
+    onTranslationChange();
+  }
 
 })();
 </script>
