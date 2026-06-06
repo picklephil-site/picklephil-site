@@ -311,7 +311,7 @@ function speakIt() {
   stopIt();
 
   var voice = selectedVoiceId || 'Brian';
-  var url = 'https://api.streamelements.com/kappa/v2/speech?voice='
+  var url = 'https://trivia-api.philliphinshaw.workers.dev/tts?voice='
     + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
 
   setStatus('Loading…', false);
