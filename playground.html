@@ -198,13 +198,11 @@
     var LAST  = ["Picklesworth","McCrunch","Brinebottom","von Gherkin","Dillington","Sourpatch","Crispwell","Jarsley","Fermenton","Picklebee","Saltlewood","Crunchowski"];
     var inp=document.getElementById('nameIn'), out=document.getElementById('nameOut'),
         btn=document.getElementById('nameBtn'), copy=document.getElementById('nameCopy');
-    // Deterministic per name: same name -> same pickle identity
-    function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))>>>0; } return h; }
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     function gen(){
       var n=inp.value.trim();
       if(!n){ out.textContent="🥒 Type your name to be picklified."; flash(out); return; }
-      var h=hash(n.toLowerCase());
-      var name = FIRST[h%FIRST.length] + " " + ADJ[(h>>4)%ADJ.length] + " " + LAST[(h>>8)%LAST.length];
+      var name = rand(FIRST) + " " + rand(ADJ) + " " + rand(LAST);
       out.textContent = "🥒 " + name; flash(out);
     }
     btn.addEventListener('click', gen);
