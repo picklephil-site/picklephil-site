@@ -383,6 +383,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <div class="room-code" id="lobby-code">----</div>
       <p style="opacity:.6; font-size:.88rem; margin:4px 0 16px;">Share this code — players go to <strong>philliphinshaw.com/trivia</strong></p>
       <div id="lobby-players" class="player-grid"></div>
+      <div id="lobby-switch-wrap" style="margin-bottom:10px;"></div>
       <div class="divider"></div>
       <button class="btn btn--green" id="start-game-btn" style="font-size:1.05rem; padding:14px 32px;" disabled>Start Game ▶</button>
       <p id="start-hint" style="opacity:.55; font-size:.85rem; margin:8px 0 0;">Need at least 2 players to start</p>
@@ -417,6 +418,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <p class="room-code-label">Room</p>
       <div class="room-code" id="player-lobby-code" style="font-size:clamp(36px,10vw,64px);">----</div>
       <div id="player-lobby-players" class="player-grid" style="margin-top:14px;"></div>
+      <div id="player-switch-wrap" style="margin-top:10px;"></div>
     </div>
     <div id="player-lobby-chat-wrap"></div>
   </div>
@@ -809,6 +811,7 @@ function handleRoomState(room) {
 
   if (room.phase==='lobby') {
     renderLobbyPlayers(room.players);
+    renderTeamSwitch(isHost);
     if (isHost) {
       var btn=document.getElementById('start-game-btn');
       var hint=document.getElementById('start-hint');
@@ -845,6 +848,49 @@ function handleRoomState(room) {
 
 function getCurrentScreen() {
   return SCREENS.find(function(s){ return document.getElementById(s).style.display!=='none'; })||'';
+}
+
+function renderTeamSwitch(isHost) {
+  var wrapId = isHost ? 'lobby-switch-wrap' : 'player-switch-wrap';
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  var other = liveMyTeam === 'red' ? 'blue' : 'red';
+  var otherLabel = other === 'red' ? '🔴 Red Team' : '🔵 Blue Team';
+  var color = other === 'red' ? '#CC0000' : '#003DA5';
+  wrap.innerHTML =
+    '<button id="switch-team-btn" onclick="switchTeam()" style="'+
+      'background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); color:var(--text);'+
+      'border-radius:10px; padding:8px 18px; font-size:.88rem; font-weight:700; cursor:pointer;'+
+      'transition:.15s;" '+
+      'onmouseover="this.style.background=\'rgba(255,255,255,.15)\'" '+
+      'onmouseout="this.style.background=\'rgba(255,255,255,.08)\'">'+
+      'Switch to '+otherLabel+
+    '</button>';
+}
+
+function switchTeam() {
+  var btn = document.getElementById('switch-team-btn');
+  if (btn) { btn.disabled=true; btn.textContent='Switching…'; }
+  var newTeam = liveMyTeam === 'red' ? 'blue' : 'red';
+  fetch(API+'/room/'+liveCode+'/team', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, team:newTeam})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.ok) {
+      liveMyTeam = newTeam;
+      // Rebuild the chat panel for the new team
+      var isHost = !!liveHostId;
+      var chatWrapId = isHost ? 'lobby-chat-wrap' : 'player-lobby-chat-wrap';
+      buildChatPanel(chatWrapId, liveMyTeam);
+    } else {
+      if (btn) { btn.disabled=false; btn.textContent='Switch failed — try again'; }
+    }
+  })
+  .catch(function(){
+    if (btn) { btn.disabled=false; }
+  });
 }
 
 function renderLobbyPlayers(players) {
