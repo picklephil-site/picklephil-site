@@ -326,6 +326,8 @@ function speakIt() {
   fetch(url, { signal: abort.signal })
     .then(function(r) {
       if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t); });
+      var ct = r.headers.get('content-type') || '';
+      if (!ct.includes('audio')) return r.text().then(function(t) { throw new Error('Got ' + ct + ' instead of audio. Response: ' + t.slice(0, 120)); });
       return r.blob();
     })
     .then(function(blob) {
