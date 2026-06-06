@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dill &amp; Chill — Find Your Vibe</title>
+<meta name="description" content="Not sure what to watch or listen to? Let Pickle Phil find your next vibe." />
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+  --text:#f5f7f5;
+  --accent:#2ecc71;
+  --btnText:#0d3d24;
+  --radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.40);
+  --glass:rgba(255,255,255,.10);
+  --glass-border:rgba(255,255,255,.22);
+  --panel-b:rgba(8,40,24,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Segoe UI,Tahoma,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(900px 600px at 78% 8%,rgba(46,204,113,.28),transparent 60%),
+    radial-gradient(1100px 800px at 12% 0%,var(--bg2) 0%,transparent 55%),
+    radial-gradient(circle at 50% 120%,#0f4a2c 0%,var(--bg3) 70%),
+    linear-gradient(160deg,var(--bg) 0%,var(--bg3) 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+}
+.page-wrap{max-width:980px;margin:0 auto;padding:24px 20px 60px}
+
+/* Back nav */
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--text);text-decoration:none;font-weight:700;opacity:.75;
+  transition:opacity .2s;margin-bottom:24px;
+}
+.back-link:hover{opacity:1}
+
+/* Hero */
+.page-hero{text-align:center;margin-bottom:32px}
+.page-title{
+  font-family:"Amatic SC",system-ui,sans-serif;
+  font-weight:700;
+  font-size:clamp(52px,10vw,92px);
+  background:linear-gradient(180deg,#ffffff 0%,#c7f2d8 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  line-height:1;margin-bottom:10px;
+  filter:drop-shadow(0 2px 10px rgba(46,204,113,.25));
+}
+.page-subtitle{font-size:1.1rem;opacity:.85}
+
+/* Tabs */
+.tab-bar{display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.tab-btn{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);font-size:1rem;font-weight:700;
+  padding:10px 26px;border-radius:50px;cursor:pointer;
+  transition:all .2s;font-family:inherit;
+}
+.tab-btn:hover{background:rgba(46,204,113,.2);border-color:rgba(46,204,113,.4)}
+.tab-btn.active{
+  background:linear-gradient(135deg,rgba(46,204,113,.4),rgba(46,204,113,.18));
+  border-color:rgba(46,204,113,.65);
+  box-shadow:0 0 0 1px rgba(46,204,113,.3);
+}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block}
+
+/* Control card */
+.control-card{
+  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);padding:26px;margin-bottom:24px;
+  box-shadow:var(--shadow);
+}
+.control-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;justify-content:center}
+.control-group{flex:1;min-width:155px}
+.control-group label{
+  display:block;font-size:.8rem;font-weight:700;opacity:.7;
+  margin-bottom:6px;letter-spacing:.6px;text-transform:uppercase;
+}
+.control-group select{
+  width:100%;background:rgba(0,0,0,.4);color:var(--text);
+  border:1px solid var(--glass-border);border-radius:10px;
+  padding:10px 32px 10px 12px;font-size:.95rem;cursor:pointer;
+  appearance:none;-webkit-appearance:none;font-family:inherit;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f5f7f5' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .2s;
+}
+.control-group select:focus{outline:none;border-color:rgba(46,204,113,.55)}
+.control-group select option{background:#0c3a22}
+
+.find-btn{
+  background:linear-gradient(135deg,#2ecc71,#27ae60);
+  color:#0d2b1a;border:none;border-radius:12px;
+  padding:12px 28px;font-size:.95rem;font-weight:800;
+  cursor:pointer;box-shadow:0 6px 20px rgba(46,204,113,.35);
+  transition:transform .18s,box-shadow .18s,filter .18s;
+  white-space:nowrap;flex-shrink:0;font-family:inherit;
+}
+.find-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(46,204,113,.48);filter:brightness(1.05)}
+.find-btn:active{transform:translateY(0)}
+.find-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+/* Loading */
+.loading{text-align:center;padding:48px;font-size:1.15rem;opacity:.8}
+.spinner{display:inline-block;font-size:2rem;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Error */
+.error-msg{
+  text-align:center;padding:28px;
+  background:rgba(180,40,40,.15);border:1px solid rgba(200,60,60,.3);
+  border-radius:var(--radius);margin-top:4px;
+}
+
+/* Results header */
+.results-section{animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.results-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:10px;
+}
+.results-title{font-size:.95rem;font-weight:700;opacity:.75}
+.shuffle-btn{
+  background:rgba(255,255,255,.1);border:1px solid var(--glass-border);
+  color:var(--text);font-size:.85rem;font-weight:700;
+  padding:6px 16px;border-radius:20px;cursor:pointer;
+  transition:background .2s;font-family:inherit;
+}
+.shuffle-btn:hover{background:rgba(255,255,255,.18)}
+
+/* ── Music cards ── */
+.music-grid{display:flex;flex-direction:column;gap:12px}
+.music-card{
+  display:flex;gap:14px;align-items:center;
+  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--glass-border);
+  border-radius:14px;padding:14px;
+  box-shadow:0 8px 22px rgba(0,0,0,.3);
+  transition:transform .2s,border-color .2s;
+}
+.music-card:hover{transform:translateY(-2px);border-color:rgba(46,204,113,.4)}
+.music-art{
+  width:76px;height:76px;border-radius:10px;
+  object-fit:cover;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.music-info{flex:1;min-width:0}
+.music-track{
+  font-size:.95rem;font-weight:800;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.music-artist{
+  font-size:.85rem;opacity:.7;margin-bottom:9px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.music-player{width:100%;height:34px;accent-color:var(--accent)}
+
+/* ── Media cards (movies + TV) ── */
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:680px){.media-grid{grid-template-columns:1fr}}
+@media(min-width:681px) and (max-width:880px){.media-grid{grid-template-columns:repeat(2,1fr)}}
+
+.media-card{
+  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  transition:transform .22s,border-color .22s,box-shadow .22s;
+  display:flex;flex-direction:column;
+}
+.media-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(46,204,113,.45);
+  box-shadow:0 22px 50px rgba(0,0,0,.45),0 0 0 1px rgba(46,204,113,.2);
+}
+.media-poster-wrap{
+  position:relative;aspect-ratio:2/3;
+  overflow:hidden;background:rgba(0,0,0,.3);
+}
+.media-poster{width:100%;height:100%;object-fit:cover;display:block}
+.media-poster-placeholder{
+  width:100%;height:100%;display:flex;
+  align-items:center;justify-content:center;
+  font-size:4rem;background:rgba(46,204,113,.08);
+}
+.media-rating{
+  position:absolute;top:8px;right:8px;
+  background:rgba(0,0,0,.75);color:#ffd700;
+  font-size:.78rem;font-weight:800;
+  padding:3px 8px;border-radius:20px;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+.media-body{padding:14px;flex:1;display:flex;flex-direction:column}
+.media-title{font-size:.95rem;font-weight:800;margin-bottom:2px;line-height:1.3}
+.media-year{font-size:.78rem;opacity:.55;margin-bottom:8px}
+.media-overview{
+  font-size:.82rem;opacity:.78;line-height:1.5;flex:1;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+}
+.trailer-btn{
+  display:block;width:100%;margin-top:12px;
+  background:linear-gradient(135deg,rgba(46,204,113,.32),rgba(46,204,113,.12));
+  border:1px solid rgba(46,204,113,.4);color:var(--text);
+  font-size:.88rem;font-weight:800;padding:9px 14px;
+  border-radius:10px;cursor:pointer;
+  transition:background .2s,transform .15s;font-family:inherit;
+}
+.trailer-btn:hover{
+  background:linear-gradient(135deg,rgba(46,204,113,.5),rgba(46,204,113,.25));
+  transform:translateY(-1px);
+}
+.trailer-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ── Trailer modal ── */
+.trailer-modal{
+  display:none;position:fixed;inset:0;z-index:9999;
+  align-items:center;justify-content:center;padding:20px;
+}
+.trailer-modal.open{display:flex}
+.modal-backdrop{
+  position:absolute;inset:0;background:rgba(0,0,0,.88);cursor:pointer;
+}
+.modal-inner{
+  position:relative;width:min(900px,100%);aspect-ratio:16/9;
+  background:#000;border-radius:14px;overflow:visible;
+  box-shadow:0 30px 80px rgba(0,0,0,.8);z-index:1;
+}
+.modal-inner iframe{
+  width:100%;height:100%;border:none;
+  border-radius:14px;overflow:hidden;display:block;
+}
+.modal-close{
+  position:absolute;top:-44px;right:0;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  color:#fff;font-size:1.1rem;font-weight:800;
+  width:36px;height:36px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s;font-family:inherit;
+}
+.modal-close:hover{background:rgba(255,255,255,.28)}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <a href="/" class="back-link">← Back to the Jar</a>
+
+  <header class="page-hero">
+    <h1 class="page-title">Dill &amp; Chill</h1>
+    <p class="page-subtitle">Not sure what to watch or listen to? Pick your vibe and let Pickle Phil decide.</p>
+  </header>
+
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true"  onclick="switchTab('music',this)">🎵 Tunes</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('movies',this)">🎬 Movies</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('tv',this)">📺 TV Shows</button>
+  </div>
+
+  <!-- ── MUSIC PANEL ── -->
+  <div id="panel-music" class="panel active" role="tabpanel">
+    <div class="control-card">
+      <div class="control-row">
+        <div class="control-group">
+          <label for="music-genre">Genre</label>
+          <select id="music-genre">
+            <option value="rock">Rock</option>
+            <option value="pop">Pop</option>
+            <option value="hip hop rap">Hip-Hop / Rap</option>
+            <option value="country">Country</option>
+            <option value="jazz">Jazz</option>
+            <option value="r&b soul">R&amp;B / Soul</option>
+            <option value="electronic dance">Electronic / Dance</option>
+            <option value="classical orchestral">Classical</option>
+            <option value="metal">Metal</option>
+            <option value="indie alternative">Indie / Alternative</option>
+            <option value="reggae">Reggae</option>
+            <option value="blues">Blues</option>
+            <option value="gospel worship">Gospel / Worship</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="music-vibe">Vibe</label>
+          <select id="music-vibe">
+            <option value="">Any vibe</option>
+            <option value="chill relaxing">Chill</option>
+            <option value="upbeat energetic">Upbeat</option>
+            <option value="party">Party</option>
+            <option value="romantic love">Romantic</option>
+            <option value="sad emotional">Sad / Emotional</option>
+            <option value="focus study">Focus / Study</option>
+            <option value="feel good happy">Feel Good</option>
+            <option value="hype workout">Hype / Workout</option>
+          </select>
+        </div>
+        <button class="find-btn" id="music-btn" onclick="findMusic()">🎵 Find My Vibe</button>
+      </div>
+    </div>
+    <div id="music-results"></div>
+  </div>
+
+  <!-- ── MOVIES PANEL ── -->
+  <div id="panel-movies" class="panel" role="tabpanel">
+    <div class="control-card">
+      <div class="control-row">
+        <div class="control-group">
+          <label for="movie-genre">Genre</label>
+          <select id="movie-genre">
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="14">Fantasy</option>
+            <option value="27">Horror</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Sci-Fi</option>
+            <option value="53">Thriller</option>
+            <option value="10752">War</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="movie-era">Era</label>
+          <select id="movie-era">
+            <option value="any">Any Era</option>
+            <option value="2020s">2020s (New)</option>
+            <option value="2010s">2010s</option>
+            <option value="2000s">2000s</option>
+            <option value="90s">90s</option>
+            <option value="pre90">Before the 90s</option>
+          </select>
+        </div>
+        <button class="find-btn" id="movies-btn" onclick="findMovies()">🎬 Suggest Movies</button>
+      </div>
+    </div>
+    <div id="movie-results"></div>
+  </div>
+
+  <!-- ── TV PANEL ── -->
+  <div id="panel-tv" class="panel" role="tabpanel">
+    <div class="control-card">
+      <div class="control-row">
+        <div class="control-group">
+          <label for="tv-genre">Genre</label>
+          <select id="tv-genre">
+            <option value="10759">Action &amp; Adventure</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="18">Drama</option>
+            <option value="27">Horror</option>
+            <option value="9648">Mystery</option>
+            <option value="10764">Reality</option>
+            <option value="10765">Sci-Fi &amp; Fantasy</option>
+            <option value="99">Documentary</option>
+            <option value="10767">Talk Show</option>
+            <option value="10768">War &amp; Politics</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="tv-era">Era</label>
+          <select id="tv-era">
+            <option value="any">Any Era</option>
+            <option value="2022+">Recent (2022+)</option>
+            <option value="2010s">2010s</option>
+            <option value="2000s">2000s</option>
+            <option value="classic">Classic (pre-2000)</option>
+          </select>
+        </div>
+        <button class="find-btn" id="tv-btn" onclick="findShows()">📺 Suggest Shows</button>
+      </div>
+    </div>
+    <div id="tv-results"></div>
+  </div>
+</div>
+
+<!-- ── Trailer Modal ── -->
+<div id="trailer-modal" class="trailer-modal" role="dialog" aria-modal="true" aria-label="Trailer player">
+  <div class="modal-backdrop" onclick="closeTrailer()"></div>
+  <div class="modal-inner">
+    <button class="modal-close" onclick="closeTrailer()" aria-label="Close trailer">✕</button>
+    <iframe id="trailer-frame" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+  </div>
+</div>
+
+<script>
+/* ── Config ── */
+const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NTk4MjhlM2RhMjMwNWVlNDU3MjYwYTZlNmRmODI0ZCIsIm5iZiI6MTc4MDc2NTI4NS40NjMsInN1YiI6IjZhMjQ1MjY1ZmQzZWJiZmI4NDg1OGRkNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.irqCHULW-FwKEy__JBG7wwiyrYQWbR_VZqXjNtAV_Yk';
+const TMDB    = 'https://api.themoviedb.org/3';
+const IMG     = 'https://image.tmdb.org/t/p/w342';
+
+/* ── Tabs ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+}
+
+/* ── Helpers ── */
+function pickRandom(arr, n) {
+  return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+}
+function setLoading(id) {
+  document.getElementById(id).innerHTML =
+    '<div class="loading"><span class="spinner">🥒</span><br><br>Brining up results…</div>';
+}
+function setError(id, msg) {
+  document.getElementById(id).innerHTML =
+    `<div class="error-msg"><strong>Uh-oh!</strong> ${msg}</div>`;
+}
+function tmdb(url) {
+  return fetch(url, {
+    headers: { Authorization: 'Bearer ' + TMDB_TOKEN, 'Content-Type': 'application/json' }
+  }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+}
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function eraParams(era, field) {
+  return ({
+    '2020s':  `&${field}.gte=2020-01-01`,
+    '2010s':  `&${field}.gte=2010-01-01&${field}.lte=2019-12-31`,
+    '2000s':  `&${field}.gte=2000-01-01&${field}.lte=2009-12-31`,
+    '90s':    `&${field}.gte=1990-01-01&${field}.lte=1999-12-31`,
+    'pre90':  `&${field}.lte=1989-12-31`,
+    '2022+':  `&${field}.gte=2022-01-01`,
+    'classic':`&${field}.lte=1999-12-31`,
+  })[era] || '';
+}
+
+/* ── Music ── */
+async function findMusic() {
+  const genre = document.getElementById('music-genre').value;
+  const vibe  = document.getElementById('music-vibe').value;
+  const btn   = document.getElementById('music-btn');
+  btn.disabled = true;
+  setLoading('music-results');
+  try {
+    const term = encodeURIComponent((vibe ? vibe + ' ' : '') + genre);
+    const data = await fetch(
+      `https://itunes.apple.com/search?term=${term}&media=music&entity=song&limit=10&country=US`
+    ).then(r => r.json());
+    const songs = (data.results || []).filter(s => s.previewUrl).slice(0, 5);
+    renderMusic(songs, genre, vibe);
+  } catch(e) {
+    setError('music-results', 'Could not load music. Check your connection and try again.');
+  }
+  btn.disabled = false;
+}
+
+function renderMusic(songs, genre, vibe) {
+  const el = document.getElementById('music-results');
+  if (!songs.length) {
+    el.innerHTML = '<div class="error-msg">No preview tracks found for that combo — try a different vibe!</div>';
+    return;
+  }
+  const label = (vibe ? vibe + ' ' : '') + genre;
+  el.innerHTML = `
+    <div class="results-section">
+      <div class="results-header">
+        <span class="results-title">🎵 ${songs.length} tracks for "${label}"</span>
+      </div>
+      <div class="music-grid">
+        ${songs.map(s => `
+          <div class="music-card">
+            <img class="music-art" src="${esc(s.artworkUrl100)}" alt="${esc(s.trackName)}" loading="lazy">
+            <div class="music-info">
+              <div class="music-track">${esc(s.trackName)}</div>
+              <div class="music-artist">${esc(s.artistName)}</div>
+              <audio class="music-player" controls preload="none" src="${esc(s.previewUrl)}"></audio>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+/* ── Movies ── */
+let lastMovies = [];
+
+async function findMovies() {
+  const genre = document.getElementById('movie-genre').value;
+  const era   = document.getElementById('movie-era').value;
+  const btn   = document.getElementById('movies-btn');
+  btn.disabled = true;
+  setLoading('movie-results');
+  try {
+    let url = `${TMDB}/discover/movie?language=en-US&sort_by=popularity.desc&vote_count.gte=200&with_genres=${genre}`;
+    url += eraParams(era, 'primary_release_date');
+    const data = await tmdb(url);
+    lastMovies = (data.results || []).slice(0, 20);
+    renderMedia('movie-results', pickRandom(lastMovies, 3), 'movie');
+  } catch(e) {
+    setError('movie-results', 'Could not load movies. Try again in a moment.');
+  }
+  btn.disabled = false;
+}
+
+/* ── TV Shows ── */
+let lastShows = [];
+
+async function findShows() {
+  const genre = document.getElementById('tv-genre').value;
+  const era   = document.getElementById('tv-era').value;
+  const btn   = document.getElementById('tv-btn');
+  btn.disabled = true;
+  setLoading('tv-results');
+  try {
+    let url = `${TMDB}/discover/tv?language=en-US&sort_by=popularity.desc&vote_count.gte=50&with_genres=${genre}`;
+    url += eraParams(era, 'first_air_date');
+    const data = await tmdb(url);
+    lastShows = (data.results || []).slice(0, 20);
+    renderMedia('tv-results', pickRandom(lastShows, 3), 'tv');
+  } catch(e) {
+    setError('tv-results', 'Could not load shows. Try again in a moment.');
+  }
+  btn.disabled = false;
+}
+
+/* ── Render media cards ── */
+function renderMedia(containerId, items, type) {
+  const el = document.getElementById(containerId);
+  if (!items || !items.length) {
+    el.innerHTML = '<div class="error-msg">No results found — try a different genre or era!</div>';
+    return;
+  }
+  const pool = type === 'movie' ? lastMovies : lastShows;
+  el.innerHTML = `
+    <div class="results-section">
+      <div class="results-header">
+        <span class="results-title">${type === 'movie' ? '🎬' : '📺'} 3 picks for you</span>
+        ${pool.length > 3 ? `<button class="shuffle-btn" onclick="${type === 'movie' ? 'shuffleMovies' : 'shuffleShows'}()">🔀 Try Different Picks</button>` : ''}
+      </div>
+      <div class="media-grid">
+        ${items.map(item => mediaCard(item, type)).join('')}
+      </div>
+    </div>`;
+}
+
+function mediaCard(item, type) {
+  const title    = esc(item.title || item.name || 'Unknown');
+  const date     = item.release_date || item.first_air_date || '';
+  const year     = date ? date.slice(0, 4) : '';
+  const rating   = item.vote_average ? item.vote_average.toFixed(1) : '?';
+  const overview = esc(item.overview || 'No description available.');
+  const poster   = item.poster_path
+    ? `<img class="media-poster" src="${IMG}${item.poster_path}" alt="${title}" loading="lazy">`
+    : `<div class="media-poster-placeholder">${type === 'movie' ? '🎬' : '📺'}</div>`;
+  return `
+    <div class="media-card">
+      <div class="media-poster-wrap">
+        ${poster}
+        <span class="media-rating">⭐ ${rating}</span>
+      </div>
+      <div class="media-body">
+        <div class="media-title">${title}</div>
+        ${year ? `<div class="media-year">${year}</div>` : ''}
+        <div class="media-overview">${overview}</div>
+        <button class="trailer-btn" onclick="watchTrailer('${type}',${item.id},this)">▶ Watch Trailer</button>
+      </div>
+    </div>`;
+}
+
+function shuffleMovies() { renderMedia('movie-results', pickRandom(lastMovies, 3), 'movie'); }
+function shuffleShows()  { renderMedia('tv-results',    pickRandom(lastShows, 3),  'tv');    }
+
+/* ── Trailer ── */
+async function watchTrailer(type, id, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Loading…';
+  try {
+    const data = await tmdb(`${TMDB}/${type}/${id}/videos?language=en-US`);
+    const vids = data.results || [];
+    const clip = vids.find(v => v.type === 'Trailer' && v.site === 'YouTube')
+              || vids.find(v => v.type === 'Teaser'  && v.site === 'YouTube')
+              || vids.find(v => v.site === 'YouTube');
+    if (clip) {
+      openTrailer(clip.key);
+    } else {
+      alert('No trailer found on YouTube for this title.');
+    }
+  } catch(e) {
+    alert('Could not load trailer. Try again in a moment.');
+  }
+  btn.disabled = false;
+  btn.textContent = orig;
+}
+
+function openTrailer(key) {
+  document.getElementById('trailer-frame').src =
+    `https://www.youtube-nocookie.com/embed/${key}?autoplay=1&rel=0`;
+  document.getElementById('trailer-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTrailer() {
+  document.getElementById('trailer-frame').src = '';
+  document.getElementById('trailer-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTrailer(); });
+</script>
+</body>
+</html>
