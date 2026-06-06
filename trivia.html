@@ -33,7 +33,6 @@ body{
 h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 .lead{font-size:1.02rem; opacity:.85; margin:0 auto 22px; max-width:500px;}
 
-/* Card */
 .card{
   background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
   border:1px solid var(--glass-border); border-radius:var(--radius);
@@ -41,7 +40,6 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
   margin-bottom:16px; text-align:left;
 }
 
-/* Buttons */
 .btn{
   color:var(--btnText); background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
   border:1px solid rgba(255,255,255,.6); border-radius:12px;
@@ -54,13 +52,13 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 .btn:disabled{opacity:.45; cursor:default; transform:none !important;}
 .btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border-color:#27ae60;}
 .btn--red{background:linear-gradient(180deg,#e74c3c,#c0392b); color:#fff; border-color:#c0392b;}
+.btn--ghost{background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.7); box-shadow:none;}
+.btn--ghost:hover{background:rgba(255,255,255,.13); transform:none; box-shadow:none;}
 .btn--sm{padding:9px 16px; font-size:.88rem;}
 
-/* Progress */
 .progress-wrap{background:rgba(255,255,255,.12); border-radius:99px; height:7px; margin:0 0 20px; overflow:hidden;}
 .progress-bar{height:100%; border-radius:99px; background:linear-gradient(90deg,#2ecc71,#27ae60); transition:width .4s ease;}
 
-/* Quiz answers */
 .answers{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 @media(max-width:500px){.answers{grid-template-columns:1fr;}}
 .ans-btn{
@@ -68,24 +66,38 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
   color:var(--text); border-radius:12px; padding:13px 14px;
   font-size:.95rem; font-weight:600; cursor:pointer; text-align:left;
   transition:background .15s, border-color .15s, transform .12s; line-height:1.35;
+  position:relative;
 }
 .ans-btn:hover:not(:disabled){background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.5); transform:translateY(-2px);}
 .ans-btn:disabled{cursor:default;}
 .ans-btn.correct{background:rgba(46,204,113,.35); border-color:#2ecc71;}
 .ans-btn.wrong{background:rgba(231,76,60,.30); border-color:#e74c3c;}
 .ans-btn.reveal{background:rgba(46,204,113,.20); border-color:rgba(46,204,113,.4);}
+.ans-btn.my-vote{box-shadow:0 0 0 2px rgba(255,255,255,.6); background:rgba(255,255,255,.15);}
+.ans-btn.my-answer{box-shadow:0 0 0 2px rgba(255,255,255,.5);}
+
+/* Vote count badge on answer buttons */
+.vote-badge{
+  display:inline-block; background:rgba(255,255,255,.28); border-radius:99px;
+  padding:1px 8px; font-size:.75rem; font-weight:800; margin-left:7px;
+  vertical-align:middle; line-height:1.6;
+}
+
+.captain-hint{
+  font-size:.85rem; font-weight:700; padding:7px 0 10px; line-height:1.4;
+}
+.captain-hint.is-captain{color:#f0c040;}
+.captain-hint.not-captain{opacity:.65;}
 
 .feedback{min-height:40px; font-size:.98rem; font-weight:700; padding:7px 0 2px; opacity:0; transition:opacity .2s;}
 .feedback.show{opacity:1;}
 .feedback.good{color:#2ecc71;}
 .feedback.bad{color:#e74c3c;}
 
-/* Spinner */
 #loading-screen{padding:60px 0;}
 .spinner{display:inline-block; width:40px; height:40px; border:4px solid rgba(255,255,255,.18); border-top-color:#2ecc71; border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Solo score screen */
 .score-big{font-size:clamp(56px,13vw,96px); font-weight:900; line-height:1;
   background:linear-gradient(180deg,#fff 0%,#a8f0c4 100%);
   -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
@@ -99,7 +111,6 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 .submit-status.good{color:#2ecc71;}
 .submit-status.bad{color:#e74c3c;}
 
-/* Leaderboard */
 .lb-title{font-size:1.3rem; font-weight:800; margin:0 0 12px;}
 .lb-table{width:100%; border-collapse:collapse; font-size:.93rem;}
 .lb-table th{text-align:left; padding:7px 9px; opacity:.55; font-size:.78rem; letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.1);}
@@ -109,167 +120,89 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 .lb-empty{opacity:.45; padding:18px; text-align:center; font-size:.95rem;}
 
 /* ── LIVE GAME ───────────────────────────────────────────────── */
+.score-bar{display:flex; gap:12px; margin-bottom:18px; justify-content:center;}
+.score-bar .team-block{flex:1; max-width:220px; border-radius:14px; padding:12px 16px; font-size:1.05rem; font-weight:800; text-align:center; border:2px solid transparent;}
+.team-block.red{background:var(--red-dim); border-color:var(--red);}
+.team-block.blue{background:var(--blue-dim); border-color:var(--blue);}
+.team-block .team-pts{font-size:2rem; font-weight:900; display:block; line-height:1;}
+.team-block.winner{transform:scale(1.05); box-shadow:0 0 0 3px rgba(255,255,255,.4);}
 
-/* Team score bar */
-.score-bar{
-  display:flex; gap:12px; margin-bottom:18px; justify-content:center;
-}
-.score-bar .team-block{
-  flex:1; max-width:220px; border-radius:14px; padding:12px 16px;
-  font-size:1.05rem; font-weight:800; text-align:center;
-  border:2px solid transparent;
-}
-.team-block.red{ background:var(--red-dim); border-color:var(--red); }
-.team-block.blue{ background:var(--blue-dim); border-color:var(--blue); }
-.team-block .team-pts{ font-size:2rem; font-weight:900; display:block; line-height:1; }
-.team-block.winner{ transform:scale(1.05); box-shadow:0 0 0 3px rgba(255,255,255,.4); }
+.team-picker{display:flex; gap:12px; justify-content:center; margin:14px 0;}
+.team-pick-btn{flex:1; max-width:180px; border-radius:14px; padding:14px; border:2px solid transparent; font-size:1rem; font-weight:800; cursor:pointer; transition:.18s; background:rgba(255,255,255,.07);}
+.team-pick-btn.red{border-color:var(--red); color:var(--red);}
+.team-pick-btn.blue{border-color:var(--blue); color:#82b4ff;}
+.team-pick-btn.selected.red{background:var(--red-dim); box-shadow:0 0 0 2px var(--red);}
+.team-pick-btn.selected.blue{background:var(--blue-dim); box-shadow:0 0 0 2px var(--blue);}
 
-/* Team picker */
-.team-picker{ display:flex; gap:12px; justify-content:center; margin:14px 0; }
-.team-pick-btn{
-  flex:1; max-width:180px; border-radius:14px; padding:14px; border:2px solid transparent;
-  font-size:1rem; font-weight:800; cursor:pointer; transition:.18s;
-  background:rgba(255,255,255,.07);
-}
-.team-pick-btn.red{ border-color:var(--red); color:var(--red); }
-.team-pick-btn.blue{ border-color:var(--blue); color:#82b4ff; }
-.team-pick-btn.selected.red{ background:var(--red-dim); box-shadow:0 0 0 2px var(--red); }
-.team-pick-btn.selected.blue{ background:var(--blue-dim); box-shadow:0 0 0 2px var(--blue); }
+.room-code{font-size:clamp(52px,14vw,88px); font-weight:900; letter-spacing:.12em; background:linear-gradient(180deg,#fff,#a8f0c4); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; line-height:1; margin:8px 0 4px;}
+.room-code-label{opacity:.6; font-size:.9rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px;}
 
-/* Room code display */
-.room-code{
-  font-size:clamp(52px,14vw,88px); font-weight:900; letter-spacing:.12em;
-  background:linear-gradient(180deg,#fff,#a8f0c4);
-  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-  line-height:1; margin:8px 0 4px;
-}
-.room-code-label{ opacity:.6; font-size:.9rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+.player-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:9px; margin:14px 0;}
+.player-chip{border-radius:10px; padding:9px 12px; font-weight:700; font-size:.9rem; border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; gap:7px;}
+.player-chip.red{background:var(--red-dim); border-color:rgba(231,76,60,.4);}
+.player-chip.blue{background:var(--blue-dim); border-color:rgba(0,61,165,.4);}
+.player-chip .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+.player-chip .dot.red{background:var(--red);}
+.player-chip .dot.blue{background:var(--blue);}
+.captain-crown{font-size:.85rem; line-height:1; flex-shrink:0;}
 
-/* Player list */
-.player-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:9px; margin:14px 0; }
-.player-chip{
-  border-radius:10px; padding:9px 12px; font-weight:700; font-size:.9rem;
-  border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; gap:7px;
-}
-.player-chip.red{ background:var(--red-dim); border-color:rgba(231,76,60,.4); }
-.player-chip.blue{ background:var(--blue-dim); border-color:rgba(0,61,165,.4); }
-.player-chip .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-.player-chip .dot.red{ background:var(--red); }
-.player-chip .dot.blue{ background:var(--blue); }
-.captain-crown{ font-size:.85rem; line-height:1; flex-shrink:0; }
+.q-meta{font-size:.82rem; opacity:.6; margin:0 0 7px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;}
+.q-text{font-size:clamp(1.05rem,2.4vw,1.35rem); font-weight:700; line-height:1.45; margin:0 0 18px;}
+.answered-status{font-size:.9rem; opacity:.65; margin:10px 0 4px; min-height:1.3em;}
 
-/* Live question */
-.q-meta{ font-size:.82rem; opacity:.6; margin:0 0 7px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
-.q-text{ font-size:clamp(1.05rem,2.4vw,1.35rem); font-weight:700; line-height:1.45; margin:0 0 18px; }
-.answered-status{ font-size:.9rem; opacity:.65; margin:10px 0 4px; min-height:1.3em; }
+.results-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px; margin:14px 0;}
+.result-chip{border-radius:10px; padding:9px 12px; font-weight:700; font-size:.88rem; border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; gap:7px;}
+.result-chip.correct-ans{background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.4);}
+.result-chip.wrong-ans{background:rgba(255,255,255,.05); opacity:.6;}
+.result-chip .res-icon{font-size:1.1rem; flex-shrink:0;}
 
-/* Reveal player results */
-.results-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px; margin:14px 0; }
-.result-chip{
-  border-radius:10px; padding:9px 12px; font-weight:700; font-size:.88rem;
-  border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; gap:7px;
-}
-.result-chip.correct-ans{ background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.4); }
-.result-chip.wrong-ans{ background:rgba(255,255,255,.05); opacity:.6; }
-.result-chip .res-icon{ font-size:1.1rem; flex-shrink:0; }
+.score-delta{margin:12px 0; font-size:1rem; opacity:.8;}
+.winner-banner{font-size:clamp(22px,5vw,38px); font-weight:900; margin:10px 0; padding:18px; border-radius:var(--radius);}
+.winner-banner.red{background:var(--red-dim); border:2px solid var(--red);}
+.winner-banner.blue{background:var(--blue-dim); border:2px solid var(--blue);}
+.winner-banner.tie{background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.3);}
 
-/* Score delta */
-.score-delta{ margin:12px 0; font-size:1rem; opacity:.8; }
-.score-delta span{ font-weight:800; }
+.code-input{background:rgba(255,255,255,.12); border:2px solid var(--glass-border); color:var(--text); border-radius:12px; padding:14px 18px; font-size:1.6rem; font-weight:900; outline:none; width:min(180px,60vw); text-align:center; letter-spacing:.15em; text-transform:uppercase;}
+.code-input::placeholder{opacity:.35; letter-spacing:.05em; font-size:1rem; font-weight:400;}
+.code-input:focus{border-color:rgba(46,204,113,.7);}
 
-/* Final winner */
-.winner-banner{
-  font-size:clamp(22px,5vw,38px); font-weight:900; margin:10px 0;
-  padding:18px; border-radius:var(--radius);
-}
-.winner-banner.red{ background:var(--red-dim); border:2px solid var(--red); }
-.winner-banner.blue{ background:var(--blue-dim); border:2px solid var(--blue); }
-.winner-banner.tie{ background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.3); }
+.divider{height:1px; background:rgba(255,255,255,.1); margin:20px 0;}
 
-/* Join code input */
-.code-input{
-  background:rgba(255,255,255,.12); border:2px solid var(--glass-border);
-  color:var(--text); border-radius:12px; padding:14px 18px;
-  font-size:1.6rem; font-weight:900; outline:none; width:min(180px,60vw);
-  text-align:center; letter-spacing:.15em; text-transform:uppercase;
-}
-.code-input::placeholder{ opacity:.35; letter-spacing:.05em; font-size:1rem; font-weight:400; }
-.code-input:focus{ border-color:rgba(46,204,113,.7); }
+.mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:10px 0 20px;}
+@media(max-width:480px){.mode-grid{grid-template-columns:1fr;}}
+.mode-card{background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.28)); border:1px solid var(--glass-border); border-radius:var(--radius); padding:20px 16px; cursor:pointer; transition:.2s; text-align:center;}
+.mode-card:hover{border-color:rgba(46,204,113,.5); transform:translateY(-3px);}
+.mode-card .mode-icon{font-size:2.4rem; display:block; margin-bottom:8px;}
+.mode-card h3{margin:0 0 5px; font-size:1.1rem; font-weight:800;}
+.mode-card p{margin:0; font-size:.88rem; opacity:.7; line-height:1.4;}
 
-/* Section divider */
-.divider{ height:1px; background:rgba(255,255,255,.1); margin:20px 0; }
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+.pulse{animation:pulse 1.8s ease-in-out infinite;}
 
-/* Mode picker on start screen */
-.mode-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:10px 0 20px; }
-@media(max-width:480px){ .mode-grid{ grid-template-columns:1fr; } }
-.mode-card{
-  background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.28));
-  border:1px solid var(--glass-border); border-radius:var(--radius);
-  padding:20px 16px; cursor:pointer; transition:.2s; text-align:center;
-}
-.mode-card:hover{ border-color:rgba(46,204,113,.5); transform:translateY(-3px); }
-.mode-card .mode-icon{ font-size:2.4rem; display:block; margin-bottom:8px; }
-.mode-card h3{ margin:0 0 5px; font-size:1.1rem; font-weight:800; }
-.mode-card p{ margin:0; font-size:.88rem; opacity:.7; line-height:1.4; }
-
-/* Waiting pulse */
-@keyframes pulse{ 0%,100%{ opacity:.6; } 50%{ opacity:1; } }
-.pulse{ animation:pulse 1.8s ease-in-out infinite; }
-
-/* q-meta in live context */
-.q-meta-row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
-.q-num{ font-size:.82rem; opacity:.6; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
-.q-cat-badge{ font-size:.78rem; background:rgba(255,255,255,.1); border-radius:6px; padding:2px 8px; opacity:.75; }
-
-/* Answered overlay on ans-btn */
-.ans-btn.my-answer{ box-shadow:0 0 0 2px rgba(255,255,255,.5); }
+.q-meta-row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+.q-num{font-size:.82rem; opacity:.6; font-weight:700; letter-spacing:.5px; text-transform:uppercase;}
+.q-cat-badge{font-size:.78rem; background:rgba(255,255,255,.1); border-radius:6px; padding:2px 8px; opacity:.75;}
 
 /* ── TEAM CHAT ────────────────────────────────────────────────── */
-.chat-panel{
-  border-radius:var(--radius); padding:14px 16px;
-  border:1px solid rgba(255,255,255,.14);
-  margin-top:12px; margin-bottom:8px;
-  background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.18));
-  box-shadow:var(--shadow);
-  text-align:left;
-}
-.chat-panel.red{ border-color:rgba(204,0,0,.45); }
-.chat-panel.blue{ border-color:rgba(0,61,165,.55); }
-.chat-label{
-  font-size:.78rem; font-weight:800; letter-spacing:.7px; text-transform:uppercase;
-  margin:0 0 8px; opacity:.7;
-}
-.chat-label.red{ color:var(--red); }
-.chat-label.blue{ color:#82b4ff; }
-.chat-messages{
-  max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
-  margin-bottom:10px; scroll-behavior:smooth;
-}
-.chat-msg{
-  font-size:.88rem; line-height:1.4; padding:5px 9px;
-  border-radius:8px; background:rgba(255,255,255,.06);
-  word-break:break-word;
-}
-.chat-msg .chat-name{ font-weight:800; margin-right:4px; }
-.chat-msg .chat-name.red{ color:#ff6b6b; }
-.chat-msg .chat-name.blue{ color:#82b4ff; }
-.chat-msg.mine{ background:rgba(255,255,255,.11); }
-.chat-empty{ opacity:.4; font-size:.85rem; font-style:italic; padding:4px 0; }
-.chat-row{ display:flex; gap:8px; }
-.chat-input{
-  flex:1; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
-  color:var(--text); border-radius:9px; padding:9px 12px; font-size:.9rem;
-  font-weight:600; outline:none; min-width:0;
-}
-.chat-input::placeholder{ opacity:.4; }
-.chat-input:focus{ border-color:rgba(46,204,113,.5); }
-.chat-send-btn{
-  background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff;
-  border:1px solid #27ae60; border-radius:9px; padding:9px 14px;
-  font-weight:800; font-size:.88rem; cursor:pointer; white-space:nowrap;
-  transition:transform .12s;
-}
-.chat-send-btn:hover{ transform:translateY(-1px); }
+.chat-panel{border-radius:var(--radius); padding:14px 16px; border:1px solid rgba(255,255,255,.14); margin-top:12px; margin-bottom:8px; background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.18)); box-shadow:var(--shadow); text-align:left;}
+.chat-panel.red{border-color:rgba(204,0,0,.45);}
+.chat-panel.blue{border-color:rgba(0,61,165,.55);}
+.chat-label{font-size:.78rem; font-weight:800; letter-spacing:.7px; text-transform:uppercase; margin:0 0 8px; opacity:.7;}
+.chat-label.red{color:var(--red);}
+.chat-label.blue{color:#82b4ff;}
+.chat-messages{max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:5px; margin-bottom:10px; scroll-behavior:smooth;}
+.chat-msg{font-size:.88rem; line-height:1.4; padding:5px 9px; border-radius:8px; background:rgba(255,255,255,.06); word-break:break-word;}
+.chat-msg .chat-name{font-weight:800; margin-right:4px;}
+.chat-msg .chat-name.red{color:#ff6b6b;}
+.chat-msg .chat-name.blue{color:#82b4ff;}
+.chat-msg.mine{background:rgba(255,255,255,.11);}
+.chat-empty{opacity:.4; font-size:.85rem; font-style:italic; padding:4px 0;}
+.chat-row{display:flex; gap:8px;}
+.chat-input{flex:1; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:var(--text); border-radius:9px; padding:9px 12px; font-size:.9rem; font-weight:600; outline:none; min-width:0;}
+.chat-input::placeholder{opacity:.4;}
+.chat-input:focus{border-color:rgba(46,204,113,.5);}
+.chat-send-btn{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border:1px solid #27ae60; border-radius:9px; padding:9px 14px; font-weight:800; font-size:.88rem; cursor:pointer; white-space:nowrap; transition:transform .12s;}
+.chat-send-btn:hover{transform:translateY(-1px);}
 </style>
 </head>
 <body>
@@ -281,7 +214,6 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
     <span style="font-size:3.5rem;display:block;margin-bottom:6px;">🧠</span>
     <h1>Real Dill Phil's Trivia</h1>
     <p class="lead">All topics. Endless questions. Play solo or go head‑to‑head with teams.</p>
-
     <div class="mode-grid">
       <div class="mode-card" id="solo-mode-btn">
         <span class="mode-icon">🎮</span>
@@ -294,8 +226,6 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
         <p>Host a room or join one. Red vs Blue team battle.</p>
       </div>
     </div>
-
-    <!-- Join a game shortcut -->
     <div class="card" style="text-align:center; margin-bottom:16px;">
       <p style="margin:0 0 10px; font-weight:700;">Have a room code? Jump in:</p>
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
@@ -304,8 +234,6 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       </div>
       <div id="join-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
     </div>
-
-    <!-- Leaderboard -->
     <div class="card">
       <p class="lb-title">🏆 Solo Leaderboard</p>
       <div id="lb-content"><p class="lb-empty">Loading…</p></div>
@@ -382,16 +310,19 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <p class="room-code-label">Room Code</p>
       <div class="room-code" id="lobby-code">----</div>
       <p style="opacity:.6; font-size:.88rem; margin:4px 0 16px;">Share this code — players go to <strong>philliphinshaw.com/trivia</strong></p>
-      <div id="lobby-players" class="player-grid"></div>
+      <div id="lobby-players"></div>
       <div id="lobby-switch-wrap" style="margin-bottom:10px;"></div>
       <div class="divider"></div>
       <button class="btn btn--green" id="start-game-btn" style="font-size:1.05rem; padding:14px 32px;" disabled>Start Game ▶</button>
       <p id="start-hint" style="opacity:.55; font-size:.85rem; margin:8px 0 0;">Need at least 2 players to start</p>
+      <div style="margin-top:14px;">
+        <button class="btn btn--ghost btn--sm" onclick="cancelRoom()">✕ Cancel Room</button>
+      </div>
     </div>
     <div id="lobby-chat-wrap"></div>
   </div>
 
-  <!-- ══════════════════════════════════════ LIVE: JOIN LOBBY -->
+  <!-- ══════════════════════════════════════ LIVE: JOIN SETUP -->
   <div id="join-setup-screen" style="display:none;">
     <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:8px;">🔵 Join a Game</h1>
     <div class="card" style="text-align:center;">
@@ -417,8 +348,11 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
     <div class="card" style="text-align:center;">
       <p class="room-code-label">Room</p>
       <div class="room-code" id="player-lobby-code" style="font-size:clamp(36px,10vw,64px);">----</div>
-      <div id="player-lobby-players" class="player-grid" style="margin-top:14px;"></div>
+      <div id="player-lobby-players" style="margin-top:14px;"></div>
       <div id="player-switch-wrap" style="margin-top:10px;"></div>
+      <div style="margin-top:14px;">
+        <button class="btn btn--ghost btn--sm" onclick="leaveGame()">← Leave Lobby</button>
+      </div>
     </div>
     <div id="player-lobby-chat-wrap"></div>
   </div>
@@ -433,13 +367,13 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
         <span class="q-cat-badge" id="lq-cat"></span>
       </div>
       <p class="q-text" id="lq-text"></p>
+      <div id="lq-captain-hint"></div>
       <div class="answers" id="lq-answers"></div>
       <div class="answered-status" id="lq-status"></div>
     </div>
-    <div id="lq-host-controls" style="display:none;">
-      <button class="btn btn--green" id="reveal-btn">Reveal Answers 👁</button>
+    <div id="lq-host-controls" style="display:none; margin-top:4px;">
+      <button class="btn btn--ghost btn--sm" onclick="endGame()">⚡ End Game</button>
     </div>
-    <div id="lq-wait-msg" style="opacity:.6; font-size:.9rem; margin-top:8px;"></div>
     <div id="question-chat-wrap"></div>
   </div>
 
@@ -460,6 +394,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
     </div>
     <div id="lr-host-controls" style="display:none;">
       <button class="btn btn--green" id="next-q-btn">Next Question →</button>
+      <button class="btn btn--ghost btn--sm" onclick="endGame()" style="display:block; margin:6px auto 0;">⚡ End Game</button>
     </div>
     <div id="lr-wait-msg" style="opacity:.6; font-size:.9rem; margin-top:8px; padding:4px;" class="pulse"></div>
     <div id="reveal-chat-wrap"></div>
@@ -472,7 +407,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
     <div id="winner-banner" class="winner-banner tie">It's a Tie! 🤝</div>
     <div class="score-bar" id="lf-score-bar" style="margin-top:16px;"></div>
     <div class="card" style="margin-top:10px;">
-      <p style="font-weight:700; margin:0 0 10px; opacity:.8; font-size:.9rem;">PLAYER SCORES:</p>
+      <p style="font-weight:700; margin:0 0 10px; opacity:.8; font-size:.9rem;">TEAM CAPTAINS SCORED:</p>
       <div class="results-grid" id="lf-players"></div>
     </div>
     <div id="lf-host-controls" style="display:none;">
@@ -487,8 +422,6 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 <script>
 var API = 'https://trivia-api.philliphinshaw.workers.dev';
 
-// ─── SCREEN MANAGEMENT ────────────────────────────────────────────────────
-
 var SCREENS = ['start-screen','loading-screen','quiz-screen','score-screen',
   'host-setup-screen','host-lobby-screen','join-setup-screen','player-lobby-screen',
   'live-question-screen','live-reveal-screen','live-finished-screen'];
@@ -496,8 +429,6 @@ var SCREENS = ['start-screen','loading-screen','quiz-screen','score-screen',
 function show(id) {
   SCREENS.forEach(function(s){ document.getElementById(s).style.display = s === id ? 'block' : 'none'; });
 }
-
-// ─── UTILITIES ────────────────────────────────────────────────────────────
 
 function decodeHTML(str) {
   var t = document.createElement('textarea'); t.innerHTML = str; return t.value;
@@ -509,7 +440,7 @@ function shuffle(arr) {
 }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ─── SOLO PLAY ────────────────────────────────────────────────────────────
+// ─── SOLO ────────────────────────────────────────────────────────────────────
 
 var soloRound=[], soloCurrent=0, soloScore=0, soloAnswered=false;
 
@@ -552,7 +483,7 @@ function showSoloQuestion() {
 function pickSoloAnswer(idx) {
   if (soloAnswered) return; soloAnswered=true;
   var q=soloRound[soloCurrent];
-  var btns=document.querySelectorAll('.ans-btn'), fb=document.getElementById('feedback');
+  var btns=document.querySelectorAll('#answers .ans-btn'), fb=document.getElementById('feedback');
   btns.forEach(function(b){ b.disabled=true; });
   if (idx===q.correct) {
     soloScore++; btns[idx].classList.add('correct');
@@ -602,22 +533,34 @@ function buildLeaderboard(scores,id) {
   el.innerHTML='<table class="lb-table"><thead><tr><th>#</th><th>Name</th><th>Score</th><th>Date</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
-// Solo wiring
 document.getElementById('solo-mode-btn').addEventListener('click', startSolo);
-document.getElementById('next-btn').addEventListener('click', function(){
-  soloCurrent++;
-  if (soloCurrent>=10) showSoloScore(); else showSoloQuestion();
-});
+document.getElementById('next-btn').addEventListener('click', function(){ soloCurrent++; if (soloCurrent>=10) showSoloScore(); else showSoloQuestion(); });
 document.getElementById('replay-btn').addEventListener('click', startSolo);
 document.getElementById('submit-btn').addEventListener('click', submitSoloScore);
 document.getElementById('name-input').addEventListener('keydown', function(e){ if(e.key==='Enter') submitSoloScore(); });
 
-// ─── LIVE GAME ────────────────────────────────────────────────────────────
+// ─── LIVE STATE ───────────────────────────────────────────────────────────────
 
 var liveCode=null, liveHostId=null, livePlayerId=null, liveMyTeam='red';
-var livePoll=null, liveCurrentQ=-1, liveMyAnswered=false, liveRoom=null;
+var livePoll=null, liveCurrentQ=-1, liveMyAnswered=false, liveMyVote=null, liveRoom=null;
 var hostSelectedTeam='red', joinSelectedTeam='blue';
-var liveChatMsgs=[], liveChatInputId=null;
+
+function amICaptain() {
+  if (!liveRoom || !livePlayerId) return false;
+  var me = liveRoom.players.find(function(p){ return p.id===livePlayerId; });
+  return me ? !!me.captain : false;
+}
+
+function resetLiveState() {
+  liveCode=null; liveHostId=null; livePlayerId=null; liveMyTeam='red';
+  liveCurrentQ=-1; liveMyAnswered=false; liveMyVote=null; liveRoom=null;
+  // Clear chat panels
+  ['lobby-chat-wrap','player-lobby-chat-wrap','question-chat-wrap','reveal-chat-wrap'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.innerHTML='';
+  });
+}
+
+// ─── TEAM PICKERS ──────────────────────────────────────────────────────────
 
 function selectHostTeam(team) {
   hostSelectedTeam=team;
@@ -632,18 +575,16 @@ function selectJoinTeam(team) {
 
 document.getElementById('live-mode-btn').addEventListener('click', function(){ show('host-setup-screen'); });
 
-// Quick join from start screen
 document.getElementById('join-code-btn').addEventListener('click', function(){
   var code=document.getElementById('join-code-input').value.trim().toUpperCase();
   if (!code || code.length<4) { document.getElementById('join-error').textContent='Enter a 4-letter code.'; return; }
   document.getElementById('join-room-code-input').value=code;
   show('join-setup-screen');
 });
-document.getElementById('join-code-input').addEventListener('keydown', function(e){
-  if(e.key==='Enter') document.getElementById('join-code-btn').click();
-});
+document.getElementById('join-code-input').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('join-code-btn').click(); });
 
-// Create room
+// ─── CREATE / JOIN ───────────────────────────────────────────────────────────
+
 document.getElementById('create-room-btn').addEventListener('click', function(){
   var name=document.getElementById('host-name-input').value.trim()||'Host';
   var btn=document.getElementById('create-room-btn');
@@ -662,7 +603,6 @@ document.getElementById('create-room-btn').addEventListener('click', function(){
     .catch(function(){ document.getElementById('create-error').textContent='❌ Could not create room.'; btn.disabled=false; });
 });
 
-// Join room
 document.getElementById('join-room-btn').addEventListener('click', function(){
   var name=document.getElementById('join-name-input').value.trim()||'Player';
   var code=document.getElementById('join-room-code-input').value.trim().toUpperCase();
@@ -683,7 +623,8 @@ document.getElementById('join-room-btn').addEventListener('click', function(){
     .catch(function(){ document.getElementById('join-setup-error').textContent='❌ Could not join. Check the code.'; btn.disabled=false; });
 });
 
-// Start game (host)
+// ─── HOST CONTROLS ───────────────────────────────────────────────────────────
+
 document.getElementById('start-game-btn').addEventListener('click', function(){
   var btn=document.getElementById('start-game-btn'); btn.disabled=true; btn.textContent='Starting…';
   fetch(API+'/room/'+liveCode+'/start', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hostId:liveHostId}) })
@@ -692,15 +633,6 @@ document.getElementById('start-game-btn').addEventListener('click', function(){
     .catch(function(){ btn.disabled=false; btn.textContent='Start Game ▶'; });
 });
 
-// Reveal (host)
-document.getElementById('reveal-btn').addEventListener('click', function(){
-  document.getElementById('reveal-btn').disabled=true;
-  fetch(API+'/room/'+liveCode+'/next', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hostId:liveHostId}) })
-    .then(function(r){ return r.json(); })
-    .catch(function(){});
-});
-
-// Next question (host)
 document.getElementById('next-q-btn').addEventListener('click', function(){
   document.getElementById('next-q-btn').disabled=true;
   fetch(API+'/room/'+liveCode+'/next', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hostId:liveHostId}) })
@@ -708,25 +640,126 @@ document.getElementById('next-q-btn').addEventListener('click', function(){
     .catch(function(){});
 });
 
-// Play again (host)
 document.getElementById('play-again-live-btn').addEventListener('click', function(){
   stopLivePoll();
   document.getElementById('create-room-btn').disabled=false;
   document.getElementById('create-error').textContent='';
   document.getElementById('host-name-input').value='';
-  liveCode=null; liveHostId=null; livePlayerId=null; liveCurrentQ=-1; liveMyAnswered=false;
-  liveChatMsgs=[]; liveChatInputId=null;
+  resetLiveState();
   show('host-setup-screen');
 });
 
-// ─── TEAM CHAT ────────────────────────────────────────────────────────────
+function cancelRoom() {
+  if (!liveCode) { show('start-screen'); return; }
+  stopLivePoll();
+  fetch(API+'/room/'+liveCode+'/leave', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, hostId:liveHostId})
+  }).catch(function(){});
+  document.getElementById('create-room-btn').disabled=false;
+  document.getElementById('create-error').textContent='';
+  resetLiveState();
+  show('host-setup-screen');
+}
+
+function endGame() {
+  if (!confirm('End the game now? The other team\'s captain will take over as host.')) return;
+  stopLivePoll();
+  fetch(API+'/room/'+liveCode+'/leave', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, hostId:liveHostId})
+  }).catch(function(){});
+  resetLiveState();
+  show('start-screen');
+}
+
+function leaveGame() {
+  stopLivePoll();
+  if (liveCode && livePlayerId) {
+    fetch(API+'/room/'+liveCode+'/leave', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({playerId:livePlayerId})
+    }).catch(function(){});
+  }
+  document.getElementById('join-room-btn').disabled=false;
+  document.getElementById('join-setup-error').textContent='';
+  resetLiveState();
+  show('start-screen');
+}
+
+// ─── SWITCH TEAM / RENAME ────────────────────────────────────────────────────
+
+function renderTeamSwitch(isHost) {
+  var wrapId = isHost ? 'lobby-switch-wrap' : 'player-switch-wrap';
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  var other = liveMyTeam === 'red' ? 'blue' : 'red';
+  var otherLabel = other === 'red' ? '🔴 Red Team' : '🔵 Blue Team';
+  wrap.innerHTML =
+    '<button id="switch-team-btn" onclick="switchTeam()" style="'+
+      'background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); color:var(--text);'+
+      'border-radius:10px; padding:8px 18px; font-size:.88rem; font-weight:700; cursor:pointer; transition:.15s;" '+
+      'onmouseover="this.style.background=\'rgba(255,255,255,.15)\'" '+
+      'onmouseout="this.style.background=\'rgba(255,255,255,.08)\'">'+
+      'Switch to '+otherLabel+
+    '</button>';
+}
+
+function switchTeam() {
+  var btn = document.getElementById('switch-team-btn');
+  if (btn) { btn.disabled=true; btn.textContent='Switching…'; }
+  var newTeam = liveMyTeam === 'red' ? 'blue' : 'red';
+  fetch(API+'/room/'+liveCode+'/team', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, team:newTeam})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.ok) {
+      liveMyTeam = newTeam;
+      var isHost = !!liveHostId;
+      var chatWrapId = isHost ? 'lobby-chat-wrap' : 'player-lobby-chat-wrap';
+      buildChatPanel(chatWrapId, liveMyTeam);
+    } else {
+      if (btn) { btn.disabled=false; }
+    }
+  })
+  .catch(function(){ if (btn) btn.disabled=false; });
+}
+
+function startRename() {
+  var current = liveRoom && liveRoom.players && liveRoom.players.find(function(p){ return p.id===livePlayerId; });
+  var currentName = current ? current.name : '';
+  var newName = prompt('Change your name:', currentName);
+  if (newName === null) return;
+  newName = newName.trim().slice(0, 30);
+  if (!newName || newName === currentName) return;
+  fetch(API+'/room/'+liveCode+'/rename', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, name:newName})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.ok) {
+      // Optimistically update local room so rename shows immediately
+      if (liveRoom) {
+        var me = liveRoom.players.find(function(p){ return p.id===livePlayerId; });
+        if (me) me.name = newName;
+        renderLobbyPlayers(liveRoom.players);
+        renderTeamSwitch(!!liveHostId);
+      }
+    }
+  })
+  .catch(function(){});
+}
+
+// ─── TEAM CHAT ────────────────────────────────────────────────────────────────
 
 function buildChatPanel(wrapId, team) {
   var wrap = document.getElementById(wrapId);
   if (!wrap) return;
   var label = team === 'red' ? '🔴 Red Team Chat' : '🔵 Blue Team Chat';
   var inputId = wrapId + '-input';
-  liveChatInputId = inputId;
   wrap.innerHTML =
     '<div class="chat-panel '+team+'">'+
       '<div class="chat-label '+team+'">'+label+'</div>'+
@@ -755,7 +788,8 @@ function sendChat(inputId) {
 
 function renderChat(msgs) {
   if (!msgs) return;
-  // Find all chat message containers and update them
+  var myName = liveRoom && liveRoom.players && liveRoom.players.find(function(p){ return p.id===livePlayerId; });
+  myName = myName ? myName.name : null;
   var wrapIds = ['lobby-chat-wrap','player-lobby-chat-wrap','question-chat-wrap','reveal-chat-wrap'];
   wrapIds.forEach(function(wrapId){
     var msgsEl = document.getElementById(wrapId+'-msgs');
@@ -763,12 +797,11 @@ function renderChat(msgs) {
     if (!msgs.length) { msgsEl.innerHTML='<p class="chat-empty">No messages yet. Talk strategy!</p>'; return; }
     var atBottom = msgsEl.scrollHeight - msgsEl.scrollTop - msgsEl.clientHeight < 30;
     var html = msgs.map(function(m){
-      var isMine = m.name === (liveRoom && liveRoom.players && liveRoom.players.find(function(p){ return p.id===livePlayerId; }) && liveRoom.players.find(function(p){ return p.id===livePlayerId; }).name);
+      var isMine = myName && m.name === myName;
       var crown = m.captain ? ' 👑' : '';
       return '<div class="chat-msg'+(isMine?' mine':'')+'">'+
         '<span class="chat-name '+liveMyTeam+'">'+esc(m.name)+crown+'</span>'+
-        esc(m.msg)+
-      '</div>';
+        esc(m.msg)+'</div>';
     }).join('');
     msgsEl.innerHTML = html;
     if (atBottom) msgsEl.scrollTop = msgsEl.scrollHeight;
@@ -776,11 +809,7 @@ function renderChat(msgs) {
 }
 
 function ensureChatOnScreen(screenId) {
-  // When transitioning to a new live screen, build the chat panel if not there
-  var map = {
-    'live-question-screen': 'question-chat-wrap',
-    'live-reveal-screen': 'reveal-chat-wrap'
-  };
+  var map = {'live-question-screen':'question-chat-wrap','live-reveal-screen':'reveal-chat-wrap'};
   var wrapId = map[screenId];
   if (!wrapId) return;
   var wrap = document.getElementById(wrapId);
@@ -788,7 +817,7 @@ function ensureChatOnScreen(screenId) {
   buildChatPanel(wrapId, liveMyTeam);
 }
 
-// ─── POLLING ──────────────────────────────────────────────────────────────
+// ─── POLLING ──────────────────────────────────────────────────────────────────
 
 function startLivePoll() { stopLivePoll(); pollRoom(); livePoll=setInterval(pollRoom, 2000); }
 function stopLivePoll() { if (livePoll) { clearInterval(livePoll); livePoll=null; } }
@@ -797,7 +826,7 @@ function pollRoom() {
   if (!liveCode) return;
   var pid = livePlayerId ? '?pid='+livePlayerId : '';
   fetch(API+'/room/'+liveCode+pid)
-    .then(function(r){ if(r.status===404){ stopLivePoll(); alert('Room expired or not found.'); show('start-screen'); return null; } return r.json(); })
+    .then(function(r){ if(r.status===404){ stopLivePoll(); alert('Room expired or was cancelled.'); show('start-screen'); return null; } return r.json(); })
     .then(function(room){ if(room) handleRoomState(room); })
     .catch(function(){});
 }
@@ -806,7 +835,17 @@ function handleRoomState(room) {
   liveRoom=room;
   var isHost=!!liveHostId;
 
-  // Update chat on every poll
+  // Check if we've been promoted to host
+  if (room.promotedToHost && room.promotedToHost !== liveHostId) {
+    liveHostId = room.promotedToHost;
+    isHost = true;
+    // Show host controls now
+    var lqCtrl = document.getElementById('lq-host-controls');
+    if (lqCtrl) lqCtrl.style.display='block';
+    var lrCtrl = document.getElementById('lr-host-controls');
+    if (lrCtrl) lrCtrl.style.display='block';
+  }
+
   renderChat(room.chat || []);
 
   if (room.phase==='lobby') {
@@ -827,11 +866,12 @@ function handleRoomState(room) {
 
   if (phase==='question') {
     if (liveCurrentQ!==qIdx) {
-      liveCurrentQ=qIdx; liveMyAnswered=false;
+      liveCurrentQ=qIdx; liveMyAnswered=false; liveMyVote=null;
       ensureChatOnScreen('live-question-screen');
       renderLiveQuestion(room, isHost);
     } else {
       updateAnsweredStatus(room);
+      updateVoteBadges(room.myVotes || {});
     }
   } else if (phase==='reveal') {
     if (liveCurrentQ!==qIdx || getCurrentScreen()!=='live-reveal-screen') {
@@ -850,68 +890,17 @@ function getCurrentScreen() {
   return SCREENS.find(function(s){ return document.getElementById(s).style.display!=='none'; })||'';
 }
 
-function renderTeamSwitch(isHost) {
-  var wrapId = isHost ? 'lobby-switch-wrap' : 'player-switch-wrap';
-  var wrap = document.getElementById(wrapId);
-  if (!wrap) return;
-  var other = liveMyTeam === 'red' ? 'blue' : 'red';
-  var otherLabel = other === 'red' ? '🔴 Red Team' : '🔵 Blue Team';
-  var color = other === 'red' ? '#CC0000' : '#003DA5';
-  wrap.innerHTML =
-    '<button id="switch-team-btn" onclick="switchTeam()" style="'+
-      'background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); color:var(--text);'+
-      'border-radius:10px; padding:8px 18px; font-size:.88rem; font-weight:700; cursor:pointer;'+
-      'transition:.15s;" '+
-      'onmouseover="this.style.background=\'rgba(255,255,255,.15)\'" '+
-      'onmouseout="this.style.background=\'rgba(255,255,255,.08)\'">'+
-      'Switch to '+otherLabel+
-    '</button>';
-}
-
-function switchTeam() {
-  var btn = document.getElementById('switch-team-btn');
-  if (btn) { btn.disabled=true; btn.textContent='Switching…'; }
-  var newTeam = liveMyTeam === 'red' ? 'blue' : 'red';
-  fetch(API+'/room/'+liveCode+'/team', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({playerId:livePlayerId, team:newTeam})
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if (d.ok) {
-      liveMyTeam = newTeam;
-      // Rebuild the chat panel for the new team
-      var isHost = !!liveHostId;
-      var chatWrapId = isHost ? 'lobby-chat-wrap' : 'player-lobby-chat-wrap';
-      buildChatPanel(chatWrapId, liveMyTeam);
-    } else {
-      if (btn) { btn.disabled=false; btn.textContent='Switch failed — try again'; }
-    }
-  })
-  .catch(function(){
-    if (btn) { btn.disabled=false; }
-  });
-}
-
-function startRename() {
-  var current = liveRoom && liveRoom.players && liveRoom.players.find(function(p){ return p.id===livePlayerId; });
-  var currentName = current ? current.name : '';
-  var newName = prompt('Change your name:', currentName);
-  if (newName === null) return; // cancelled
-  newName = newName.trim().slice(0, 30);
-  if (!newName) return;
-  fetch(API+'/room/'+liveCode+'/rename', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({playerId:livePlayerId, name:newName})
-  }).catch(function(){});
-}
+// ─── LOBBY ────────────────────────────────────────────────────────────────────
 
 function renderLobbyPlayers(players) {
   var isHost=!!liveHostId;
-  var container=isHost ? document.getElementById('lobby-players') : document.getElementById('player-lobby-players');
+  var redContainer = isHost ? 'lobby-players' : 'player-lobby-players';
+  var container = document.getElementById(redContainer);
   if (!container) return;
+
   var red=players.filter(function(p){ return p.team==='red'; });
   var blue=players.filter(function(p){ return p.team==='blue'; });
+
   function chips(list){
     if (!list.length) return '<div style="opacity:.4; font-size:.85rem; font-style:italic; padding:4px 0;">No one yet</div>';
     return list.map(function(p){
@@ -920,10 +909,12 @@ function renderLobbyPlayers(players) {
       var meStyle = isMe ? ' cursor:pointer; outline:1px dashed rgba(255,255,255,.35);' : '';
       var pencil = isMe ? '<span style="margin-left:auto; opacity:.55; font-size:.8rem;">✏️</span>' : '';
       var onclick = isMe ? ' onclick="startRename()"' : '';
-      var title = isMe ? ' title="Click to change your name"' : '';
-      return '<div class="player-chip '+p.team+'"'+onclick+title+' style="'+meStyle+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+pencil+'</div>';
+      var title = isMe ? ' title="Tap to change your name"' : '';
+      return '<div class="player-chip '+p.team+'"'+onclick+title+' style="'+meStyle+'">'+
+        '<div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+pencil+'</div>';
     }).join('');
   }
+
   container.innerHTML=
     '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:left;">'+
       '<div>'+
@@ -937,68 +928,151 @@ function renderLobbyPlayers(players) {
     '</div>';
 }
 
+// ─── SCORE BAR ───────────────────────────────────────────────────────────────
+
 function scoreBar(scores, containerId) {
   var el=document.getElementById(containerId); if (!el) return;
   el.innerHTML=
-    '<div class="team-block red"><span class="team-pts">'+( scores.red||0)+'</span>🔴 Red Team</div>'+
+    '<div class="team-block red"><span class="team-pts">'+(scores.red||0)+'</span>🔴 Red Team</div>'+
     '<div class="team-block blue"><span class="team-pts">'+(scores.blue||0)+'</span>🔵 Blue Team</div>';
 }
+
+// ─── LIVE QUESTION ────────────────────────────────────────────────────────────
 
 function renderLiveQuestion(room, isHost) {
   show('live-question-screen');
   var q=room.currentQuestion;
-  document.getElementById('lq-meta').textContent='Q '+(room.currentQ+1)+'/'+( room.totalQuestions||10);
+  document.getElementById('lq-meta').textContent='Q '+(room.currentQ+1)+'/'+(room.totalQuestions||10);
   document.getElementById('lq-cat').textContent=q?q.cat:'';
   document.getElementById('lq-text').textContent=q?q.q:'';
   scoreBar(room.scores,'lq-score-bar');
   document.getElementById('lq-progress-bar').style.width=(room.currentQ/(room.totalQuestions||10)*100)+'%';
 
+  var isCaptain = amICaptain();
+  var myVotes = room.myVotes || {};
+  var voteCounts = buildVoteCounts(myVotes, q ? q.a.length : 4);
+
+  // Captain hint
+  var hint = document.getElementById('lq-captain-hint');
+  if (isCaptain) {
+    hint.innerHTML='<div class="captain-hint is-captain">👑 You\'re the captain — tap to submit your team\'s final answer!</div>';
+  } else {
+    hint.innerHTML='<div class="captain-hint not-captain">Tap an answer to vote. Your 👑 captain makes the final call.</div>';
+  }
+
+  // Build answer buttons
   var c=document.getElementById('lq-answers'); c.innerHTML='';
   if (q) q.a.forEach(function(ans,i){
-    var btn=document.createElement('button'); btn.className='ans-btn'; btn.textContent=ans;
-    if (liveMyAnswered) { btn.disabled=true; }
-    else {
-      btn.addEventListener('click', function(){ submitLiveAnswer(i, q.a.length); });
+    var btn=document.createElement('button');
+    btn.className='ans-btn';
+    btn.dataset.idx=i;
+
+    var badge = voteCounts[i] > 0 ? '<span class="vote-badge">'+voteCounts[i]+'</span>' : '';
+    btn.innerHTML=esc(ans)+badge;
+
+    // Already submitted (captain) or already voted (non-captain with my vote)
+    if (liveMyAnswered) {
+      btn.disabled=true;
+      if (i===liveMyVote) btn.classList.add('my-answer');
+    } else if (liveMyVote!==null && !isCaptain) {
+      // Can change vote — keep active but highlight current
+      if (i===liveMyVote) btn.classList.add('my-vote');
+      btn.addEventListener('click', function(){ submitLiveVote(i); });
+    } else if (isCaptain) {
+      btn.addEventListener('click', function(){ submitLiveAnswer(i); });
+    } else {
+      btn.addEventListener('click', function(){ submitLiveVote(i); });
     }
     c.appendChild(btn);
   });
 
   document.getElementById('lq-host-controls').style.display=isHost?'block':'none';
-  document.getElementById('reveal-btn').disabled=false;
-  document.getElementById('lq-wait-msg').textContent=isHost?'':'Waiting for host to reveal answers…';
   updateAnsweredStatus(room);
 }
 
+function buildVoteCounts(myVotes, numAnswers) {
+  var counts = [];
+  for (var i=0; i<numAnswers; i++) counts.push(0);
+  Object.values(myVotes).forEach(function(idx){
+    if (idx >= 0 && idx < numAnswers) counts[idx]++;
+  });
+  return counts;
+}
+
+function updateVoteBadges(myVotes) {
+  var btns = document.querySelectorAll('#lq-answers .ans-btn');
+  var numAnswers = btns.length;
+  if (!numAnswers) return;
+  var counts = buildVoteCounts(myVotes, numAnswers);
+  btns.forEach(function(btn, i){
+    var existing = btn.querySelector('.vote-badge');
+    if (counts[i] > 0) {
+      if (existing) { existing.textContent=counts[i]; }
+      else {
+        var badge = document.createElement('span');
+        badge.className='vote-badge'; badge.textContent=counts[i];
+        btn.appendChild(badge);
+      }
+    } else {
+      if (existing) existing.remove();
+    }
+  });
+}
+
 function updateAnsweredStatus(room) {
-  // Answers returned by worker are already filtered to our team only
-  var myTeamPlayers=(room.players||[]).filter(function(p){ return p.team===liveMyTeam; });
-  var answered=Object.keys(room.answers||{}).length;
-  var total=myTeamPlayers.length;
-  var myAns=room.answers&&room.answers[livePlayerId];
-  var teamLabel=liveMyTeam==='red'?'🔴':'🔵';
-  var status='';
-  if (myAns) {
-    status='✅ You answered · '+teamLabel+' '+answered+'/'+total+' on your team done';
+  var myTeamCaptainId = room.captains && room.captains[liveMyTeam];
+  var captainAnswered = myTeamCaptainId && room.answers && room.answers[myTeamCaptainId];
+  var myVotes = room.myVotes || {};
+  var myTeamVoteCount = Object.keys(myVotes).length;
+  var myTeamPlayerCount = (room.players||[]).filter(function(p){ return p.team===liveMyTeam; }).length;
+  var teamLabel = liveMyTeam==='red' ? '🔴' : '🔵';
+  var status = '';
+  if (captainAnswered) {
+    status = '✅ '+teamLabel+' Your captain submitted! Waiting for other team…';
+  } else if (liveMyAnswered) {
+    status = '✅ You submitted · waiting for other team captain…';
   } else {
-    status='⏳ '+teamLabel+' '+answered+'/'+total+' on your team answered';
+    status = teamLabel+' '+myTeamVoteCount+'/'+myTeamPlayerCount+' voted · waiting for 👑 captain to submit';
   }
   document.getElementById('lq-status').textContent=status;
+}
+
+function submitLiveVote(idx) {
+  liveMyVote = idx;
+  // Optimistic UI — update button highlights immediately
+  var btns=document.querySelectorAll('#lq-answers .ans-btn');
+  btns.forEach(function(b,i){
+    b.classList.remove('my-vote');
+    if (i===idx) b.classList.add('my-vote');
+  });
+  fetch(API+'/room/'+liveCode+'/vote', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, answer:idx})
+  }).catch(function(){});
 }
 
 function submitLiveAnswer(idx) {
   if (liveMyAnswered) return;
   liveMyAnswered=true;
+  liveMyVote=idx;
   var btns=document.querySelectorAll('#lq-answers .ans-btn');
   btns.forEach(function(b,i){ b.disabled=true; if(i===idx) b.classList.add('my-answer'); });
-  fetch(API+'/room/'+liveCode+'/answer', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({playerId:livePlayerId, answer:idx}) })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var btns=document.querySelectorAll('#lq-answers .ans-btn');
-      if (d.correct) { btns[idx].classList.add('correct'); document.getElementById('lq-status').textContent='✅ Correct! Waiting for others…'; }
-      else { btns[idx].classList.add('wrong'); document.getElementById('lq-status').textContent='❌ Wrong! Waiting for others…'; }
-    })
-    .catch(function(){});
+  fetch(API+'/room/'+liveCode+'/answer', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, answer:idx})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.correct) {
+      document.getElementById('lq-status').textContent='✅ Correct! Waiting for other team…';
+    } else {
+      document.getElementById('lq-status').textContent='❌ Wrong! Waiting for other team…';
+    }
+  })
+  .catch(function(){});
 }
+
+// ─── LIVE REVEAL ─────────────────────────────────────────────────────────────
 
 function renderLiveReveal(room, isHost) {
   show('live-reveal-screen');
@@ -1008,7 +1082,6 @@ function renderLiveReveal(room, isHost) {
   document.getElementById('lr-text').textContent=q?q.q:'';
   scoreBar(room.scores,'lr-score-bar');
 
-  // Render answers with correct highlighted
   var c=document.getElementById('lr-answers'); c.innerHTML='';
   if (q) q.a.forEach(function(ans,i){
     var btn=document.createElement('button'); btn.className='ans-btn'; btn.disabled=true;
@@ -1017,25 +1090,28 @@ function renderLiveReveal(room, isHost) {
     c.appendChild(btn);
   });
 
-  // Score delta this round
+  // Score delta — only captains' answers count
   var redGain=0, blueGain=0;
   var answers=room.answers||{};
   (room.players||[]).forEach(function(p){
-    var ans=answers[p.id];
-    if (ans&&ans.correct) { if(p.team==='red') redGain++; else blueGain++; }
+    if (p.captain) {
+      var ans=answers[p.id];
+      if (ans&&ans.correct) { if(p.team==='red') redGain++; else blueGain++; }
+    }
   });
   var delta='';
   if (redGain||blueGain) delta='This round: '+(redGain?'🔴 +'+redGain+' ':'')+(blueGain?'🔵 +'+blueGain:'');
   document.getElementById('lr-delta').textContent=delta;
 
-  // Player results
+  // Show captain results
+  var captainPlayers=(room.players||[]).filter(function(p){ return p.captain; });
   var rg=document.getElementById('lr-results');
-  rg.innerHTML=(room.players||[]).map(function(p){
+  rg.innerHTML=captainPlayers.map(function(p){
     var ans=answers[p.id];
     var got=ans&&ans.correct;
     var cls='result-chip '+(got?'correct-ans':'wrong-ans');
-    var crown = p.captain ? ' 👑' : '';
-    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+crown+'</span></div>';
+    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span>'+
+      '<span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">👑 '+esc(p.name)+'</span></div>';
   }).join('');
 
   document.getElementById('lr-host-controls').style.display=isHost?'block':'none';
@@ -1044,6 +1120,8 @@ function renderLiveReveal(room, isHost) {
   document.getElementById('next-q-btn').textContent=isLast?'See Final Results 🏆':'Next Question →';
   document.getElementById('lr-wait-msg').textContent=isHost?'':'Waiting for host to continue…';
 }
+
+// ─── LIVE FINISHED ────────────────────────────────────────────────────────────
 
 function renderLiveFinished(room, isHost) {
   show('live-finished-screen');
@@ -1055,23 +1133,23 @@ function renderLiveFinished(room, isHost) {
   else if (blue>red) { banner.textContent='🔵 Blue Team Wins! 🏆'; banner.className='winner-banner blue'; }
   else { banner.textContent="It's a Tie! 🤝"; banner.className='winner-banner tie'; }
 
-  // Score bar with winner highlight
   var sb=document.getElementById('lf-score-bar');
   sb.innerHTML=
     '<div class="team-block red'+(red>blue?' winner':'')+'"><span class="team-pts">'+red+'</span>🔴 Red Team</div>'+
     '<div class="team-block blue'+(blue>red?' winner':'')+'"><span class="team-pts">'+blue+'</span>🔵 Blue Team</div>';
 
-  // Player scores sorted
-  var players=(room.players||[]).slice().sort(function(a,b){ return (b.score||0)-(a.score||0); });
-  document.getElementById('lf-players').innerHTML=players.map(function(p,i){
-    var crown = p.captain ? ' 👑' : '';
-    return '<div class="result-chip '+(i===0?'correct-ans':'')+'"><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+crown+'</span><span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+'</span></div>';
+  var captains=(room.players||[]).filter(function(p){ return p.captain; });
+  document.getElementById('lf-players').innerHTML=captains.map(function(p){
+    var got=(p.score||0)>0;
+    return '<div class="result-chip '+(got?'correct-ans':'wrong-ans')+'">'+
+      '<span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">👑 '+esc(p.name)+'</span>'+
+      '<span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+' pts</span></div>';
   }).join('');
 
   document.getElementById('lf-host-controls').style.display=isHost?'block':'none';
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 
 show('start-screen');
 loadLeaderboard('lb-content');
