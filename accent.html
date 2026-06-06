@@ -173,38 +173,26 @@ select option{background:#1c4a2e; color:#fff;}
 // API: https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=Hello
 
 var VOICES = [
-  // English accents
-  { id:'Brian',   flag:'🇬🇧', label:'Brian',    accent:'British (Male)' },
-  { id:'Amy',     flag:'🇬🇧', label:'Amy',      accent:'British (Female)' },
-  { id:'Emma',    flag:'🇬🇧', label:'Emma',     accent:'British (Female 2)' },
-  { id:'Geraint', flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', label:'Geraint',  accent:'Welsh (Male)' },
-  { id:'Russell', flag:'🇦🇺', label:'Russell',  accent:'Australian (Male)' },
-  { id:'Nicole',  flag:'🇦🇺', label:'Nicole',   accent:'Australian (Female)' },
-  { id:'Raveena', flag:'🇮🇳', label:'Raveena',  accent:'Indian (Female)' },
-  { id:'Joanna',  flag:'🇺🇸', label:'Joanna',   accent:'American (Female)' },
-  { id:'Matthew', flag:'🇺🇸', label:'Matthew',  accent:'American (Male)' },
-  { id:'Kendra',  flag:'🇺🇸', label:'Kendra',   accent:'American (Female 2)' },
-  { id:'Salli',   flag:'🇺🇸', label:'Salli',    accent:'American (Female 3)' },
-  { id:'Joey',    flag:'🇺🇸', label:'Joey',     accent:'American (Male 2)' },
-  { id:'Justin',  flag:'🇺🇸', label:'Justin',   accent:'American (Young Male)' },
-  { id:'Ivy',     flag:'🇺🇸', label:'Ivy',      accent:'American (Child)' },
-  // Other languages
-  { id:'Celine',  flag:'🇫🇷', label:'Céline',   accent:'French (Female)' },
-  { id:'Mathieu', flag:'🇫🇷', label:'Mathieu',  accent:'French (Male)' },
-  { id:'Marlene', flag:'🇩🇪', label:'Marlene',  accent:'German (Female)' },
-  { id:'Hans',    flag:'🇩🇪', label:'Hans',     accent:'German (Male)' },
-  { id:'Carla',   flag:'🇮🇹', label:'Carla',    accent:'Italian (Female)' },
-  { id:'Giorgio', flag:'🇮🇹', label:'Giorgio',  accent:'Italian (Male)' },
-  { id:'Conchita',flag:'🇪🇸', label:'Conchita', accent:'Spanish (Female)' },
-  { id:'Enrique', flag:'🇪🇸', label:'Enrique',  accent:'Spanish (Male)' },
-  { id:'Penelope',flag:'🇲🇽', label:'Penélope', accent:'Spanish US (Female)' },
-  { id:'Miguel',  flag:'🇲🇽', label:'Miguel',   accent:'Spanish US (Male)' },
-  { id:'Ricardo', flag:'🇧🇷', label:'Ricardo',  accent:'Portuguese (Male)' },
-  { id:'Vitoria', flag:'🇧🇷', label:'Vitória',  accent:'Portuguese (Female)' },
-  { id:'Astrid',  flag:'🇸🇪', label:'Astrid',   accent:'Swedish (Female)' },
-  { id:'Filiz',   flag:'🇹🇷', label:'Filiz',    accent:'Turkish (Female)' },
-  { id:'Mizuki',  flag:'🇯🇵', label:'Mizuki',   accent:'Japanese (Female)' },
-  { id:'Takumi',  flag:'🇯🇵', label:'Takumi',   accent:'Japanese (Male)' },
+  { id:'en-GB', flag:'🇬🇧', label:'British',       accent:'English — UK' },
+  { id:'en-AU', flag:'🇦🇺', label:'Australian',    accent:'English — Australia' },
+  { id:'en-IN', flag:'🇮🇳', label:'Indian',        accent:'English — India' },
+  { id:'en-IE', flag:'🇮🇪', label:'Irish',         accent:'English — Ireland' },
+  { id:'en-ZA', flag:'🇿🇦', label:'S. African',    accent:'English — South Africa' },
+  { id:'en-US', flag:'🇺🇸', label:'American',      accent:'English — United States' },
+  { id:'fr-FR', flag:'🇫🇷', label:'French',        accent:'French — France' },
+  { id:'de-DE', flag:'🇩🇪', label:'German',        accent:'German — Germany' },
+  { id:'it-IT', flag:'🇮🇹', label:'Italian',       accent:'Italian — Italy' },
+  { id:'es-ES', flag:'🇪🇸', label:'Spanish',       accent:'Spanish — Spain' },
+  { id:'es-US', flag:'🇲🇽', label:'Español US',    accent:'Spanish — Latin America' },
+  { id:'pt-BR', flag:'🇧🇷', label:'Portuguese',    accent:'Portuguese — Brazil' },
+  { id:'sv-SE', flag:'🇸🇪', label:'Swedish',       accent:'Swedish — Sweden' },
+  { id:'pl-PL', flag:'🇵🇱', label:'Polish',        accent:'Polish — Poland' },
+  { id:'nl-NL', flag:'🇳🇱', label:'Dutch',         accent:'Dutch — Netherlands' },
+  { id:'ru-RU', flag:'🇷🇺', label:'Russian',       accent:'Russian — Russia' },
+  { id:'tr-TR', flag:'🇹🇷', label:'Turkish',       accent:'Turkish — Turkey' },
+  { id:'ja-JP', flag:'🇯🇵', label:'Japanese',      accent:'Japanese — Japan' },
+  { id:'ko-KR', flag:'🇰🇷', label:'Korean',        accent:'Korean — Korea' },
+  { id:'zh-CN', flag:'🇨🇳', label:'Chinese',       accent:'Chinese — Mandarin' },
 ];
 
 var PHRASES = [
@@ -221,7 +209,7 @@ var PHRASES = [
 ];
 
 var currentAudio = null;
-var selectedVoiceId = 'Brian';
+var selectedVoiceId = 'en-GB';
 
 function init() {
   // Populate dropdown
@@ -233,7 +221,7 @@ function init() {
     opt.textContent = v.flag + ' ' + v.label + ' — ' + v.accent;
     sel.appendChild(opt);
   });
-  sel.value = 'Brian';
+  sel.value = 'en-GB';
   sel.addEventListener('change', function() {
     selectedVoiceId = this.value;
     updateAccentButtons();
@@ -241,16 +229,16 @@ function init() {
 
   // Quick accent buttons (just the English accents + a few fun ones)
   var accents = [
-    {id:'Brian',   flag:'🇬🇧', label:'British'},
-    {id:'Russell', flag:'🇦🇺', label:'Australian'},
-    {id:'Raveena', flag:'🇮🇳', label:'Indian'},
-    {id:'Geraint', flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', label:'Welsh'},
-    {id:'Joanna',  flag:'🇺🇸', label:'American'},
-    {id:'Mathieu', flag:'🇫🇷', label:'French'},
-    {id:'Hans',    flag:'🇩🇪', label:'German'},
-    {id:'Giorgio', flag:'🇮🇹', label:'Italian'},
-    {id:'Mizuki',  flag:'🇯🇵', label:'Japanese'},
-    {id:'Astrid',  flag:'🇸🇪', label:'Swedish'},
+    {id:'en-GB', flag:'🇬🇧', label:'British'},
+    {id:'en-AU', flag:'🇦🇺', label:'Australian'},
+    {id:'en-IN', flag:'🇮🇳', label:'Indian'},
+    {id:'en-IE', flag:'🇮🇪', label:'Irish'},
+    {id:'en-US', flag:'🇺🇸', label:'American'},
+    {id:'fr-FR', flag:'🇫🇷', label:'French'},
+    {id:'de-DE', flag:'🇩🇪', label:'German'},
+    {id:'it-IT', flag:'🇮🇹', label:'Italian'},
+    {id:'ja-JP', flag:'🇯🇵', label:'Japanese'},
+    {id:'sv-SE', flag:'🇸🇪', label:'Swedish'},
   ];
   var ap = document.getElementById('accent-presets');
   accents.forEach(function(a) {
@@ -311,7 +299,7 @@ function speakIt() {
   stopIt();
 
   var voice = selectedVoiceId || 'Brian';
-  var url = 'https://trivia-api.philliphinshaw.workers.dev/tts?voice='
+  var url = 'https://trivia-api.philliphinshaw.workers.dev/tts?lang='
     + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
 
   setStatus('Loading…', false);
