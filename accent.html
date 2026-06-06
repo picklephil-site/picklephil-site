@@ -318,7 +318,6 @@ function speakIt() {
   document.getElementById('speak-btn').disabled = true;
 
   currentAudio = new Audio(url);
-  currentAudio.crossOrigin = 'anonymous';
 
   currentAudio.addEventListener('playing', function() {
     document.getElementById('speak-btn').style.display = 'none';
