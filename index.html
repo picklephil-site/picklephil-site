@@ -202,16 +202,13 @@
         <p class="lead">Welcome to the Jar — bringing briny joy and media magic.</p>
 
         <div>
-          <a class="btn" href="https://request.philliphinshaw.com" target="_blank" rel="noopener">🎬 Make a Request</a>
-          <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
           <a class="btn" href="/about.html">👋 Meet Pickle Phil</a>
         </div>
 
-        <p class="meta" style="margin:12px 0 0; font-size:1.05rem;">
-          🎬 Don’t have access to my Plex yet?
-          <a href="mailto:realdillphil@philliphinshaw.com" style="color:#f5f5f5; font-weight:700; text-decoration:underline;">Email</a>
-          me your Plex username and I’ll toss you in the brine!
-        </p>
+        <div id="media-secret" style="display:none; margin-top:10px; opacity:0; transition:opacity .4s ease;">
+          <a class="btn" href="https://request.philliphinshaw.com" target="_blank" rel="noopener">🎬 Make a Request</a>
+          <a class="btn" href="https://app.plex.tv/desktop" target="_blank" rel="noopener">📺 Plex Library</a>
+        </div>
       </div>
 
       <div class="hero-image">
@@ -283,13 +280,6 @@
         <p><a class="btn" href="/archive.html">Open Archive</a></p>
       </article>
 
-      <!-- ✅ ADDED: AI MEDIA VAULT -->
-      <article class="card">
-        <h3>🤖 AI Media Vault</h3>
-        <p class="meta">Videos, photos, and soon songs created by AI — fresh out of the brine.</p>
-        <p><a class="btn" href="/ai-media.html">Open AI Media</a></p>
-      </article>
-
       <article class="card">
         <h3>🥒 PickleGrams</h3>
         <p class="meta">A crunchy archive of singing-telegram shenanigans — brined for your enjoyment.</p>
@@ -300,12 +290,6 @@
         <h3>🎡 Pickle Playground</h3>
         <p class="meta">Mini-apps, experiments, and fun tools — where the briny ideas play.</p>
         <p><a class="btn" href="/playground.html">Enter Playground</a></p>
-      </article>
-
-      <article class="card">
-        <h3>👨‍👩‍👧 Family Portal</h3>
-        <p class="meta">Shared calendars, photo drops, and links for the Hinshaw crew.</p>
-        <p><button class="btn uc" data-key="family">Open Family Portal</button></p>
       </article>
 
       <article class="card">
@@ -411,12 +395,35 @@
       wireCopy('copy-bedrock','mine.philliphinshaw.com:19132');
     })();
 
-    // "Coming soon" buttons (Playground, Family Portal)
-    document.querySelectorAll('.btn.uc').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        alert("🥒 Still fermenting — this one's not quite ready. Check back soon!");
+    // Double-click the jar to reveal media buttons
+    (function(){
+      var jar = document.querySelector('.pickle-jar-img');
+      var secret = document.getElementById('media-secret');
+      if (!jar || !secret) return;
+      jar.style.cursor = 'pointer';
+      jar.addEventListener('dblclick', function(){
+        if (secret.style.display === 'none') {
+          secret.style.display = 'block';
+          setTimeout(function(){ secret.style.opacity = '1'; }, 10);
+        } else {
+          secret.style.opacity = '0';
+          setTimeout(function(){ secret.style.display = 'none'; }, 400);
+        }
       });
-    });
+    })();
+
+    // Type "pickle" anywhere to reveal site admin
+    (function(){
+      var buf = '';
+      document.addEventListener('keydown', function(e){
+        buf = (buf + e.key).slice(-6).toLowerCase();
+        if (buf === 'pickle') {
+          var a = document.getElementById('hidden-admin');
+          if (a) a.classList.toggle('revealed');
+          buf = '';
+        }
+      });
+    })();
   </script>
 </body>
 </html>
