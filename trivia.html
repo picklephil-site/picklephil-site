@@ -156,6 +156,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 .player-chip .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .player-chip .dot.red{ background:var(--red); }
 .player-chip .dot.blue{ background:var(--blue); }
+.captain-crown{ font-size:.85rem; line-height:1; flex-shrink:0; }
 
 /* Live question */
 .q-meta{ font-size:.82rem; opacity:.6; margin:0 0 7px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
@@ -222,6 +223,53 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 
 /* Answered overlay on ans-btn */
 .ans-btn.my-answer{ box-shadow:0 0 0 2px rgba(255,255,255,.5); }
+
+/* ── TEAM CHAT ────────────────────────────────────────────────── */
+.chat-panel{
+  border-radius:var(--radius); padding:14px 16px;
+  border:1px solid rgba(255,255,255,.14);
+  margin-top:12px; margin-bottom:8px;
+  background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.18));
+  box-shadow:var(--shadow);
+  text-align:left;
+}
+.chat-panel.red{ border-color:rgba(204,0,0,.45); }
+.chat-panel.blue{ border-color:rgba(0,61,165,.55); }
+.chat-label{
+  font-size:.78rem; font-weight:800; letter-spacing:.7px; text-transform:uppercase;
+  margin:0 0 8px; opacity:.7;
+}
+.chat-label.red{ color:var(--red); }
+.chat-label.blue{ color:#82b4ff; }
+.chat-messages{
+  max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+  margin-bottom:10px; scroll-behavior:smooth;
+}
+.chat-msg{
+  font-size:.88rem; line-height:1.4; padding:5px 9px;
+  border-radius:8px; background:rgba(255,255,255,.06);
+  word-break:break-word;
+}
+.chat-msg .chat-name{ font-weight:800; margin-right:4px; }
+.chat-msg .chat-name.red{ color:#ff6b6b; }
+.chat-msg .chat-name.blue{ color:#82b4ff; }
+.chat-msg.mine{ background:rgba(255,255,255,.11); }
+.chat-empty{ opacity:.4; font-size:.85rem; font-style:italic; padding:4px 0; }
+.chat-row{ display:flex; gap:8px; }
+.chat-input{
+  flex:1; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  color:var(--text); border-radius:9px; padding:9px 12px; font-size:.9rem;
+  font-weight:600; outline:none; min-width:0;
+}
+.chat-input::placeholder{ opacity:.4; }
+.chat-input:focus{ border-color:rgba(46,204,113,.5); }
+.chat-send-btn{
+  background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff;
+  border:1px solid #27ae60; border-radius:9px; padding:9px 14px;
+  font-weight:800; font-size:.88rem; cursor:pointer; white-space:nowrap;
+  transition:transform .12s;
+}
+.chat-send-btn:hover{ transform:translateY(-1px); }
 </style>
 </head>
 <body>
@@ -241,9 +289,9 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
         <p>10 random questions. Score goes on the leaderboard.</p>
       </div>
       <div class="mode-card" id="live-mode-btn">
-        <span class="mode-icon">🔴🟢</span>
+        <span class="mode-icon">🔴🔵</span>
         <h3>Live Game</h3>
-        <p>Host a room or join one. Red vs Green team battle.</p>
+        <p>Host a room or join one. Red vs Blue team battle.</p>
       </div>
     </div>
 
@@ -252,7 +300,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <p style="margin:0 0 10px; font-weight:700;">Have a room code? Jump in:</p>
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
         <input class="code-input" id="join-code-input" type="text" maxlength="4" placeholder="CODE" />
-        <button class="btn btn--green" id="join-code-btn">Join 🟢</button>
+        <button class="btn btn--green" id="join-code-btn">Join 🔵</button>
       </div>
       <div id="join-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
     </div>
@@ -339,11 +387,12 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <button class="btn btn--green" id="start-game-btn" style="font-size:1.05rem; padding:14px 32px;" disabled>Start Game ▶</button>
       <p id="start-hint" style="opacity:.55; font-size:.85rem; margin:8px 0 0;">Need at least 2 players to start</p>
     </div>
+    <div id="lobby-chat-wrap"></div>
   </div>
 
   <!-- ══════════════════════════════════════ LIVE: JOIN LOBBY -->
   <div id="join-setup-screen" style="display:none;">
-    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:8px;">🟢 Join a Game</h1>
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:8px;">🔵 Join a Game</h1>
     <div class="card" style="text-align:center;">
       <p style="font-weight:700; margin:0 0 8px;">Your name:</p>
       <input class="name-input" id="join-name-input" type="text" placeholder="Your name" maxlength="30" style="margin-bottom:16px; display:block; margin-inline:auto;" />
@@ -351,8 +400,8 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <input class="code-input" id="join-room-code-input" type="text" maxlength="4" placeholder="CODE" style="margin-bottom:16px;" />
       <p style="font-weight:700; margin:0 0 8px;">Pick your team:</p>
       <div class="team-picker">
-        <button class="team-pick-btn red selected" id="join-team-red" onclick="selectJoinTeam('red')">🔴 Red Team</button>
-        <button class="team-pick-btn blue" id="join-team-blue" onclick="selectJoinTeam('blue')">🔵 Blue Team</button>
+        <button class="team-pick-btn red" id="join-team-red" onclick="selectJoinTeam('red')">🔴 Red Team</button>
+        <button class="team-pick-btn blue selected" id="join-team-blue" onclick="selectJoinTeam('blue')">🔵 Blue Team</button>
       </div>
       <button class="btn btn--green" id="join-room-btn" style="margin-top:16px; font-size:1.05rem; padding:14px 30px;">Join Room 🚀</button>
       <div id="join-setup-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
@@ -369,6 +418,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <div class="room-code" id="player-lobby-code" style="font-size:clamp(36px,10vw,64px);">----</div>
       <div id="player-lobby-players" class="player-grid" style="margin-top:14px;"></div>
     </div>
+    <div id="player-lobby-chat-wrap"></div>
   </div>
 
   <!-- ══════════════════════════════════════ LIVE: QUESTION -->
@@ -388,6 +438,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <button class="btn btn--green" id="reveal-btn">Reveal Answers 👁</button>
     </div>
     <div id="lq-wait-msg" style="opacity:.6; font-size:.9rem; margin-top:8px;"></div>
+    <div id="question-chat-wrap"></div>
   </div>
 
   <!-- ══════════════════════════════════════════ LIVE: REVEAL -->
@@ -409,6 +460,7 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
       <button class="btn btn--green" id="next-q-btn">Next Question →</button>
     </div>
     <div id="lr-wait-msg" style="opacity:.6; font-size:.9rem; margin-top:8px; padding:4px;" class="pulse"></div>
+    <div id="reveal-chat-wrap"></div>
   </div>
 
   <!-- ════════════════════════════════════════ LIVE: FINISHED -->
@@ -563,6 +615,7 @@ document.getElementById('name-input').addEventListener('keydown', function(e){ i
 var liveCode=null, liveHostId=null, livePlayerId=null, liveMyTeam='red';
 var livePoll=null, liveCurrentQ=-1, liveMyAnswered=false, liveRoom=null;
 var hostSelectedTeam='red', joinSelectedTeam='blue';
+var liveChatMsgs=[], liveChatInputId=null;
 
 function selectHostTeam(team) {
   hostSelectedTeam=team;
@@ -600,6 +653,7 @@ document.getElementById('create-room-btn').addEventListener('click', function(){
       liveCode=d.code; liveHostId=d.hostId; livePlayerId=d.playerId; liveMyTeam=hostSelectedTeam;
       document.getElementById('create-error').textContent='';
       document.getElementById('lobby-code').textContent=d.code;
+      buildChatPanel('lobby-chat-wrap', liveMyTeam);
       show('host-lobby-screen');
       startLivePoll();
     })
@@ -620,6 +674,7 @@ document.getElementById('join-room-btn').addEventListener('click', function(){
       liveCode=code; liveHostId=null; livePlayerId=d.playerId; liveMyTeam=joinSelectedTeam;
       document.getElementById('player-lobby-code').textContent=code;
       document.getElementById('join-setup-error').textContent='';
+      buildChatPanel('player-lobby-chat-wrap', liveMyTeam);
       show('player-lobby-screen');
       startLivePoll();
     })
@@ -658,8 +713,78 @@ document.getElementById('play-again-live-btn').addEventListener('click', functio
   document.getElementById('create-error').textContent='';
   document.getElementById('host-name-input').value='';
   liveCode=null; liveHostId=null; livePlayerId=null; liveCurrentQ=-1; liveMyAnswered=false;
+  liveChatMsgs=[]; liveChatInputId=null;
   show('host-setup-screen');
 });
+
+// ─── TEAM CHAT ────────────────────────────────────────────────────────────
+
+function buildChatPanel(wrapId, team) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  var label = team === 'red' ? '🔴 Red Team Chat' : '🔵 Blue Team Chat';
+  var inputId = wrapId + '-input';
+  liveChatInputId = inputId;
+  wrap.innerHTML =
+    '<div class="chat-panel '+team+'">'+
+      '<div class="chat-label '+team+'">'+label+'</div>'+
+      '<div class="chat-messages" id="'+wrapId+'-msgs"><p class="chat-empty">No messages yet. Talk strategy!</p></div>'+
+      '<div class="chat-row">'+
+        '<input class="chat-input" id="'+inputId+'" type="text" maxlength="200" placeholder="Message your team…" />'+
+        '<button class="chat-send-btn" onclick="sendChat(\''+inputId+'\')">Send</button>'+
+      '</div>'+
+    '</div>';
+  document.getElementById(inputId).addEventListener('keydown', function(e){
+    if (e.key==='Enter') sendChat(inputId);
+  });
+}
+
+function sendChat(inputId) {
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  var msg = input.value.trim();
+  if (!msg || !liveCode || !livePlayerId) return;
+  input.value = '';
+  fetch(API+'/room/'+liveCode+'/chat', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, msg:msg})
+  }).catch(function(){});
+}
+
+function renderChat(msgs) {
+  if (!msgs) return;
+  // Find all chat message containers and update them
+  var wrapIds = ['lobby-chat-wrap','player-lobby-chat-wrap','question-chat-wrap','reveal-chat-wrap'];
+  wrapIds.forEach(function(wrapId){
+    var msgsEl = document.getElementById(wrapId+'-msgs');
+    if (!msgsEl) return;
+    if (!msgs.length) { msgsEl.innerHTML='<p class="chat-empty">No messages yet. Talk strategy!</p>'; return; }
+    var atBottom = msgsEl.scrollHeight - msgsEl.scrollTop - msgsEl.clientHeight < 30;
+    var html = msgs.map(function(m){
+      var isMine = m.name === (liveRoom && liveRoom.players && liveRoom.players.find(function(p){ return p.id===livePlayerId; }) && liveRoom.players.find(function(p){ return p.id===livePlayerId; }).name);
+      var crown = m.captain ? ' 👑' : '';
+      return '<div class="chat-msg'+(isMine?' mine':'')+'">'+
+        '<span class="chat-name '+liveMyTeam+'">'+esc(m.name)+crown+'</span>'+
+        esc(m.msg)+
+      '</div>';
+    }).join('');
+    msgsEl.innerHTML = html;
+    if (atBottom) msgsEl.scrollTop = msgsEl.scrollHeight;
+  });
+}
+
+function ensureChatOnScreen(screenId) {
+  // When transitioning to a new live screen, build the chat panel if not there
+  var map = {
+    'live-question-screen': 'question-chat-wrap',
+    'live-reveal-screen': 'reveal-chat-wrap'
+  };
+  var wrapId = map[screenId];
+  if (!wrapId) return;
+  var wrap = document.getElementById(wrapId);
+  if (!wrap || wrap.querySelector('.chat-panel')) return;
+  buildChatPanel(wrapId, liveMyTeam);
+}
 
 // ─── POLLING ──────────────────────────────────────────────────────────────
 
@@ -668,7 +793,8 @@ function stopLivePoll() { if (livePoll) { clearInterval(livePoll); livePoll=null
 
 function pollRoom() {
   if (!liveCode) return;
-  fetch(API+'/room/'+liveCode)
+  var pid = livePlayerId ? '?pid='+livePlayerId : '';
+  fetch(API+'/room/'+liveCode+pid)
     .then(function(r){ if(r.status===404){ stopLivePoll(); alert('Room expired or not found.'); show('start-screen'); return null; } return r.json(); })
     .then(function(room){ if(room) handleRoomState(room); })
     .catch(function(){});
@@ -678,9 +804,11 @@ function handleRoomState(room) {
   liveRoom=room;
   var isHost=!!liveHostId;
 
+  // Update chat on every poll
+  renderChat(room.chat || []);
+
   if (room.phase==='lobby') {
     renderLobbyPlayers(room.players);
-    // Enable start button if 2+ players
     if (isHost) {
       var btn=document.getElementById('start-game-btn');
       var hint=document.getElementById('start-hint');
@@ -697,6 +825,7 @@ function handleRoomState(room) {
   if (phase==='question') {
     if (liveCurrentQ!==qIdx) {
       liveCurrentQ=qIdx; liveMyAnswered=false;
+      ensureChatOnScreen('live-question-screen');
       renderLiveQuestion(room, isHost);
     } else {
       updateAnsweredStatus(room);
@@ -704,6 +833,7 @@ function handleRoomState(room) {
   } else if (phase==='reveal') {
     if (liveCurrentQ!==qIdx || getCurrentScreen()!=='live-reveal-screen') {
       liveCurrentQ=qIdx;
+      ensureChatOnScreen('live-reveal-screen');
       renderLiveReveal(room, isHost);
     }
   } else if (phase==='finished') {
@@ -722,7 +852,8 @@ function renderLobbyPlayers(players) {
   var container=isHost ? document.getElementById('lobby-players') : document.getElementById('player-lobby-players');
   if (!container) return;
   container.innerHTML=players.map(function(p){
-    return '<div class="player-chip '+p.team+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span></div>';
+    var crown = p.captain ? '<span class="captain-crown">👑</span>' : '';
+    return '<div class="player-chip '+p.team+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+'</div>';
   }).join('');
 }
 
@@ -759,14 +890,17 @@ function renderLiveQuestion(room, isHost) {
 }
 
 function updateAnsweredStatus(room) {
-  var total=room.players?room.players.length:0;
+  // Answers returned by worker are already filtered to our team only
+  var myTeamPlayers=(room.players||[]).filter(function(p){ return p.team===liveMyTeam; });
   var answered=Object.keys(room.answers||{}).length;
+  var total=myTeamPlayers.length;
   var myAns=room.answers&&room.answers[livePlayerId];
+  var teamLabel=liveMyTeam==='red'?'🔴':'🔵';
   var status='';
   if (myAns) {
-    status='✅ You answered · '+answered+'/'+total+' players done';
+    status='✅ You answered · '+teamLabel+' '+answered+'/'+total+' on your team done';
   } else {
-    status='⏳ '+answered+'/'+total+' players answered';
+    status='⏳ '+teamLabel+' '+answered+'/'+total+' on your team answered';
   }
   document.getElementById('lq-status').textContent=status;
 }
@@ -820,7 +954,8 @@ function renderLiveReveal(room, isHost) {
     var ans=answers[p.id];
     var got=ans&&ans.correct;
     var cls='result-chip '+(got?'correct-ans':'wrong-ans');
-    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+'</span></div>';
+    var crown = p.captain ? ' 👑' : '';
+    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+crown+'</span></div>';
   }).join('');
 
   document.getElementById('lr-host-controls').style.display=isHost?'block':'none';
@@ -849,7 +984,8 @@ function renderLiveFinished(room, isHost) {
   // Player scores sorted
   var players=(room.players||[]).slice().sort(function(a,b){ return (b.score||0)-(a.score||0); });
   document.getElementById('lf-players').innerHTML=players.map(function(p,i){
-    return '<div class="result-chip '+(i===0?'correct-ans':'')+'"><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+'</span><span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+'</span></div>';
+    var crown = p.captain ? ' 👑' : '';
+    return '<div class="result-chip '+(i===0?'correct-ans':'')+'"><span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">'+esc(p.name)+crown+'</span><span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+'</span></div>';
   }).join('');
 
   document.getElementById('lf-host-controls').style.display=isHost?'block':'none';
