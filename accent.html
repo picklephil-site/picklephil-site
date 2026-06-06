@@ -192,9 +192,9 @@ select option{background:#1c4a2e; color:#fff;}
   <!-- My Custom Voices -->
   <div class="card">
     <span class="label">🎤 My Custom Voices</span>
-    <p style="font-size:.88rem; opacity:.72; margin:0 0 14px; line-height:1.5;">Have an ElevenLabs voice ID? Add it here — it'll appear in the dropdown and save in your browser.</p>
+    <p style="font-size:.88rem; opacity:.72; margin:0 0 14px; line-height:1.5;">Know a StreamElements voice name? Add it here and it'll appear in the dropdown, saved in your browser.</p>
     <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:stretch;">
-      <input id="custom-voice-id" class="input-field" type="text" placeholder="Voice ID (e.g. JBFqnCBsd6RMkjVDRZzb)" style="flex:2; min-width:160px;" maxlength="60" />
+      <input id="custom-voice-id" class="input-field" type="text" placeholder="Voice name (e.g. Geraint, Aditi, Lotte)" style="flex:2; min-width:160px;" maxlength="60" />
       <input id="custom-voice-name" class="input-field" type="text" placeholder="Name" style="flex:1; min-width:100px;" maxlength="30" />
       <button class="btn btn--green" onclick="addCustomVoice()" style="width:auto; padding:11px 18px; white-space:nowrap;">+ Add</button>
     </div>
@@ -205,40 +205,43 @@ select option{background:#1c4a2e; color:#fff;}
 </div>
 
 <script>
-// StreamElements TTS — free, no API key, real distinct voices/accents
+// StreamElements TTS — free, no API key
 // API: https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=Hello
 
-// ElevenLabs voice IDs — pulled from Phil's account
 var VOICES = [
   // 🇬🇧 British
-  { id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George',  accent:'British Male — Warm Storyteller' },
-  { id:'onwK4e9ZLuTAKqWW03F9', flag:'🇬🇧', label:'Daniel',  accent:'British Male — Steady Broadcaster' },
-  { id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice',   accent:'British Female — Clear Educator' },
-  { id:'pFZP5JQG7iQjIQuC4Bku', flag:'🇬🇧', label:'Lily',    accent:'British Female — Velvety Actress' },
-  { id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian',   accent:'British Male — Deep & Resonant' },
+  { id:'Brian',    flag:'🇬🇧', label:'Brian',    accent:'British Male' },
+  { id:'Amy',      flag:'🇬🇧', label:'Amy',      accent:'British Female' },
+  { id:'Emma',     flag:'🇬🇧', label:'Emma',     accent:'British Female' },
+  { id:'Geraint',  flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', label:'Geraint',  accent:'Welsh Male' },
   // 🇦🇺 Australian
-  { id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie', accent:'Australian Male — Confident' },
+  { id:'Russell',  flag:'🇦🇺', label:'Russell',  accent:'Australian Male' },
+  { id:'Nicole',   flag:'🇦🇺', label:'Nicole',   accent:'Australian Female' },
   // 🇺🇸 American
-  { id:'CwhRBWXzGAHq8TQ4Fs17', flag:'🇺🇸', label:'Roger',   accent:'American Male — Laid-Back' },
-  { id:'EXAVITQu4vr4xnSDxMaL', flag:'🇺🇸', label:'Sarah',   accent:'American Female — Mature & Confident' },
-  { id:'FGY2WhTYpPnrIDTdsKH5', flag:'🇺🇸', label:'Laura',   accent:'American Female — Quirky Enthusiast' },
-  { id:'N2lVS1w4EtoT3dr4eOWO', flag:'🇺🇸', label:'Callum',  accent:'American Male — Husky' },
-  { id:'SAz9YHcvj6GT2YYXdXww', flag:'🇺🇸', label:'River',   accent:'American Neutral — Relaxed' },
-  { id:'SOYHLrjzK2X1ezoPC6cr', flag:'🇺🇸', label:'Harry',   accent:'American Male — Fierce' },
-  { id:'TX3LPaxmHKxFdv7VOQHJ', flag:'🇺🇸', label:'Liam',    accent:'American Male — Energetic' },
-  { id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda', accent:'American Female — Professional' },
-  { id:'bIHbv24MWmeRgasZH58o', flag:'🇺🇸', label:'Will',    accent:'American Male — Relaxed Optimist' },
-  { id:'cgSgspJ2msm6clMCkdW9', flag:'🇺🇸', label:'Jessica', accent:'American Female — Playful & Bright' },
-  { id:'cjVigY5qzO86Huf0OWal', flag:'🇺🇸', label:'Eric',    accent:'American Male — Smooth' },
-  { id:'hpp4J3VqNfWAUOO0d1Us', flag:'🇺🇸', label:'Bella',   accent:'American Female — Professional' },
-  { id:'iP95p4xoKVk53GoZ742B', flag:'🇺🇸', label:'Chris',   accent:'American Male — Charming' },
-  { id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam',    accent:'American Male — Dominant' },
-  { id:'pqHfZKP75CvOlQylNhV4', flag:'🇺🇸', label:'Bill',    accent:'American Male — Wise & Mature' },
-  { id:'Gfpl8Yo74Is0W6cPUWWT', flag:'🇺🇸', label:'Max',     accent:'American Male — Friendly' },
-  // 🎭 Character voices
-  { id:'wXvR48IpOq9HACltTmt7', flag:'🎭', label:'Dante',   accent:'Growly Monster' },
-  { id:'YOq2y2Up4RgXP2HyXjE5', flag:'🎭', label:'Xavier',  accent:'Metallic Announcer' },
-  { id:'Z7RrOqZFTyLpIlzCgfsp', flag:'🎭', label:'Toby',    accent:'Little Mythical Monster' },
+  { id:'Matthew',  flag:'🇺🇸', label:'Matthew',  accent:'American Male' },
+  { id:'Joanna',   flag:'🇺🇸', label:'Joanna',   accent:'American Female' },
+  { id:'Joey',     flag:'🇺🇸', label:'Joey',     accent:'American Male' },
+  { id:'Kendra',   flag:'🇺🇸', label:'Kendra',   accent:'American Female' },
+  { id:'Salli',    flag:'🇺🇸', label:'Salli',    accent:'American Female' },
+  { id:'Kimberly', flag:'🇺🇸', label:'Kimberly', accent:'American Female' },
+  { id:'Ivy',      flag:'🇺🇸', label:'Ivy',      accent:'American Female (Child)' },
+  // 🇮🇳 Indian
+  { id:'Raveena',  flag:'🇮🇳', label:'Raveena',  accent:'Indian Female' },
+  { id:'Aditi',    flag:'🇮🇳', label:'Aditi',    accent:'Indian Female' },
+  // 🇩🇪 German
+  { id:'Hans',     flag:'🇩🇪', label:'Hans',     accent:'German Male' },
+  { id:'Marlene',  flag:'🇩🇪', label:'Marlene',  accent:'German Female' },
+  // 🇫🇷 French
+  { id:'Mathieu',  flag:'🇫🇷', label:'Mathieu',  accent:'French Male' },
+  { id:'Celine',   flag:'🇫🇷', label:'Céline',   accent:'French Female' },
+  // 🇮🇹 Italian
+  { id:'Giorgio',  flag:'🇮🇹', label:'Giorgio',  accent:'Italian Male' },
+  { id:'Carla',    flag:'🇮🇹', label:'Carla',    accent:'Italian Female' },
+  // 🇪🇸 Spanish
+  { id:'Enrique',  flag:'🇪🇸', label:'Enrique',  accent:'Spanish Male' },
+  { id:'Conchita', flag:'🇪🇸', label:'Conchita', accent:'Spanish Female' },
+  { id:'Penelope', flag:'🌎', label:'Penelope',  accent:'Spanish (US) Female' },
+  { id:'Miguel',   flag:'🌎', label:'Miguel',    accent:'Spanish (US) Male' },
 ];
 
 var PHRASES = [
@@ -257,8 +260,7 @@ var PHRASES = [
 var currentAudio = null;
 var currentAbort = null;
 var currentBlobUrl = null; // kept alive for download even after playback ends
-var selectedVoiceId = 'JBFqnCBsd6RMkjVDRZzb'; // George — British
-var EL_KEY = 'sk_b691a044ad0303e329924dd26f843ce6dde1340ea90b2c95';
+var selectedVoiceId = 'Brian';
 var CUSTOM_KEY = 'picklePhilCustomVoices';
 
 function loadCustomVoices() {
@@ -353,18 +355,18 @@ function init() {
   });
   renderCustomVoiceList();
 
-  // Quick accent buttons (just the English accents + a few fun ones)
+  // Quick accent buttons
   var accents = [
-    {id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George'},
-    {id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian'},
-    {id:'pFZP5JQG7iQjIQuC4Bku', flag:'🇬🇧', label:'Lily'},
-    {id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie'},
-    {id:'CwhRBWXzGAHq8TQ4Fs17', flag:'🇺🇸', label:'Roger'},
-    {id:'cgSgspJ2msm6clMCkdW9', flag:'🇺🇸', label:'Jessica'},
-    {id:'N2lVS1w4EtoT3dr4eOWO', flag:'🇺🇸', label:'Callum'},
-    {id:'pqHfZKP75CvOlQylNhV4', flag:'🇺🇸', label:'Bill'},
-    {id:'wXvR48IpOq9HACltTmt7', flag:'🎭', label:'Dante'},
-    {id:'Z7RrOqZFTyLpIlzCgfsp', flag:'🎭', label:'Toby'},
+    {id:'Brian',   flag:'🇬🇧', label:'Brian'},
+    {id:'Amy',     flag:'🇬🇧', label:'Amy'},
+    {id:'Russell', flag:'🇦🇺', label:'Russell'},
+    {id:'Nicole',  flag:'🇦🇺', label:'Nicole'},
+    {id:'Matthew', flag:'🇺🇸', label:'Matthew'},
+    {id:'Joanna',  flag:'🇺🇸', label:'Joanna'},
+    {id:'Raveena', flag:'🇮🇳', label:'Raveena'},
+    {id:'Hans',    flag:'🇩🇪', label:'Hans'},
+    {id:'Giorgio', flag:'🇮🇹', label:'Giorgio'},
+    {id:'Mathieu', flag:'🇫🇷', label:'Mathieu'},
   ];
   var ap = document.getElementById('accent-presets');
   accents.forEach(function(a) {
@@ -433,28 +435,12 @@ function speakIt() {
   setStatus('Loading…', false);
   document.getElementById('speak-btn').disabled = true;
 
-  var EL_URL = 'https://api.elevenlabs.io/v1/text-to-speech/' + voice;
+  var SE_URL = 'https://api.streamelements.com/kappa/v2/speech?voice=' + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
 
   var blobUrl = null;
-  fetch(EL_URL, {
-    method: 'POST',
-    signal: abort.signal,
-    headers: { 'xi-api-key': EL_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-    body: JSON.stringify({ text: text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } })
-  })
+  fetch(SE_URL, { signal: abort.signal })
     .then(function(r) {
-      if (!r.ok) {
-        return r.text().then(function(t) {
-          var friendly = 'HTTP ' + r.status;
-          try {
-            var j = JSON.parse(t);
-            var d = j && j.detail;
-            if (typeof d === 'string') friendly = d;
-            else if (d && d.message) friendly = d.message;
-          } catch(e) {}
-          throw new Error(friendly + '::' + r.status);
-        });
-      }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.blob();
     })
     .then(function(blob) {
@@ -490,19 +476,7 @@ function speakIt() {
       if (err.name === 'AbortError') return; // intentionally cancelled
       if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
       onDone();
-      var m = err.message || '';
-      var httpStatus = parseInt((m.split('::')[1] || ''), 10);
-      var errMsg;
-      if (httpStatus === 404 || m.toLowerCase().includes('not found')) {
-        errMsg = '⚠️ Voice not found — double-check the Voice ID.';
-      } else if (httpStatus === 401 || httpStatus === 403) {
-        errMsg = '⚠️ API key error — try again later.';
-      } else if (httpStatus === 429) {
-        errMsg = '⚠️ Too many requests — wait a moment and try again.';
-      } else {
-        errMsg = '⚠️ Could not load audio — try again.';
-      }
-      setStatus(errMsg, true);
+      setStatus('⚠️ Could not load audio — try again.', true);
       document.getElementById('speak-btn').disabled = false;
     });
 }
