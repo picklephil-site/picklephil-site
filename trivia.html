@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pickle Phil's Movie Trivia</title>
-<meta name="description" content="Test your movie knowledge at Pickle Phil's Movie Trivia — 10 random questions, how many can you get?" />
+<title>Pickle Phil's Trivia</title>
+<meta name="description" content="Test your knowledge at Pickle Phil's Trivia — endless random questions, all topics, with a live leaderboard." />
 <link rel="icon" type="image/png" href="/img/favicon.png" />
 <style>
 :root{
@@ -24,86 +24,119 @@ body{
     linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
   background-attachment:fixed;
   min-height:100vh; text-align:center;
-  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  display:flex; flex-direction:column; align-items:center;
 }
-.wrap{width:min(780px,100%); padding:28px 20px;}
-h1{font-size:clamp(32px,6vw,58px); margin:0 0 6px; font-weight:900; letter-spacing:.5px;}
-.lead{font-size:1.1rem; opacity:.92; margin:0 0 24px; max-width:560px; margin-inline:auto;}
+.wrap{width:min(820px,100%); padding:28px 20px;}
+.back{display:inline-block; margin-bottom:18px; opacity:.7; font-size:.95rem; color:var(--text); text-decoration:none;}
+.back:hover{opacity:1;}
+h1{font-size:clamp(30px,6vw,52px); margin:0 0 6px; font-weight:900;}
+.lead{font-size:1.05rem; opacity:.88; margin:0 auto 24px; max-width:520px;}
 
-/* Progress bar */
-.progress-wrap{background:rgba(255,255,255,.12); border-radius:99px; height:8px; margin:0 0 24px; overflow:hidden;}
+/* Progress */
+.progress-wrap{background:rgba(255,255,255,.12); border-radius:99px; height:8px; margin:0 0 22px; overflow:hidden;}
 .progress-bar{height:100%; border-radius:99px; background:linear-gradient(90deg,#2ecc71,#27ae60); transition:width .4s ease;}
 
-/* Question card */
+/* Card */
 .card{
   background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
-  border:1px solid var(--glass-border);
-  border-radius:var(--radius); padding:28px 24px;
-  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:28px 24px; box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
   margin-bottom:18px; text-align:left;
 }
-.q-meta{font-size:.9rem; opacity:.7; margin:0 0 10px; font-weight:600; letter-spacing:.4px; text-transform:uppercase;}
-.q-text{font-size:clamp(1.1rem,2.4vw,1.4rem); font-weight:700; line-height:1.45; margin:0 0 20px;}
+.q-meta{font-size:.85rem; opacity:.65; margin:0 0 8px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;}
+.q-cat{opacity:.5; font-weight:400; margin-left:6px;}
+.q-text{font-size:clamp(1.05rem,2.4vw,1.35rem); font-weight:700; line-height:1.45; margin:0 0 20px;}
 
-/* Answer buttons */
+/* Answers */
 .answers{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 @media(max-width:520px){.answers{grid-template-columns:1fr;}}
 .ans-btn{
   background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18);
-  color:var(--text); border-radius:12px; padding:14px 16px;
-  font-size:1rem; font-weight:600; cursor:pointer; text-align:left;
-  transition:background .15s, border-color .15s, transform .12s;
-  line-height:1.35;
+  color:var(--text); border-radius:12px; padding:13px 15px;
+  font-size:.97rem; font-weight:600; cursor:pointer; text-align:left;
+  transition:background .15s, border-color .15s, transform .12s; line-height:1.35;
 }
-.ans-btn:hover:not(:disabled){
-  background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.5);
-  transform:translateY(-2px);
-}
+.ans-btn:hover:not(:disabled){background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.5); transform:translateY(-2px);}
 .ans-btn:disabled{cursor:default;}
-.ans-btn.correct{background:rgba(46,204,113,.35); border-color:#2ecc71; color:#fff;}
-.ans-btn.wrong{background:rgba(231,76,60,.30); border-color:#e74c3c; color:#fff;}
+.ans-btn.correct{background:rgba(46,204,113,.35); border-color:#2ecc71;}
+.ans-btn.wrong{background:rgba(231,76,60,.30); border-color:#e74c3c;}
 .ans-btn.reveal{background:rgba(46,204,113,.20); border-color:rgba(46,204,113,.4);}
 
 /* Feedback */
-.feedback{
-  min-height:48px; font-size:1.05rem; font-weight:700;
-  padding:10px 0 4px; opacity:0; transition:opacity .2s;
-}
+.feedback{min-height:44px; font-size:1rem; font-weight:700; padding:8px 0 2px; opacity:0; transition:opacity .2s;}
 .feedback.show{opacity:1;}
 .feedback.good{color:#2ecc71;}
 .feedback.bad{color:#e74c3c;}
 
-/* Next button */
+/* Buttons */
 .btn{
   color:var(--btnText); background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
   border:1px solid rgba(255,255,255,.6); border-radius:12px;
-  padding:13px 28px; font-weight:800; font-size:1.05rem; cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.9);
-  transition:transform .15s, box-shadow .15s; margin-top:12px; display:inline-block;
+  padding:13px 26px; font-weight:800; font-size:1rem; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .15s, box-shadow .15s; margin:6px; display:inline-block; text-decoration:none;
 }
-.btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.38);}
+.btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.36);}
 .btn:active{transform:translateY(0);}
-.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border-color:#27ae60;}
+.btn--green:hover{filter:brightness(1.05);}
+
+/* Loading */
+#loading-screen{padding:60px 0;}
+.spinner{display:inline-block; width:44px; height:44px; border:4px solid rgba(255,255,255,.2); border-top-color:#2ecc71; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* Score screen */
 #score-screen{display:none;}
-.score-big{font-size:clamp(52px,12vw,96px); font-weight:900; line-height:1;
+.score-big{font-size:clamp(60px,14vw,100px); font-weight:900; line-height:1;
   background:linear-gradient(180deg,#fff 0%,#a8f0c4 100%);
   -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
-.score-label{font-size:1.2rem; opacity:.85; margin:8px 0 22px;}
+.score-label{font-size:1.1rem; opacity:.8; margin:6px 0 18px;}
 .verdict{
   background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
   border:1px solid var(--glass-border); border-radius:var(--radius);
-  padding:22px; margin:16px 0 24px; font-size:1.15rem; font-weight:700; line-height:1.6;
+  padding:20px; margin:14px 0 20px; font-size:1.1rem; font-weight:700; line-height:1.6;
 }
 
-/* Start screen */
-#start-screen{}
-.emoji-big{font-size:4rem; display:block; margin-bottom:8px;}
+/* Submit score */
+.submit-area{margin:0 0 24px;}
+.submit-area p{margin:0 0 10px; opacity:.85;}
+.name-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+.name-input{
+  background:rgba(255,255,255,.12); border:1px solid var(--glass-border);
+  color:var(--text); border-radius:12px; padding:12px 16px; font-size:1rem;
+  font-weight:600; outline:none; width:min(260px,80vw);
+}
+.name-input::placeholder{opacity:.5;}
+.name-input:focus{border-color:rgba(46,204,113,.6);}
+.submit-status{margin-top:10px; font-size:.95rem; min-height:1.4em; font-weight:700;}
+.submit-status.good{color:#2ecc71;}
+.submit-status.bad{color:#e74c3c;}
 
-/* Back link */
-.back{display:inline-block; margin-bottom:18px; opacity:.7; font-size:.95rem; color:var(--text); text-decoration:none;}
-.back:hover{opacity:1;}
+/* Leaderboard */
+#leaderboard-section{margin-top:30px;}
+.lb-title{font-size:1.4rem; font-weight:800; margin:0 0 14px;}
+.lb-table{width:100%; border-collapse:collapse; font-size:.97rem;}
+.lb-table th{text-align:left; padding:8px 10px; opacity:.6; font-size:.8rem; letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.12);}
+.lb-table td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.06);}
+.lb-table tr:first-child td{font-weight:800;}
+.lb-rank{opacity:.55; width:36px;}
+.lb-score{font-weight:800; color:#2ecc71; white-space:nowrap;}
+.lb-date{opacity:.45; font-size:.85rem; white-space:nowrap;}
+.lb-empty{opacity:.5; padding:20px; text-align:center;}
+.gold{color:#f1c40f;}
+.silver{color:#bdc3c7;}
+.bronze{color:#cd7f32;}
+
+/* Start screen */
+.emoji-big{font-size:4rem; display:block; margin-bottom:8px;}
+.tabs{display:flex; gap:10px; justify-content:center; margin-bottom:24px; flex-wrap:wrap;}
+.tab-btn{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+  color:var(--text); border-radius:10px; padding:9px 18px; font-size:.9rem;
+  font-weight:700; cursor:pointer; transition:.15s;
+}
+.tab-btn.active,.tab-btn:hover{background:rgba(46,204,113,.25); border-color:rgba(46,204,113,.5);}
 </style>
 </head>
 <body>
@@ -112,25 +145,35 @@ h1{font-size:clamp(32px,6vw,58px); margin:0 0 6px; font-weight:900; letter-spaci
 
   <!-- START SCREEN -->
   <div id="start-screen">
-    <span class="emoji-big">🎬</span>
-    <h1>Movie Trivia</h1>
-    <p class="lead">10 random questions. How many can you crack? No Google. No peeking. Just vibes and movie knowledge.</p>
-    <button class="btn" id="start-btn">Let's Go 🥒</button>
+    <span class="emoji-big">🧠</span>
+    <h1>Pickle Phil's Trivia</h1>
+    <p class="lead">10 random questions. All topics. No Google. No peeking. Your score goes on the board.</p>
+    <button class="btn btn--green" id="start-btn" style="font-size:1.1rem; padding:15px 32px;">Let's Go 🥒</button>
+    <div id="leaderboard-section">
+      <div class="card" style="margin-top:28px;">
+        <p class="lb-title">🏆 Leaderboard</p>
+        <div id="lb-content"><p class="lb-empty">Loading scores…</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen" style="display:none;">
+    <div class="spinner"></div>
+    <p style="opacity:.7;">Fetching fresh questions…</p>
   </div>
 
   <!-- QUIZ SCREEN -->
   <div id="quiz-screen" style="display:none;">
-    <h1 style="font-size:clamp(24px,4vw,38px); margin-bottom:14px;">🎬 Movie Trivia</h1>
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:14px;">🧠 Trivia</h1>
     <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
-
     <div class="card">
-      <p class="q-meta" id="q-meta">Question 1 of 10</p>
+      <p class="q-meta" id="q-meta">Question 1 of 10 <span class="q-cat" id="q-cat"></span></p>
       <p class="q-text" id="q-text"></p>
       <div class="answers" id="answers"></div>
       <div class="feedback" id="feedback"></div>
     </div>
-
-    <button class="btn" id="next-btn" disabled>Next Question →</button>
+    <button class="btn" id="next-btn" disabled>Next →</button>
   </div>
 
   <!-- SCORE SCREEN -->
@@ -139,178 +182,238 @@ h1{font-size:clamp(32px,6vw,58px); margin:0 0 6px; font-weight:900; letter-spaci
     <div class="score-big" id="score-display"></div>
     <div class="score-label">out of 10</div>
     <div class="verdict" id="verdict"></div>
-    <button class="btn" id="replay-btn">Play Again 🎬</button>
-    &nbsp;
-    <a class="btn" href="/" style="text-decoration:none;">Back to the Jar 🥒</a>
+
+    <div class="submit-area card" style="text-align:center;">
+      <p style="font-size:1.05rem; font-weight:700; margin-bottom:8px;">📋 Submit your score to the leaderboard</p>
+      <div class="name-row">
+        <input class="name-input" id="name-input" type="text" placeholder="Your name" maxlength="30" />
+        <button class="btn btn--green" id="submit-btn">Submit 🏆</button>
+      </div>
+      <div class="submit-status" id="submit-status"></div>
+    </div>
+
+    <button class="btn" id="replay-btn">Play Again 🧠</button>
+    <a class="btn" href="/">Back to the Jar 🥒</a>
+
+    <div class="card" style="margin-top:28px; text-align:left;">
+      <p class="lb-title">🏆 Leaderboard</p>
+      <div id="lb-content-score"><p class="lb-empty">Loading scores…</p></div>
+    </div>
   </div>
 </div>
 
 <script>
-var QUESTIONS = [
-  // Classics
-  {q:"Who directed Pulp Fiction (1994)?", a:["Quentin Tarantino","Martin Scorsese","Spike Lee","Joel Coen"], correct:0},
-  {q:"Which film features the line 'Here's looking at you, kid'?", a:["Casablanca","Gone with the Wind","Citizen Kane","The Maltese Falcon"], correct:0},
-  {q:"In The Godfather, what animal's head is left in a bed?", a:["A horse","A dog","A pig","A cow"], correct:0},
-  {q:"Which 1975 Spielberg film is about a killer shark?", a:["Jaws","The Deep","Orca","Piranha"], correct:0},
-  {q:"What is the name of the toy cowboy in Toy Story?", a:["Woody","Buzz","Rex","Hamm"], correct:0},
-  {q:"In Home Alone, what city does Kevin's family fly to for Christmas?", a:["Paris","London","New York","Rome"], correct:0},
-  {q:"Who played Neo in The Matrix (1999)?", a:["Keanu Reeves","Will Smith","Tom Cruise","Brad Pitt"], correct:0},
-  {q:"What year was Titanic (James Cameron) released?", a:["1997","1995","1999","1998"], correct:0},
-  {q:"Which film won the first ever Academy Award for Best Picture?", a:["Wings","Sunrise","The Jazz Singer","Chang"], correct:0},
-  {q:"In Forrest Gump, what does Forrest say life is like?", a:["A box of chocolates","A jar of pickles","A long run","A feather in the wind"], correct:0},
-  // 90s
-  {q:"Which 1993 film features dinosaurs brought back to life on an island?", a:["Jurassic Park","The Lost World","Congo","Anaconda"], correct:0},
-  {q:"Who voiced Simba in The Lion King (1994)?", a:["Matthew Broderick","Jonathan Taylor Thomas","Jason Weaver","James Earl Jones"], correct:0},
-  {q:"What is the name of the coffee shop in Friends — also a 1996 film?", a:["Central Perk","The Brew","Grind House","Beanie's"], correct:0, note:true},
-  {q:"In Clueless (1995), what is Cher's last name?", a:["Horowitz","Hamilton","Hughes","Harrison"], correct:0},
-  {q:"Which 1999 film involves a group of film students who disappear while making a documentary?", a:["The Blair Witch Project","The Others","Session 9","Open Water"], correct:0},
-  {q:"Who plays the villain in The Silence of the Lambs?", a:["Anthony Hopkins","Gary Oldman","Kevin Spacey","Tim Roth"], correct:0},
-  {q:"What sport is the focus of Space Jam (1996)?", a:["Basketball","Baseball","Football","Tennis"], correct:0},
-  {q:"In Goodfellas, what does Henry Hill say he always wanted to be?", a:["A gangster","A cop","A lawyer","A made man"], correct:0},
-  // 2000s
-  {q:"What is the One Ring's inscription language in Lord of the Rings?", a:["Black Speech","Elvish","Dwarvish","Entish"], correct:0},
-  {q:"In Finding Nemo, what type of fish is Nemo?", a:["Clownfish","Angelfish","Blowfish","Swordfish"], correct:0},
-  {q:"Who plays Iron Man in the Marvel Cinematic Universe?", a:["Robert Downey Jr.","Chris Evans","Mark Ruffalo","Jeremy Renner"], correct:0},
-  {q:"What year did The Dark Knight release?", a:["2008","2006","2010","2007"], correct:0},
-  {q:"In Shrek, what does Shrek compare ogres to?", a:["Onions","Pickles","Parfaits","Swamps"], correct:0},
-  {q:"Who directed Inception (2010)?", a:["Christopher Nolan","James Cameron","Steven Spielberg","Ridley Scott"], correct:0},
-  {q:"What is the name of the fictional African nation in Black Panther?", a:["Wakanda","Zamunda","Genosha","Latveria"], correct:0},
-  {q:"Which actor plays Jack Sparrow in Pirates of the Caribbean?", a:["Johnny Depp","Orlando Bloom","Geoffrey Rush","Bill Nighy"], correct:0},
-  {q:"In The Hangover, where does the bachelor party take place?", a:["Las Vegas","Miami","New Orleans","Atlantic City"], correct:0},
-  {q:"What film features the quote 'You can't handle the truth!'?", a:["A Few Good Men","JFK","Born on the Fourth of July","The Firm"], correct:0},
-  // 2010s
-  {q:"How many Infinity Stones are there in the MCU?", a:["6","5","7","4"], correct:0},
-  {q:"In Get Out (2017), what is the name of the hypnotic state victims are placed in?", a:["The Sunken Place","The Dark Room","The Still","The Void"], correct:0},
-  {q:"Who plays Katniss Everdeen in The Hunger Games?", a:["Jennifer Lawrence","Emma Watson","Shailene Woodley","Anna Kendrick"], correct:0},
-  {q:"What is the highest-grossing film of all time (as of 2024)?", a:["Avatar","Avengers: Endgame","Titanic","Top Gun: Maverick"], correct:0},
-  {q:"In La La Land (2016), what instrument does Sebastian play?", a:["Piano","Guitar","Trumpet","Violin"], correct:0},
-  {q:"Which film follows a man who wakes up reliving the same day over and over?", a:["Groundhog Day","Source Code","Edge of Tomorrow","Primer"], correct:0},
-  {q:"Who directed Mad Max: Fury Road (2015)?", a:["George Miller","Ridley Scott","James Cameron","Zack Snyder"], correct:0},
-  // Horror
-  {q:"In The Shining, what does Jack type repeatedly?", a:["All work and no play makes Jack a dull boy","Here's Johnny","Redrum","Come play with us"], correct:0},
-  {q:"Which 1978 film features the killer Michael Myers?", a:["Halloween","Friday the 13th","A Nightmare on Elm Street","Scream"], correct:0},
-  {q:"What is the name of the demon in The Conjuring universe?", a:["Valak","Pazuzu","Paimon","Malphas"], correct:0},
-  {q:"In Alien (1979), what planet do the crew investigate?", a:["LV-426","LV-223","Planet 4","Fiorina 161"], correct:0},
-  // Fun / pop culture
-  {q:"What film features the song 'My Heart Will Go On'?", a:["Titanic","Ghost","Pretty Woman","Dirty Dancing"], correct:0},
-  {q:"In Back to the Future, what speed must the DeLorean reach to time travel?", a:["88 mph","100 mph","121 mph","55 mph"], correct:0},
-  {q:"Who played the Joker in The Dark Knight (2008)?", a:["Heath Ledger","Jared Leto","Joaquin Phoenix","Jack Nicholson"], correct:0},
-  {q:"In Elf, where does Buddy the Elf think he's from?", a:["The North Pole","Canada","Alaska","Greenland"], correct:0},
-  {q:"What animated film features the song 'Let It Go'?", a:["Frozen","Tangled","Brave","Moana"], correct:0},
-  {q:"In The Truman Show, what is Truman's last name?", a:["Burbank","Christof","Meryl","Spencer"], correct:0},
-  {q:"What country produced the film Parasite (2019)?", a:["South Korea","Japan","China","Taiwan"], correct:0},
-  {q:"Which film features a character named Tyler Durden?", a:["Fight Club","Se7en","The Game","Zodiac"], correct:0},
-  {q:"In Interstellar, what is the name of the wormhole's location?", a:["Near Saturn","Near Jupiter","Near Mars","Near Uranus"], correct:0, note:true},
-  {q:"What is the runtime of the longest wide-release film in history — Avengers: Endgame (approx)?", a:["3 hours","2.5 hours","2 hours","3.5 hours"], correct:0},
-  {q:"In Pixar's Up, what is the name of the old man's wife?", a:["Ellie","Dottie","Rose","Margaret"], correct:0},
-  {q:"What film franchise features the phrase 'May the Force be with you'?", a:["Star Wars","Star Trek","Dune","The Fifth Element"], correct:0},
-  {q:"Who directed Schindler's List (1993)?", a:["Steven Spielberg","Martin Scorsese","Oliver Stone","Clint Eastwood"], correct:0},
-  {q:"In which film does a character say 'I see dead people'?", a:["The Sixth Sense","Ghost","Poltergeist","Insidious"], correct:0},
-  {q:"What is the name of the ranch in Toy Story?", a:["Woody's Roundup — the show, not a ranch","Sunnyside","Andy's house","Al's Toy Barn"], correct:0, note:true},
-  {q:"Which film takes place almost entirely on a single lifeboat?", a:["All Is Lost","Life of Pi","Cast Away","The Shallows"], correct:0, note:true},
-  {q:"Who plays Hannibal Lecter in Manhunter (1986)?", a:["Brian Cox","Anthony Hopkins","Mads Mikkelsen","Brian Dennehy"], correct:0},
-  {q:"What is the name of the fictional airline in Fight Club?", a:["Monarch Airlines","Eastern Seaboard","Federated Air","Trans Atlantic"], correct:0, note:true},
-];
-
-// Shuffle the correct answer into a random position for each question
-var pool = QUESTIONS.map(function(item) {
-  var correctAnswer = item.a[item.correct];
-  var shuffled = item.a.slice().sort(function(){ return Math.random() - .5; });
-  return {
-    q: item.q,
-    a: shuffled,
-    correct: shuffled.indexOf(correctAnswer)
-  };
-});
-
+var API = 'https://trivia-api.philliphinshaw.workers.dev';
 var round = [], current = 0, score = 0, answered = false;
 
-function shuffle(arr){ return arr.slice().sort(function(){ return Math.random()-.5; }); }
-
-function startGame(){
-  round = shuffle(pool).slice(0,10);
-  current = 0; score = 0; answered = false;
-  document.getElementById('start-screen').style.display='none';
-  document.getElementById('score-screen').style.display='none';
-  document.getElementById('quiz-screen').style.display='block';
-  showQuestion();
+function decodeHTML(str) {
+  var txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  return txt.value;
 }
 
-function showQuestion(){
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function show(id) {
+  ['start-screen','loading-screen','quiz-screen','score-screen'].forEach(function(s){
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
+
+function fetchQuestions(cb) {
+  show('loading-screen');
+  fetch('https://opentdb.com/api.php?amount=10&type=multiple')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.results || !data.results.length) { cb(null); return; }
+      var questions = data.results.map(function(q){
+        var correct = decodeHTML(q.correct_answer);
+        var all = shuffle(q.incorrect_answers.map(decodeHTML).concat([correct]));
+        return {
+          q: decodeHTML(q.question),
+          a: all,
+          correct: all.indexOf(correct),
+          cat: decodeHTML(q.category)
+        };
+      });
+      cb(questions);
+    })
+    .catch(function(){ cb(null); });
+}
+
+function startGame() {
+  fetchQuestions(function(questions){
+    if (!questions) {
+      alert('Could not load questions — check your connection and try again.');
+      show('start-screen');
+      return;
+    }
+    round = questions;
+    current = 0; score = 0; answered = false;
+    document.getElementById('submit-status').textContent = '';
+    document.getElementById('submit-btn').disabled = false;
+    show('quiz-screen');
+    showQuestion();
+  });
+}
+
+function showQuestion() {
   answered = false;
   var q = round[current];
-  document.getElementById('q-meta').textContent = 'Question '+(current+1)+' of 10';
+  document.getElementById('q-meta').innerHTML = 'Question ' + (current+1) + ' of 10 <span class="q-cat">· ' + q.cat + '</span>';
   document.getElementById('q-text').textContent = q.q;
-  document.getElementById('progress-bar').style.width = (current/10*100)+'%';
+  document.getElementById('progress-bar').style.width = (current / 10 * 100) + '%';
 
   var fb = document.getElementById('feedback');
-  fb.textContent=''; fb.className='feedback';
+  fb.textContent = ''; fb.className = 'feedback';
 
   var nextBtn = document.getElementById('next-btn');
   nextBtn.disabled = true;
-  nextBtn.textContent = current === 9 ? 'See Results 🏆' : 'Next Question →';
+  nextBtn.textContent = current === 9 ? 'See Results 🏆' : 'Next →';
 
   var container = document.getElementById('answers');
-  container.innerHTML='';
+  container.innerHTML = '';
   q.a.forEach(function(ans, i){
     var btn = document.createElement('button');
-    btn.className='ans-btn';
+    btn.className = 'ans-btn';
     btn.textContent = ans;
     btn.addEventListener('click', function(){ pickAnswer(i); });
     container.appendChild(btn);
   });
 }
 
-function pickAnswer(idx){
-  if(answered) return;
+function pickAnswer(idx) {
+  if (answered) return;
   answered = true;
   var q = round[current];
   var btns = document.querySelectorAll('.ans-btn');
   var fb = document.getElementById('feedback');
+  btns.forEach(function(b){ b.disabled = true; });
 
-  btns.forEach(function(b){ b.disabled=true; });
-
-  if(idx === q.correct){
+  if (idx === q.correct) {
     score++;
     btns[idx].classList.add('correct');
-    fb.textContent = ['🎉 Nailed it!','✅ That\'s the one!','🥒 Crunchy correct!','💪 Easy money.','🎬 Boom!'][Math.floor(Math.random()*5)];
-    fb.className='feedback show good';
+    fb.textContent = ['🎉 Nailed it!','✅ Correct!','🥒 Crunchy!','💪 Easy money.','🎯 Got it!'][Math.floor(Math.random()*5)];
+    fb.className = 'feedback show good';
   } else {
     btns[idx].classList.add('wrong');
     btns[q.correct].classList.add('reveal');
-    fb.textContent = '❌ Nope! The answer was: ' + q.a[q.correct];
-    fb.className='feedback show bad';
+    fb.textContent = '❌ Nope! Answer: ' + q.a[q.correct];
+    fb.className = 'feedback show bad';
   }
-
-  document.getElementById('next-btn').disabled=false;
+  document.getElementById('next-btn').disabled = false;
 }
 
-function nextQuestion(){
+function nextQuestion() {
   current++;
-  if(current >= 10){ showScore(); return; }
+  if (current >= 10) { showScore(); return; }
   showQuestion();
 }
 
-function showScore(){
-  document.getElementById('quiz-screen').style.display='none';
-  document.getElementById('score-screen').style.display='block';
-  document.getElementById('score-display').textContent = score;
+var VERDICTS = [
+  [0,1,"🥒 Zero to one? Did you just wake up from a 10-year pickle coma?"],
+  [2,3,"😬 Yikes. The brine has not been kind to your brain cells."],
+  [4,5,"😐 Mid. Straight up mid. The jar is unimpressed."],
+  [6,7,"👍 Solid! You're officially a jar of decent knowledge."],
+  [8,9,"🎯 Nice work. The brine is strong with this one."],
+  [10,10,"🏆 PERFECT SCORE. You absolute legend. Maximum dill energy."]
+];
 
-  var verdicts = [
-    [0,1, "🥒 Pickled beyond recognition. Have you ever seen a movie?"],
-    [2,3, "😬 Yikes. The brine has not been kind to your brain cells."],
-    [4,5, "😐 Mid. Straight up mid. You passed, but barely."],
-    [6,7, "👍 Solid! You've clearly spent time in the dark watching things."],
-    [8,9, "🎬 Nice work, film buff. The jar is proud of you."],
-    [10,10,"🏆 PERFECT SCORE. You absolute cinema nerd. Respect. Big dill energy."],
-  ];
-  var v = verdicts.find(function(r){ return score >= r[0] && score <= r[1]; });
+function showScore() {
+  show('score-screen');
+  document.getElementById('score-display').textContent = score;
+  var v = VERDICTS.find(function(r){ return score >= r[0] && score <= r[1]; });
   document.getElementById('verdict').textContent = v ? v[2] : '';
+  loadLeaderboard('lb-content-score');
 }
 
+function submitScore() {
+  var name = document.getElementById('name-input').value.trim() || 'Anonymous';
+  var btn = document.getElementById('submit-btn');
+  var status = document.getElementById('submit-status');
+  btn.disabled = true;
+  status.textContent = 'Submitting…';
+  status.className = 'submit-status';
+
+  fetch(API, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ name: name, score: score, total: 10 })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.ok) {
+      status.textContent = '✅ Score submitted! You ranked #' + data.rank + ' overall.';
+      status.className = 'submit-status good';
+      loadLeaderboard('lb-content-score');
+    } else {
+      status.textContent = '❌ Something went wrong. Try again.';
+      status.className = 'submit-status bad';
+      btn.disabled = false;
+    }
+  })
+  .catch(function(){
+    status.textContent = '❌ Could not reach the server.';
+    status.className = 'submit-status bad';
+    btn.disabled = false;
+  });
+}
+
+var MEDALS = ['🥇','🥈','🥉'];
+
+function buildLeaderboard(scores, containerId) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  if (!scores || !scores.length) {
+    el.innerHTML = '<p class="lb-empty">No scores yet — be the first! 🥒</p>';
+    return;
+  }
+  var top = scores.slice(0, 20);
+  var rows = top.map(function(s, i){
+    var medal = MEDALS[i] || (i+1);
+    var dateStr = s.ts ? new Date(s.ts).toLocaleDateString() : '';
+    return '<tr><td class="lb-rank">' + medal + '</td>' +
+      '<td><strong>' + escHtml(s.name) + '</strong></td>' +
+      '<td class="lb-score">' + s.score + '/10</td>' +
+      '<td class="lb-date">' + dateStr + '</td></tr>';
+  }).join('');
+  el.innerHTML = '<table class="lb-table"><thead><tr>' +
+    '<th>#</th><th>Name</th><th>Score</th><th>Date</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function loadLeaderboard(containerId) {
+  fetch(API)
+    .then(function(r){ return r.json(); })
+    .then(function(scores){ buildLeaderboard(scores, containerId); })
+    .catch(function(){
+      var el = document.getElementById(containerId);
+      if (el) el.innerHTML = '<p class="lb-empty">Could not load scores.</p>';
+    });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Wire up
 document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('next-btn').addEventListener('click', nextQuestion);
 document.getElementById('replay-btn').addEventListener('click', startGame);
+document.getElementById('submit-btn').addEventListener('click', submitScore);
+document.getElementById('name-input').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') submitScore();
+});
+
+// Load leaderboard on start screen
+loadLeaderboard('lb-content');
 </script>
 </body>
 </html>
