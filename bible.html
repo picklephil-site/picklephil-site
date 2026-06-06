@@ -523,6 +523,27 @@ function updateCollapsedLabel(){
       '<h2 class="passage-heading">'+bookName+' '+chapNum+'</h2>'+
       '<div class="passage-body" style="font-size:'+state.fontSize+'px">'+rawHtml+'</div>'+
       '<div class="passage-footer">'+xlLabel+(d.copyright ? ' &nbsp;·&nbsp; '+d.copyright.replace(/<[^>]+>/g,'') : '')+'</div>';
+
+    // Scroll to + highlight target verse if set
+    if (state.targetVerse) {
+      var tv = state.targetVerse;
+      state.targetVerse = null;
+      setTimeout(function(){
+        var nums = passageCard.querySelectorAll('.v-num');
+        for (var i = 0; i < nums.length; i++) {
+          if (nums[i].textContent.trim() === String(tv)) {
+            var el = nums[i].closest('p') || nums[i];
+            el.scrollIntoView({behavior:'smooth', block:'center'});
+            el.style.transition = 'background 0.3s ease, border-radius 0.3s ease';
+            el.style.background = 'rgba(46,204,113,.30)';
+            el.style.borderRadius = '6px';
+            el.style.padding = '3px 6px';
+            setTimeout(function(){ el.style.background = 'transparent'; }, 2800);
+            break;
+          }
+        }
+      }, 120);
+    }
   }
 
   // ── Prev / Next ───────────────────────────────────────────────────────────
@@ -581,6 +602,7 @@ function updateCollapsedLabel(){
     if (refMatch) {
       var refBook = refMatch[1].trim().toLowerCase();
       var refChapNum = refMatch[2];
+      state.targetVerse = refMatch[3] || null;
       // After books load, find + navigate
       onTranslationChange(function(){
         var found = state.books.find(function(b){
