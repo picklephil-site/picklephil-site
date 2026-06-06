@@ -189,6 +189,8 @@ body{
 .badge.coffee{background:rgba(139,94,60,.25); border-color:rgba(139,94,60,.5); color:#d4a870;}
 .badge.chai{background:rgba(100,60,160,.2); border-color:rgba(100,60,160,.4); color:#c8a0ff;}
 .badge.roast{background:rgba(255,215,0,.12); border-color:rgba(255,215,0,.3); color:#ffe0a0;}
+.badge.perfect{background:rgba(46,204,113,.18); border-color:rgba(46,204,113,.45); color:#aaffcc;}
+.badge.closest{background:rgba(255,165,0,.18); border-color:rgba(255,165,0,.45); color:#ffd080;}
 .result-desc{opacity:.9; line-height:1.65; margin:0 0 18px; font-size:1rem;}
 .ing-section-title{font-size:.85rem; font-weight:800; opacity:.72; text-transform:uppercase; letter-spacing:.6px; margin:0 0 10px;}
 .ingredients-list{list-style:none; padding:0; margin:0 0 18px;}
@@ -869,7 +871,7 @@ function getChecked(gridId) {
 // DRINK FILTERING
 // ═══════════════════════════════════════════════════
 function pickDrink(surprise) {
-  if (surprise) return DRINKS[Math.floor(Math.random()*DRINKS.length)];
+  if (surprise) return {drink:DRINKS[Math.floor(Math.random()*DRINKS.length)], matchType:'surprise'};
   var flavors = getChecked('flavorGrid');
   var pool = DRINKS.filter(function(d){
     if (selectedTemp !== 'any' && d.temp !== selectedTemp) return false;
@@ -886,13 +888,21 @@ function pickDrink(surprise) {
     return {drink:d, score:score};
   });
   var best = Math.max.apply(null, scored.map(function(s){return s.score;}));
-  var top;
-  if (best > 0) {
-    top = scored.filter(function(s){return s.score === best;});
+  var top = best > 0 ? scored.filter(function(s){return s.score===best;}) : scored;
+  var winner = top[Math.floor(Math.random()*top.length)].drink;
+
+  // Determine match quality
+  var matchType;
+  if (!flavors.length && selectedRoast === 'any') {
+    matchType = 'any'; // no flavor/roast preferences set — all results are equally valid
+  } else if (best === 0) {
+    matchType = 'closest'; // nothing matched at all
   } else {
-    top = scored;
+    // Check if every selected flavor is actually in the winning drink
+    var allMatch = flavors.every(function(f){return winner.flavors.includes(f);});
+    matchType = allMatch ? 'perfect' : 'closest';
   }
-  return top[Math.floor(Math.random()*top.length)].drink;
+  return {drink:winner, matchType:matchType};
 }
 
 // ═══════════════════════════════════════════════════
@@ -914,7 +924,9 @@ function setLights(mode){
   });
 }
 
-function startSpin(drink) {
+function startSpin(result) {
+  var drink = result.drink || result;
+  var matchType = result.matchType || 'any';
   if (isSpinning) return;
   isSpinning = true; currentDrink = drink;
   findBtn.disabled = true; surpriseBtn.disabled = true;
@@ -939,7 +951,7 @@ function startSpin(drink) {
       setLights('lights-win');
       setTimeout(function(){
         winnerEl.classList.add('show');
-        setTimeout(function(){showResult(drink);},550);
+        setTimeout(function(){showResult(drink, matchType);},550);
       },380);
       isSpinning = false; findBtn.disabled = false; surpriseBtn.disabled = false;
       return;
@@ -952,7 +964,7 @@ function startSpin(drink) {
 // ═══════════════════════════════════════════════════
 // RESULT DISPLAY
 // ═══════════════════════════════════════════════════
-function showResult(drink) {
+function showResult(drink, matchType) {
   document.getElementById('rEmoji').textContent = drink.emoji;
   document.getElementById('rName').textContent  = drink.name;
 
@@ -963,10 +975,16 @@ function showResult(drink) {
     var rl = drink.roasts.map(function(r){return ROAST_EMOJI[r]+' '+r.charAt(0).toUpperCase()+r.slice(1);}).join(' / ');
     roastBadge = '<span class="badge roast">'+rl+' Roast</span>';
   }
+  var matchBadge = '';
+  if (matchType === 'perfect') {
+    matchBadge = '<span class="badge perfect">✅ Perfect Match</span>';
+  } else if (matchType === 'closest') {
+    matchBadge = '<span class="badge closest">🎯 Closest Match</span>';
+  }
   badges.innerHTML =
     '<span class="badge '+drink.temp+'">'+(drink.temp==='iced'?'🧊 Iced':'🔥 Hot')+'</span>'+
     '<span class="badge '+drink.type+'">'+(drink.type==='coffee'?'☕ Coffee':'🍵 Chai')+'</span>'+
-    roastBadge;
+    roastBadge+matchBadge;
 
   document.getElementById('rDesc').textContent = drink.description;
 
