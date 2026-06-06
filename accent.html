@@ -193,25 +193,36 @@ select option{background:#1c4a2e; color:#fff;}
 </div>
 
 <script>
-// VoiceRSS TTS — https://www.voicerss.org/
-
-var VR_KEY = '63b32d1f4ffd409eb1ade28684c80541';
+// ElevenLabs voices — proxied via /API/tts to avoid browser restrictions
 
 var VOICES = [
-  { id:'en-gb', flag:'🇬🇧', label:'British',    accent:'English — UK' },
-  { id:'en-au', flag:'🇦🇺', label:'Australian', accent:'English — AU' },
-  { id:'en-us', flag:'🇺🇸', label:'American',   accent:'English — US' },
-  { id:'en-in', flag:'🇮🇳', label:'Indian',     accent:'English — IN' },
-  { id:'en-ie', flag:'🇮🇪', label:'Irish',      accent:'English — IE' },
-  { id:'en-ca', flag:'🇨🇦', label:'Canadian',   accent:'English — CA' },
-  { id:'de-de', flag:'🇩🇪', label:'German',     accent:'Deutsch' },
-  { id:'fr-fr', flag:'🇫🇷', label:'French',     accent:'Français' },
-  { id:'it-it', flag:'🇮🇹', label:'Italian',    accent:'Italiano' },
-  { id:'es-es', flag:'🇪🇸', label:'Spanish',    accent:'Español' },
-  { id:'pt-br', flag:'🇧🇷', label:'Brazilian',  accent:'Português' },
-  { id:'ru-ru', flag:'🇷🇺', label:'Russian',    accent:'Русский' },
-  { id:'ja-jp', flag:'🇯🇵', label:'Japanese',   accent:'日本語' },
-  { id:'zh-cn', flag:'🇨🇳', label:'Chinese',    accent:'中文' },
+  // 🇬🇧 British
+  { id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George',  accent:'British Male — Warm Storyteller' },
+  { id:'onwK4e9ZLuTAKqWW03F9', flag:'🇬🇧', label:'Daniel',  accent:'British Male — Steady Broadcaster' },
+  { id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice',   accent:'British Female — Clear Educator' },
+  { id:'pFZP5JQG7iQjIQuC4Bku', flag:'🇬🇧', label:'Lily',    accent:'British Female — Velvety Actress' },
+  { id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian',   accent:'British Male — Deep & Resonant' },
+  // 🇦🇺 Australian
+  { id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie', accent:'Australian Male — Confident' },
+  // 🇺🇸 American
+  { id:'CwhRBWXzGAHq8TQ4Fs17', flag:'🇺🇸', label:'Roger',   accent:'American Male — Laid-Back' },
+  { id:'EXAVITQu4vr4xnSDxMaL', flag:'🇺🇸', label:'Sarah',   accent:'American Female — Confident' },
+  { id:'FGY2WhTYpPnrIDTdsKH5', flag:'🇺🇸', label:'Laura',   accent:'American Female — Enthusiast' },
+  { id:'N2lVS1w4EtoT3dr4eOWO', flag:'🇺🇸', label:'Callum',  accent:'American Male — Husky' },
+  { id:'SAz9YHcvj6GT2YYXdXww', flag:'🇺🇸', label:'River',   accent:'American — Relaxed' },
+  { id:'TX3LPaxmHKxFdv7VOQHJ', flag:'🇺🇸', label:'Liam',    accent:'American Male — Energetic' },
+  { id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda', accent:'American Female — Professional' },
+  { id:'bIHbv24MWmeRgasZH58o', flag:'🇺🇸', label:'Will',    accent:'American Male — Optimist' },
+  { id:'cgSgspJ2msm6clMCkdW9', flag:'🇺🇸', label:'Jessica', accent:'American Female — Playful' },
+  { id:'cjVigY5qzO86Huf0OWal', flag:'🇺🇸', label:'Eric',    accent:'American Male — Smooth' },
+  { id:'iP95p4xoKVk53GoZ742B', flag:'🇺🇸', label:'Chris',   accent:'American Male — Charming' },
+  { id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam',    accent:'American Male — Dominant' },
+  { id:'pqHfZKP75CvOlQylNhV4', flag:'🇺🇸', label:'Bill',    accent:'American Male — Wise & Mature' },
+  { id:'Gfpl8Yo74Is0W6cPUWWT', flag:'🇺🇸', label:'Max',     accent:'American Male — Friendly' },
+  // 🎭 Character voices
+  { id:'wXvR48IpOq9HACltTmt7', flag:'🎭', label:'Dante',   accent:'Growly Monster' },
+  { id:'YOq2y2Up4RgXP2HyXjE5', flag:'🎭', label:'Xavier',  accent:'Metallic Announcer' },
+  { id:'Z7RrOqZFTyLpIlzCgfsp', flag:'🎭', label:'Toby',    accent:'Little Mythical Monster' },
 ];
 
 var PHRASES = [
@@ -230,7 +241,7 @@ var PHRASES = [
 var currentAudio = null;
 var currentAbort = null;
 var currentBlobUrl = null;
-var selectedVoiceId = 'en-gb';
+var selectedVoiceId = 'JBFqnCBsd6RMkjVDRZzb'; // George — British
 
 function init() {
   var sel = document.getElementById('voice-select');
@@ -247,9 +258,9 @@ function init() {
     updateAccentButtons();
   });
 
-  // Quick accent buttons
+  // Quick accent buttons — first 10 voices
   var ap = document.getElementById('accent-presets');
-  VOICES.slice(0, 10).forEach(function(v) {
+  [VOICES[0],VOICES[1],VOICES[5],VOICES[6],VOICES[7],VOICES[14],VOICES[9],VOICES[18],VOICES[20],VOICES[22]].forEach(function(v) {
     var btn = document.createElement('button');
     btn.className = 'preset-btn';
     btn.dataset.voiceId = v.id;
@@ -309,17 +320,12 @@ function speakIt() {
   setStatus('Loading…', false);
   document.getElementById('speak-btn').disabled = true;
 
-  var url = 'https://api.voicerss.org/?key=' + VR_KEY +
-    '&hl=' + encodeURIComponent(voice) +
-    '&src=' + encodeURIComponent(text) +
-    '&c=mp3&f=44khz_16bit_stereo';
+  var url = '/API/tts?voice=' + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
 
   var blobUrl = null;
   fetch(url, { signal: abort.signal })
     .then(function(r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      var ct = r.headers.get('content-type') || '';
-      if (!ct.includes('audio')) return r.text().then(function(t) { throw new Error(t); });
       return r.blob();
     })
     .then(function(blob) {
