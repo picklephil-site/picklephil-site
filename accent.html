@@ -172,27 +172,24 @@ select option{background:#1c4a2e; color:#fff;}
 // StreamElements TTS — free, no API key, real distinct voices/accents
 // API: https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=Hello
 
+// ElevenLabs voice IDs — realistic neural voices
 var VOICES = [
-  { id:'en-GB', flag:'🇬🇧', label:'British',       accent:'English — UK' },
-  { id:'en-AU', flag:'🇦🇺', label:'Australian',    accent:'English — Australia' },
-  { id:'en-IN', flag:'🇮🇳', label:'Indian',        accent:'English — India' },
-  { id:'en-IE', flag:'🇮🇪', label:'Irish',         accent:'English — Ireland' },
-  { id:'en-ZA', flag:'🇿🇦', label:'S. African',    accent:'English — South Africa' },
-  { id:'en-US', flag:'🇺🇸', label:'American',      accent:'English — United States' },
-  { id:'fr-FR', flag:'🇫🇷', label:'French',        accent:'French — France' },
-  { id:'de-DE', flag:'🇩🇪', label:'German',        accent:'German — Germany' },
-  { id:'it-IT', flag:'🇮🇹', label:'Italian',       accent:'Italian — Italy' },
-  { id:'es-ES', flag:'🇪🇸', label:'Spanish',       accent:'Spanish — Spain' },
-  { id:'es-US', flag:'🇲🇽', label:'Español US',    accent:'Spanish — Latin America' },
-  { id:'pt-BR', flag:'🇧🇷', label:'Portuguese',    accent:'Portuguese — Brazil' },
-  { id:'sv-SE', flag:'🇸🇪', label:'Swedish',       accent:'Swedish — Sweden' },
-  { id:'pl-PL', flag:'🇵🇱', label:'Polish',        accent:'Polish — Poland' },
-  { id:'nl-NL', flag:'🇳🇱', label:'Dutch',         accent:'Dutch — Netherlands' },
-  { id:'ru-RU', flag:'🇷🇺', label:'Russian',       accent:'Russian — Russia' },
-  { id:'tr-TR', flag:'🇹🇷', label:'Turkish',       accent:'Turkish — Turkey' },
-  { id:'ja-JP', flag:'🇯🇵', label:'Japanese',      accent:'Japanese — Japan' },
-  { id:'ko-KR', flag:'🇰🇷', label:'Korean',        accent:'Korean — Korea' },
-  { id:'zh-CN', flag:'🇨🇳', label:'Chinese',       accent:'Chinese — Mandarin' },
+  { id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian',    accent:'British Male' },
+  { id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George',   accent:'British Male (Deep)' },
+  { id:'onwK4e9ZLuTAKqWW03F9', flag:'🇬🇧', label:'Daniel',   accent:'British Male (News)' },
+  { id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice',    accent:'British Female' },
+  { id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie',  accent:'Australian Male' },
+  { id:'XB0fDUnXU5powFXDhCwa', flag:'🇸🇪', label:'Charlotte',accent:'Swedish Female' },
+  { id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam',     accent:'American Male (Deep)' },
+  { id:'21m00Tcm4TlvDq8ikWAM', flag:'🇺🇸', label:'Rachel',   accent:'American Female' },
+  { id:'ErXwobaYiN019PkySvjV', flag:'🇺🇸', label:'Antoni',   accent:'American Male (Warm)' },
+  { id:'VR6AewLTigWG4xSOukaG', flag:'🇺🇸', label:'Arnold',   accent:'American Male (Crisp)' },
+  { id:'AZnzlk1XvdvUeBnXmlld', flag:'🇺🇸', label:'Domi',     accent:'American Female (Strong)' },
+  { id:'TxGEqnHWrfWFTfGW9XjX', flag:'🇺🇸', label:'Josh',     accent:'American Male (Young)' },
+  { id:'yoZ06aMxZJJ28mfd3POQ', flag:'🇺🇸', label:'Sam',      accent:'American Male (Raspy)' },
+  { id:'MF3mGyEYCl7XYWbV9V6O', flag:'🇺🇸', label:'Elli',     accent:'American Female (Soft)' },
+  { id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda',  accent:'American Female (Warm)' },
+  { id:'TX3LPaxmHKxFdv7VOQHJ', flag:'🇺🇸', label:'Liam',     accent:'American Male (Articulate)' },
 ];
 
 var PHRASES = [
@@ -209,7 +206,7 @@ var PHRASES = [
 ];
 
 var currentAudio = null;
-var selectedVoiceId = 'en-GB';
+var selectedVoiceId = 'nPczCjzI2devNBz1zQrb'; // Brian — British
 
 function init() {
   // Populate dropdown
@@ -221,7 +218,7 @@ function init() {
     opt.textContent = v.flag + ' ' + v.label + ' — ' + v.accent;
     sel.appendChild(opt);
   });
-  sel.value = 'en-GB';
+  sel.value = 'nPczCjzI2devNBz1zQrb';
   sel.addEventListener('change', function() {
     selectedVoiceId = this.value;
     updateAccentButtons();
@@ -229,16 +226,16 @@ function init() {
 
   // Quick accent buttons (just the English accents + a few fun ones)
   var accents = [
-    {id:'en-GB', flag:'🇬🇧', label:'British'},
-    {id:'en-AU', flag:'🇦🇺', label:'Australian'},
-    {id:'en-IN', flag:'🇮🇳', label:'Indian'},
-    {id:'en-IE', flag:'🇮🇪', label:'Irish'},
-    {id:'en-US', flag:'🇺🇸', label:'American'},
-    {id:'fr-FR', flag:'🇫🇷', label:'French'},
-    {id:'de-DE', flag:'🇩🇪', label:'German'},
-    {id:'it-IT', flag:'🇮🇹', label:'Italian'},
-    {id:'ja-JP', flag:'🇯🇵', label:'Japanese'},
-    {id:'sv-SE', flag:'🇸🇪', label:'Swedish'},
+    {id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian'},
+    {id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George'},
+    {id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice'},
+    {id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie'},
+    {id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam'},
+    {id:'21m00Tcm4TlvDq8ikWAM', flag:'🇺🇸', label:'Rachel'},
+    {id:'ErXwobaYiN019PkySvjV', flag:'🇺🇸', label:'Antoni'},
+    {id:'yoZ06aMxZJJ28mfd3POQ', flag:'🇺🇸', label:'Sam'},
+    {id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda'},
+    {id:'XB0fDUnXU5powFXDhCwa', flag:'🇸🇪', label:'Charlotte'},
   ];
   var ap = document.getElementById('accent-presets');
   accents.forEach(function(a) {
@@ -299,7 +296,7 @@ function speakIt() {
   stopIt();
 
   var voice = selectedVoiceId || 'Brian';
-  var url = 'https://trivia-api.philliphinshaw.workers.dev/tts?lang='
+  var url = 'https://trivia-api.philliphinshaw.workers.dev/tts?voice='
     + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
 
   setStatus('Loading…', false);
