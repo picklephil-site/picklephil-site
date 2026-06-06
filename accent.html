@@ -174,24 +174,37 @@ select option{background:#1c4a2e; color:#fff;}
 // StreamElements TTS — free, no API key, real distinct voices/accents
 // API: https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=Hello
 
-// ElevenLabs voice IDs — realistic neural voices
+// ElevenLabs voice IDs — pulled from Phil's account
 var VOICES = [
-  { id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian',    accent:'British Male' },
-  { id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George',   accent:'British Male (Deep)' },
-  { id:'onwK4e9ZLuTAKqWW03F9', flag:'🇬🇧', label:'Daniel',   accent:'British Male (News)' },
-  { id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice',    accent:'British Female' },
-  { id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie',  accent:'Australian Male' },
-  { id:'XB0fDUnXU5powFXDhCwa', flag:'🇸🇪', label:'Charlotte',accent:'Swedish Female' },
-  { id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam',     accent:'American Male (Deep)' },
-  { id:'21m00Tcm4TlvDq8ikWAM', flag:'🇺🇸', label:'Rachel',   accent:'American Female' },
-  { id:'ErXwobaYiN019PkySvjV', flag:'🇺🇸', label:'Antoni',   accent:'American Male (Warm)' },
-  { id:'VR6AewLTigWG4xSOukaG', flag:'🇺🇸', label:'Arnold',   accent:'American Male (Crisp)' },
-  { id:'AZnzlk1XvdvUeBnXmlld', flag:'🇺🇸', label:'Domi',     accent:'American Female (Strong)' },
-  { id:'TxGEqnHWrfWFTfGW9XjX', flag:'🇺🇸', label:'Josh',     accent:'American Male (Young)' },
-  { id:'yoZ06aMxZJJ28mfd3POQ', flag:'🇺🇸', label:'Sam',      accent:'American Male (Raspy)' },
-  { id:'MF3mGyEYCl7XYWbV9V6O', flag:'🇺🇸', label:'Elli',     accent:'American Female (Soft)' },
-  { id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda',  accent:'American Female (Warm)' },
-  { id:'TX3LPaxmHKxFdv7VOQHJ', flag:'🇺🇸', label:'Liam',     accent:'American Male (Articulate)' },
+  // 🇬🇧 British
+  { id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George',  accent:'British Male — Warm Storyteller' },
+  { id:'onwK4e9ZLuTAKqWW03F9', flag:'🇬🇧', label:'Daniel',  accent:'British Male — Steady Broadcaster' },
+  { id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice',   accent:'British Female — Clear Educator' },
+  { id:'pFZP5JQG7iQjIQuC4Bku', flag:'🇬🇧', label:'Lily',    accent:'British Female — Velvety Actress' },
+  { id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian',   accent:'British Male — Deep & Resonant' },
+  // 🇦🇺 Australian
+  { id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie', accent:'Australian Male — Confident' },
+  // 🇺🇸 American
+  { id:'CwhRBWXzGAHq8TQ4Fs17', flag:'🇺🇸', label:'Roger',   accent:'American Male — Laid-Back' },
+  { id:'EXAVITQu4vr4xnSDxMaL', flag:'🇺🇸', label:'Sarah',   accent:'American Female — Mature & Confident' },
+  { id:'FGY2WhTYpPnrIDTdsKH5', flag:'🇺🇸', label:'Laura',   accent:'American Female — Quirky Enthusiast' },
+  { id:'N2lVS1w4EtoT3dr4eOWO', flag:'🇺🇸', label:'Callum',  accent:'American Male — Husky' },
+  { id:'SAz9YHcvj6GT2YYXdXww', flag:'🇺🇸', label:'River',   accent:'American Neutral — Relaxed' },
+  { id:'SOYHLrjzK2X1ezoPC6cr', flag:'🇺🇸', label:'Harry',   accent:'American Male — Fierce' },
+  { id:'TX3LPaxmHKxFdv7VOQHJ', flag:'🇺🇸', label:'Liam',    accent:'American Male — Energetic' },
+  { id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda', accent:'American Female — Professional' },
+  { id:'bIHbv24MWmeRgasZH58o', flag:'🇺🇸', label:'Will',    accent:'American Male — Relaxed Optimist' },
+  { id:'cgSgspJ2msm6clMCkdW9', flag:'🇺🇸', label:'Jessica', accent:'American Female — Playful & Bright' },
+  { id:'cjVigY5qzO86Huf0OWal', flag:'🇺🇸', label:'Eric',    accent:'American Male — Smooth' },
+  { id:'hpp4J3VqNfWAUOO0d1Us', flag:'🇺🇸', label:'Bella',   accent:'American Female — Professional' },
+  { id:'iP95p4xoKVk53GoZ742B', flag:'🇺🇸', label:'Chris',   accent:'American Male — Charming' },
+  { id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam',    accent:'American Male — Dominant' },
+  { id:'pqHfZKP75CvOlQylNhV4', flag:'🇺🇸', label:'Bill',    accent:'American Male — Wise & Mature' },
+  { id:'Gfpl8Yo74Is0W6cPUWWT', flag:'🇺🇸', label:'Max',     accent:'American Male — Friendly' },
+  // 🎭 Character voices
+  { id:'wXvR48IpOq9HACltTmt7', flag:'🎭', label:'Dante',   accent:'Growly Monster' },
+  { id:'YOq2y2Up4RgXP2HyXjE5', flag:'🎭', label:'Xavier',  accent:'Metallic Announcer' },
+  { id:'Z7RrOqZFTyLpIlzCgfsp', flag:'🎭', label:'Toby',    accent:'Little Mythical Monster' },
 ];
 
 var PHRASES = [
@@ -210,7 +223,7 @@ var PHRASES = [
 var currentAudio = null;
 var currentAbort = null;
 var currentBlobUrl = null; // kept alive for download even after playback ends
-var selectedVoiceId = 'nPczCjzI2devNBz1zQrb'; // Brian — British
+var selectedVoiceId = 'JBFqnCBsd6RMkjVDRZzb'; // George — British
 var EL_KEY = 'sk_b691a044ad0303e329924dd26f843ce6dde1340ea90b2c95';
 
 function init() {
@@ -223,7 +236,7 @@ function init() {
     opt.textContent = v.flag + ' ' + v.label + ' — ' + v.accent;
     sel.appendChild(opt);
   });
-  sel.value = 'nPczCjzI2devNBz1zQrb';
+  sel.value = 'JBFqnCBsd6RMkjVDRZzb';
   sel.addEventListener('change', function() {
     selectedVoiceId = this.value;
     updateAccentButtons();
@@ -231,16 +244,16 @@ function init() {
 
   // Quick accent buttons (just the English accents + a few fun ones)
   var accents = [
-    {id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian'},
     {id:'JBFqnCBsd6RMkjVDRZzb', flag:'🇬🇧', label:'George'},
-    {id:'Xb7hH8MSUJpSbSDYk0k2', flag:'🇬🇧', label:'Alice'},
+    {id:'nPczCjzI2devNBz1zQrb', flag:'🇬🇧', label:'Brian'},
+    {id:'pFZP5JQG7iQjIQuC4Bku', flag:'🇬🇧', label:'Lily'},
     {id:'IKne3meq5aSn9XLyUdCD', flag:'🇦🇺', label:'Charlie'},
-    {id:'pNInz6obpgDQGcFmaJgB', flag:'🇺🇸', label:'Adam'},
-    {id:'21m00Tcm4TlvDq8ikWAM', flag:'🇺🇸', label:'Rachel'},
-    {id:'ErXwobaYiN019PkySvjV', flag:'🇺🇸', label:'Antoni'},
-    {id:'yoZ06aMxZJJ28mfd3POQ', flag:'🇺🇸', label:'Sam'},
-    {id:'XrExE9yKIg1WjnnlVkGX', flag:'🇺🇸', label:'Matilda'},
-    {id:'XB0fDUnXU5powFXDhCwa', flag:'🇸🇪', label:'Charlotte'},
+    {id:'CwhRBWXzGAHq8TQ4Fs17', flag:'🇺🇸', label:'Roger'},
+    {id:'cgSgspJ2msm6clMCkdW9', flag:'🇺🇸', label:'Jessica'},
+    {id:'N2lVS1w4EtoT3dr4eOWO', flag:'🇺🇸', label:'Callum'},
+    {id:'pqHfZKP75CvOlQylNhV4', flag:'🇺🇸', label:'Bill'},
+    {id:'wXvR48IpOq9HACltTmt7', flag:'🎭', label:'Dante'},
+    {id:'Z7RrOqZFTyLpIlzCgfsp', flag:'🎭', label:'Toby'},
   ];
   var ap = document.getElementById('accent-presets');
   accents.forEach(function(a) {
