@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>The Word — Pickle Phil's Bible Reader</title>
+<meta name="description" content="Read the Bible in NIV, KJV, Amplified, The Message, and more."/>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+  --text:#f5f7f5; --accent:#2ecc71; --btnText:#0d3d24;
+  --radius:18px; --shadow:0 18px 45px rgba(0,0,0,.40);
+  --glass:rgba(255,255,255,.10); --glass-border:rgba(255,255,255,.22);
+  --panel-b:rgba(8,40,24,.28);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+  background:
+    radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
+    radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
+    radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
+  background-attachment:fixed;
+  min-height:100vh; display:flex; flex-direction:column; align-items:center;
+}
+.wrap{width:min(960px,100%); padding:22px}
+
+.btn{
+  color:var(--btnText); text-decoration:none;
+  background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
+  padding:10px 18px; border-radius:12px; font-weight:700; margin:4px;
+  display:inline-block; border:1px solid rgba(255,255,255,.6);
+  box-shadow:0 8px 20px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+  cursor:pointer; font-size:.95rem;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.38),0 0 0 2px rgba(46,204,113,.35),inset 0 1px 0 rgba(255,255,255,.9);}
+.btn:active{transform:translateY(0);}
+.btn.sm{padding:7px 13px; font-size:.85rem;}
+.btn.ghost{
+  background:transparent; color:var(--text); border:1px solid var(--glass-border);
+  box-shadow:none; font-weight:600;
+}
+.btn.ghost:hover{background:var(--glass); border-color:rgba(46,204,113,.5);}
+.btn.accent{background:linear-gradient(180deg,#2ecc71,#1aaa55); color:#0d2b1a;}
+
+a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
+
+/* TOP NAV */
+.topnav{display:flex;align-items:center;gap:12px;padding:14px 0 4px;flex-wrap:wrap;}
+.topnav h1{
+  font-family:"Amatic SC",sans-serif; font-size:2.4rem; font-weight:700; margin:0;
+  background:linear-gradient(180deg,#ffffff,#c7f2d8);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.topnav .back{margin-left:auto;}
+
+/* CONTROLS BAR */
+.controls{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:14px 18px; margin-bottom:18px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.controls select{
+  background:#0f2d18; color:var(--text); border:1px solid var(--glass-border);
+  border-radius:10px; padding:8px 12px; font-size:.95rem; cursor:pointer;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2388ccaa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center; padding-right:30px;
+  min-width:140px;
+}
+.controls select:focus{outline:2px solid var(--accent); outline-offset:2px;}
+.controls label{font-size:.88rem;opacity:.8;margin-right:-6px;}
+
+.nav-btns{display:flex;gap:6px;margin-left:auto;}
+
+/* PASSAGE CARD */
+.passage-card{
+  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:28px 32px; box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.18);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  min-height:300px;
+}
+.passage-heading{
+  font-family:"Amatic SC",sans-serif; font-size:2rem; font-weight:700; margin:0 0 18px;
+  color:#c7f2d8;
+}
+.passage-body{
+  font-size:1.08rem; line-height:1.9; color:#edf7f0;
+}
+.passage-body .v-num{
+  font-size:.72rem; font-weight:800; color:var(--accent); vertical-align:super;
+  margin-right:3px; opacity:.9;
+}
+.passage-body p{margin:0 0 12px;}
+
+.passage-footer{
+  margin-top:18px; font-size:.88rem; opacity:.65; font-style:italic;
+  border-top:1px solid var(--glass-border); padding-top:12px;
+}
+
+.state-msg{
+  text-align:center; padding:48px 16px; opacity:.75; font-size:1.05rem;
+}
+.state-msg .emoji{font-size:2.2rem;display:block;margin-bottom:10px;}
+
+/* SETUP MODAL */
+.backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  display:none;align-items:center;justify-content:center;z-index:1000;
+}
+.backdrop.open{display:flex;}
+.modal{
+  background:#0f2d18;color:var(--text);
+  width:min(560px,92vw); border:1px solid rgba(255,255,255,.15);
+  border-radius:18px; padding:28px 24px; text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+}
+.modal h2{font-family:"Amatic SC",sans-serif;font-size:2rem;margin:0 0 8px;}
+.modal p{margin:0 0 14px;opacity:.88;line-height:1.6;}
+.modal .steps{text-align:left;background:rgba(0,0,0,.25);border-radius:12px;padding:14px 18px;margin:0 0 16px;}
+.modal .steps li{margin-bottom:8px;line-height:1.6;}
+.modal input[type=text]{
+  width:100%;padding:11px 14px;border-radius:10px;font-size:.95rem;
+  background:#0a2016;color:var(--text);border:1px solid var(--glass-border);
+  margin-bottom:12px;
+}
+.modal input[type=text]:focus{outline:2px solid var(--accent);}
+.modal input[type=text]::placeholder{opacity:.5;}
+.modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+
+/* FONT SIZE TOGGLE */
+.font-btns{display:flex;gap:4px;}
+.font-btns button{
+  background:rgba(255,255,255,.12);border:1px solid var(--glass-border);
+  color:var(--text);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:.9rem;
+  transition:background .15s;
+}
+.font-btns button:hover{background:rgba(255,255,255,.22);}
+
+footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
+
+@media(max-width:640px){
+  .controls{gap:8px;}
+  .controls select{min-width:unset;width:100%;}
+  .nav-btns{margin-left:0;width:100%;justify-content:space-between;}
+  .passage-card{padding:18px 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="topnav">
+    <h1>📖 The Word</h1>
+    <div class="back">
+      <a class="btn ghost sm" href="/">← Home</a>
+      <button class="btn ghost sm" id="changeKeyBtn">API Key</button>
+    </div>
+  </nav>
+
+  <div class="controls" id="controls">
+    <label for="xlat">Translation</label>
+    <select id="xlat" title="Choose translation"></select>
+
+    <label for="book">Book</label>
+    <select id="book" title="Choose book"></select>
+
+    <label for="chap">Chapter</label>
+    <select id="chap" title="Choose chapter"></select>
+
+    <div class="font-btns">
+      <button id="fontDn" title="Smaller text">A−</button>
+      <button id="fontUp" title="Larger text">A+</button>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn sm" id="prevBtn">◀ Prev</button>
+      <button class="btn sm" id="nextBtn">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="passage-card" id="passageCard">
+    <div class="state-msg" id="stateMsg">
+      <span class="emoji">📖</span>
+      Loading…
+    </div>
+  </div>
+
+  <footer>
+    Powered by <a href="https://scripture.api.bible" target="_blank" rel="noopener" style="text-decoration:underline;opacity:.8;">API.Bible</a>
+    &nbsp;·&nbsp; Pickle Phil · Stay Crunchy 🥒
+  </footer>
+</div>
+
+<!-- SETUP MODAL -->
+<div class="backdrop" id="setupModal">
+  <div class="modal">
+    <h2>📖 Bible API Setup</h2>
+    <p>To read the Bible here (NIV, KJV, Amplified, The Message, and more), you need a <strong>free API key</strong> from API.Bible — takes about 60 seconds.</p>
+    <ol class="steps">
+      <li>Go to <strong>scripture.api.bible</strong> and click <em>Sign Up Free</em></li>
+      <li>Create an account and log in</li>
+      <li>Go to <em>My Apps</em> → create a new app (name it anything)</li>
+      <li>Copy the <em>API Key</em> shown and paste it below</li>
+    </ol>
+    <input type="text" id="apiKeyInput" placeholder="Paste your API key here…" autocomplete="off" spellcheck="false"/>
+    <div class="modal-btns">
+      <button class="btn accent" id="saveKeyBtn">Save Key &amp; Open Bible</button>
+      <a class="btn ghost" href="https://scripture.api.bible" target="_blank" rel="noopener">scripture.api.bible ↗</a>
+    </div>
+    <p style="margin-top:14px;font-size:.83rem;opacity:.6;">Your key is saved in this browser only (localStorage) and never sent anywhere except directly to API.Bible.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var API_BASE = 'https://api.scripture.api.bible/v1';
+
+  // Preferred translations — abbreviation → label shown in the picker
+  // The actual IDs are fetched from the API so they stay accurate
+  var PREF_ABBREVS = ['NIV','KJV','AMP','MSG','NKJV','ESV','NLT','CSB'];
+  var PREF_LABELS  = {
+    NIV:'NIV — New International Version',
+    KJV:'KJV — King James Version',
+    AMP:'AMP — Amplified Bible',
+    MSG:'MSG — The Message',
+    NKJV:'NKJV — New King James Version',
+    ESV:'ESV — English Standard Version',
+    NLT:'NLT — New Living Translation',
+    CSB:'CSB — Christian Standard Bible',
+  };
+
+  var state = {
+    key: '',
+    bibles: [],         // [{id,abbreviation,name}]
+    books: [],          // [{id,name}]
+    chapters: [],       // [{id,number}]
+    curBibleId: '',
+    curBookId: '',
+    curChapterId: '',
+    fontSize: 17,       // px
+  };
+
+  // DOM refs
+  var xlatSel    = document.getElementById('xlat');
+  var bookSel    = document.getElementById('book');
+  var chapSel    = document.getElementById('chap');
+  var stateMsg   = document.getElementById('stateMsg');
+  var passageCard= document.getElementById('passageCard');
+  var setupModal = document.getElementById('setupModal');
+  var apiKeyInput= document.getElementById('apiKeyInput');
+  var saveKeyBtn = document.getElementById('saveKeyBtn');
+  var changeKeyBtn=document.getElementById('changeKeyBtn');
+  var prevBtn    = document.getElementById('prevBtn');
+  var nextBtn    = document.getElementById('nextBtn');
+  var fontDn     = document.getElementById('fontDn');
+  var fontUp     = document.getElementById('fontUp');
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  function apiGet(path){
+    return fetch(API_BASE + path, {
+      headers:{'api-key': state.key}
+    }).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    });
+  }
+
+  function showMsg(emoji, text){
+    passageCard.innerHTML = '<div class="state-msg"><span class="emoji">'+emoji+'</span>'+text+'</div>';
+  }
+
+  function setFontSize(n){
+    state.fontSize = Math.min(24, Math.max(13, n));
+    var body = document.querySelector('.passage-body');
+    if(body) body.style.fontSize = state.fontSize+'px';
+    try{ localStorage.setItem('pb_fontSize', state.fontSize); }catch(e){}
+  }
+
+  // ── Key management ───────────────────────────────────────────────────────
+
+  function openSetup(){
+    apiKeyInput.value = state.key || '';
+    setupModal.classList.add('open');
+    apiKeyInput.focus();
+  }
+
+  function closeSetup(){
+    setupModal.classList.remove('open');
+  }
+
+  saveKeyBtn.addEventListener('click', function(){
+    var k = apiKeyInput.value.trim();
+    if(!k){ apiKeyInput.focus(); return; }
+    state.key = k;
+    try{ localStorage.setItem('pb_apiKey', k); }catch(e){}
+    closeSetup();
+    init();
+  });
+
+  changeKeyBtn.addEventListener('click', openSetup);
+
+  // close on backdrop click
+  setupModal.addEventListener('click', function(e){
+    if(e.target === setupModal) closeSetup();
+  });
+
+  apiKeyInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter') saveKeyBtn.click();
+  });
+
+  // ── Bootstrap ────────────────────────────────────────────────────────────
+
+  function init(){
+    showMsg('📖','Loading translations…');
+    apiGet('/bibles?language=eng').then(function(res){
+      var all = res.data || [];
+      // filter to English, sort preferred first
+      var found = {};
+      var preferred = [], others = [];
+      all.forEach(function(b){
+        var abbr = (b.abbreviation||'').toUpperCase();
+        var idx = PREF_ABBREVS.indexOf(abbr);
+        if(idx !== -1){
+          if(!found[abbr]){
+            found[abbr] = true;
+            preferred.push({id:b.id, abbr:abbr, name: PREF_LABELS[abbr]||b.name, sortKey:idx});
+          }
+        } else {
+          others.push({id:b.id, abbr:abbr, name:b.name||b.abbreviation, sortKey:999});
+        }
+      });
+      preferred.sort(function(a,b){return a.sortKey-b.sortKey;});
+      state.bibles = preferred.concat(others);
+
+      // Populate translation select
+      xlatSel.innerHTML = '';
+      // Add preferred group
+      if(preferred.length){
+        var grp = document.createElement('optgroup');
+        grp.label = 'Popular Translations';
+        preferred.forEach(function(b){
+          var o = document.createElement('option');
+          o.value = b.id; o.textContent = b.name;
+          grp.appendChild(o);
+        });
+        xlatSel.appendChild(grp);
+      }
+      if(others.length){
+        var grp2 = document.createElement('optgroup');
+        grp2.label = 'More Translations';
+        others.forEach(function(b){
+          var o = document.createElement('option');
+          o.value = b.id; o.textContent = b.abbr ? b.abbr+' — '+b.name : b.name;
+          grp2.appendChild(o);
+        });
+        xlatSel.appendChild(grp2);
+      }
+
+      // restore last used bible
+      var saved;
+      try{ saved = localStorage.getItem('pb_bibleId'); }catch(e){}
+      if(saved && state.bibles.find(function(b){return b.id===saved;})){
+        xlatSel.value = saved;
+      }
+
+      onTranslationChange();
+    }).catch(function(err){
+      console.error(err);
+      showMsg('🔑','<strong>Couldn\'t load translations.</strong><br>Your API key may be invalid.<br><br><button class="btn sm" onclick="document.getElementById(\'setupModal\').classList.add(\'open\')">Re-enter API Key</button>');
+    });
+  }
+
+  // ── Translation change ───────────────────────────────────────────────────
+
+  function onTranslationChange(){
+    var bibleId = xlatSel.value;
+    if(!bibleId) return;
+    state.curBibleId = bibleId;
+    try{ localStorage.setItem('pb_bibleId', bibleId); }catch(e){}
+    showMsg('📚','Loading books…');
+    bookSel.innerHTML = '<option>Loading…</option>';
+    chapSel.innerHTML = '<option>—</option>';
+    apiGet('/bibles/'+bibleId+'/books').then(function(res){
+      state.books = res.data||[];
+      bookSel.innerHTML = '';
+      state.books.forEach(function(bk){
+        var o = document.createElement('option');
+        o.value = bk.id; o.textContent = bk.name;
+        bookSel.appendChild(o);
+      });
+      // restore last book
+      var savedBook;
+      try{ savedBook = localStorage.getItem('pb_bookId_'+bibleId); }catch(e){}
+      if(savedBook && state.books.find(function(b){return b.id===savedBook;})){
+        bookSel.value = savedBook;
+      }
+      onBookChange();
+    }).catch(function(){ showMsg('⚠️','Failed to load books. Check your connection.'); });
+  }
+
+  // ── Book change ──────────────────────────────────────────────────────────
+
+  function onBookChange(){
+    var bookId = bookSel.value;
+    if(!bookId) return;
+    state.curBookId = bookId;
+    try{ localStorage.setItem('pb_bookId_'+state.curBibleId, bookId); }catch(e){}
+    chapSel.innerHTML = '<option>Loading…</option>';
+    apiGet('/bibles/'+state.curBibleId+'/books/'+bookId+'/chapters').then(function(res){
+      var chaps = (res.data||[]).filter(function(c){ return c.number !== 'intro'; });
+      state.chapters = chaps;
+      chapSel.innerHTML = '';
+      chaps.forEach(function(c){
+        var o = document.createElement('option');
+        o.value = c.id; o.textContent = 'Chapter '+c.number;
+        chapSel.appendChild(o);
+      });
+      // restore last chapter
+      var savedChap;
+      try{ savedChap = localStorage.getItem('pb_chapId_'+state.curBibleId+'_'+bookId); }catch(e){}
+      if(savedChap && chaps.find(function(c){return c.id===savedChap;})){
+        chapSel.value = savedChap;
+      }
+      onChapterChange();
+    }).catch(function(){ showMsg('⚠️','Failed to load chapters.'); });
+  }
+
+  // ── Chapter change ───────────────────────────────────────────────────────
+
+  function onChapterChange(){
+    var chapId = chapSel.value;
+    if(!chapId || chapId==='Loading…') return;
+    state.curChapterId = chapId;
+    try{ localStorage.setItem('pb_chapId_'+state.curBibleId+'_'+state.curBookId, chapId); }catch(e){}
+    showMsg('📖','Loading…');
+    updateNavButtons();
+    apiGet('/bibles/'+state.curBibleId+'/chapters/'+chapId+'?content-type=html&include-notes=false&include-titles=true&include-chapter-numbers=false&include-verse-numbers=true&include-verse-spans=false').then(function(res){
+      var d = res.data || {};
+      renderPassage(d);
+    }).catch(function(){ showMsg('⚠️','Failed to load passage. Try again.'); });
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────
+
+  function renderPassage(d){
+    var bookName = '', chapNum = '';
+    // find book name
+    var bk = state.books.find(function(b){ return b.id === state.curBookId; });
+    if(bk) bookName = bk.name;
+    var ch = state.chapters.find(function(c){ return c.id === state.curChapterId; });
+    if(ch) chapNum = ch.number;
+
+    // get translation abbreviation for footer
+    var xlObj = state.bibles.find(function(b){ return b.id === state.curBibleId; });
+    var xlLabel = xlObj ? xlObj.abbr || xlObj.name : '';
+
+    var rawHtml = d.content || '<p>Content unavailable for this chapter.</p>';
+
+    // Clean up API HTML artifacts
+    rawHtml = rawHtml
+      .replace(/<span[^>]*class="[^"]*chapter-num[^"]*"[^>]*>[\s\S]*?<\/span>/gi,'')
+      .replace(/<span[^>]*class="[^"]*note[^"]*"[^>]*>[\s\S]*?<\/span>/gi,'')
+      .replace(/<span[^>]*class="[^"]*heading[^"]*"[^>]*>([\s\S]*?)<\/span>/gi,'<strong>$1</strong> ')
+      .replace(/<span[^>]*data-number="(\d+)"[^>]*>/gi,'<span class="v-num">$1</span>')
+      .replace(/<span[^>]*class="[^"]*verse[^"]*"[^>]*>/gi,'<span>')
+      .replace(/<\/?p[^>]*>/gi,function(m){ return m.startsWith('</') ? '</p>' : '<p>'; });
+
+    passageCard.innerHTML =
+      '<h2 class="passage-heading">'+bookName+' '+chapNum+'</h2>'+
+      '<div class="passage-body" style="font-size:'+state.fontSize+'px">'+rawHtml+'</div>'+
+      '<div class="passage-footer">'+xlLabel+(d.copyright ? ' &nbsp;·&nbsp; '+d.copyright.replace(/<[^>]+>/g,'') : '')+'</div>';
+  }
+
+  // ── Prev / Next ──────────────────────────────────────────────────────────
+
+  function updateNavButtons(){
+    var idx = state.chapters.findIndex(function(c){ return c.id === state.curChapterId; });
+    if(idx === -1){ prevBtn.disabled = true; nextBtn.disabled = true; return; }
+
+    // Check cross-book boundaries using books list
+    var bkIdx = state.books.findIndex(function(b){ return b.id === state.curBookId; });
+    prevBtn.disabled = (idx === 0 && bkIdx === 0);
+    nextBtn.disabled = (idx === state.chapters.length-1 && bkIdx === state.books.length-1);
+  }
+
+  prevBtn.addEventListener('click', function(){
+    var idx = state.chapters.findIndex(function(c){ return c.id === state.curChapterId; });
+    if(idx > 0){
+      chapSel.value = state.chapters[idx-1].id;
+      onChapterChange();
+    } else {
+      // go to previous book, last chapter
+      var bkIdx = state.books.findIndex(function(b){ return b.id === state.curBookId; });
+      if(bkIdx > 0){
+        bookSel.value = state.books[bkIdx-1].id;
+        // after loading chapters, jump to last one
+        onBookChange_then_last();
+      }
+    }
+  });
+
+  nextBtn.addEventListener('click', function(){
+    var idx = state.chapters.findIndex(function(c){ return c.id === state.curChapterId; });
+    if(idx < state.chapters.length-1){
+      chapSel.value = state.chapters[idx+1].id;
+      onChapterChange();
+    } else {
+      // go to next book, first chapter
+      var bkIdx = state.books.findIndex(function(b){ return b.id === state.curBookId; });
+      if(bkIdx < state.books.length-1){
+        bookSel.value = state.books[bkIdx+1].id;
+        onBookChange();
+      }
+    }
+  });
+
+  function onBookChange_then_last(){
+    var bookId = bookSel.value;
+    if(!bookId) return;
+    state.curBookId = bookId;
+    try{ localStorage.setItem('pb_bookId_'+state.curBibleId, bookId); }catch(e){}
+    chapSel.innerHTML = '<option>Loading…</option>';
+    apiGet('/bibles/'+state.curBibleId+'/books/'+bookId+'/chapters').then(function(res){
+      var chaps = (res.data||[]).filter(function(c){ return c.number !== 'intro'; });
+      state.chapters = chaps;
+      chapSel.innerHTML = '';
+      chaps.forEach(function(c){
+        var o = document.createElement('option');
+        o.value = c.id; o.textContent = 'Chapter '+c.number;
+        chapSel.appendChild(o);
+      });
+      if(chaps.length){
+        chapSel.value = chaps[chaps.length-1].id;
+        onChapterChange();
+      }
+    }).catch(function(){ showMsg('⚠️','Failed to load chapters.'); });
+  }
+
+  // ── Font size ────────────────────────────────────────────────────────────
+
+  fontDn.addEventListener('click', function(){ setFontSize(state.fontSize-2); });
+  fontUp.addEventListener('click', function(){ setFontSize(state.fontSize+2); });
+
+  // ── Event wiring ─────────────────────────────────────────────────────────
+
+  xlatSel.addEventListener('change', onTranslationChange);
+  bookSel.addEventListener('change', onBookChange);
+  chapSel.addEventListener('change', onChapterChange);
+
+  // ── Start ────────────────────────────────────────────────────────────────
+
+  try{ state.key = localStorage.getItem('pb_apiKey') || ''; }catch(e){}
+  try{ state.fontSize = parseInt(localStorage.getItem('pb_fontSize'))||17; }catch(e){}
+
+  if(!state.key){
+    showMsg('🔑','Enter your API.Bible key to get started.');
+    openSetup();
+  } else {
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>
