@@ -163,7 +163,6 @@ select option{background:#1c4a2e; color:#fff;}
     <div class="speak-row">
       <button class="btn btn--green" id="speak-btn" onclick="speakIt()">🔊 Say It!</button>
       <button class="btn btn--stop" id="stop-btn" onclick="stopIt()" style="display:none;">⏹ Stop</button>
-      <a class="btn btn--dl" id="dl-btn" style="display:none;" download="accent.mp3">⬇️ Save</a>
     </div>
 
     <div class="speaking-indicator" id="speaking-indicator">
@@ -189,59 +188,23 @@ select option{background:#1c4a2e; color:#fff;}
     <div class="presets" id="phrase-presets"></div>
   </div>
 
-  <!-- My Custom Voices -->
-  <div class="card">
-    <span class="label">🎤 My Custom Voices</span>
-    <p style="font-size:.88rem; opacity:.72; margin:0 0 14px; line-height:1.5;">Know a StreamElements voice name? Add it here and it'll appear in the dropdown, saved in your browser.</p>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:stretch;">
-      <input id="custom-voice-id" class="input-field" type="text" placeholder="Voice name (e.g. Geraint, Aditi, Lotte)" style="flex:2; min-width:160px;" maxlength="60" />
-      <input id="custom-voice-name" class="input-field" type="text" placeholder="Name" style="flex:1; min-width:100px;" maxlength="30" />
-      <button class="btn btn--green" onclick="addCustomVoice()" style="width:auto; padding:11px 18px; white-space:nowrap;">+ Add</button>
-    </div>
-    <div id="custom-voice-list" style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; min-height:28px;"></div>
-    <div id="custom-voice-status" class="status-msg" style="margin-top:6px;"></div>
-  </div>
 
 </div>
 
 <script>
-// StreamElements TTS — free, no API key
-// API: https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=Hello
+// Web Speech API — built into the browser, no network calls needed
 
-var VOICES = [
-  // 🇬🇧 British
-  { id:'Brian',    flag:'🇬🇧', label:'Brian',    accent:'British Male' },
-  { id:'Amy',      flag:'🇬🇧', label:'Amy',      accent:'British Female' },
-  { id:'Emma',     flag:'🇬🇧', label:'Emma',     accent:'British Female' },
-  { id:'Geraint',  flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', label:'Geraint',  accent:'Welsh Male' },
-  // 🇦🇺 Australian
-  { id:'Russell',  flag:'🇦🇺', label:'Russell',  accent:'Australian Male' },
-  { id:'Nicole',   flag:'🇦🇺', label:'Nicole',   accent:'Australian Female' },
-  // 🇺🇸 American
-  { id:'Matthew',  flag:'🇺🇸', label:'Matthew',  accent:'American Male' },
-  { id:'Joanna',   flag:'🇺🇸', label:'Joanna',   accent:'American Female' },
-  { id:'Joey',     flag:'🇺🇸', label:'Joey',     accent:'American Male' },
-  { id:'Kendra',   flag:'🇺🇸', label:'Kendra',   accent:'American Female' },
-  { id:'Salli',    flag:'🇺🇸', label:'Salli',    accent:'American Female' },
-  { id:'Kimberly', flag:'🇺🇸', label:'Kimberly', accent:'American Female' },
-  { id:'Ivy',      flag:'🇺🇸', label:'Ivy',      accent:'American Female (Child)' },
-  // 🇮🇳 Indian
-  { id:'Raveena',  flag:'🇮🇳', label:'Raveena',  accent:'Indian Female' },
-  { id:'Aditi',    flag:'🇮🇳', label:'Aditi',    accent:'Indian Female' },
-  // 🇩🇪 German
-  { id:'Hans',     flag:'🇩🇪', label:'Hans',     accent:'German Male' },
-  { id:'Marlene',  flag:'🇩🇪', label:'Marlene',  accent:'German Female' },
-  // 🇫🇷 French
-  { id:'Mathieu',  flag:'🇫🇷', label:'Mathieu',  accent:'French Male' },
-  { id:'Celine',   flag:'🇫🇷', label:'Céline',   accent:'French Female' },
-  // 🇮🇹 Italian
-  { id:'Giorgio',  flag:'🇮🇹', label:'Giorgio',  accent:'Italian Male' },
-  { id:'Carla',    flag:'🇮🇹', label:'Carla',    accent:'Italian Female' },
-  // 🇪🇸 Spanish
-  { id:'Enrique',  flag:'🇪🇸', label:'Enrique',  accent:'Spanish Male' },
-  { id:'Conchita', flag:'🇪🇸', label:'Conchita', accent:'Spanish Female' },
-  { id:'Penelope', flag:'🌎', label:'Penelope',  accent:'Spanish (US) Female' },
-  { id:'Miguel',   flag:'🌎', label:'Miguel',    accent:'Spanish (US) Male' },
+var ACCENT_GROUPS = [
+  { lang:'en-GB', flag:'🇬🇧', label:'British' },
+  { lang:'en-AU', flag:'🇦🇺', label:'Australian' },
+  { lang:'en-US', flag:'🇺🇸', label:'American' },
+  { lang:'en-IN', flag:'🇮🇳', label:'Indian' },
+  { lang:'de-DE', flag:'🇩🇪', label:'German' },
+  { lang:'fr-FR', flag:'🇫🇷', label:'French' },
+  { lang:'it-IT', flag:'🇮🇹', label:'Italian' },
+  { lang:'es-ES', flag:'🇪🇸', label:'Spanish' },
+  { lang:'ja-JP', flag:'🇯🇵', label:'Japanese' },
+  { lang:'zh-CN', flag:'🇨🇳', label:'Chinese' },
 ];
 
 var PHRASES = [
@@ -257,127 +220,86 @@ var PHRASES = [
   { flag:'🎸', text:"Rock and roll all night and party every day!" },
 ];
 
-var currentAudio = null;
-var currentAbort = null;
-var currentBlobUrl = null; // kept alive for download even after playback ends
-var selectedVoiceId = 'Brian';
-var CUSTOM_KEY = 'picklePhilCustomVoices';
+var synth = window.speechSynthesis;
+var selectedVoiceName = '';
 
-function loadCustomVoices() {
-  try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]'); }
-  catch(e) { return []; }
-}
-function saveCustomVoices(voices) {
-  try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(voices)); } catch(e) {}
-}
-function getAllVoices() {
-  return VOICES.concat(loadCustomVoices());
+function flagForLang(lang) {
+  var g = ACCENT_GROUPS.find(function(x) { return lang && lang.startsWith(x.lang); });
+  return g ? g.flag : '🌐';
 }
 
-function addCustomVoice() {
-  var id = document.getElementById('custom-voice-id').value.trim();
-  var name = document.getElementById('custom-voice-name').value.trim() || 'My Voice';
-  var statusEl = document.getElementById('custom-voice-status');
-  if (!id) {
-    statusEl.textContent = 'Paste a Voice ID first.';
-    statusEl.className = 'status-msg err';
-    return;
-  }
-  if (getAllVoices().find(function(v) { return v.id === id; })) {
-    statusEl.textContent = 'That voice ID is already in your list.';
-    statusEl.className = 'status-msg err';
-    return;
-  }
-  var customs = loadCustomVoices();
-  customs.push({ id: id, label: name, flag: '🎤', accent: 'Custom Voice' });
-  saveCustomVoices(customs);
-  document.getElementById('custom-voice-id').value = '';
-  document.getElementById('custom-voice-name').value = '';
-  statusEl.textContent = name + ' added! Select it from the dropdown above.';
-  statusEl.className = 'status-msg';
-  rebuildDropdown();
-  renderCustomVoiceList();
-}
-
-function removeCustomVoice(id) {
-  saveCustomVoices(loadCustomVoices().filter(function(v) { return v.id !== id; }));
-  if (selectedVoiceId === id) {
-    selectedVoiceId = 'JBFqnCBsd6RMkjVDRZzb';
-  }
-  rebuildDropdown();
-  renderCustomVoiceList();
-}
-
-function renderCustomVoiceList() {
-  var customs = loadCustomVoices();
-  var list = document.getElementById('custom-voice-list');
-  list.innerHTML = '';
-  if (customs.length === 0) {
-    list.innerHTML = '<span style="opacity:.45; font-size:.85rem;">No custom voices yet.</span>';
-    return;
-  }
-  customs.forEach(function(v) {
-    var chip = document.createElement('div');
-    chip.className = 'voice-chip';
-    var span = document.createElement('span');
-    span.textContent = v.flag + ' ' + v.label;
-    chip.appendChild(span);
-    var rm = document.createElement('button');
-    rm.textContent = '✕';
-    rm.title = 'Remove ' + v.label;
-    rm.addEventListener('click', (function(vid) { return function() { removeCustomVoice(vid); }; })(v.id));
-    chip.appendChild(rm);
-    list.appendChild(chip);
-  });
-}
-
-function rebuildDropdown() {
+function populateDropdown() {
+  var voices = synth.getVoices();
   var sel = document.getElementById('voice-select');
   sel.innerHTML = '';
-  getAllVoices().forEach(function(v) {
-    var opt = document.createElement('option');
-    opt.value = v.id;
-    opt.textContent = v.flag + ' ' + v.label + ' — ' + v.accent;
-    sel.appendChild(opt);
+
+  // Group by language
+  var map = {};
+  voices.forEach(function(v) {
+    if (!map[v.lang]) map[v.lang] = [];
+    map[v.lang].push(v);
   });
-  sel.value = selectedVoiceId;
-  if (!sel.value) sel.value = sel.options[0] && sel.options[0].value;
-  selectedVoiceId = sel.value;
+
+  // English first, rest alphabetical
+  var langs = Object.keys(map).sort(function(a, b) {
+    var ae = a.startsWith('en') ? 0 : 1, be = b.startsWith('en') ? 0 : 1;
+    return ae !== be ? ae - be : a.localeCompare(b);
+  });
+
+  langs.forEach(function(lang) {
+    var grp = document.createElement('optgroup');
+    grp.label = flagForLang(lang) + ' ' + lang;
+    map[lang].forEach(function(v) {
+      var opt = document.createElement('option');
+      opt.value = v.name;
+      opt.textContent = v.name;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+
+  // Pick first en-GB, else first en-US, else first available
+  var voices2 = synth.getVoices();
+  var preferred = voices2.find(function(v) { return v.lang === 'en-GB'; }) ||
+                  voices2.find(function(v) { return v.lang.startsWith('en'); }) ||
+                  voices2[0];
+  if (preferred) { sel.value = preferred.name; selectedVoiceName = preferred.name; }
   updateAccentButtons();
 }
 
 function init() {
-  // Populate dropdown (built-in + any saved custom voices)
-  rebuildDropdown();
-  document.getElementById('voice-select').addEventListener('change', function() {
-    selectedVoiceId = this.value;
+  var sel = document.getElementById('voice-select');
+
+  // Voices load async in some browsers
+  if (synth.getVoices().length) {
+    populateDropdown();
+  } else {
+    synth.onvoiceschanged = populateDropdown;
+  }
+
+  sel.addEventListener('change', function() {
+    selectedVoiceName = this.value;
     updateAccentButtons();
   });
-  renderCustomVoiceList();
 
-  // Quick accent buttons
-  var accents = [
-    {id:'Brian',   flag:'🇬🇧', label:'Brian'},
-    {id:'Amy',     flag:'🇬🇧', label:'Amy'},
-    {id:'Russell', flag:'🇦🇺', label:'Russell'},
-    {id:'Nicole',  flag:'🇦🇺', label:'Nicole'},
-    {id:'Matthew', flag:'🇺🇸', label:'Matthew'},
-    {id:'Joanna',  flag:'🇺🇸', label:'Joanna'},
-    {id:'Raveena', flag:'🇮🇳', label:'Raveena'},
-    {id:'Hans',    flag:'🇩🇪', label:'Hans'},
-    {id:'Giorgio', flag:'🇮🇹', label:'Giorgio'},
-    {id:'Mathieu', flag:'🇫🇷', label:'Mathieu'},
-  ];
+  // Quick accent buttons — pick first voice matching the language
   var ap = document.getElementById('accent-presets');
-  accents.forEach(function(a) {
+  ACCENT_GROUPS.forEach(function(group) {
     var btn = document.createElement('button');
     btn.className = 'preset-btn';
-    btn.dataset.voiceId = a.id;
-    btn.innerHTML = '<span class="flag">' + a.flag + '</span>' + a.label;
+    btn.dataset.lang = group.lang;
+    btn.innerHTML = '<span class="flag">' + group.flag + '</span>' + group.label;
     btn.addEventListener('click', function() {
-      selectedVoiceId = a.id;
-      document.getElementById('voice-select').value = a.id;
-      updateAccentButtons();
+      var match = synth.getVoices().find(function(v) { return v.lang === group.lang; }) ||
+                  synth.getVoices().find(function(v) { return v.lang.startsWith(group.lang.split('-')[0]); });
+      if (match) {
+        selectedVoiceName = match.name;
+        sel.value = match.name;
+        updateAccentButtons();
+        setStatus('');
+      } else {
+        setStatus('No ' + group.label + ' voice on this device.', true);
+      }
     });
     ap.appendChild(btn);
   });
@@ -404,8 +326,10 @@ function init() {
 }
 
 function updateAccentButtons() {
+  var voice = synth.getVoices().find(function(v) { return v.name === selectedVoiceName; });
+  var lang = voice ? voice.lang : '';
   document.querySelectorAll('#accent-presets .preset-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.dataset.voiceId === selectedVoiceId);
+    btn.classList.toggle('active', lang.startsWith(btn.dataset.lang));
   });
 }
 
@@ -423,71 +347,31 @@ function speakIt() {
     return;
   }
 
-  // Cancel any in-flight fetch, stop current audio, free old blob
-  if (currentAbort) { currentAbort.abort(); currentAbort = null; }
-  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
-  stopIt();
+  synth.cancel();
 
-  var voice = selectedVoiceId;
-  var abort = new AbortController();
-  currentAbort = abort;
+  var utt = new SpeechSynthesisUtterance(text);
+  var voice = synth.getVoices().find(function(v) { return v.name === selectedVoiceName; });
+  if (voice) utt.voice = voice;
 
-  setStatus('Loading…', false);
-  document.getElementById('speak-btn').disabled = true;
+  utt.onstart = function() {
+    document.getElementById('speak-btn').style.display = 'none';
+    document.getElementById('stop-btn').style.display = 'block';
+    document.getElementById('speaking-indicator').classList.add('active');
+    document.getElementById('speaking-label').textContent = (voice ? voice.name : 'Voice') + ' is speaking…';
+    setStatus('');
+  };
+  utt.onend = onDone;
+  utt.onerror = function(e) {
+    if (e.error === 'interrupted' || e.error === 'canceled') return;
+    onDone();
+    setStatus('⚠️ Could not speak — try again.', true);
+  };
 
-  var SE_URL = 'https://api.streamelements.com/kappa/v2/speech?voice=' + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
-
-  var blobUrl = null;
-  fetch(SE_URL, { signal: abort.signal })
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.blob();
-    })
-    .then(function(blob) {
-      if (abort.signal.aborted) return; // stale — a newer request already started
-      blobUrl = URL.createObjectURL(blob);
-      currentBlobUrl = blobUrl; // keep alive for download
-      currentAudio = new Audio(blobUrl);
-      currentAudio.addEventListener('ended', onDone);
-      currentAudio.addEventListener('error', function() {
-        onDone();
-        setStatus('⚠️ Playback error — try again.', true);
-      });
-      // Wire up download button
-      var dlBtn = document.getElementById('dl-btn');
-      dlBtn.href = blobUrl;
-      var vObj2 = getAllVoices().find(function(v) { return v.id === voice; });
-      dlBtn.download = (vObj2 ? vObj2.label : 'accent') + '.mp3';
-      dlBtn.style.display = 'block';
-
-      return currentAudio.play();
-    })
-    .then(function() {
-      if (abort.signal.aborted) return;
-      document.getElementById('speak-btn').style.display = 'none';
-      document.getElementById('stop-btn').style.display = 'block';
-      document.getElementById('speaking-indicator').classList.add('active');
-      var vObj = getAllVoices().find(function(v) { return v.id === voice; });
-      document.getElementById('speaking-label').textContent = (vObj ? vObj.label : voice) + ' is speaking…';
-      setStatus('');
-      document.getElementById('speak-btn').disabled = false;
-    })
-    .catch(function(err) {
-      if (err.name === 'AbortError') return; // intentionally cancelled
-      if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
-      onDone();
-      setStatus('⚠️ Could not load audio — try again.', true);
-      document.getElementById('speak-btn').disabled = false;
-    });
+  synth.speak(utt);
 }
 
 function stopIt() {
-  if (currentAbort) { currentAbort.abort(); currentAbort = null; }
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.src = '';
-    currentAudio = null;
-  }
+  synth.cancel();
   onDone();
 }
 
@@ -496,7 +380,6 @@ function onDone() {
   document.getElementById('speak-btn').disabled = false;
   document.getElementById('stop-btn').style.display = 'none';
   document.getElementById('speaking-indicator').classList.remove('active');
-  // Keep download button visible after playback ends so user can still save it
 }
 
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
