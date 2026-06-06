@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PickleGrams — The Real Dill Phil</title>
+<meta name="description" content="Singing telegrams, pickle style — the full PickleGram archive from The Real Dill Phil." />
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+    --text:#f5f7f5;
+    --accent:#2ecc71;
+    --btnText:#0d3d24;
+    --radius:18px; --shadow:0 18px 45px rgba(0,0,0,.40);
+    --glass: rgba(255,255,255,.10);
+    --glass-border: rgba(255,255,255,.22);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:'Segoe UI',Tahoma,sans-serif; color:var(--text);
+    background:
+      radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
+      radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
+      radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
+    background-attachment:fixed;
+    min-height:100vh; text-align:center;
+    display:flex; flex-direction:column; align-items:center;
+  }
+
+  .wrap{width:min(900px,100%); padding:28px 22px;}
+
+  h1{
+    font-family:'Amatic SC',cursive;
+    font-size:clamp(52px,9vw,112px);
+    margin:0 0 8px; font-weight:700; letter-spacing:1px;
+    background:linear-gradient(180deg,#ffffff 0%,#c7f2d8 100%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    filter:drop-shadow(0 2px 10px rgba(46,204,113,.3));
+  }
+
+  .lead{
+    font-size:1.15rem; opacity:.93; margin:0 0 28px; line-height:1.6;
+    max-width:580px; margin-inline:auto;
+  }
+
+  /* Responsive 16:9 playlist embed */
+  .player-wrap{
+    position:relative; width:100%; padding-top:56.25%;
+    border-radius:var(--radius); overflow:hidden;
+    box-shadow:var(--shadow), 0 0 0 1px var(--glass-border);
+    background:#000; margin-bottom:28px;
+  }
+  .player-wrap iframe{
+    position:absolute; inset:0;
+    width:100%; height:100%; border:none;
+  }
+
+  .flavor{
+    background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius);
+    padding:20px 24px; margin-bottom:28px;
+    font-size:1.05rem; line-height:1.6; opacity:.95;
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+
+  .btn{
+    color:var(--btnText); text-decoration:none;
+    background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
+    padding:12px 20px; border-radius:12px; font-weight:700; margin:6px;
+    display:inline-block; border:1px solid rgba(255,255,255,.6);
+    box-shadow:0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.9);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    cursor:pointer;
+  }
+  .btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 30px rgba(0,0,0,.38), 0 0 0 2px rgba(46,204,113,.35), inset 0 1px 0 rgba(255,255,255,.9);
+    filter:brightness(1.02);
+  }
+  .btn:active{transform:translateY(0);}
+  .btn, .btn:visited, .btn:hover, .btn:active{color:var(--btnText) !important;}
+
+  footer{margin:32px 0 16px; opacity:.7; font-size:.9rem;}
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <h1>🥒 PickleGrams</h1>
+    <p class="lead">
+      Singing telegrams, pickle style. Every gram hand-delivered with a mic, a melody, and maximum brine energy.
+    </p>
+
+    <!-- YouTube Playlist Embed -->
+    <div class="player-wrap">
+      <iframe
+        src="https://www.youtube.com/embed/videoseries?list=PLsXNg5w9I0ifycRiRDw5Iy8YAdDU9P86Y"
+        title="PickleGrams Playlist — The Real Dill Phil"
+        allow="encrypted-media; picture-in-picture"
+        allowfullscreen
+        loading="lazy">
+      </iframe>
+    </div>
+
+    <div class="flavor">
+      <strong>What's a PickleGram?</strong> It's like a singing telegram, but crunchier.
+      Pickle Phil shows up, belt in hand (metaphorically), and delivers a personalized song
+      straight from the brine. Browse the full archive above — use the playlist menu to jump
+      between grams.
+    </div>
+
+    <div>
+      <a class="btn" href="/index.html">⬅️ Back to the Jar</a>
+    </div>
+
+    <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
+  </div>
+
+  <script>
+    (function(){ var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); })();
+  </script>
+</body>
+</html>
