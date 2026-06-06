@@ -46,26 +46,55 @@ body{
   box-shadow:none; font-weight:600;
 }
 .btn.ghost:hover{background:var(--glass); border-color:rgba(46,204,113,.5);}
+.icon-btn{
+  background:rgba(255,255,255,.12); border:1px solid var(--glass-border);
+  color:var(--text); border-radius:10px; padding:7px 12px; cursor:pointer;
+  font-size:1rem; transition:background .15s, border-color .15s; white-space:nowrap;
+}
+.icon-btn:hover{background:rgba(255,255,255,.22); border-color:rgba(46,204,113,.5);}
+.icon-btn.active{background:rgba(46,204,113,.25); border-color:rgba(46,204,113,.6);}
 
 a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
 
-.topnav{display:flex;align-items:center;gap:12px;padding:14px 0 4px;flex-wrap:wrap;}
+/* TOP NAV */
+.topnav{display:flex;align-items:center;gap:10px;padding:14px 0 4px;flex-wrap:wrap;}
 .topnav h1{
   font-family:"Amatic SC",sans-serif; font-size:2.4rem; font-weight:700; margin:0;
   background:linear-gradient(180deg,#ffffff,#c7f2d8);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
 }
-.topnav .back{margin-left:auto;}
+.topnav-right{margin-left:auto; display:flex; gap:8px; align-items:center;}
 
+/* STICKY CONTROLS */
+.controls-wrap{
+  position:sticky; top:10px; z-index:100;
+  margin-bottom:18px;
+}
 .controls{
   display:flex; flex-wrap:wrap; gap:10px; align-items:center;
   background:linear-gradient(165deg, rgba(12,58,34,.96), rgba(8,40,24,.97));
   border:1px solid var(--glass-border); border-radius:var(--radius);
-  padding:14px 18px; margin-bottom:18px;
+  padding:14px 18px;
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  position:sticky; top:10px; z-index:100;
   box-shadow:0 8px 28px rgba(0,0,0,.45);
+  overflow:hidden;
+  transition: padding .25s ease, max-height .25s ease, opacity .2s ease;
+  max-height:200px;
 }
+.controls.collapsed{
+  padding:10px 18px; max-height:52px; flex-wrap:nowrap;
+  align-items:center; gap:8px;
+}
+.controls.collapsed .controls-main{ display:none; }
+.controls.collapsed .collapsed-summary{ display:flex; }
+
+.controls-main{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; width:100%; }
+.collapsed-summary{
+  display:none; align-items:center; gap:10px; flex:1; min-width:0;
+  font-size:.9rem; opacity:.85; overflow:hidden;
+}
+.collapsed-summary span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
 .controls select{
   background:#0f2d18; color:var(--text); border:1px solid var(--glass-border);
   border-radius:10px; padding:8px 12px; font-size:.95rem; cursor:pointer;
@@ -78,6 +107,48 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
 .controls label{font-size:.88rem;opacity:.8;margin-right:-6px;}
 .nav-btns{display:flex;gap:6px;margin-left:auto;}
 
+/* SEARCH PANEL */
+.search-wrap{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .3s ease, margin .3s ease;
+  margin-bottom:0;
+}
+.search-wrap.open{
+  max-height:600px;
+  margin-bottom:18px;
+}
+.search-panel{
+  background:linear-gradient(165deg, rgba(12,58,34,.96), rgba(8,40,24,.97));
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:18px 20px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  box-shadow:0 8px 28px rgba(0,0,0,.45);
+}
+.search-panel h3{
+  margin:0 0 12px; font-size:1rem; font-weight:700; opacity:.85;
+}
+.search-row{display:flex; gap:8px; align-items:center;}
+.search-input{
+  flex:1; background:#0a2016; color:var(--text);
+  border:1px solid var(--glass-border); border-radius:10px;
+  padding:10px 14px; font-size:.95rem;
+}
+.search-input:focus{outline:2px solid var(--accent); outline-offset:2px;}
+.search-input::placeholder{opacity:.5;}
+.search-results{margin-top:14px; max-height:320px; overflow-y:auto;}
+.search-result{
+  padding:10px 12px; border-radius:10px; cursor:pointer;
+  border:1px solid transparent; margin-bottom:6px;
+  transition:background .15s, border-color .15s;
+}
+.search-result:hover{background:rgba(46,204,113,.12); border-color:rgba(46,204,113,.3);}
+.result-ref{font-weight:800; font-size:.88rem; color:var(--accent); margin-bottom:3px;}
+.result-text{font-size:.9rem; opacity:.85; line-height:1.5;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.search-status{text-align:center; padding:20px; opacity:.65; font-size:.9rem;}
+
+/* PASSAGE */
 .passage-card{
   background:linear-gradient(165deg,var(--glass),var(--panel-b));
   border:1px solid var(--glass-border); border-radius:var(--radius);
@@ -89,9 +160,7 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
   font-family:"Amatic SC",sans-serif; font-size:2rem; font-weight:700; margin:0 0 18px;
   color:#c7f2d8;
 }
-.passage-body{
-  font-size:1.08rem; line-height:1.9; color:#edf7f0;
-}
+.passage-body{ font-size:1.08rem; line-height:1.9; color:#edf7f0; }
 .passage-body .v-num{
   font-size:.72rem; font-weight:800; color:var(--accent); vertical-align:super;
   margin-right:3px; opacity:.9;
@@ -101,9 +170,7 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
   margin-top:18px; font-size:.88rem; opacity:.65; font-style:italic;
   border-top:1px solid var(--glass-border); padding-top:12px;
 }
-.state-msg{
-  text-align:center; padding:48px 16px; opacity:.75; font-size:1.05rem;
-}
+.state-msg{ text-align:center; padding:48px 16px; opacity:.75; font-size:1.05rem; }
 .state-msg .emoji{font-size:2.2rem;display:block;margin-bottom:10px;}
 
 .font-btns{display:flex;gap:4px;}
@@ -117,7 +184,7 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
 footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
 
 @media(max-width:640px){
-  .controls{gap:8px;}
+  .controls-main{gap:8px;}
   .controls select{min-width:unset;width:100%;}
   .nav-btns{margin-left:0;width:100%;justify-content:space-between;}
   .passage-card{padding:18px 16px;}
@@ -129,33 +196,58 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
 <div class="wrap">
   <nav class="topnav">
     <h1>📖 The Word</h1>
-    <div class="back">
+    <div class="topnav-right">
+      <button class="icon-btn" id="searchToggle" title="Search by topic or keyword">🔍 Search</button>
       <a class="btn ghost sm" href="/">← Home</a>
     </div>
   </nav>
 
-  <div class="controls">
-    <label for="xlat">Translation</label>
-    <select id="xlat" title="Choose translation">
-      <option value="de4e12af7f28f599-02">KJV — King James Version</option>
-      <option value="9879dbb7cfe39e4d-01">WEB — World English Bible</option>
-      <option value="01b29f4b342acc35-01">LSV — Literal Standard Version</option>
-    </select>
-
-    <label for="book">Book</label>
-    <select id="book" title="Choose book"></select>
-
-    <label for="chap">Chapter</label>
-    <select id="chap" title="Choose chapter"></select>
-
-    <div class="font-btns">
-      <button id="fontDn" title="Smaller text">A−</button>
-      <button id="fontUp" title="Larger text">A+</button>
+  <!-- SEARCH PANEL -->
+  <div class="search-wrap" id="searchWrap">
+    <div class="search-panel">
+      <h3>🔍 Search the Bible</h3>
+      <div class="search-row">
+        <input class="search-input" id="searchInput" type="text" placeholder="Type a topic, keyword, or phrase… (e.g. faith, love, forgiveness)" autocomplete="off"/>
+        <button class="icon-btn" id="searchBtn">Search</button>
+      </div>
+      <div class="search-results" id="searchResults"></div>
     </div>
+  </div>
 
-    <div class="nav-btns">
-      <button class="btn sm" id="prevBtn">◀ Prev</button>
-      <button class="btn sm" id="nextBtn">Next ▶</button>
+  <!-- CONTROLS -->
+  <div class="controls-wrap">
+    <div class="controls" id="controls">
+      <!-- Collapsed summary (shown when minimized) -->
+      <div class="collapsed-summary" id="collapsedSummary">
+        <span id="summaryText">KJV · Genesis · Chapter 1</span>
+      </div>
+      <button class="icon-btn" id="collapseBtn" title="Toggle controls" style="flex-shrink:0;">▲</button>
+
+      <!-- Full controls -->
+      <div class="controls-main">
+        <label for="xlat">Translation</label>
+        <select id="xlat" title="Choose translation">
+          <option value="de4e12af7f28f599-02">KJV — King James Version</option>
+          <option value="9879dbb7cfe39e4d-01">WEB — World English Bible</option>
+          <option value="01b29f4b342acc35-01">LSV — Literal Standard Version</option>
+        </select>
+
+        <label for="book">Book</label>
+        <select id="book" title="Choose book"></select>
+
+        <label for="chap">Chapter</label>
+        <select id="chap" title="Choose chapter"></select>
+
+        <div class="font-btns">
+          <button id="fontDn" title="Smaller text">A−</button>
+          <button id="fontUp" title="Larger text">A+</button>
+        </div>
+
+        <div class="nav-btns">
+          <button class="btn sm" id="prevBtn">◀ Prev</button>
+          <button class="btn sm" id="nextBtn">Next ▶</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -183,16 +275,27 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     books: [], chapters: [],
     curBibleId: '', curBookId: '', curChapterId: '',
     fontSize: 17,
+    controlsCollapsed: false,
   };
 
-  var xlatSel    = document.getElementById('xlat');
-  var bookSel    = document.getElementById('book');
-  var chapSel    = document.getElementById('chap');
-  var passageCard= document.getElementById('passageCard');
-  var prevBtn    = document.getElementById('prevBtn');
-  var nextBtn    = document.getElementById('nextBtn');
-  var fontDn     = document.getElementById('fontDn');
-  var fontUp     = document.getElementById('fontUp');
+  var xlatSel      = document.getElementById('xlat');
+  var bookSel      = document.getElementById('book');
+  var chapSel      = document.getElementById('chap');
+  var passageCard  = document.getElementById('passageCard');
+  var prevBtn      = document.getElementById('prevBtn');
+  var nextBtn      = document.getElementById('nextBtn');
+  var fontDn       = document.getElementById('fontDn');
+  var fontUp       = document.getElementById('fontUp');
+  var collapseBtn  = document.getElementById('collapseBtn');
+  var controlsEl   = document.getElementById('controls');
+  var summaryText  = document.getElementById('summaryText');
+  var searchToggle = document.getElementById('searchToggle');
+  var searchWrap   = document.getElementById('searchWrap');
+  var searchInput  = document.getElementById('searchInput');
+  var searchBtn    = document.getElementById('searchBtn');
+  var searchResults= document.getElementById('searchResults');
+
+  // ── API ──────────────────────────────────────────────────────────────────
 
   function apiGet(path){
     return fetch(API_BASE + path, { headers:{'api-key': API_KEY} })
@@ -203,6 +306,105 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     passageCard.innerHTML = '<div class="state-msg"><span class="emoji">'+emoji+'</span>'+text+'</div>';
   }
 
+  // ── Collapse controls ─────────────────────────────────────────────────────
+
+  function updateSummary(){
+    var xlOpt = xlatSel.options[xlatSel.selectedIndex];
+    var bkOpt = bookSel.options[bookSel.selectedIndex];
+    var chOpt = chapSel.options[chapSel.selectedIndex];
+    var xl = xlOpt ? xlOpt.text.split('—')[0].trim() : '';
+    var bk = bkOpt ? bkOpt.text : '';
+    var ch = chOpt ? chOpt.text : '';
+    summaryText.textContent = xl + (bk ? ' · '+bk : '') + (ch ? ' · '+ch : '');
+  }
+
+  collapseBtn.addEventListener('click', function(){
+    state.controlsCollapsed = !state.controlsCollapsed;
+    controlsEl.classList.toggle('collapsed', state.controlsCollapsed);
+    collapseBtn.textContent = state.controlsCollapsed ? '▼' : '▲';
+    collapseBtn.title = state.controlsCollapsed ? 'Show controls' : 'Minimize controls';
+    if(state.controlsCollapsed) updateSummary();
+  });
+
+  // ── Search ────────────────────────────────────────────────────────────────
+
+  searchToggle.addEventListener('click', function(){
+    var open = searchWrap.classList.toggle('open');
+    searchToggle.classList.toggle('active', open);
+    if(open) setTimeout(function(){ searchInput.focus(); }, 320);
+  });
+
+  function doSearch(){
+    var q = searchInput.value.trim();
+    if(!q) return;
+    searchResults.innerHTML = '<div class="search-status">Searching…</div>';
+    var bibleId = state.curBibleId || 'de4e12af7f28f599-02';
+    apiGet('/bibles/'+bibleId+'/search?query='+encodeURIComponent(q)+'&limit=25&sort=relevance')
+      .then(function(res){
+        var verses = (res.data && res.data.verses) ? res.data.verses : [];
+        if(!verses.length){
+          searchResults.innerHTML = '<div class="search-status">No results found. Try a different keyword.</div>';
+          return;
+        }
+        searchResults.innerHTML = '';
+        verses.forEach(function(v){
+          var ref   = v.reference || '';
+          var text  = (v.text || '').replace(/<[^>]+>/g,'').trim();
+          var parts = ref.split(' ');
+          // chapterId = bookId.chapterNum e.g. GEN.1
+          var bookId = v.bookId || '';
+          var chapRef = v.chapterId || '';
+
+          var el = document.createElement('div');
+          el.className = 'search-result';
+          el.innerHTML = '<div class="result-ref">'+ref+'</div><div class="result-text">'+text+'</div>';
+          el.addEventListener('click', function(){
+            // navigate to that book+chapter
+            navigateToChapter(bibleId, bookId, chapRef);
+            searchWrap.classList.remove('open');
+            searchToggle.classList.remove('active');
+          });
+          searchResults.appendChild(el);
+        });
+      })
+      .catch(function(){
+        searchResults.innerHTML = '<div class="search-status">Search failed. Check your connection.</div>';
+      });
+  }
+
+  searchBtn.addEventListener('click', doSearch);
+  searchInput.addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
+
+  function navigateToChapter(bibleId, bookId, chapId){
+    // switch translation if needed
+    if(bibleId !== state.curBibleId){
+      xlatSel.value = bibleId;
+      onTranslationChange(function(){
+        setBookAndChap(bookId, chapId);
+      });
+      return;
+    }
+    setBookAndChap(bookId, chapId);
+  }
+
+  function setBookAndChap(bookId, chapId){
+    if(bookId === state.curBookId){
+      // just switch chapter
+      var ch = state.chapters.find(function(c){ return c.id === chapId; });
+      if(ch){ chapSel.value = chapId; onChapterChange(); return; }
+    }
+    // switch book then chapter
+    if(bookSel.querySelector('option[value="'+bookId+'"]')){
+      bookSel.value = bookId;
+      onBookChange(function(){
+        var ch = state.chapters.find(function(c){ return c.id === chapId; });
+        if(ch){ chapSel.value = chapId; onChapterChange(); }
+      });
+    }
+  }
+
+  // ── Font size ─────────────────────────────────────────────────────────────
+
   function setFontSize(n){
     state.fontSize = Math.min(24, Math.max(13, n));
     var body = document.querySelector('.passage-body');
@@ -210,9 +412,12 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     try{ localStorage.setItem('pb_fontSize', state.fontSize); }catch(e){}
   }
 
-  // ── Translation change ───────────────────────────────────────────────────
+  fontDn.addEventListener('click', function(){ setFontSize(state.fontSize-2); });
+  fontUp.addEventListener('click', function(){ setFontSize(state.fontSize+2); });
 
-  function onTranslationChange(){
+  // ── Translation change ────────────────────────────────────────────────────
+
+  function onTranslationChange(cb){
     var bibleId = xlatSel.value;
     if(!bibleId) return;
     state.curBibleId = bibleId;
@@ -233,13 +438,13 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
       if(savedBook && state.books.find(function(b){ return b.id===savedBook; })){
         bookSel.value = savedBook;
       }
-      onBookChange();
+      if(cb) cb(); else onBookChange();
     }).catch(function(){ showMsg('⚠️','Failed to load books. Check your connection.'); });
   }
 
-  // ── Book change ──────────────────────────────────────────────────────────
+  // ── Book change ───────────────────────────────────────────────────────────
 
-  function onBookChange(){
+  function onBookChange(cb){
     var bookId = bookSel.value;
     if(!bookId || bookId==='Loading…') return;
     state.curBookId = bookId;
@@ -259,11 +464,29 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
       if(savedChap && chaps.find(function(c){ return c.id===savedChap; })){
         chapSel.value = savedChap;
       }
-      onChapterChange();
+      if(cb) cb(); else onChapterChange();
     }).catch(function(){ showMsg('⚠️','Failed to load chapters.'); });
   }
 
-  // ── Chapter change ───────────────────────────────────────────────────────
+  function onBookChange_last(cb){
+    var bookId = bookSel.value;
+    if(!bookId) return;
+    state.curBookId = bookId;
+    try{ localStorage.setItem('pb_book_'+state.curBibleId, bookId); }catch(e){}
+    chapSel.innerHTML = '<option>Loading…</option>';
+    apiGet('/bibles/'+state.curBibleId+'/books/'+bookId+'/chapters').then(function(res){
+      var chaps = (res.data||[]).filter(function(c){ return c.number !== 'intro'; });
+      state.chapters = chaps;
+      chapSel.innerHTML = '';
+      chaps.forEach(function(c){
+        var o = document.createElement('option'); o.value = c.id; o.textContent = 'Chapter '+c.number;
+        chapSel.appendChild(o);
+      });
+      if(chaps.length){ chapSel.value = chaps[chaps.length-1].id; onChapterChange(); }
+    }).catch(function(){ showMsg('⚠️','Failed to load chapters.'); });
+  }
+
+  // ── Chapter change ────────────────────────────────────────────────────────
 
   function onChapterChange(){
     var chapId = chapSel.value;
@@ -272,12 +495,14 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     try{ localStorage.setItem('pb_chap_'+state.curBibleId+'_'+state.curBookId, chapId); }catch(e){}
     showMsg('📖','Loading…');
     updateNavButtons();
+    updateSummary();
+    if(state.controlsCollapsed) updateSummary();
     apiGet('/bibles/'+state.curBibleId+'/chapters/'+chapId+'?content-type=html&include-notes=false&include-titles=true&include-chapter-numbers=false&include-verse-numbers=true&include-verse-spans=false')
       .then(function(res){ renderPassage(res.data || {}); })
       .catch(function(){ showMsg('⚠️','Failed to load passage. Try again.'); });
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   function renderPassage(d){
     var bk = state.books.find(function(b){ return b.id === state.curBookId; });
@@ -301,7 +526,7 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
       '<div class="passage-footer">'+xlLabel+(d.copyright ? ' &nbsp;·&nbsp; '+d.copyright.replace(/<[^>]+>/g,'') : '')+'</div>';
   }
 
-  // ── Prev / Next ──────────────────────────────────────────────────────────
+  // ── Prev / Next ───────────────────────────────────────────────────────────
 
   function updateNavButtons(){
     var idx   = state.chapters.findIndex(function(c){ return c.id === state.curChapterId; });
@@ -330,38 +555,16 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     }
   });
 
-  function onBookChange_last(){
-    var bookId = bookSel.value;
-    if(!bookId) return;
-    state.curBookId = bookId;
-    try{ localStorage.setItem('pb_book_'+state.curBibleId, bookId); }catch(e){}
-    chapSel.innerHTML = '<option>Loading…</option>';
-    apiGet('/bibles/'+state.curBibleId+'/books/'+bookId+'/chapters').then(function(res){
-      var chaps = (res.data||[]).filter(function(c){ return c.number !== 'intro'; });
-      state.chapters = chaps;
-      chapSel.innerHTML = '';
-      chaps.forEach(function(c){
-        var o = document.createElement('option'); o.value = c.id; o.textContent = 'Chapter '+c.number;
-        chapSel.appendChild(o);
-      });
-      if(chaps.length){ chapSel.value = chaps[chaps.length-1].id; onChapterChange(); }
-    }).catch(function(){ showMsg('⚠️','Failed to load chapters.'); });
-  }
+  // ── Event wiring ──────────────────────────────────────────────────────────
 
-  // ── Font size ────────────────────────────────────────────────────────────
-
-  fontDn.addEventListener('click', function(){ setFontSize(state.fontSize-2); });
-  fontUp.addEventListener('click', function(){ setFontSize(state.fontSize+2); });
-
-  xlatSel.addEventListener('change', onTranslationChange);
-  bookSel.addEventListener('change', onBookChange);
+  xlatSel.addEventListener('change', function(){ onTranslationChange(); });
+  bookSel.addEventListener('change', function(){ onBookChange(); });
   chapSel.addEventListener('change', onChapterChange);
 
-  // ── Start ────────────────────────────────────────────────────────────────
+  // ── Start ─────────────────────────────────────────────────────────────────
 
   try{ state.fontSize = parseInt(localStorage.getItem('pb_fontSize'))||17; }catch(e){}
 
-  // restore last used translation or default to KJV
   var savedBible;
   try{ savedBible = localStorage.getItem('pb_bibleId'); }catch(e){}
   var validIds = ['de4e12af7f28f599-02','9879dbb7cfe39e4d-01','01b29f4b342acc35-01'];
