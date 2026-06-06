@@ -110,6 +110,22 @@
   .btn:active{transform:translateY(0);}
   .btn, .btn:visited, .btn:hover, .btn:active{color:var(--btnText) !important;}
 
+  /* Skip-to dropdown */
+  #gram-select{
+    width:100%; max-width:600px;
+    background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.40));
+    color:var(--text); border:1px solid var(--glass-border);
+    border-radius:12px; padding:12px 16px; font-size:1rem; font-weight:600;
+    box-shadow:var(--shadow); cursor:pointer;
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23f5f7f5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center;
+    padding-right:36px;
+  }
+  #gram-select:disabled{opacity:.45; cursor:not-allowed;}
+  #gram-select option{background:#0f2d18; color:var(--text);}
+
   footer{margin:32px 0 16px; opacity:.7; font-size:.9rem;}
 </style>
 </head>
@@ -126,6 +142,13 @@
       <div id="yt-player"></div>
     </div>
 
+    <!-- Skip-to dropdown -->
+    <div style="margin-bottom:12px;">
+      <select id="gram-select" disabled aria-label="Jump to a PickleGram">
+        <option>Loading grams…</option>
+      </select>
+    </div>
+
     <!-- Prev / Next buttons -->
     <div class="nav-btns">
       <button class="nav-btn" id="btn-prev" disabled>⬅️ Prev</button>
@@ -135,8 +158,8 @@
     <div class="flavor">
       <strong>What's a PickleGram?</strong> It's like a singing telegram, but crunchier.
       Pickle Phil shows up, belt in hand (metaphorically), and delivers a personalized song
-      straight from the brine. Use the buttons above to step through every gram, or tap the
-      playlist icon inside the player to jump to any one directly.
+      straight from the brine. Use the dropdown to jump straight to any gram, or step through
+      them one by one with the Prev / Next buttons.
     </div>
 
     <div>
@@ -152,6 +175,32 @@
   var player;
   var btnPrev = document.getElementById('btn-prev');
   var btnNext = document.getElementById('btn-next');
+  var gramSelect = document.getElementById('gram-select');
+
+  function syncSelect() {
+    if (player && player.getPlaylistIndex) {
+      gramSelect.value = player.getPlaylistIndex();
+    }
+  }
+
+  async function populateDropdown(ids) {
+    var titles = await Promise.all(ids.map(function(id, i) {
+      return fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + id + '&format=json')
+        .then(function(r){ return r.json(); })
+        .then(function(d){ return d.title || ('PickleGram ' + (i + 1)); })
+        .catch(function(){ return 'PickleGram ' + (i + 1); });
+    }));
+
+    gramSelect.innerHTML = '';
+    titles.forEach(function(title, i) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = (i + 1) + '. ' + title;
+      gramSelect.appendChild(opt);
+    });
+    gramSelect.disabled = false;
+    syncSelect();
+  }
 
   window.onYouTubeIframeAPIReady = function() {
     player = new YT.Player('yt-player', {
@@ -167,7 +216,10 @@
         onReady: function() {
           btnPrev.disabled = false;
           btnNext.disabled = false;
-        }
+          var ids = player.getPlaylist();
+          if (ids && ids.length) populateDropdown(ids);
+        },
+        onStateChange: syncSelect
       }
     });
   };
@@ -178,6 +230,10 @@
 
   btnNext.addEventListener('click', function() {
     if (player && player.nextVideo) player.nextVideo();
+  });
+
+  gramSelect.addEventListener('change', function() {
+    if (player && player.playVideoAt) player.playVideoAt(parseInt(this.value, 10));
   });
 </script>
 <script src="https://www.youtube.com/iframe_api" defer></script>
