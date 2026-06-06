@@ -78,8 +78,8 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   box-shadow:0 8px 28px rgba(0,0,0,.45);
   overflow:hidden;
-  transition: padding .25s ease, max-height .25s ease, opacity .2s ease;
-  max-height:200px;
+  transition: padding .25s ease, max-height .35s ease, opacity .2s ease;
+  max-height:600px;
 }
 .controls.collapsed{
   padding:10px 18px; max-height:56px; flex-wrap:nowrap;
@@ -168,6 +168,7 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
   font-size:.72rem; font-weight:800; color:var(--accent); vertical-align:super;
   margin-right:3px; opacity:.9;
 }
+.passage-body .wj{ color:#e84040; }
 .passage-body p{margin:0 0 12px;}
 .passage-footer{
   margin-top:18px; font-size:.88rem; opacity:.65; font-style:italic;
@@ -245,6 +246,9 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
         <label for="chap">Chapter</label>
         <select id="chap" title="Choose chapter"></select>
 
+        <label for="verse" id="verseLbl" style="display:none;">Verse</label>
+        <select id="verse" title="Jump to verse" style="display:none;"></select>
+
         <div class="font-btns">
           <button id="fontDn" title="Smaller text">A−</button>
           <button id="fontUp" title="Larger text">A+</button>
@@ -296,6 +300,8 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
   var searchInput   = document.getElementById('searchInput');
   var searchBtn     = document.getElementById('searchBtn');
   var searchResults = document.getElementById('searchResults');
+  var verseSel      = document.getElementById('verse');
+  var verseLbl      = document.getElementById('verseLbl');
 
   // ── API ──────────────────────────────────────────────────────────────────
 
@@ -324,6 +330,45 @@ function updateCollapsedLabel(){
     collapseBtn.textContent = state.controlsCollapsed ? '▼' : '▲';
     collapseBtn.title = state.controlsCollapsed ? 'Show controls' : 'Minimize controls';
     if(state.controlsCollapsed) updateCollapsedLabel();
+  });
+
+  // ── Verse jump ────────────────────────────────────────────────────────────
+
+  function populateVerseSel() {
+    var nums = passageCard.querySelectorAll('.v-num');
+    if (!nums.length) {
+      verseSel.style.display = 'none';
+      verseLbl.style.display = 'none';
+      return;
+    }
+    verseSel.innerHTML = '<option value="">— Go to verse —</option>';
+    nums.forEach(function(el) {
+      var n = el.textContent.trim();
+      var o = document.createElement('option');
+      o.value = n; o.textContent = 'Verse ' + n;
+      verseSel.appendChild(o);
+    });
+    verseSel.style.display = '';
+    verseLbl.style.display = '';
+  }
+
+  verseSel.addEventListener('change', function() {
+    var v = verseSel.value;
+    if (!v) return;
+    var nums = passageCard.querySelectorAll('.v-num');
+    for (var i = 0; i < nums.length; i++) {
+      if (nums[i].textContent.trim() === v) {
+        var el = nums[i].closest('p') || nums[i];
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.style.transition = 'background 0.3s ease, border-radius 0.3s ease';
+        el.style.background = 'rgba(46,204,113,.30)';
+        el.style.borderRadius = '6px';
+        el.style.padding = '3px 6px';
+        setTimeout(function(){ el.style.background = 'transparent'; }, 2800);
+        break;
+      }
+    }
+    verseSel.value = '';
   });
 
   // ── Search ────────────────────────────────────────────────────────────────
@@ -544,6 +589,8 @@ function updateCollapsedLabel(){
         }
       }, 120);
     }
+
+    populateVerseSel();
   }
 
   // ── Prev / Next ───────────────────────────────────────────────────────────
@@ -597,6 +644,12 @@ function updateCollapsedLabel(){
   try { refParam = new URLSearchParams(window.location.search).get('ref') || ''; } catch(e){}
 
   if (refParam) {
+    // Collapse controls immediately when arriving from a devotional link
+    state.controlsCollapsed = true;
+    controlsEl.classList.add('collapsed');
+    collapseBtn.textContent = '▼';
+    collapseBtn.title = 'Show controls';
+
     // e.g. "John 3:16", "1 Peter 5:7", "Psalm 23:1"
     var refMatch = refParam.match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
     if (refMatch) {
