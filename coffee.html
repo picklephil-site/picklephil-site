@@ -330,7 +330,7 @@ a,a:visited{color:var(--text); text-decoration:none;}
     <hr class="pref-divider">
     <div class="section-title">⚙️ Make It Yours</div>
 
-    <label class="pref-label">🔢 Espresso Shots <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(coffee drinks only)</span></label>
+    <label class="pref-label">🔢 Espresso Shots <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(coffee drinks &amp; dirty chai)</span></label>
     <div class="toggle-group" id="shotsGroup">
       <button class="toggle-btn sm" data-val="1">1 Shot</button>
       <button class="toggle-btn sm active" data-val="2">2 Shots</button>
@@ -814,6 +814,16 @@ var DRINKS = [
 // ═══════════════════════════════════════════════════
 // TOPPING LABELS
 // ═══════════════════════════════════════════════════
+// Maps a flavor chip value to the syrup/ingredient to add when it's not already in the drink
+var FLAVOR_INGREDIENTS = {
+  "caramel":     {item:"Caramel Syrup",       amount:"1–2 tbsp"},
+  "vanilla":     {item:"Vanilla Syrup",        amount:"1 tbsp"},
+  "chocolate":   {item:"Chocolate Sauce",      amount:"1–2 tbsp"},
+  "hazelnut":    {item:"Hazelnut Syrup",       amount:"1–2 tbsp"},
+  "cinnamon":    {item:"Cinnamon Dolce Syrup", amount:"1 tbsp"},
+  "brown-sugar": {item:"Brown Sugar Syrup",    amount:"1–2 tbsp"}
+};
+
 var TOPPING_LABELS = {
   "whipped-cream":    {label:"Whipped Cream",     amount:"to top"},
   "sweet-cream":      {label:"Sweet Cream",            amount:"2–3 tbsp (poured)"},
@@ -1006,6 +1016,15 @@ function showResult(drink, matchType) {
       return i;
     });
   }
+  // For non-surprise picks: inject any selected flavors not already in the drink
+  if (matchType !== 'surprise') {
+    getChecked('flavorGrid').forEach(function(f){
+      if (!drink.flavors.includes(f) && FLAVOR_INGREDIENTS[f]) {
+        ings.push({item:FLAVOR_INGREDIENTS[f].item, amount:FLAVOR_INGREDIENTS[f].amount, topping:true, addon:true});
+      }
+    });
+  }
+
   // Append selected toppings
   var toppings = getChecked('toppingsGrid');
   toppings.forEach(function(t){
@@ -1015,8 +1034,11 @@ function showResult(drink, matchType) {
 
   var list = document.getElementById('rIngredients');
   list.innerHTML = ings.map(function(i){
+    var nameHtml = i.addon
+      ? i.item+' <span style="font-size:.75rem;opacity:.6;font-weight:400;font-style:italic;">✦ your add-on</span>'
+      : i.item;
     return '<li class="'+(i.topping?'topping-row':'')+'">'+
-      '<span class="ing-name">'+i.item+'</span>'+
+      '<span class="ing-name">'+nameHtml+'</span>'+
       '<span class="ing-amount'+(i.topping?' topping-amt':'')+'">'+i.amount+'</span>'+
       '</li>';
   }).join('');
