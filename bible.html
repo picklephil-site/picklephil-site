@@ -224,21 +224,23 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
 (function(){
   'use strict';
 
-  var API_BASE = 'https://api.bible/v1';
+  var API_BASE = 'https://api.scripture.api.bible/v1';
 
   // Preferred translations — abbreviation → label shown in the picker
   // The actual IDs are fetched from the API so they stay accurate
-  var PREF_ABBREVS = ['NIV','KJV','AMP','MSG','NKJV','ESV','NLT','CSB'];
-  var PREF_LABELS  = {
-    NIV:'NIV — New International Version',
-    KJV:'KJV — King James Version',
-    AMP:'AMP — Amplified Bible',
-    MSG:'MSG — The Message',
-    NKJV:'NKJV — New King James Version',
-    ESV:'ESV — English Standard Version',
-    NLT:'NLT — New Living Translation',
-    CSB:'CSB — Christian Standard Bible',
-  };
+  // Translations available on the free API.Bible plan (NIV/AMP/MSG require licensed access)
+  var PREF_IDS = [
+    {id:'de4e12af7f28f599-02', label:'KJV — King James Version'},
+    {id:'9879dbb7cfe39e4d-01', label:'WEB — World English Bible'},
+    {id:'01b29f4b342acc35-01', label:'LSV — Literal Standard Version'},
+    {id:'06125adad2d5898a-01', label:'ASV — American Standard Version'},
+    {id:'65eec8e0b60e656b-01', label:'FBV — Free Bible Version'},
+    {id:'c315fa9f71d4af3a-01', label:'GNV — Geneva Bible (1599)'},
+    {id:'179568874c45066f-01', label:'DRA — Douay-Rheims (1899)'},
+    {id:'40072c4a5aba4022-01', label:'RV — Revised Version (1885)'},
+  ];
+  var PREF_ABBREVS = []; // kept for compat — using PREF_IDS instead
+  var PREF_LABELS  = {};
 
   var state = {
     key: '',
@@ -326,22 +328,25 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     showMsg('📖','Loading translations…');
     apiGet('/bibles?language=eng').then(function(res){
       var all = res.data || [];
-      // filter to English, sort preferred first
-      var found = {};
-      var preferred = [], others = [];
-      all.forEach(function(b){
-        var abbr = (b.abbreviation||'').toUpperCase();
-        var idx = PREF_ABBREVS.indexOf(abbr);
-        if(idx !== -1){
-          if(!found[abbr]){
-            found[abbr] = true;
-            preferred.push({id:b.id, abbr:abbr, name: PREF_LABELS[abbr]||b.name, sortKey:idx});
-          }
-        } else {
-          others.push({id:b.id, abbr:abbr, name:b.name||b.abbreviation, sortKey:999});
+      // Sort preferred IDs first, everything else after
+      var prefIdMap = {};
+      PREF_IDS.forEach(function(p,i){ prefIdMap[p.id] = {label:p.label, sortKey:i}; });
+      var preferred = [], others = [], seenIds = {};
+      // add preferred in order
+      PREF_IDS.forEach(function(p){
+        var match = all.find(function(b){ return b.id===p.id; });
+        if(match && !seenIds[match.id]){
+          seenIds[match.id] = true;
+          preferred.push({id:match.id, abbr:match.abbreviation||'', name:p.label, sortKey:prefIdMap[match.id].sortKey});
         }
       });
-      preferred.sort(function(a,b){return a.sortKey-b.sortKey;});
+      // everything else
+      all.forEach(function(b){
+        if(!seenIds[b.id]){
+          seenIds[b.id] = true;
+          others.push({id:b.id, abbr:b.abbreviation||'', name:b.name||b.abbreviation, sortKey:999});
+        }
+      });
       state.bibles = preferred.concat(others);
 
       // Populate translation select
