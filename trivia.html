@@ -851,10 +851,26 @@ function renderLobbyPlayers(players) {
   var isHost=!!liveHostId;
   var container=isHost ? document.getElementById('lobby-players') : document.getElementById('player-lobby-players');
   if (!container) return;
-  container.innerHTML=players.map(function(p){
-    var crown = p.captain ? '<span class="captain-crown">👑</span>' : '';
-    return '<div class="player-chip '+p.team+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+'</div>';
-  }).join('');
+  var red=players.filter(function(p){ return p.team==='red'; });
+  var blue=players.filter(function(p){ return p.team==='blue'; });
+  function chips(list){
+    if (!list.length) return '<div style="opacity:.4; font-size:.85rem; font-style:italic; padding:4px 0;">No one yet</div>';
+    return list.map(function(p){
+      var crown = p.captain ? '<span class="captain-crown">👑</span>' : '';
+      return '<div class="player-chip '+p.team+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+'</div>';
+    }).join('');
+  }
+  container.innerHTML=
+    '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:left;">'+
+      '<div>'+
+        '<div style="font-weight:800; font-size:.82rem; letter-spacing:.6px; text-transform:uppercase; color:#ff6b6b; margin-bottom:8px;">🔴 Red Team &nbsp;<span style="opacity:.55; font-weight:600;">('+red.length+')</span></div>'+
+        '<div style="display:flex; flex-direction:column; gap:6px;">'+chips(red)+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-weight:800; font-size:.82rem; letter-spacing:.6px; text-transform:uppercase; color:#82b4ff; margin-bottom:8px;">🔵 Blue Team &nbsp;<span style="opacity:.55; font-weight:600;">('+blue.length+')</span></div>'+
+        '<div style="display:flex; flex-direction:column; gap:6px;">'+chips(blue)+'</div>'+
+      '</div>'+
+    '</div>';
 }
 
 function scoreBar(scores, containerId) {
