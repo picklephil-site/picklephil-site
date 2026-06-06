@@ -893,6 +893,19 @@ function switchTeam() {
   });
 }
 
+function startRename() {
+  var current = liveRoom && liveRoom.players && liveRoom.players.find(function(p){ return p.id===livePlayerId; });
+  var currentName = current ? current.name : '';
+  var newName = prompt('Change your name:', currentName);
+  if (newName === null) return; // cancelled
+  newName = newName.trim().slice(0, 30);
+  if (!newName) return;
+  fetch(API+'/room/'+liveCode+'/rename', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, name:newName})
+  }).catch(function(){});
+}
+
 function renderLobbyPlayers(players) {
   var isHost=!!liveHostId;
   var container=isHost ? document.getElementById('lobby-players') : document.getElementById('player-lobby-players');
@@ -903,7 +916,12 @@ function renderLobbyPlayers(players) {
     if (!list.length) return '<div style="opacity:.4; font-size:.85rem; font-style:italic; padding:4px 0;">No one yet</div>';
     return list.map(function(p){
       var crown = p.captain ? '<span class="captain-crown">👑</span>' : '';
-      return '<div class="player-chip '+p.team+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+'</div>';
+      var isMe = p.id === livePlayerId;
+      var meStyle = isMe ? ' cursor:pointer; outline:1px dashed rgba(255,255,255,.35);' : '';
+      var pencil = isMe ? '<span style="margin-left:auto; opacity:.55; font-size:.8rem;">✏️</span>' : '';
+      var onclick = isMe ? ' onclick="startRename()"' : '';
+      var title = isMe ? ' title="Click to change your name"' : '';
+      return '<div class="player-chip '+p.team+'"'+onclick+title+' style="'+meStyle+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span>'+crown+pencil+'</div>';
     }).join('');
   }
   container.innerHTML=
