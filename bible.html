@@ -88,12 +88,16 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
 .controls.collapsed .controls-main{ display:none; }
 .controls.collapsed .collapsed-summary{ display:flex; }
 
+.controls-always{
+  display:flex; align-items:center; gap:8px; width:100%; flex-wrap:nowrap;
+}
 .controls-main{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; width:100%; }
 .collapsed-summary{
   display:none; align-items:center; gap:10px; flex:1; min-width:0;
   font-size:.9rem; opacity:.85; overflow:hidden;
 }
 .collapsed-summary span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.nav-btns{display:flex;gap:6px;margin-left:auto;}
 
 .controls select{
   background:#0f2d18; color:var(--text); border:1px solid var(--glass-border);
@@ -105,7 +109,6 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
 }
 .controls select:focus{outline:2px solid var(--accent); outline-offset:2px;}
 .controls label{font-size:.88rem;opacity:.8;margin-right:-6px;}
-.nav-btns{display:flex;gap:6px;margin-left:auto;}
 
 /* SEARCH PANEL */
 .search-wrap{
@@ -217,13 +220,19 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
   <!-- CONTROLS -->
   <div class="controls-wrap">
     <div class="controls" id="controls">
-      <!-- Collapsed summary (shown when minimized) -->
-      <div class="collapsed-summary" id="collapsedSummary">
-        <span id="summaryText">KJV · Genesis · Chapter 1</span>
+      <!-- Always-visible row: toggle + summary + prev/next -->
+      <div class="controls-always">
+        <button class="icon-btn" id="collapseBtn" title="Toggle controls" style="flex-shrink:0;">▲</button>
+        <div class="collapsed-summary" id="collapsedSummary">
+          <span id="summaryText">KJV · Genesis · Chapter 1</span>
+        </div>
+        <div class="nav-btns">
+          <button class="btn sm" id="prevBtn">◀ Prev</button>
+          <button class="btn sm" id="nextBtn">Next ▶</button>
+        </div>
       </div>
-      <button class="icon-btn" id="collapseBtn" title="Toggle controls" style="flex-shrink:0;">▲</button>
 
-      <!-- Full controls -->
+      <!-- Collapsible selects + font size -->
       <div class="controls-main">
         <label for="xlat">Translation</label>
         <select id="xlat" title="Choose translation">
@@ -241,11 +250,6 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
         <div class="font-btns">
           <button id="fontDn" title="Smaller text">A−</button>
           <button id="fontUp" title="Larger text">A+</button>
-        </div>
-
-        <div class="nav-btns">
-          <button class="btn sm" id="prevBtn">◀ Prev</button>
-          <button class="btn sm" id="nextBtn">Next ▶</button>
         </div>
       </div>
     </div>
