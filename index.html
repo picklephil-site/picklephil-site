@@ -235,6 +235,7 @@
         <h3>📖 Daily Dill-votional</h3>
         <p id="votd-text" class="meta">Loading verse…</p>
         <p id="votd-ref" class="meta" style="margin-top:6px; font-weight:700;"></p>
+        <p><button id="copy-votd" class="btn">📋 Copy Verse</button></p>
       </article>
 
       <article class="card card--wide">
@@ -367,6 +368,18 @@
         });
       }
       wireCopy('copy-email','realdillphil@philliphinshaw.com');
+
+      // Copy verse button — reads live text from the DOM
+      var copyVotd = document.getElementById('copy-votd');
+      if (copyVotd) {
+        copyVotd.addEventListener('click', async function(){
+          var t = (document.getElementById('votd-text')||{}).textContent || '';
+          var r = (document.getElementById('votd-ref')||{}).textContent || '';
+          var text = r ? t + ' — ' + r : t;
+          try { await navigator.clipboard.writeText(text); var orig=copyVotd.textContent; copyVotd.textContent='✅ Copied!'; setTimeout(function(){copyVotd.textContent=orig;},1400); }
+          catch(e){ alert(text); }
+        });
+      }
       wireCopy('copy-java','mine.philliphinshaw.com:25565');
       wireCopy('copy-bedrock','mine.philliphinshaw.com:19132');
     })();
