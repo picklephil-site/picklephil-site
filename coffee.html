@@ -339,7 +339,8 @@ a,a:visited{color:var(--text); text-decoration:none;}
     <label class="pref-label">🍦 Toppings <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(added to your recipe)</span></label>
     <div class="chip-grid" id="toppingsGrid">
       <label class="chip topping"><input type="checkbox" value="whipped-cream"> 🍦 Whipped Cream</label>
-      <label class="chip topping"><input type="checkbox" value="sweet-cream"> 🥛 Sweet Cream / Soft Top</label>
+      <label class="chip topping"><input type="checkbox" value="sweet-cream"> 🥛 Sweet Cream</label>
+      <label class="chip topping"><input type="checkbox" value="soft-top"> ☁️ Soft Top</label>
       <label class="chip topping"><input type="checkbox" value="cinnamon-dust"> 🌶️ Cinnamon Dust</label>
       <label class="chip topping"><input type="checkbox" value="caramel-drizzle"> 🍮 Caramel Drizzle</label>
       <label class="chip topping"><input type="checkbox" value="chocolate-drizzle"> 🍫 Chocolate Drizzle</label>
@@ -806,7 +807,8 @@ var DRINKS = [
 // ═══════════════════════════════════════════════════
 var TOPPING_LABELS = {
   "whipped-cream":    {label:"Whipped Cream",     amount:"to top"},
-  "sweet-cream":      {label:"Sweet Cream / Soft Top", amount:"to top"},
+  "sweet-cream":      {label:"Sweet Cream",            amount:"to top"},
+  "soft-top":         {label:"Soft Top",               amount:"to top"},
   "cinnamon-dust":    {label:"Cinnamon Dust",     amount:"a pinch"},
   "caramel-drizzle":  {label:"Caramel Drizzle",   amount:"1 tbsp"},
   "chocolate-drizzle":{label:"Chocolate Drizzle", amount:"1 tbsp"},
