@@ -54,9 +54,6 @@ textarea:focus{
   box-shadow:inset 0 2px 8px rgba(0,0,0,.25), 0 0 0 3px rgba(46,204,113,.25);
 }
 
-.controls{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
-@media(max-width:480px){.controls{grid-template-columns:1fr;}}
-
 .select-wrap{position:relative;}
 select{
   width:100%; background:rgba(255,255,255,.1); border:1px solid var(--glass-border);
@@ -71,29 +68,22 @@ select option{background:#1c4a2e; color:#fff;}
   pointer-events:none; opacity:.6; font-size:1.1rem;
 }
 
-.slider-row{display:flex; flex-direction:column; gap:4px;}
-.slider-label{font-size:.8rem; font-weight:700; opacity:.65; display:flex; justify-content:space-between;}
-input[type=range]{
-  width:100%; accent-color:#2ecc71; cursor:pointer;
-  height:6px; border-radius:99px; background:rgba(255,255,255,.2);
-}
-
 .btn{
   color:var(--btnText); background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
   border:1px solid rgba(255,255,255,.6); border-radius:12px;
   padding:12px 24px; font-weight:800; font-size:.98rem; cursor:pointer;
   box-shadow:0 8px 20px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.9);
-  transition:transform .15s, box-shadow .15s; margin:5px; display:inline-block;
-  text-decoration:none; width:100%;
+  transition:transform .15s, box-shadow .15s; margin:0; display:inline-block;
+  text-decoration:none; width:100%; border:none;
 }
 .btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.34);}
 .btn:active{transform:translateY(0); box-shadow:0 4px 10px rgba(0,0,0,.2);}
-.btn:disabled{opacity:.45; cursor:default; transform:none !important;}
-.btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border-color:#27ae60;}
-.btn--stop{background:linear-gradient(180deg,#e74c3c,#c0392b); color:#fff; border-color:#c0392b;}
+.btn:disabled{opacity:.45; cursor:default; transform:none !important; pointer-events:none;}
+.btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff;}
+.btn--stop{background:linear-gradient(180deg,#e74c3c,#c0392b); color:#fff;}
 
 .speak-row{display:flex; gap:10px; margin-top:18px;}
-.speak-row .btn{flex:1; margin:0;}
+.speak-row .btn{flex:1;}
 
 /* Speaking animation */
 .speaking-indicator{
@@ -113,8 +103,8 @@ input[type=range]{
   50%{transform:scaleY(1); opacity:1;}
 }
 
-/* Accent cards grid */
-.presets{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-top:16px;}
+/* Accent / phrase grid */
+.presets{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-top:14px;}
 .preset-btn{
   background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
   color:var(--text); border-radius:12px; padding:10px 8px;
@@ -122,15 +112,11 @@ input[type=range]{
   text-align:center; line-height:1.4;
 }
 .preset-btn:hover{background:rgba(46,204,113,.18); border-color:rgba(46,204,113,.4); transform:translateY(-2px);}
+.preset-btn.active{background:rgba(46,204,113,.3); border-color:rgba(46,204,113,.7);}
 .preset-btn .flag{font-size:1.4rem; display:block; margin-bottom:3px;}
 
-.no-support{
-  background:rgba(231,76,60,.15); border:1px solid rgba(231,76,60,.3);
-  border-radius:12px; padding:16px; color:#ff8a8a; font-weight:700;
-  font-size:.95rem; margin-top:16px; display:none;
-}
-
-.voice-count{font-size:.82rem; opacity:.5; margin-top:6px; text-align:center;}
+.status-msg{font-size:.88rem; margin-top:10px; min-height:1.4em; opacity:.75; text-align:center;}
+.status-msg.err{color:#ff8a8a; opacity:1;}
 </style>
 </head>
 <body>
@@ -139,32 +125,16 @@ input[type=range]{
 
   <span style="font-size:3.5rem;display:block;margin-bottom:6px;">🗣️</span>
   <h1>Accent Machine</h1>
-  <p class="lead">Type anything. Pick an accent. Hear it said back in that voice. Totally free — your browser does the talking.</p>
-
-  <div class="no-support" id="no-support">
-    ⚠️ Your browser doesn't support the Web Speech API. Try Chrome or Edge for the full experience.
-  </div>
+  <p class="lead">Type anything. Pick a real accent. Hear it spoken back — British, Australian, Indian, Irish and more. Totally free.</p>
 
   <div class="card">
     <label class="label" for="speech-text">✏️ Type what you want it to say</label>
     <textarea id="speech-text" placeholder="Click here and start typing… the more ridiculous the better." maxlength="500"></textarea>
 
-    <div class="controls">
-      <div>
-        <label class="label" for="voice-select">Accent / Voice</label>
-        <div class="select-wrap">
-          <select id="voice-select"><option>Loading voices…</option></select>
-        </div>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <div class="slider-row">
-          <div class="slider-label"><span>Speed</span><span id="rate-val">1.0×</span></div>
-          <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1" />
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span>Pitch</span><span id="pitch-val">1.0</span></div>
-          <input type="range" id="pitch-slider" min="0.5" max="2" step="0.1" value="1" />
-        </div>
+    <div style="margin-top:16px;">
+      <label class="label" for="voice-select">🌍 Pick an Accent</label>
+      <div class="select-wrap">
+        <select id="voice-select"></select>
       </div>
     </div>
 
@@ -181,43 +151,60 @@ input[type=range]{
       <span id="speaking-label">Speaking…</span>
     </div>
 
-    <div class="voice-count" id="voice-count"></div>
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+
+  <!-- Quick accent pick -->
+  <div class="card">
+    <span class="label">🌍 Quick Accent Buttons</span>
+    <div class="presets" id="accent-presets"></div>
   </div>
 
   <!-- Quick phrases -->
   <div class="card">
-    <span class="label">🎭 Quick Phrases (tap to load)</span>
+    <span class="label">🎭 Quick Phrases — tap to load</span>
     <div class="presets" id="phrase-presets"></div>
-  </div>
-
-  <!-- Accent quick-select -->
-  <div class="card">
-    <span class="label">🌍 Quick Accent Pick</span>
-    <div class="presets" id="accent-presets"></div>
   </div>
 
 </div>
 
 <script>
-var synth = window.speechSynthesis;
-var allVoices = [];
-var speaking = false;
+// StreamElements TTS — free, no API key, real distinct voices/accents
+// API: https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=Hello
 
-var ACCENT_REGIONS = [
-  { flag:'🇬🇧', label:'British',     langs:['en-GB'] },
-  { flag:'🇺🇸', label:'American',    langs:['en-US'] },
-  { flag:'🇦🇺', label:'Australian',  langs:['en-AU'] },
-  { flag:'🇮🇳', label:'Indian',      langs:['en-IN'] },
-  { flag:'🇮🇪', label:'Irish',       langs:['en-IE'] },
-  { flag:'🇿🇦', label:'S. African',  langs:['en-ZA'] },
-  { flag:'🇨🇦', label:'Canadian',    langs:['en-CA'] },
-  { flag:'🇳🇿', label:'Kiwi',        langs:['en-NZ'] },
-  { flag:'🇫🇷', label:'French',      langs:['fr-FR','fr'] },
-  { flag:'🇩🇪', label:'German',      langs:['de-DE','de'] },
-  { flag:'🇪🇸', label:'Spanish',     langs:['es-ES','es'] },
-  { flag:'🇮🇹', label:'Italian',     langs:['it-IT','it'] },
-  { flag:'🇯🇵', label:'Japanese',    langs:['ja-JP','ja'] },
-  { flag:'🇧🇷', label:'Portuguese',  langs:['pt-BR','pt'] },
+var VOICES = [
+  // English accents
+  { id:'Brian',   flag:'🇬🇧', label:'Brian',    accent:'British (Male)' },
+  { id:'Amy',     flag:'🇬🇧', label:'Amy',      accent:'British (Female)' },
+  { id:'Emma',    flag:'🇬🇧', label:'Emma',     accent:'British (Female 2)' },
+  { id:'Geraint', flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', label:'Geraint',  accent:'Welsh (Male)' },
+  { id:'Russell', flag:'🇦🇺', label:'Russell',  accent:'Australian (Male)' },
+  { id:'Nicole',  flag:'🇦🇺', label:'Nicole',   accent:'Australian (Female)' },
+  { id:'Raveena', flag:'🇮🇳', label:'Raveena',  accent:'Indian (Female)' },
+  { id:'Joanna',  flag:'🇺🇸', label:'Joanna',   accent:'American (Female)' },
+  { id:'Matthew', flag:'🇺🇸', label:'Matthew',  accent:'American (Male)' },
+  { id:'Kendra',  flag:'🇺🇸', label:'Kendra',   accent:'American (Female 2)' },
+  { id:'Salli',   flag:'🇺🇸', label:'Salli',    accent:'American (Female 3)' },
+  { id:'Joey',    flag:'🇺🇸', label:'Joey',     accent:'American (Male 2)' },
+  { id:'Justin',  flag:'🇺🇸', label:'Justin',   accent:'American (Young Male)' },
+  { id:'Ivy',     flag:'🇺🇸', label:'Ivy',      accent:'American (Child)' },
+  // Other languages
+  { id:'Celine',  flag:'🇫🇷', label:'Céline',   accent:'French (Female)' },
+  { id:'Mathieu', flag:'🇫🇷', label:'Mathieu',  accent:'French (Male)' },
+  { id:'Marlene', flag:'🇩🇪', label:'Marlene',  accent:'German (Female)' },
+  { id:'Hans',    flag:'🇩🇪', label:'Hans',     accent:'German (Male)' },
+  { id:'Carla',   flag:'🇮🇹', label:'Carla',    accent:'Italian (Female)' },
+  { id:'Giorgio', flag:'🇮🇹', label:'Giorgio',  accent:'Italian (Male)' },
+  { id:'Conchita',flag:'🇪🇸', label:'Conchita', accent:'Spanish (Female)' },
+  { id:'Enrique', flag:'🇪🇸', label:'Enrique',  accent:'Spanish (Male)' },
+  { id:'Penelope',flag:'🇲🇽', label:'Penélope', accent:'Spanish US (Female)' },
+  { id:'Miguel',  flag:'🇲🇽', label:'Miguel',   accent:'Spanish US (Male)' },
+  { id:'Ricardo', flag:'🇧🇷', label:'Ricardo',  accent:'Portuguese (Male)' },
+  { id:'Vitoria', flag:'🇧🇷', label:'Vitória',  accent:'Portuguese (Female)' },
+  { id:'Astrid',  flag:'🇸🇪', label:'Astrid',   accent:'Swedish (Female)' },
+  { id:'Filiz',   flag:'🇹🇷', label:'Filiz',    accent:'Turkish (Female)' },
+  { id:'Mizuki',  flag:'🇯🇵', label:'Mizuki',   accent:'Japanese (Female)' },
+  { id:'Takumi',  flag:'🇯🇵', label:'Takumi',   accent:'Japanese (Male)' },
 ];
 
 var PHRASES = [
@@ -227,172 +214,153 @@ var PHRASES = [
   { flag:'🏈', text:"That quarterback just launched a sixty yard spiral!" },
   { flag:'🎩', text:"I say, that was a rather splendid performance, wasn't it?" },
   { flag:'🦘', text:"No worries mate, she'll be right." },
-  { flag:'🐄', text:"The cows are out in the paddock, reckon it'll rain." },
   { flag:'🌶️', text:"This is the most fire hot sauce I have ever tasted in my life!" },
   { flag:'👽', text:"We have detected an unusual pickle-based life form." },
   { flag:'💅', text:"Oh my god, did you SEE what she wore to the gala? Absolutely iconic." },
+  { flag:'🎸', text:"Rock and roll all night and party every day!" },
 ];
 
-function init() {
-  if (!synth) {
-    document.getElementById('no-support').style.display='block';
-    document.getElementById('speak-btn').disabled=true;
-    return;
-  }
+var currentAudio = null;
+var selectedVoiceId = 'Brian';
 
-  // Build phrase presets
-  var pp = document.getElementById('phrase-presets');
-  PHRASES.forEach(function(p){
+function init() {
+  // Populate dropdown
+  var sel = document.getElementById('voice-select');
+  sel.innerHTML = '';
+  VOICES.forEach(function(v) {
+    var opt = document.createElement('option');
+    opt.value = v.id;
+    opt.textContent = v.flag + ' ' + v.label + ' — ' + v.accent;
+    sel.appendChild(opt);
+  });
+  sel.value = 'Brian';
+  sel.addEventListener('change', function() {
+    selectedVoiceId = this.value;
+    updateAccentButtons();
+  });
+
+  // Quick accent buttons (just the English accents + a few fun ones)
+  var accents = [
+    {id:'Brian',   flag:'🇬🇧', label:'British'},
+    {id:'Russell', flag:'🇦🇺', label:'Australian'},
+    {id:'Raveena', flag:'🇮🇳', label:'Indian'},
+    {id:'Geraint', flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', label:'Welsh'},
+    {id:'Joanna',  flag:'🇺🇸', label:'American'},
+    {id:'Mathieu', flag:'🇫🇷', label:'French'},
+    {id:'Hans',    flag:'🇩🇪', label:'German'},
+    {id:'Giorgio', flag:'🇮🇹', label:'Italian'},
+    {id:'Mizuki',  flag:'🇯🇵', label:'Japanese'},
+    {id:'Astrid',  flag:'🇸🇪', label:'Swedish'},
+  ];
+  var ap = document.getElementById('accent-presets');
+  accents.forEach(function(a) {
     var btn = document.createElement('button');
-    btn.className='preset-btn';
-    btn.innerHTML='<span class="flag">'+p.flag+'</span>'+escHtml(p.text.slice(0,28))+(p.text.length>28?'…':'');
-    btn.title=p.text;
-    btn.addEventListener('click', function(){ document.getElementById('speech-text').value=p.text; });
+    btn.className = 'preset-btn';
+    btn.dataset.voiceId = a.id;
+    btn.innerHTML = '<span class="flag">' + a.flag + '</span>' + a.label;
+    btn.addEventListener('click', function() {
+      selectedVoiceId = a.id;
+      document.getElementById('voice-select').value = a.id;
+      updateAccentButtons();
+    });
+    ap.appendChild(btn);
+  });
+  updateAccentButtons();
+
+  // Quick phrase buttons
+  var pp = document.getElementById('phrase-presets');
+  PHRASES.forEach(function(p) {
+    var btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.innerHTML = '<span class="flag">' + p.flag + '</span>' + escHtml(p.text.slice(0, 28)) + (p.text.length > 28 ? '…' : '');
+    btn.title = p.text;
+    btn.addEventListener('click', function() {
+      document.getElementById('speech-text').value = p.text;
+      document.getElementById('speech-text').focus();
+    });
     pp.appendChild(btn);
   });
 
-  // Load voices (async on Chrome)
-  loadVoices();
-  if (synth.onvoiceschanged !== undefined) {
-    synth.onvoiceschanged = loadVoices;
-  }
-
-  // Sliders
-  document.getElementById('rate-slider').addEventListener('input', function(){
-    document.getElementById('rate-val').textContent=parseFloat(this.value).toFixed(1)+'×';
-  });
-  document.getElementById('pitch-slider').addEventListener('input', function(){
-    document.getElementById('pitch-val').textContent=parseFloat(this.value).toFixed(1);
-  });
-
-  // Keyboard shortcut: Ctrl+Enter to speak
-  document.getElementById('speech-text').addEventListener('keydown', function(e){
-    if ((e.ctrlKey||e.metaKey) && e.key==='Enter') speakIt();
+  // Ctrl+Enter shortcut
+  document.getElementById('speech-text').addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') speakIt();
   });
 }
 
-function loadVoices() {
-  allVoices = synth.getVoices();
-  if (!allVoices.length) return;
-
-  // Sort: English first, then everything else alphabetically by lang
-  allVoices.sort(function(a,b){
-    var aEn = a.lang.startsWith('en') ? 0 : 1;
-    var bEn = b.lang.startsWith('en') ? 0 : 1;
-    if (aEn !== bEn) return aEn-bEn;
-    return a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name);
+function updateAccentButtons() {
+  document.querySelectorAll('#accent-presets .preset-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.voiceId === selectedVoiceId);
   });
-
-  var sel = document.getElementById('voice-select');
-  sel.innerHTML='';
-  allVoices.forEach(function(v, i){
-    var opt = document.createElement('option');
-    opt.value=i;
-    var flag = flagForLang(v.lang);
-    opt.textContent=flag+' '+friendlyName(v);
-    sel.appendChild(opt);
-  });
-
-  // Default to first en-GB, else first en-US, else first voice
-  var gbIdx = allVoices.findIndex(function(v){ return v.lang==='en-GB'; });
-  var usIdx = allVoices.findIndex(function(v){ return v.lang==='en-US'; });
-  sel.selectedIndex = gbIdx>=0 ? gbIdx : (usIdx>=0 ? usIdx : 0);
-
-  document.getElementById('voice-count').textContent=allVoices.length+' voices available on this device';
-
-  // Build accent quick-pick buttons
-  buildAccentButtons();
 }
 
-function friendlyName(voice) {
-  var lang = voice.lang;
-  var name = voice.name
-    .replace('Microsoft ','').replace('Google ','').replace(' Online (Natural)','')
-    .replace('(Enhanced)','').replace('(Premium)','').trim();
-  return name+' ('+lang+')';
-}
-
-function flagForLang(lang) {
-  var code = lang.split('-')[1] || lang.split('-')[0];
-  var flags = {
-    US:'🇺🇸',GB:'🇬🇧',AU:'🇦🇺',CA:'🇨🇦',IN:'🇮🇳',IE:'🇮🇪',ZA:'🇿🇦',NZ:'🇳🇿',
-    FR:'🇫🇷',DE:'🇩🇪',ES:'🇪🇸',IT:'🇮🇹',JP:'🇯🇵',BR:'🇧🇷',MX:'🇲🇽',PT:'🇵🇹',
-    CN:'🇨🇳',KR:'🇰🇷',RU:'🇷🇺',PL:'🇵🇱',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',
-    FI:'🇫🇮',TR:'🇹🇷',AR:'🇸🇦',HE:'🇮🇱',TH:'🇹🇭',ID:'🇮🇩',HI:'🇮🇳',
-  };
-  return flags[code.toUpperCase()] || '🌐';
-}
-
-function buildAccentButtons() {
-  var container = document.getElementById('accent-presets');
-  container.innerHTML='';
-  ACCENT_REGIONS.forEach(function(region){
-    // Find first voice matching any of the region's langs
-    var idx = -1;
-    for (var i=0; i<region.langs.length; i++) {
-      var found = allVoices.findIndex(function(v){ return v.lang===region.langs[i] || v.lang.startsWith(region.langs[i]); });
-      if (found>=0) { idx=found; break; }
-    }
-    if (idx<0) return; // not available on this device — skip
-
-    var btn=document.createElement('button');
-    btn.className='preset-btn';
-    btn.innerHTML='<span class="flag">'+region.flag+'</span>'+region.label;
-    btn.addEventListener('click', function(){
-      document.getElementById('voice-select').selectedIndex=idx;
-      // Flash the button
-      btn.style.background='rgba(46,204,113,.3)';
-      setTimeout(function(){ btn.style.background=''; }, 400);
-    });
-    container.appendChild(btn);
-  });
-  if (!container.children.length) {
-    container.innerHTML='<p style="opacity:.5; font-size:.9rem;">No specific accents detected — use the dropdown above to browse all available voices.</p>';
-  }
+function setStatus(msg, isErr) {
+  var el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status-msg' + (isErr ? ' err' : '');
 }
 
 function speakIt() {
-  if (!synth) return;
   var text = document.getElementById('speech-text').value.trim();
-  if (!text) { document.getElementById('speech-text').focus(); return; }
+  if (!text) {
+    document.getElementById('speech-text').focus();
+    setStatus('Type something first!', true);
+    return;
+  }
 
-  synth.cancel();
-  var utt = new SpeechSynthesisUtterance(text);
+  // Stop any current audio
+  stopIt();
 
-  var sel = document.getElementById('voice-select');
-  var voiceIdx = parseInt(sel.value, 10);
-  if (!isNaN(voiceIdx) && allVoices[voiceIdx]) utt.voice = allVoices[voiceIdx];
+  var voice = selectedVoiceId || 'Brian';
+  var url = 'https://api.streamelements.com/kappa/v2/speech?voice='
+    + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
 
-  utt.rate  = parseFloat(document.getElementById('rate-slider').value)  || 1;
-  utt.pitch = parseFloat(document.getElementById('pitch-slider').value) || 1;
+  setStatus('Loading…', false);
+  document.getElementById('speak-btn').disabled = true;
 
-  utt.onstart = function(){
-    speaking=true;
-    document.getElementById('speak-btn').style.display='none';
-    document.getElementById('stop-btn').style.display='block';
+  currentAudio = new Audio(url);
+  currentAudio.crossOrigin = 'anonymous';
+
+  currentAudio.addEventListener('playing', function() {
+    document.getElementById('speak-btn').style.display = 'none';
+    document.getElementById('stop-btn').style.display = 'block';
     document.getElementById('speaking-indicator').classList.add('active');
-    var voiceName = allVoices[voiceIdx] ? allVoices[voiceIdx].name.split(' ')[0] : 'Speaking';
-    document.getElementById('speaking-label').textContent=voiceName+' is speaking…';
-  };
-  utt.onend = utt.onerror = function(){
-    speaking=false;
-    document.getElementById('speak-btn').style.display='block';
-    document.getElementById('stop-btn').style.display='none';
-    document.getElementById('speaking-indicator').classList.remove('active');
-  };
+    var vObj = VOICES.find(function(v) { return v.id === voice; });
+    document.getElementById('speaking-label').textContent = (vObj ? vObj.label : voice) + ' is speaking…';
+    setStatus('');
+    document.getElementById('speak-btn').disabled = false;
+  });
 
-  synth.speak(utt);
+  currentAudio.addEventListener('ended', onDone);
+  currentAudio.addEventListener('error', function() {
+    onDone();
+    setStatus('⚠️ Couldn\'t load audio — check your connection and try again.', true);
+    document.getElementById('speak-btn').disabled = false;
+  });
+
+  currentAudio.play().catch(function(err) {
+    onDone();
+    setStatus('⚠️ Playback blocked — tap the button to try again.', true);
+    document.getElementById('speak-btn').disabled = false;
+  });
 }
 
 function stopIt() {
-  synth.cancel();
-  speaking=false;
-  document.getElementById('speak-btn').style.display='block';
-  document.getElementById('stop-btn').style.display='none';
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = '';
+    currentAudio = null;
+  }
+  onDone();
+}
+
+function onDone() {
+  document.getElementById('speak-btn').style.display = 'block';
+  document.getElementById('speak-btn').disabled = false;
+  document.getElementById('stop-btn').style.display = 'none';
   document.getElementById('speaking-indicator').classList.remove('active');
 }
 
-function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 init();
 </script>
