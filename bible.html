@@ -82,21 +82,29 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
   max-height:200px;
 }
 .controls.collapsed{
-  padding:10px 18px; max-height:52px; flex-wrap:nowrap;
+  padding:10px 18px; max-height:56px; flex-wrap:nowrap;
   align-items:center; gap:8px;
 }
-.controls.collapsed .controls-main{ display:none; }
-.controls.collapsed .collapsed-summary{ display:flex; }
+.controls.collapsed .controls-extra{ display:none; }
+.controls.collapsed .collapsed-nav{ display:flex; }
 
 .controls-always{
   display:flex; align-items:center; gap:8px; width:100%; flex-wrap:nowrap;
 }
 .controls-main{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; width:100%; }
-.collapsed-summary{
-  display:none; align-items:center; gap:10px; flex:1; min-width:0;
-  font-size:.9rem; opacity:.85; overflow:hidden;
+/* shown only when collapsed: compact book+chap selects + prev/next inline */
+.collapsed-nav{
+  display:none; align-items:center; gap:6px; flex:1; min-width:0;
 }
-.collapsed-summary span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.collapsed-nav select{
+  background:#0f2d18; color:var(--text); border:1px solid var(--glass-border);
+  border-radius:10px; padding:6px 28px 6px 10px; font-size:.85rem; cursor:pointer;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2388ccaa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+  flex:1; min-width:0;
+}
+.collapsed-nav select:focus{outline:2px solid var(--accent); outline-offset:2px;}
 .nav-btns{display:flex;gap:6px;margin-left:auto;}
 
 .controls select{
@@ -220,11 +228,13 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
   <!-- CONTROLS -->
   <div class="controls-wrap">
     <div class="controls" id="controls">
-      <!-- Always-visible row: toggle + summary + prev/next -->
+      <!-- Always-visible row: toggle + (when collapsed) compact book/chap + prev/next -->
       <div class="controls-always">
         <button class="icon-btn" id="collapseBtn" title="Toggle controls" style="flex-shrink:0;">▲</button>
-        <div class="collapsed-summary" id="collapsedSummary">
-          <span id="summaryText">KJV · Genesis · Chapter 1</span>
+        <!-- Compact book+chapter selects shown only when minimized -->
+        <div class="collapsed-nav" id="collapsedNav">
+          <select id="book-mini" title="Choose book"></select>
+          <select id="chap-mini" title="Choose chapter"></select>
         </div>
         <div class="nav-btns">
           <button class="btn sm" id="prevBtn">◀ Prev</button>
@@ -234,12 +244,14 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
 
       <!-- Collapsible selects + font size -->
       <div class="controls-main">
-        <label for="xlat">Translation</label>
-        <select id="xlat" title="Choose translation">
-          <option value="de4e12af7f28f599-02">KJV — King James Version</option>
-          <option value="9879dbb7cfe39e4d-01">WEB — World English Bible</option>
-          <option value="01b29f4b342acc35-01">LSV — Literal Standard Version</option>
-        </select>
+        <div class="controls-extra" style="display:contents;">
+          <label for="xlat">Translation</label>
+          <select id="xlat" title="Choose translation">
+            <option value="de4e12af7f28f599-02">KJV — King James Version</option>
+            <option value="9879dbb7cfe39e4d-01">WEB — World English Bible</option>
+            <option value="01b29f4b342acc35-01">LSV — Literal Standard Version</option>
+          </select>
+        </div>
 
         <label for="book">Book</label>
         <select id="book" title="Choose book"></select>
@@ -247,7 +259,7 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
         <label for="chap">Chapter</label>
         <select id="chap" title="Choose chapter"></select>
 
-        <div class="font-btns">
+        <div class="controls-extra font-btns" style="display:flex;">
           <button id="fontDn" title="Smaller text">A−</button>
           <button id="fontUp" title="Larger text">A+</button>
         </div>
@@ -285,6 +297,8 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
   var xlatSel      = document.getElementById('xlat');
   var bookSel      = document.getElementById('book');
   var chapSel      = document.getElementById('chap');
+  var bookMini     = document.getElementById('book-mini');
+  var chapMini     = document.getElementById('chap-mini');
   var passageCard  = document.getElementById('passageCard');
   var prevBtn      = document.getElementById('prevBtn');
   var nextBtn      = document.getElementById('nextBtn');
@@ -292,12 +306,27 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
   var fontUp       = document.getElementById('fontUp');
   var collapseBtn  = document.getElementById('collapseBtn');
   var controlsEl   = document.getElementById('controls');
-  var summaryText  = document.getElementById('summaryText');
   var searchToggle = document.getElementById('searchToggle');
   var searchWrap   = document.getElementById('searchWrap');
   var searchInput  = document.getElementById('searchInput');
   var searchBtn    = document.getElementById('searchBtn');
   var searchResults= document.getElementById('searchResults');
+
+  // Keep mini selects in sync with main selects
+  function syncMini(){
+    bookMini.innerHTML = bookSel.innerHTML;
+    bookMini.value = bookSel.value;
+    chapMini.innerHTML = chapSel.innerHTML;
+    chapMini.value = chapSel.value;
+  }
+  bookMini.addEventListener('change', function(){
+    bookSel.value = bookMini.value;
+    onBookChange(function(){ chapMini.innerHTML = chapSel.innerHTML; chapMini.value = chapSel.value; });
+  });
+  chapMini.addEventListener('change', function(){
+    chapSel.value = chapMini.value;
+    onChapterChange();
+  });
 
   // ── API ──────────────────────────────────────────────────────────────────
 
@@ -327,7 +356,11 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     controlsEl.classList.toggle('collapsed', state.controlsCollapsed);
     collapseBtn.textContent = state.controlsCollapsed ? '▼' : '▲';
     collapseBtn.title = state.controlsCollapsed ? 'Show controls' : 'Minimize controls';
-    if(state.controlsCollapsed) updateSummary();
+    // hide/show translation label+select and font buttons
+    document.querySelectorAll('.controls-extra').forEach(function(el){
+      el.style.display = state.controlsCollapsed ? 'none' : '';
+    });
+    if(state.controlsCollapsed) syncMini();
   });
 
   // ── Search ────────────────────────────────────────────────────────────────
@@ -443,6 +476,7 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
         bookSel.value = savedBook;
       }
       if(cb) cb(); else onBookChange();
+      syncMini();
     }).catch(function(){ showMsg('⚠️','Failed to load books. Check your connection.'); });
   }
 
@@ -468,6 +502,7 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
       if(savedChap && chaps.find(function(c){ return c.id===savedChap; })){
         chapSel.value = savedChap;
       }
+      syncMini();
       if(cb) cb(); else onChapterChange();
     }).catch(function(){ showMsg('⚠️','Failed to load chapters.'); });
   }
@@ -499,8 +534,7 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
     try{ localStorage.setItem('pb_chap_'+state.curBibleId+'_'+state.curBookId, chapId); }catch(e){}
     showMsg('📖','Loading…');
     updateNavButtons();
-    updateSummary();
-    if(state.controlsCollapsed) updateSummary();
+    if(state.controlsCollapsed) syncMini();
     apiGet('/bibles/'+state.curBibleId+'/chapters/'+chapId+'?content-type=html&include-notes=false&include-titles=true&include-chapter-numbers=false&include-verse-numbers=true&include-verse-spans=false')
       .then(function(res){ renderPassage(res.data || {}); })
       .catch(function(){ showMsg('⚠️','Failed to load passage. Try again.'); });
