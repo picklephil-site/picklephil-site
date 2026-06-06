@@ -11,96 +11,76 @@
 <style>
 :root {
   --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
-  --text:#f5f7f5;
-  --accent:#2ecc71;
-  --btnText:#0d3d24;
-  --radius:18px;
-  --shadow:0 18px 45px rgba(0,0,0,.40);
-  --glass:rgba(255,255,255,.10);
-  --glass-border:rgba(255,255,255,.22);
-  --gold:#FFD700;
-  --caramel:#D4A056;
-  --cream:#FFF3E0;
+  --text:#f5f7f5; --accent:#2ecc71; --btnText:#0d3d24;
+  --radius:18px; --shadow:0 18px 45px rgba(0,0,0,.40);
+  --glass:rgba(255,255,255,.10); --glass-border:rgba(255,255,255,.22);
+  --gold:#FFD700; --caramel:#D4A056;
 }
 *{box-sizing:border-box}
 body{
   margin:0; font-family:'Segoe UI',Tahoma,sans-serif; color:var(--text);
   background:
-    radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
-    radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
-    radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
-    linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
-  background-attachment:fixed;
-  min-height:100vh; text-align:center;
+    radial-gradient(900px 600px at 78% 8%,rgba(46,204,113,.28),transparent 60%),
+    radial-gradient(1100px 800px at 12% 0%,var(--bg2) 0%,transparent 55%),
+    radial-gradient(circle at 50% 120%,#0f4a2c 0%,var(--bg3) 70%),
+    linear-gradient(160deg,var(--bg) 0%,var(--bg3) 100%);
+  background-attachment:fixed; min-height:100vh; text-align:center;
 }
-.wrap{width:min(880px,100%); margin:0 auto; padding:22px}
+.wrap{width:min(900px,100%); margin:0 auto; padding:22px}
 
 .farmhouse{
-  font-family:"Amatic SC",system-ui,sans-serif;
-  font-weight:700; letter-spacing:1px;
-  font-size:clamp(46px,8vw,96px);
-  line-height:1; margin:0 0 8px;
+  font-family:"Amatic SC",system-ui,sans-serif; font-weight:700; letter-spacing:1px;
+  font-size:clamp(46px,8vw,96px); line-height:1; margin:0 0 8px;
   background:linear-gradient(180deg,#ffffff 0%,#ffe0a0 100%);
   -webkit-background-clip:text; background-clip:text;
   -webkit-text-fill-color:transparent; color:transparent;
   filter:drop-shadow(0 2px 10px rgba(212,160,86,.35));
 }
-.lead{font-size:1.1rem; opacity:.92; margin:0 0 26px; max-width:560px; display:block; margin-inline:auto; margin-bottom:26px;}
+.lead{font-size:1.1rem; opacity:.92; max-width:560px; display:block; margin:0 auto 26px;}
 
-/* ---- CARDS ---- */
+/* ── CARDS ── */
 .card{
   background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.28));
-  backdrop-filter:blur(14px) saturate(120%);
-  -webkit-backdrop-filter:blur(14px) saturate(120%);
-  border:1px solid var(--glass-border);
-  border-radius:var(--radius);
-  padding:26px 24px;
-  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.18);
-  margin-bottom:20px;
-  text-align:left;
+  backdrop-filter:blur(14px) saturate(120%); -webkit-backdrop-filter:blur(14px) saturate(120%);
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:26px 24px; box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.18);
+  margin-bottom:20px; text-align:left;
 }
+.pref-divider{border:none; border-top:1px solid rgba(255,255,255,.1); margin:20px 0;}
 
-/* ---- TOGGLE BUTTONS ---- */
+/* ── LABELS & TOGGLES ── */
 .pref-label{
-  font-weight:700; font-size:.92rem; opacity:.8;
-  text-transform:uppercase; letter-spacing:.5px;
-  display:block; margin-bottom:8px;
+  font-weight:700; font-size:.9rem; opacity:.78; text-transform:uppercase;
+  letter-spacing:.5px; display:block; margin-bottom:8px;
 }
 .toggle-group{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
 .toggle-btn{
-  padding:9px 18px; border-radius:30px;
-  border:2px solid rgba(255,255,255,.28);
-  background:transparent; color:var(--text);
-  cursor:pointer; font-size:.95rem; font-weight:700;
-  transition:all .2s; font-family:inherit;
+  padding:8px 16px; border-radius:30px; border:2px solid rgba(255,255,255,.28);
+  background:transparent; color:var(--text); cursor:pointer;
+  font-size:.92rem; font-weight:700; transition:all .2s; font-family:inherit;
 }
 .toggle-btn:hover{border-color:var(--accent); background:rgba(46,204,113,.15);}
 .toggle-btn.active{background:var(--accent); border-color:var(--accent); color:var(--btnText);}
 
-/* ---- FLAVOR CHIPS ---- */
-.flavor-label-row{margin-bottom:8px;}
-.flavor-grid{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
-.flavor-chip{
-  display:inline-flex; align-items:center; gap:5px;
-  padding:7px 15px; border-radius:30px;
-  border:2px solid rgba(255,255,255,.22);
-  cursor:pointer; font-size:.9rem; font-weight:600;
-  transition:all .2s; user-select:none;
-}
-.flavor-chip input[type="checkbox"]{
-  position:absolute; opacity:0; pointer-events:none; width:0; height:0;
-}
-.flavor-chip:hover{border-color:var(--caramel); background:rgba(212,160,86,.12);}
-.flavor-chip.checked{
-  background:rgba(212,160,86,.22);
-  border-color:var(--caramel);
-  color:#FFE4A0;
-}
+/* small toggles for shots */
+.toggle-btn.sm{padding:6px 14px; font-size:.88rem;}
 
-/* ---- MAIN BUTTONS ---- */
+/* ── CHIPS (flavors & toppings) ── */
+.chip-grid{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.chip{
+  display:inline-flex; align-items:center; gap:5px; padding:7px 14px;
+  border-radius:30px; border:2px solid rgba(255,255,255,.22);
+  cursor:pointer; font-size:.88rem; font-weight:600; transition:all .2s; user-select:none;
+}
+.chip input[type="checkbox"]{position:absolute; opacity:0; pointer-events:none; width:0; height:0;}
+.chip:hover{border-color:var(--caramel); background:rgba(212,160,86,.12);}
+.chip.checked{background:rgba(212,160,86,.22); border-color:var(--caramel); color:#FFE4A0;}
+/* Topping chips use a cream/soft color when checked */
+.chip.topping.checked{background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.55); color:#fff;}
+
+/* ── MAIN BUTTONS ── */
 .btn{
-  color:var(--btnText);
-  background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
+  color:var(--btnText); background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
   padding:13px 22px; border-radius:12px; font-weight:700; font-size:1rem;
   border:1px solid rgba(255,255,255,.6);
   box-shadow:0 8px 20px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.9);
@@ -113,138 +93,91 @@ body{
   filter:brightness(1.02);
 }
 .btn:active{transform:translateY(0);}
-.btn.big{font-size:1.25rem; padding:16px 30px;}
+.btn.big{font-size:1.2rem; padding:15px 28px;}
 .btn.surprise{
   background:linear-gradient(180deg,#FFE066 0%,#D4A056 100%);
   color:#3a1f00; border-color:rgba(255,215,0,.5);
 }
 .btn.surprise:hover{box-shadow:0 14px 30px rgba(0,0,0,.38),0 0 0 2px rgba(255,215,0,.45),inset 0 1px 0 rgba(255,255,255,.9);}
+.btn.heart-btn{
+  background:linear-gradient(180deg,#ff6b8a 0%,#c0394f 100%);
+  color:#fff; border-color:rgba(255,100,130,.5);
+}
+.btn.heart-btn:hover{box-shadow:0 14px 30px rgba(0,0,0,.38),0 0 0 2px rgba(255,100,130,.45),inset 0 1px 0 rgba(255,255,255,.9);}
+.btn.heart-btn.saved{background:linear-gradient(180deg,#ff3355 0%,#9b1030 100%);}
 .btn:disabled{opacity:.5; cursor:not-allowed; transform:none !important; filter:none !important;}
+.btn.sm-btn{padding:8px 16px; font-size:.88rem; margin:4px;}
 
-/* ---- SLOT MACHINE ---- */
+/* ── SLOT MACHINE ── */
 .slot-wrap{display:none; margin:0 0 20px;}
 .slot-wrap.visible{display:block; animation:fadeUp .35s ease;}
-
 .slot-machine{
   background:linear-gradient(180deg,#2a1200 0%,#150900 45%,#2a1200 100%);
-  border:3px solid var(--caramel);
-  border-radius:20px; padding:22px 20px;
-  box-shadow:
-    0 0 0 1px rgba(212,160,86,.25),
-    0 0 40px rgba(212,160,86,.2),
-    0 24px 60px rgba(0,0,0,.55),
-    inset 0 1px 0 rgba(255,255,255,.08);
-  position:relative;
+  border:3px solid var(--caramel); border-radius:20px; padding:22px 20px;
+  box-shadow:0 0 0 1px rgba(212,160,86,.25),0 0 40px rgba(212,160,86,.2),
+    0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);
 }
-
 .slot-machine-title{
-  font-family:"Amatic SC",sans-serif;
-  font-size:1.7rem; font-weight:700; letter-spacing:3px;
-  color:var(--gold); margin:0 0 14px;
+  font-family:"Amatic SC",sans-serif; font-size:1.7rem; font-weight:700;
+  letter-spacing:3px; color:var(--gold); margin:0 0 14px;
   text-shadow:0 0 12px rgba(255,215,0,.45);
 }
-
-/* Decorative lights strip */
-.lights-strip{
-  display:flex; justify-content:center;
-  gap:7px; margin-bottom:14px;
-}
-.bulb{
-  width:11px; height:11px; border-radius:50%;
-  flex-shrink:0;
-}
+.lights-strip{display:flex; justify-content:center; gap:7px; margin-bottom:14px;}
+.bulb{width:11px; height:11px; border-radius:50%; flex-shrink:0;}
 .bulb-y{background:#FFD700; box-shadow:0 0 5px #FFD700;}
 .bulb-r{background:#ff4b4b; box-shadow:0 0 5px #ff4b4b;}
 .bulb-g{background:#2ecc71; box-shadow:0 0 5px #2ecc71;}
 .bulb-b{background:#4488ff; box-shadow:0 0 5px #4488ff;}
-
-/* Flashing animation applied by JS class */
 .lights-go .bulb:nth-child(odd){animation:blink-odd .38s ease infinite;}
 .lights-go .bulb:nth-child(even){animation:blink-even .38s ease infinite;}
 @keyframes blink-odd{0%,100%{opacity:1;filter:brightness(1.5)}50%{opacity:.2;filter:brightness(.5)}}
 @keyframes blink-even{0%,100%{opacity:.2;filter:brightness(.5)}50%{opacity:1;filter:brightness(1.5)}}
+.lights-win .bulb{animation:win-pulse .55s ease infinite !important;}
+@keyframes win-pulse{0%,100%{opacity:1;filter:brightness(2)}50%{opacity:.6;filter:brightness(.8)}}
 
-/* The reel display window */
 .reel-window{
-  background:#080400;
-  border:3px solid rgba(212,160,86,.55);
-  border-radius:10px;
-  height:96px;
-  display:flex; align-items:center; justify-content:center;
+  background:#080400; border:3px solid rgba(212,160,86,.55); border-radius:10px;
+  height:96px; display:flex; align-items:center; justify-content:center;
   position:relative; overflow:hidden;
-  box-shadow:inset 0 0 30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,215,0,.1);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.9),0 0 0 1px rgba(255,215,0,.1);
   max-width:600px; margin:0 auto;
 }
-/* CRT scanline effect */
 .reel-window::after{
-  content:"";
-  position:absolute; inset:0; pointer-events:none; z-index:3;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent, transparent 3px,
-    rgba(0,0,0,.12) 3px, rgba(0,0,0,.12) 4px
-  );
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:3;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);
 }
-/* Inner glow top/bottom vignette */
 .reel-window::before{
-  content:"";
-  position:absolute; inset:0; pointer-events:none; z-index:2;
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:2;
   background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.5) 100%);
 }
 .reel-text{
-  font-family:"Amatic SC",sans-serif;
-  font-size:clamp(1.5rem,4vw,2.3rem);
-  font-weight:700; color:#FFE0A0;
-  text-align:center; padding:0 16px;
-  position:relative; z-index:4;
-  transition:filter .08s, transform .08s, opacity .08s;
-  line-height:1.2;
+  font-family:"Amatic SC",sans-serif; font-size:clamp(1.5rem,4vw,2.3rem);
+  font-weight:700; color:#FFE0A0; text-align:center; padding:0 16px;
+  position:relative; z-index:4; transition:filter .08s,transform .08s,opacity .08s; line-height:1.2;
 }
-.reel-text.spinning{
-  filter:blur(2.5px) brightness(1.4);
-  transform:scaleY(.82);
-  opacity:.85;
-}
-.reel-text.landed{
-  filter:none; transform:none; opacity:1;
-  color:#FFE0A0;
-  animation:reel-land .45s cubic-bezier(.17,.67,.35,1.3);
-}
-@keyframes reel-land{
-  0%{transform:scale(1.18) translateY(-6px);opacity:.5}
-  60%{transform:scale(1.04) translateY(1px);opacity:1}
-  100%{transform:scale(1) translateY(0);opacity:1}
-}
-
-/* Winner / lights-win pulsing */
-.lights-win .bulb{animation:win-pulse .6s ease infinite !important;}
-@keyframes win-pulse{0%,100%{opacity:1;filter:brightness(2)}50%{opacity:.6;filter:brightness(.8)}}
-
+.reel-text.spinning{filter:blur(2.5px) brightness(1.4); transform:scaleY(.82); opacity:.85;}
+.reel-text.landed{filter:none; transform:none; opacity:1; animation:reel-land .45s cubic-bezier(.17,.67,.35,1.3);}
+@keyframes reel-land{0%{transform:scale(1.18) translateY(-6px);opacity:.5}60%{transform:scale(1.04) translateY(1px);opacity:1}100%{transform:scale(1);opacity:1}}
 .winner-banner{
-  margin-top:12px; display:none;
-  font-family:"Amatic SC",sans-serif;
-  font-size:1.5rem; letter-spacing:3px;
-  color:var(--gold); text-shadow:0 0 10px rgba(255,215,0,.5);
+  margin-top:12px; display:none; font-family:"Amatic SC",sans-serif;
+  font-size:1.5rem; letter-spacing:3px; color:var(--gold);
+  text-shadow:0 0 10px rgba(255,215,0,.5);
 }
 .winner-banner.show{display:block; animation:winner-drop .4s ease;}
 @keyframes winner-drop{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* ---- RESULT CARD ---- */
+/* ── RESULT CARD ── */
 .result-card{
   background:linear-gradient(165deg,rgba(212,160,86,.12),rgba(8,40,24,.30));
-  border:1px solid rgba(212,160,86,.3);
-  border-radius:var(--radius);
-  padding:28px 24px; text-align:left;
-  display:none; margin-bottom:20px;
+  border:1px solid rgba(212,160,86,.3); border-radius:var(--radius);
+  padding:28px 24px; text-align:left; display:none; margin-bottom:20px;
 }
 .result-card.show{display:block; animation:fadeUp .5s ease;}
 @keyframes fadeUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-
 .result-drink-emoji{font-size:2.8rem; display:block; margin-bottom:8px;}
 .result-name{
-  font-family:"Amatic SC",sans-serif;
-  font-size:clamp(2rem,6vw,3.2rem); font-weight:700;
-  color:#FFE0A0; margin:0 0 4px; line-height:1.1;
+  font-family:"Amatic SC",sans-serif; font-size:clamp(2rem,6vw,3.2rem);
+  font-weight:700; color:#FFE0A0; margin:0 0 4px; line-height:1.1;
 }
 .result-badges{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 14px;}
 .badge{
@@ -255,18 +188,17 @@ body{
 .badge.hot{background:rgba(255,100,50,.2); border-color:rgba(255,100,50,.4); color:#ffb088;}
 .badge.coffee{background:rgba(139,94,60,.25); border-color:rgba(139,94,60,.5); color:#d4a870;}
 .badge.chai{background:rgba(100,60,160,.2); border-color:rgba(100,60,160,.4); color:#c8a0ff;}
-
+.badge.roast{background:rgba(255,215,0,.12); border-color:rgba(255,215,0,.3); color:#ffe0a0;}
 .result-desc{opacity:.9; line-height:1.65; margin:0 0 18px; font-size:1rem;}
-
-.ingredients-section-title{
-  font-size:.88rem; font-weight:800; opacity:.75; text-transform:uppercase;
-  letter-spacing:.6px; margin:0 0 10px;
-}
+.ing-section-title{font-size:.85rem; font-weight:800; opacity:.72; text-transform:uppercase; letter-spacing:.6px; margin:0 0 10px;}
 .ingredients-list{list-style:none; padding:0; margin:0 0 18px;}
 .ingredients-list li{
   display:flex; justify-content:space-between; align-items:center;
   padding:9px 14px; border-radius:9px; margin:4px 0;
   background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);
+}
+.ingredients-list li.topping-row{
+  background:rgba(255,255,255,.04); border-style:dashed; opacity:.88;
 }
 .ing-name{font-weight:600; font-size:.95rem;}
 .ing-amount{
@@ -274,22 +206,76 @@ body{
   background:rgba(212,160,86,.14); padding:2px 10px; border-radius:6px;
   white-space:nowrap; margin-left:12px;
 }
-
+.ing-amount.topping-amt{color:#ccc; background:rgba(255,255,255,.08);}
 .result-tip{
-  background:rgba(46,204,113,.08);
-  border-left:3px solid var(--accent);
+  background:rgba(46,204,113,.08); border-left:3px solid var(--accent);
   padding:11px 15px; border-radius:0 9px 9px 0;
-  font-size:.92rem; line-height:1.55; opacity:.9; margin-top:4px;
+  font-size:.92rem; line-height:1.55; opacity:.9; margin:0 0 18px;
 }
+.result-actions{text-align:center;}
 
-/* ---- MISC ---- */
+/* ── SAVE MODAL ── */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.6);
+  display:none; align-items:center; justify-content:center; z-index:1000;
+}
+.modal-overlay.open{display:flex; animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:#0f2d18; border:1px solid rgba(255,255,255,.14); border-radius:16px;
+  padding:28px 26px; width:min(420px,92vw); text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+}
+.modal-box h3{margin:0 0 8px; font-size:1.4rem; font-weight:800;}
+.modal-box p{margin:0 0 16px; opacity:.85; font-size:.95rem; line-height:1.5;}
+.modal-input{
+  width:100%; padding:12px 16px; border-radius:10px; font-size:1rem;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25);
+  color:var(--text); font-family:inherit; outline:none; margin-bottom:14px;
+}
+.modal-input:focus{border-color:var(--accent);}
+.modal-actions{display:flex; gap:10px; justify-content:center;}
+
+/* ── BREW BOARD ── */
+.brew-board{display:none; margin-bottom:20px;}
+.brew-board.visible{display:block;}
+.board-title{
+  font-family:"Amatic SC",sans-serif; font-size:2rem; font-weight:700;
+  color:#FFE0A0; margin:0 0 16px; letter-spacing:1px;
+}
+.board-grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+.board-card{
+  background:linear-gradient(165deg,rgba(255,100,130,.1),rgba(8,40,24,.3));
+  border:1px solid rgba(255,100,130,.25); border-radius:14px;
+  padding:16px 18px; text-align:left; position:relative;
+}
+.board-card-name{
+  font-weight:800; font-size:.9rem; color:#ffaabb; margin-bottom:4px;
+  display:flex; align-items:center; gap:6px;
+}
+.board-card-drink{font-size:1.05rem; font-weight:700; margin:2px 0 6px; line-height:1.2;}
+.board-card-meta{font-size:.8rem; opacity:.65; margin-bottom:10px;}
+.board-card-actions{display:flex; gap:6px; flex-wrap:wrap;}
+.board-remove{
+  position:absolute; top:10px; right:12px; background:none; border:none;
+  color:rgba(255,255,255,.4); font-size:1rem; cursor:pointer; padding:4px;
+  line-height:1; transition:color .2s;
+}
+.board-remove:hover{color:#ff6b8a;}
+.board-empty{opacity:.6; font-size:.95rem; text-align:center; padding:16px 0;}
+
+/* ── MISC ── */
 footer{margin:40px 0 16px; opacity:.75; font-size:.9rem;}
 a,a:visited{color:var(--text); text-decoration:none;}
+.section-title{
+  font-size:1.2rem; font-weight:800; margin:0 0 16px;
+  display:flex; align-items:center; gap:8px;
+}
 
 @media(max-width:580px){
   .card{padding:20px 16px;}
-  .toggle-btn{padding:7px 13px; font-size:.88rem;}
-  .btn.big{font-size:1.05rem; padding:13px 22px;}
+  .toggle-btn{padding:7px 11px; font-size:.85rem;}
+  .btn.big{font-size:1rem; padding:13px 20px;}
   .ingredients-list li{flex-direction:column; align-items:flex-start; gap:4px;}
   .ing-amount{margin-left:0;}
 }
@@ -299,13 +285,13 @@ a,a:visited{color:var(--text); text-decoration:none;}
 <div class="wrap">
 
   <!-- HEADER -->
-  <div style="margin:10px 0 4px; font-size:3.8rem; line-height:1;">☕</div>
+  <div style="margin:10px 0 4px;font-size:3.8rem;line-height:1;">☕</div>
   <h1 class="farmhouse">The Brew Lab</h1>
-  <span class="lead">Tell me your vibe and I'll spin up the perfect coffee or chai for you — ingredients and all.</span>
+  <span class="lead">Tell me your vibe — I'll spin up the perfect drink with a full recipe, your way.</span>
 
-  <!-- PREFERENCES CARD -->
+  <!-- ── PREFERENCES CARD ── -->
   <div class="card" id="prefsCard">
-    <h2 style="margin:0 0 20px; font-size:1.25rem; font-weight:800;">⚙️ Set Your Brew Preferences</h2>
+    <div class="section-title">☕ Your Brew</div>
 
     <label class="pref-label">🌡️ Temperature</label>
     <div class="toggle-group" id="tempGroup">
@@ -321,113 +307,135 @@ a,a:visited{color:var(--text); text-decoration:none;}
       <button class="toggle-btn" data-val="any">🌀 Both</button>
     </div>
 
-    <label class="pref-label">🍮 Flavor Vibes <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(pick any that sound good)</span></label>
-    <div class="flavor-grid">
-      <label class="flavor-chip" id="chip-caramel">
-        <input type="checkbox" value="caramel"> 🍮 Caramel
-      </label>
-      <label class="flavor-chip" id="chip-vanilla">
-        <input type="checkbox" value="vanilla"> 🌿 Vanilla
-      </label>
-      <label class="flavor-chip" id="chip-chocolate">
-        <input type="checkbox" value="chocolate"> 🍫 Chocolate
-      </label>
-      <label class="flavor-chip" id="chip-hazelnut">
-        <input type="checkbox" value="hazelnut"> 🌰 Hazelnut
-      </label>
-      <label class="flavor-chip" id="chip-cinnamon">
-        <input type="checkbox" value="cinnamon"> 🌶️ Cinnamon
-      </label>
-      <label class="flavor-chip" id="chip-brown-sugar">
-        <input type="checkbox" value="brown-sugar"> 🟤 Brown Sugar
-      </label>
+    <label class="pref-label">🍮 Flavor Vibes <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(pick any)</span></label>
+    <div class="chip-grid" id="flavorGrid">
+      <label class="chip"><input type="checkbox" value="caramel"> 🍮 Caramel</label>
+      <label class="chip"><input type="checkbox" value="vanilla"> 🌿 Vanilla</label>
+      <label class="chip"><input type="checkbox" value="chocolate"> 🍫 Chocolate</label>
+      <label class="chip"><input type="checkbox" value="hazelnut"> 🌰 Hazelnut</label>
+      <label class="chip"><input type="checkbox" value="cinnamon"> 🌶️ Cinnamon</label>
+      <label class="chip"><input type="checkbox" value="brown-sugar"> 🟤 Brown Sugar</label>
     </div>
 
-    <div style="text-align:center; margin-top:6px;">
+    <hr class="pref-divider">
+    <div class="section-title">⚙️ Make It Yours</div>
+
+    <label class="pref-label">🔢 Espresso Shots <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(coffee drinks only)</span></label>
+    <div class="toggle-group" id="shotsGroup">
+      <button class="toggle-btn sm" data-val="1">1 Shot</button>
+      <button class="toggle-btn sm active" data-val="2">2 Shots</button>
+      <button class="toggle-btn sm" data-val="3">3 Shots</button>
+      <button class="toggle-btn sm" data-val="4">4 Shots</button>
+    </div>
+
+    <label class="pref-label">🌿 Roast Preference</label>
+    <div class="toggle-group" id="roastGroup">
+      <button class="toggle-btn" data-val="light">☀️ Light</button>
+      <button class="toggle-btn" data-val="medium">☕ Medium</button>
+      <button class="toggle-btn" data-val="dark">🔥 Dark</button>
+      <button class="toggle-btn active" data-val="any">🤷 No Preference</button>
+    </div>
+
+    <label class="pref-label">🍦 Toppings <span style="font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;">(added to your recipe)</span></label>
+    <div class="chip-grid" id="toppingsGrid">
+      <label class="chip topping"><input type="checkbox" value="whipped-cream"> 🍦 Whipped Cream</label>
+      <label class="chip topping"><input type="checkbox" value="sweet-cream"> 🥛 Sweet Cream / Soft Top</label>
+      <label class="chip topping"><input type="checkbox" value="cinnamon-dust"> 🌶️ Cinnamon Dust</label>
+      <label class="chip topping"><input type="checkbox" value="caramel-drizzle"> 🍮 Caramel Drizzle</label>
+      <label class="chip topping"><input type="checkbox" value="chocolate-drizzle"> 🍫 Chocolate Drizzle</label>
+      <label class="chip topping"><input type="checkbox" value="vanilla-powder"> ✨ Vanilla Powder</label>
+      <label class="chip topping"><input type="checkbox" value="sea-salt"> 🧂 Sea Salt</label>
+    </div>
+
+    <div style="text-align:center;margin-top:6px;">
       <button class="btn big" id="findBtn">🎰 Find My Brew!</button>
       <button class="btn surprise" id="surpriseBtn">🎲 Surprise Me!</button>
     </div>
   </div>
 
-  <!-- SLOT MACHINE -->
+  <!-- ── SLOT MACHINE ── -->
   <div class="slot-wrap" id="slotWrap">
     <div class="slot-machine">
       <div class="slot-machine-title">☕ BREW-O-MATIC 3000 ☕</div>
-
-      <div class="lights-strip" id="lightsStrip">
-        <span class="bulb bulb-r"></span>
-        <span class="bulb bulb-y"></span>
-        <span class="bulb bulb-g"></span>
-        <span class="bulb bulb-b"></span>
-        <span class="bulb bulb-y"></span>
-        <span class="bulb bulb-r"></span>
-        <span class="bulb bulb-g"></span>
-        <span class="bulb bulb-b"></span>
-        <span class="bulb bulb-y"></span>
-        <span class="bulb bulb-r"></span>
-        <span class="bulb bulb-g"></span>
-        <span class="bulb bulb-b"></span>
+      <div class="lights-strip" id="lights1">
+        <span class="bulb bulb-r"></span><span class="bulb bulb-y"></span><span class="bulb bulb-g"></span>
+        <span class="bulb bulb-b"></span><span class="bulb bulb-y"></span><span class="bulb bulb-r"></span>
+        <span class="bulb bulb-g"></span><span class="bulb bulb-b"></span><span class="bulb bulb-y"></span>
+        <span class="bulb bulb-r"></span><span class="bulb bulb-g"></span><span class="bulb bulb-b"></span>
         <span class="bulb bulb-y"></span>
       </div>
-
       <div class="reel-window">
         <span class="reel-text" id="reelText">Insert coin…</span>
       </div>
-
-      <div class="lights-strip" id="lightsStrip2" style="margin-top:14px;margin-bottom:0;">
-        <span class="bulb bulb-g"></span>
-        <span class="bulb bulb-b"></span>
-        <span class="bulb bulb-y"></span>
-        <span class="bulb bulb-r"></span>
-        <span class="bulb bulb-b"></span>
-        <span class="bulb bulb-g"></span>
-        <span class="bulb bulb-y"></span>
-        <span class="bulb bulb-r"></span>
-        <span class="bulb bulb-b"></span>
-        <span class="bulb bulb-g"></span>
-        <span class="bulb bulb-y"></span>
-        <span class="bulb bulb-r"></span>
+      <div class="lights-strip" id="lights2" style="margin-top:14px;margin-bottom:0;">
+        <span class="bulb bulb-g"></span><span class="bulb bulb-b"></span><span class="bulb bulb-y"></span>
+        <span class="bulb bulb-r"></span><span class="bulb bulb-b"></span><span class="bulb bulb-g"></span>
+        <span class="bulb bulb-y"></span><span class="bulb bulb-r"></span><span class="bulb bulb-b"></span>
+        <span class="bulb bulb-g"></span><span class="bulb bulb-y"></span><span class="bulb bulb-r"></span>
         <span class="bulb bulb-b"></span>
       </div>
-
-      <div class="winner-banner" id="winnerBanner">🏆 &nbsp; YOUR BREW IS READY &nbsp; 🏆</div>
+      <div class="winner-banner" id="winnerBanner">🏆 &nbsp;YOUR BREW IS READY&nbsp; 🏆</div>
     </div>
   </div>
 
-  <!-- RESULT CARD -->
+  <!-- ── RESULT CARD ── -->
   <div class="result-card" id="resultCard">
-    <span class="result-drink-emoji" id="resultEmoji"></span>
-    <h2 class="result-name" id="resultName"></h2>
-    <div class="result-badges" id="resultBadges"></div>
-    <p class="result-desc" id="resultDesc"></p>
+    <span class="result-drink-emoji" id="rEmoji"></span>
+    <h2 class="result-name" id="rName"></h2>
+    <div class="result-badges" id="rBadges"></div>
+    <p class="result-desc" id="rDesc"></p>
 
-    <p class="ingredients-section-title">📋 Ingredients &amp; Amounts</p>
-    <ul class="ingredients-list" id="ingredientsList"></ul>
+    <p class="ing-section-title">📋 Ingredients &amp; Amounts</p>
+    <ul class="ingredients-list" id="rIngredients"></ul>
 
-    <div class="result-tip" id="resultTip"></div>
+    <div class="result-tip" id="rTip"></div>
 
-    <div style="text-align:center; margin-top:22px;">
+    <div class="result-actions">
+      <button class="btn heart-btn" id="heartBtn">❤️ Save to My Board</button>
       <button class="btn" id="tryAgainBtn">🔄 Try Another</button>
       <a class="btn" href="/index.html">🏠 Back to the Jar</a>
     </div>
   </div>
 
+  <!-- ── BREW BOARD ── -->
+  <div class="card brew-board" id="brewBoard">
+    <div class="board-title">❤️ My Brew Board</div>
+    <div class="board-grid" id="boardGrid"></div>
+    <div class="board-empty" id="boardEmpty" style="display:none;">No saved brews yet — heart a drink to pin it here!</div>
+  </div>
+
   <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
+</div>
+
+<!-- ── SAVE MODAL ── -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal-box">
+    <div style="font-size:2rem;margin-bottom:8px;">❤️</div>
+    <h3 id="modalDrinkName" style="margin:0 0 8px;color:#FFE0A0;font-family:'Amatic SC',sans-serif;font-size:1.8rem;"></h3>
+    <p>What's your name? It'll show on your Brew Board.</p>
+    <input class="modal-input" id="modalNameInput" type="text" placeholder="Your name…" maxlength="30" autocomplete="off" />
+    <div class="modal-actions">
+      <button class="btn" id="modalSaveBtn">❤️ Pin It!</button>
+      <button class="btn" id="modalCancelBtn" style="background:rgba(255,255,255,.12);color:var(--text);border-color:rgba(255,255,255,.2);">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // DRINKS DATABASE
-// ============================================================
+// ═══════════════════════════════════════════════════
+// roasts: light | medium | dark | any
+// shots: standard espresso shots (0 = none)
 var DRINKS = [
 
-  // ── ICED COFFEE ──────────────────────────────────────────
+  // ── ICED COFFEE ──
   {
     name:"Iced Caramel Macchiato", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["caramel","vanilla"],
-    description:"Layers of vanilla-sweetened milk, bold espresso poured on top, and a generous caramel drizzle — all over ice. The classic order that converted half the coffee world.",
+    flavors:["caramel","vanilla"], roasts:["medium"], shots:2,
+    description:"Layers of vanilla-sweetened milk, espresso poured on top, and a generous caramel drizzle over ice. The classic order that converted half the coffee world.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Vanilla syrup",amount:"2 tbsp"},
@@ -435,24 +443,23 @@ var DRINKS = [
       {item:"Ice",amount:"1 cup"},
       {item:"Caramel drizzle",amount:"1–2 tbsp"}
     ],
-    tip:"Pour the espresso over the top last — don't stir immediately. The layers mixing as you drink is the whole experience. Use a tall glass so you can see those gorgeous layers."
+    tip:"Pour espresso over the top last — don't stir immediately. The layers mixing as you drink is the whole experience. A tall glass lets you show off those gorgeous layers."
   },
   {
     name:"Iced Caramel Latte", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["caramel"],
+    flavors:["caramel"], roasts:["medium","dark"], shots:2,
     description:"Smooth espresso stirred with caramel syrup and poured over cold milk and ice. Bolder caramel punch than a macchiato — simpler, punchier, equally delicious.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Caramel syrup",amount:"2–3 tbsp"},
       {item:"Milk of choice",amount:"¾ cup (6 oz)"},
-      {item:"Ice",amount:"1 cup"},
-      {item:"Caramel drizzle",amount:"1 tbsp (optional)"}
+      {item:"Ice",amount:"1 cup"}
     ],
-    tip:"Stir the caramel syrup into the hot espresso before adding milk and ice — it dissolves completely and distributes evenly."
+    tip:"Stir the caramel syrup into the hot espresso before adding milk and ice — it dissolves completely and distributes way more evenly."
   },
   {
     name:"Iced Vanilla Latte", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["vanilla"],
+    flavors:["vanilla"], roasts:["light","medium"], shots:2,
     description:"Silky, sweet, and effortlessly smooth. Vanilla syrup rounds out espresso's bitterness into a drink you could sip all afternoon.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
@@ -460,24 +467,23 @@ var DRINKS = [
       {item:"Milk of choice",amount:"¾ cup (6 oz)"},
       {item:"Ice",amount:"1 cup"}
     ],
-    tip:"Swap regular milk for oat milk — the natural sweetness of oat milk complements vanilla perfectly and makes it noticeably creamier."
+    tip:"Try it with oat milk — the natural sweetness complements vanilla perfectly and makes it noticeably creamier."
   },
   {
     name:"Iced Mocha", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["chocolate"],
+    flavors:["chocolate"], roasts:["dark"], shots:2,
     description:"Espresso meets chocolate in this cold classic. Rich, indulgent, and still refreshing — the flavor combo that proves coffee and chocolate were made for each other.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Chocolate sauce",amount:"2 tbsp"},
       {item:"Milk of choice",amount:"¾ cup (6 oz)"},
-      {item:"Ice",amount:"1 cup"},
-      {item:"Whipped cream",amount:"optional"}
+      {item:"Ice",amount:"1 cup"}
     ],
     tip:"Use a real chocolate sauce (not just Hershey's syrup) for a noticeably richer, deeper chocolate flavor that holds up against the espresso."
   },
   {
     name:"Cold Brew Coffee", emoji:"🧋", temp:"iced", type:"coffee",
-    flavors:["classic"],
+    flavors:["classic"], roasts:["medium","dark"], shots:0,
     description:"Steeped 18–24 hours in cold water for a smooth, low-acid concentrate that's naturally sweet and never bitter. The drink that changed how America does iced coffee.",
     ingredients:[
       {item:"Coarse ground coffee",amount:"1 cup (4 oz)"},
@@ -485,11 +491,11 @@ var DRINKS = [
       {item:"Ice",amount:"1 cup"},
       {item:"Milk or cream",amount:"to taste"}
     ],
-    tip:"Steep in the fridge for 18–24 hours for the best flavor. Always use coarse grind — fine grounds make it muddy and bitter."
+    tip:"Steep in the fridge for 18–24 hours for best flavor. Always use coarse grind — fine grounds make it muddy and bitter. The ratio: 1 part coffee to 4 parts water."
   },
   {
     name:"Iced Brown Sugar Oat Shaken Espresso", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["brown-sugar","cinnamon"],
+    flavors:["brown-sugar","cinnamon"], roasts:["medium","dark"], shots:3,
     description:"Three espresso shots shaken hard with brown sugar syrup and cinnamon, then topped with oat milk. The shaking aerates it into a frothy, silky drink that's borderline addictive.",
     ingredients:[
       {item:"Espresso",amount:"3 shots (3 oz)"},
@@ -498,11 +504,11 @@ var DRINKS = [
       {item:"Ice",amount:"1 cup"},
       {item:"Oat milk",amount:"½ cup (4 oz)"}
     ],
-    tip:"Shake the espresso, brown sugar syrup, and a handful of ice HARD in a cocktail shaker for at least 20 seconds. That foam on top is non-negotiable."
+    tip:"Shake the espresso, brown sugar syrup, and a handful of ice HARD in a cocktail shaker for at least 20 seconds. That frothy head on top is non-negotiable."
   },
   {
     name:"Iced Hazelnut Latte", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["hazelnut"],
+    flavors:["hazelnut"], roasts:["medium"], shots:2,
     description:"Nutty, smooth, and subtly sweet. Hazelnut syrup gives this iced latte a warm, toasted depth that lingers in the best way.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
@@ -510,63 +516,62 @@ var DRINKS = [
       {item:"Milk of choice",amount:"¾ cup (6 oz)"},
       {item:"Ice",amount:"1 cup"}
     ],
-    tip:"Try Torani Toasted Hazelnut syrup — the 'toasted' version is richer and more authentic-tasting than standard hazelnut."
+    tip:"Try Torani Toasted Hazelnut syrup — the 'toasted' version is richer and more authentic-tasting than standard hazelnut syrups."
   },
   {
     name:"Iced Cinnamon Dolce Latte", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["cinnamon","vanilla"],
+    flavors:["cinnamon","vanilla"], roasts:["medium"], shots:2,
     description:"Sweet cinnamon spice and espresso over ice — the cinnamon dolce syrup adds a warmth that feels cozy even when served cold.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Cinnamon dolce syrup",amount:"2 tbsp"},
       {item:"Milk of choice",amount:"¾ cup (6 oz)"},
       {item:"Ice",amount:"1 cup"},
-      {item:"Cinnamon powder",amount:"a pinch (topping)"}
+      {item:"Cinnamon powder",amount:"a pinch"}
     ],
-    tip:"Make your own cinnamon dolce syrup: 1 cup water + 1 cup sugar + 2 cinnamon sticks. Simmer 10 min, cool, strain."
+    tip:"Make your own cinnamon dolce syrup: 1 cup water + 1 cup sugar + 2 cinnamon sticks. Simmer 10 min, cool, strain. Keeps in the fridge for weeks."
   },
   {
     name:"Nitro Cold Brew", emoji:"🧋", temp:"iced", type:"coffee",
-    flavors:["classic"],
+    flavors:["classic"], roasts:["dark"], shots:0,
     description:"Cold brew infused with nitrogen gas for an impossibly creamy, Guinness-like texture with a cascading head. Smooth, bold, and strangely refreshing — no cream needed.",
     ingredients:[
       {item:"Cold brew concentrate",amount:"6 oz"},
       {item:"Nitrogen (N₂ cartridge)",amount:"1 charge"},
       {item:"Ice",amount:"optional"}
     ],
-    tip:"A cream whipper with a N₂O charger is a solid home hack if you don't have a nitro system. Pour slowly and let it cascade."
+    tip:"A cream whipper with a N₂O charger is a solid home hack. Pour slowly over the back of a spoon and let it cascade — the effect is half the experience."
   },
   {
     name:"Iced Flat White", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["classic"],
+    flavors:["classic"], roasts:["medium","dark"], shots:2,
     description:"More espresso, less milk than a latte — compact, coffee-forward, and intense. The Australian way. Double ristretto shots give it a sweet, concentrated punch.",
     ingredients:[
       {item:"Ristretto shots",amount:"2 doubles (3 oz)"},
       {item:"Whole milk",amount:"½ cup (4 oz)"},
       {item:"Ice",amount:"¾ cup"}
     ],
-    tip:"The difference between a flat white and a latte is the ratio — aim for 1:2 espresso to milk (vs. 1:3–4 for lattes). Less milk means more coffee flavor."
+    tip:"The magic is in the ristretto — a shorter, sweeter espresso pull. Use a 1:2 espresso-to-milk ratio (vs. 1:3–4 for lattes) for that trademark intensity."
   },
   {
     name:"Iced Caramel Brulée Latte", emoji:"☕", temp:"iced", type:"coffee",
-    flavors:["caramel","vanilla"],
+    flavors:["caramel","vanilla"], roasts:["medium"], shots:2,
     description:"Espresso and caramel brulée sauce over ice — tastes like crème brulée in a cup. Richer and more decadent than a standard caramel latte.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Caramel brulée sauce",amount:"2 tbsp"},
       {item:"Vanilla syrup",amount:"1 tbsp"},
       {item:"Milk of choice",amount:"¾ cup (6 oz)"},
-      {item:"Ice",amount:"1 cup"},
-      {item:"Whipped cream",amount:"optional"}
+      {item:"Ice",amount:"1 cup"}
     ],
     tip:"Can't find brulée sauce? Mix caramel sauce with a tiny pinch of sea salt and a drop of vanilla extract — close enough and honestly amazing."
   },
 
-  // ── HOT COFFEE ────────────────────────────────────────────
+  // ── HOT COFFEE ──
   {
     name:"Caramel Macchiato", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["caramel","vanilla"],
-    description:"Vanilla syrup on the bottom, steamed milk layered in, espresso 'marked' through the foam on top, finished with caramel drizzle. A modern classic built for photos and flavor.",
+    flavors:["caramel","vanilla"], roasts:["medium"], shots:2,
+    description:"Vanilla syrup on the bottom, steamed milk layered in, espresso 'marked' through the foam on top, finished with caramel drizzle. A modern classic.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Vanilla syrup",amount:"2 tbsp"},
@@ -574,11 +579,11 @@ var DRINKS = [
       {item:"Milk foam",amount:"¼ cup"},
       {item:"Caramel drizzle",amount:"1–2 tbsp"}
     ],
-    tip:"Pour espresso directly through the foam — don't stir it in. 'Macchiato' means 'stained,' so the espresso staining the foam is the whole aesthetic."
+    tip:"Pour espresso straight down through the foam — don't stir it in. 'Macchiato' means 'stained,' so the espresso staining the foam is the whole aesthetic."
   },
   {
     name:"Caramel Latte", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["caramel"],
+    flavors:["caramel"], roasts:["medium","dark"], shots:2,
     description:"Espresso and caramel syrup topped with velvety steamed milk. No-nonsense caramel coffee comfort in its purest form.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
@@ -586,11 +591,11 @@ var DRINKS = [
       {item:"Steamed milk",amount:"6 oz"},
       {item:"Caramel drizzle",amount:"1 tbsp (optional)"}
     ],
-    tip:"Add the caramel syrup to the cup before the espresso so the hot espresso dissolves it completely before you add the steamed milk."
+    tip:"Add the caramel syrup to the cup before the espresso — the hot espresso dissolves it completely so it blends evenly when you add the steamed milk."
   },
   {
     name:"Vanilla Latte", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["vanilla"],
+    flavors:["vanilla"], roasts:["light","medium"], shots:2,
     description:"The everyday essential. Steamed milk, espresso, and just enough vanilla to take the edge off. Endlessly drinkable, morning to afternoon.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
@@ -598,24 +603,23 @@ var DRINKS = [
       {item:"Steamed milk",amount:"6 oz"},
       {item:"Milk foam",amount:"thin layer"}
     ],
-    tip:"Froth your milk until shiny and stretchy (not bubbly) — that silky microfoam texture elevates a latte from decent to exceptional."
+    tip:"Froth your milk until shiny and stretchy (not bubbly) — that silky microfoam texture elevates a latte from decent to genuinely great."
   },
   {
     name:"Café Mocha", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["chocolate"],
+    flavors:["chocolate"], roasts:["dark"], shots:2,
     description:"The love child of hot chocolate and a latte. Espresso meets chocolate sauce meets steamed milk in something indulgent, warming, and deeply satisfying.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Chocolate sauce",amount:"2 tbsp"},
       {item:"Steamed milk",amount:"6 oz"},
-      {item:"Whipped cream",amount:"optional"},
       {item:"Cocoa powder",amount:"a pinch (topping)"}
     ],
-    tip:"Mix the chocolate sauce into the espresso first, before adding steamed milk — it blends much more evenly than trying to swirl it in afterward."
+    tip:"Mix the chocolate sauce into the espresso before adding steamed milk — it blends much more evenly than trying to swirl it in afterward."
   },
   {
     name:"Cappuccino", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["classic"],
+    flavors:["classic"], roasts:["medium","dark"], shots:2,
     description:"Bold, balanced, beautiful. Equal thirds of espresso, steamed milk, and thick foam. The Italian standard — intense espresso tamed by rich, cloudlike microfoam.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
@@ -626,17 +630,17 @@ var DRINKS = [
   },
   {
     name:"Flat White", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["classic"],
-    description:"Two ristretto shots in a smaller cup with velvety, barely-there microfoam. Originated in Australia and New Zealand — more coffee-forward than any latte.",
+    flavors:["classic"], roasts:["medium","dark"], shots:2,
+    description:"Two ristretto shots in a smaller cup with velvety, barely-there microfoam. Originated in Australia — more coffee-forward than any latte.",
     ingredients:[
       {item:"Ristretto shots",amount:"2 doubles (3 oz)"},
       {item:"Whole milk microfoam",amount:"4 oz"}
     ],
-    tip:"The key is pulling ristretto shots (shorter, sweeter than regular espresso) — they give the flat white its signature sweetness and intensity without bitterness."
+    tip:"The key is ristretto shots (shorter, sweeter than regular espresso) — they give the flat white its signature sweetness and intensity without any bitterness."
   },
   {
     name:"Hazelnut Latte", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["hazelnut"],
+    flavors:["hazelnut"], roasts:["medium"], shots:2,
     description:"Warm, nutty, and deeply satisfying. A coffee for anyone who loves that toasted-nut depth — hazelnut and espresso are a pairing that just works.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
@@ -644,12 +648,12 @@ var DRINKS = [
       {item:"Steamed milk",amount:"6 oz"},
       {item:"Milk foam",amount:"thin layer"}
     ],
-    tip:"A light dusting of cocoa powder on top crosses it into mocha-hazelnut territory — it's a small touch that makes a big difference."
+    tip:"A light dusting of cocoa powder on top pulls it into mocha-hazelnut territory — a small touch that makes a big difference."
   },
   {
     name:"Cinnamon Dolce Latte", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["cinnamon","vanilla"],
-    description:"Sweet cinnamon spice and espresso with steamed milk — holiday-ish warmth that honestly works year-round. Cozy, aromatic, and just a little indulgent.",
+    flavors:["cinnamon","vanilla"], roasts:["medium"], shots:2,
+    description:"Sweet cinnamon spice and espresso with steamed milk — that cozy holiday-ish warmth that honestly works year-round.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Cinnamon dolce syrup",amount:"2 tbsp"},
@@ -660,19 +664,19 @@ var DRINKS = [
   },
   {
     name:"Cortado", emoji:"☕", temp:"hot", type:"coffee",
-    flavors:["classic"],
-    description:"Equal parts espresso and warm milk — nothing more. The Spanish way. Intense coffee flavor where the milk just takes the bitter edge off without drowning the espresso.",
+    flavors:["classic"], roasts:["dark"], shots:2,
+    description:"Equal parts espresso and warm milk — nothing more. The Spanish way. Intense coffee where the milk just takes the bitter edge off without drowning the espresso.",
     ingredients:[
       {item:"Espresso",amount:"2 shots (2 oz)"},
       {item:"Warm steamed milk",amount:"2 oz"}
     ],
-    tip:"Serve in a small 4 oz glass — the volume is intentional. A cortado is meant to be sipped quickly while still hot, not nursed for an hour."
+    tip:"Serve in a small 4 oz glass — the volume is intentional. A cortado is meant to be sipped quickly while still hot, not nursed over an hour."
   },
 
-  // ── ICED CHAI ─────────────────────────────────────────────
+  // ── ICED CHAI ──
   {
     name:"Iced Chai Latte", emoji:"🍵", temp:"iced", type:"chai",
-    flavors:["cinnamon","classic"],
+    flavors:["cinnamon","classic"], roasts:["any"], shots:0,
     description:"Masala chai spices — cinnamon, cardamom, ginger, cloves — mixed with cold milk and poured over ice. Aromatic and warming in flavor, refreshing in temperature.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -680,11 +684,11 @@ var DRINKS = [
       {item:"Ice",amount:"1 cup"},
       {item:"Cinnamon",amount:"a pinch (topping)"}
     ],
-    tip:"Tazo or David Rio chai concentrates are excellent store-bought options. For homemade: steep 4 chai bags in 1 cup hot water for 10 min, let cool, then refrigerate."
+    tip:"Tazo or David Rio chai concentrates are excellent store-bought options. Homemade: steep 4 chai bags in 1 cup hot water for 10 min, cool, refrigerate."
   },
   {
     name:"Iced Dirty Chai", emoji:"🍵", temp:"iced", type:"chai",
-    flavors:["cinnamon","classic"],
+    flavors:["cinnamon","classic"], roasts:["dark"], shots:1,
     description:"A chai latte with a shot (or two) of espresso mixed in — the 'dirty' refers to that coffee kick. Bold spiced chai meets bold espresso for a double-caffeine powerhouse.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -692,11 +696,11 @@ var DRINKS = [
       {item:"Milk of choice",amount:"3 oz"},
       {item:"Ice",amount:"1 cup"}
     ],
-    tip:"Pour the espresso last for a layered look, or stir it in for even caffeine distribution throughout. Both are correct — just different vibes."
+    tip:"Pour the espresso last for a layered look, or stir it in for even caffeine throughout. Both are correct — just different vibes."
   },
   {
     name:"Iced Vanilla Chai Latte", emoji:"🍵", temp:"iced", type:"chai",
-    flavors:["vanilla","cinnamon"],
+    flavors:["vanilla","cinnamon"], roasts:["any"], shots:0,
     description:"Classic chai spices softened and sweetened with vanilla. The vanilla rounds out the sharper spice notes into something smooth, gentle, and aromatic.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -708,7 +712,7 @@ var DRINKS = [
   },
   {
     name:"Iced Caramel Chai", emoji:"🍵", temp:"iced", type:"chai",
-    flavors:["caramel","cinnamon"],
+    flavors:["caramel","cinnamon"], roasts:["any"], shots:0,
     description:"Caramel and chai spices are a surprisingly perfect pairing — the sweetness plays against the aromatic spice blend in the best possible way.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -717,11 +721,11 @@ var DRINKS = [
       {item:"Ice",amount:"1 cup"},
       {item:"Caramel drizzle",amount:"1 tbsp (optional)"}
     ],
-    tip:"A generous caramel drizzle on top isn't just decoration — it sweetens the first few sips perfectly and looks incredible."
+    tip:"A generous caramel drizzle on top sweetens the first few sips perfectly and honestly looks incredible."
   },
   {
     name:"Brown Sugar Iced Chai", emoji:"🍵", temp:"iced", type:"chai",
-    flavors:["brown-sugar","cinnamon"],
+    flavors:["brown-sugar","cinnamon"], roasts:["any"], shots:0,
     description:"The deep molasses notes of brown sugar amplify the chai spices into something richer and more complex than a standard chai. Warm in flavor, cold in the glass.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -730,13 +734,13 @@ var DRINKS = [
       {item:"Ice",amount:"1 cup"},
       {item:"Cinnamon",amount:"a pinch (topping)"}
     ],
-    tip:"Homemade brown sugar syrup: simmer 1:1 brown sugar and water until dissolved. A tiny pinch of salt deepens the caramel flavor significantly."
+    tip:"Homemade brown sugar syrup: simmer 1:1 brown sugar and water until dissolved. A tiny pinch of salt deepens the caramel-like flavor significantly."
   },
 
-  // ── HOT CHAI ──────────────────────────────────────────────
+  // ── HOT CHAI ──
   {
     name:"Chai Tea Latte", emoji:"🍵", temp:"hot", type:"chai",
-    flavors:["cinnamon","classic"],
+    flavors:["cinnamon","classic"], roasts:["any"], shots:0,
     description:"Spiced black tea with masala spices — cinnamon, cardamom, ginger, cloves — steamed with milk for a warming, aromatic cup. The original chai experience, done right.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -745,23 +749,23 @@ var DRINKS = [
       {item:"Cinnamon stick",amount:"1 (garnish)"},
       {item:"Cinnamon powder",amount:"a pinch (topping)"}
     ],
-    tip:"Heat the chai concentrate along with the milk (not separately) to avoid dropping the temperature and to better marry the spice flavors with the steam."
+    tip:"Heat the chai concentrate alongside the milk — not separately — to avoid dropping the temperature and to better marry the spice flavors with the steam."
   },
   {
     name:"Dirty Chai Latte", emoji:"🍵", temp:"hot", type:"chai",
-    flavors:["cinnamon","classic"],
-    description:"A hot chai latte with a shot of espresso stirred in — the 'dirty' extra. The espresso adds bold depth and a significant caffeine boost to the aromatic chai base.",
+    flavors:["cinnamon","classic"], roasts:["dark"], shots:1,
+    description:"A hot chai latte with a shot of espresso stirred in. The espresso adds bold depth and a significant caffeine boost to the aromatic chai base.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
       {item:"Espresso",amount:"1 shot (1 oz)"},
       {item:"Steamed milk",amount:"3 oz"},
       {item:"Cinnamon powder",amount:"a pinch"}
     ],
-    tip:"A double dirty (two shots) is popular for the extra intensity. The espresso's bitterness is completely mellowed by the chai spices."
+    tip:"A double dirty (two shots) is popular for extra intensity. The espresso's bitterness is completely mellowed out by the chai spices."
   },
   {
     name:"Vanilla Chai Latte", emoji:"🍵", temp:"hot", type:"chai",
-    flavors:["vanilla","cinnamon"],
+    flavors:["vanilla","cinnamon"], roasts:["any"], shots:0,
     description:"Warm chai spices softened by sweet vanilla. Aromatic and comforting — like someone handed you a hug in a ceramic cup.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -773,7 +777,7 @@ var DRINKS = [
   },
   {
     name:"Caramel Chai Latte", emoji:"🍵", temp:"hot", type:"chai",
-    flavors:["caramel","cinnamon"],
+    flavors:["caramel","cinnamon"], roasts:["any"], shots:0,
     description:"The warmth of chai spices with a sweet caramel layer — comforting, aromatic, and just indulgent enough to feel like a treat.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -785,7 +789,7 @@ var DRINKS = [
   },
   {
     name:"Brown Sugar Chai Latte", emoji:"🍵", temp:"hot", type:"chai",
-    flavors:["brown-sugar","cinnamon"],
+    flavors:["brown-sugar","cinnamon"], roasts:["any"], shots:0,
     description:"Deep molasses-touched sweetness with all the classic chai spice. Rich and cozy — the kind of drink you make on a cold afternoon and refuse to put down.",
     ingredients:[
       {item:"Chai concentrate",amount:"4 oz"},
@@ -793,199 +797,353 @@ var DRINKS = [
       {item:"Steamed milk",amount:"4 oz"},
       {item:"Cinnamon",amount:"a pinch (topping)"}
     ],
-    tip:"Add a tiny pinch of sea salt to your brown sugar syrup — it intensifies the caramel-like depth and makes it taste like a professional craft coffee shop made it."
+    tip:"Add a tiny pinch of sea salt to your brown sugar syrup — it intensifies the caramel-like depth and makes it taste like a craft coffee shop made it."
   }
 ];
 
-// ============================================================
-// STATE
-// ============================================================
-var selectedTemp = 'iced';
-var selectedType = 'coffee';
-var isSpinning = false;
-var spinTimer = null;
+// ═══════════════════════════════════════════════════
+// TOPPING LABELS
+// ═══════════════════════════════════════════════════
+var TOPPING_LABELS = {
+  "whipped-cream":    {label:"Whipped Cream",     amount:"to top"},
+  "sweet-cream":      {label:"Sweet Cream / Soft Top", amount:"to top"},
+  "cinnamon-dust":    {label:"Cinnamon Dust",     amount:"a pinch"},
+  "caramel-drizzle":  {label:"Caramel Drizzle",   amount:"1 tbsp"},
+  "chocolate-drizzle":{label:"Chocolate Drizzle", amount:"1 tbsp"},
+  "vanilla-powder":   {label:"Vanilla Powder",    amount:"a pinch"},
+  "sea-salt":         {label:"Sea Salt",           amount:"a pinch"}
+};
 
-// ============================================================
+// ═══════════════════════════════════════════════════
+// ROAST LABELS
+// ═══════════════════════════════════════════════════
+var ROAST_EMOJI = {light:"☀️",medium:"☕",dark:"🔥",any:""};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+var selectedTemp  = 'iced';
+var selectedType  = 'coffee';
+var selectedShots = 2;
+var selectedRoast = 'any';
+var isSpinning    = false;
+var currentDrink  = null;
+var allNames      = DRINKS.map(function(d){return d.emoji+' '+d.name;});
+
+// ═══════════════════════════════════════════════════
 // TOGGLE GROUPS
-// ============================================================
-function setupToggle(groupId, onSelect) {
+// ═══════════════════════════════════════════════════
+function setupToggle(groupId, callback) {
   var group = document.getElementById(groupId);
-  group.querySelectorAll('.toggle-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      group.querySelectorAll('.toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+  group.querySelectorAll('.toggle-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      group.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
-      onSelect(btn.dataset.val);
+      callback(btn.dataset.val);
     });
   });
 }
-setupToggle('tempGroup', function(v){ selectedTemp = v; });
-setupToggle('typeGroup', function(v){ selectedType = v; });
+setupToggle('tempGroup',  function(v){selectedTemp=v;});
+setupToggle('typeGroup',  function(v){selectedType=v;});
+setupToggle('shotsGroup', function(v){selectedShots=parseInt(v,10);});
+setupToggle('roastGroup', function(v){selectedRoast=v;});
 
-// ============================================================
-// FLAVOR CHIPS
-// ============================================================
-document.querySelectorAll('.flavor-chip').forEach(function(chip) {
-  chip.addEventListener('click', function(e) {
-    // Let the native label+checkbox handling fire first, then sync class
-    setTimeout(function() {
+// ═══════════════════════════════════════════════════
+// CHIPS (flavors & toppings)
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('.chip').forEach(function(chip){
+  chip.addEventListener('click', function(){
+    setTimeout(function(){
       var cb = chip.querySelector('input[type="checkbox"]');
       chip.classList.toggle('checked', cb.checked);
     }, 0);
   });
 });
-
-function getSelectedFlavors() {
-  return Array.from(document.querySelectorAll('.flavor-chip input:checked')).map(function(cb){ return cb.value; });
+function getChecked(gridId) {
+  return Array.from(document.querySelectorAll('#'+gridId+' input:checked')).map(function(cb){return cb.value;});
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // DRINK FILTERING
-// ============================================================
+// ═══════════════════════════════════════════════════
 function pickDrink(surprise) {
-  if (surprise) {
-    return DRINKS[Math.floor(Math.random() * DRINKS.length)];
-  }
-
-  var flavors = getSelectedFlavors();
-
-  var pool = DRINKS.filter(function(d) {
+  if (surprise) return DRINKS[Math.floor(Math.random()*DRINKS.length)];
+  var flavors = getChecked('flavorGrid');
+  var pool = DRINKS.filter(function(d){
     if (selectedTemp !== 'any' && d.temp !== selectedTemp) return false;
     if (selectedType !== 'any' && d.type !== selectedType) return false;
     return true;
   });
-
-  // Fall back to full list if nothing matches
   if (!pool.length) pool = DRINKS.slice();
 
-  if (flavors.length > 0) {
-    var scored = pool.map(function(d) {
-      return { drink: d, score: d.flavors.filter(function(f){ return flavors.includes(f); }).length };
-    });
-    var best = Math.max.apply(null, scored.map(function(s){ return s.score; }));
-    if (best > 0) {
-      var top = scored.filter(function(s){ return s.score === best; });
-      return top[Math.floor(Math.random() * top.length)].drink;
-    }
+  // Score by flavor + roast match
+  var scored = pool.map(function(d){
+    var score = 0;
+    if (flavors.length) score += d.flavors.filter(function(f){return flavors.includes(f);}).length * 3;
+    if (selectedRoast !== 'any' && d.roasts.includes(selectedRoast)) score += 2;
+    return {drink:d, score:score};
+  });
+  var best = Math.max.apply(null, scored.map(function(s){return s.score;}));
+  var top;
+  if (best > 0) {
+    top = scored.filter(function(s){return s.score === best;});
+  } else {
+    top = scored;
   }
-
-  return pool[Math.floor(Math.random() * pool.length)];
+  return top[Math.floor(Math.random()*top.length)].drink;
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // SLOT MACHINE
-// ============================================================
-var reelTextEl  = document.getElementById('reelText');
-var slotWrapEl  = document.getElementById('slotWrap');
-var lightsEl    = document.getElementById('lightsStrip');
-var lightsEl2   = document.getElementById('lightsStrip2');
-var winnerEl    = document.getElementById('winnerBanner');
-var resultEl    = document.getElementById('resultCard');
-var findBtn     = document.getElementById('findBtn');
-var surpriseBtn = document.getElementById('surpriseBtn');
+// ═══════════════════════════════════════════════════
+var reelEl     = document.getElementById('reelText');
+var slotWrap   = document.getElementById('slotWrap');
+var lights1    = document.getElementById('lights1');
+var lights2    = document.getElementById('lights2');
+var winnerEl   = document.getElementById('winnerBanner');
+var resultCard = document.getElementById('resultCard');
+var findBtn    = document.getElementById('findBtn');
+var surpriseBtn= document.getElementById('surpriseBtn');
 
-var allDisplayNames = DRINKS.map(function(d){ return d.emoji + ' ' + d.name; });
-
-function setLights(mode) {
-  [lightsEl, lightsEl2].forEach(function(el) {
-    el.classList.remove('lights-go', 'lights-win');
-    if (mode) el.classList.add(mode);
+function setLights(mode){
+  [lights1,lights2].forEach(function(el){
+    el.classList.remove('lights-go','lights-win');
+    if(mode) el.classList.add(mode);
   });
 }
 
-function startSpin(targetDrink) {
+function startSpin(drink) {
   if (isSpinning) return;
-  isSpinning = true;
-  findBtn.disabled = true;
-  surpriseBtn.disabled = true;
-
-  // Show machine, hide previous result
-  slotWrapEl.classList.add('visible');
-  resultEl.classList.remove('show');
+  isSpinning = true; currentDrink = drink;
+  findBtn.disabled = true; surpriseBtn.disabled = true;
+  slotWrap.classList.add('visible');
+  resultCard.classList.remove('show');
   winnerEl.classList.remove('show');
-  reelTextEl.classList.remove('landed');
-  reelTextEl.classList.add('spinning');
+  reelEl.classList.remove('landed'); reelEl.classList.add('spinning');
   setLights('lights-go');
+  document.getElementById('heartBtn').classList.remove('saved');
 
-  var ticks = 0;
-  var fastCount = 24;  // rapid-fire phase
-
-  function tick() {
-    var name = allDisplayNames[Math.floor(Math.random() * allDisplayNames.length)];
-    reelTextEl.textContent = name;
+  var ticks = 0; var fastCount = 24;
+  function tick(){
+    reelEl.textContent = allNames[Math.floor(Math.random()*allNames.length)];
     ticks++;
-
     var delay;
-    if (ticks <= fastCount) {
-      delay = 60;
-    } else if (ticks <= fastCount + 7) {
-      delay = 90 + (ticks - fastCount) * 60; // 150 → 510
-    } else {
-      // Land!
-      reelTextEl.textContent = targetDrink.emoji + ' ' + targetDrink.name;
-      reelTextEl.classList.remove('spinning');
-      reelTextEl.classList.add('landed');
+    if (ticks <= fastCount)           delay = 60;
+    else if (ticks <= fastCount + 7)  delay = 90 + (ticks-fastCount)*60;
+    else {
+      // Land
+      reelEl.textContent = drink.emoji+' '+drink.name;
+      reelEl.classList.remove('spinning'); reelEl.classList.add('landed');
       setLights('lights-win');
-
-      setTimeout(function() {
+      setTimeout(function(){
         winnerEl.classList.add('show');
-        setTimeout(function() { showResult(targetDrink); }, 550);
-      }, 380);
-
-      isSpinning = false;
-      findBtn.disabled = false;
-      surpriseBtn.disabled = false;
+        setTimeout(function(){showResult(drink);},550);
+      },380);
+      isSpinning = false; findBtn.disabled = false; surpriseBtn.disabled = false;
       return;
     }
-
-    spinTimer = setTimeout(tick, delay);
+    setTimeout(tick, delay);
   }
-
   tick();
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // RESULT DISPLAY
-// ============================================================
+// ═══════════════════════════════════════════════════
 function showResult(drink) {
-  document.getElementById('resultEmoji').textContent = drink.emoji;
-  document.getElementById('resultName').textContent = drink.name;
+  document.getElementById('rEmoji').textContent = drink.emoji;
+  document.getElementById('rName').textContent  = drink.name;
 
-  var badges = document.getElementById('resultBadges');
+  // Badges
+  var badges = document.getElementById('rBadges');
+  var roastBadge = '';
+  if (drink.roasts[0] !== 'any') {
+    var rl = drink.roasts.map(function(r){return ROAST_EMOJI[r]+' '+r.charAt(0).toUpperCase()+r.slice(1);}).join(' / ');
+    roastBadge = '<span class="badge roast">'+rl+' Roast</span>';
+  }
   badges.innerHTML =
-    '<span class="badge ' + drink.temp + '">' + (drink.temp === 'iced' ? '🧊 Iced' : '🔥 Hot') + '</span>' +
-    '<span class="badge ' + drink.type + '">' + (drink.type === 'coffee' ? '☕ Coffee' : '🍵 Chai') + '</span>';
+    '<span class="badge '+drink.temp+'">'+(drink.temp==='iced'?'🧊 Iced':'🔥 Hot')+'</span>'+
+    '<span class="badge '+drink.type+'">'+(drink.type==='coffee'?'☕ Coffee':'🍵 Chai')+'</span>'+
+    roastBadge;
 
-  document.getElementById('resultDesc').textContent = drink.description;
+  document.getElementById('rDesc').textContent = drink.description;
 
-  var list = document.getElementById('ingredientsList');
-  list.innerHTML = drink.ingredients.map(function(i) {
-    return '<li><span class="ing-name">' + i.item + '</span><span class="ing-amount">' + i.amount + '</span></li>';
+  // Build ingredient list — adjust espresso shots if applicable
+  var ings = drink.ingredients.map(function(i){return {item:i.item,amount:i.amount,topping:false};});
+  if (drink.shots > 0 && selectedShots !== drink.shots) {
+    ings = ings.map(function(i){
+      if (i.item.toLowerCase().includes('espresso') || i.item.toLowerCase().includes('ristretto')) {
+        var oz = selectedShots;
+        return {item:i.item, amount:selectedShots+' shot'+(selectedShots>1?'s':'')+' ('+oz+' oz)', topping:false};
+      }
+      return i;
+    });
+  }
+  // Append selected toppings
+  var toppings = getChecked('toppingsGrid');
+  toppings.forEach(function(t){
+    var info = TOPPING_LABELS[t];
+    if (info) ings.push({item:info.label, amount:info.amount, topping:true});
+  });
+
+  var list = document.getElementById('rIngredients');
+  list.innerHTML = ings.map(function(i){
+    return '<li class="'+(i.topping?'topping-row':'')+'">'+
+      '<span class="ing-name">'+i.item+'</span>'+
+      '<span class="ing-amount'+(i.topping?' topping-amt':'')+'">'+i.amount+'</span>'+
+      '</li>';
   }).join('');
 
-  document.getElementById('resultTip').innerHTML = '💡 <strong>Pro Tip:</strong> ' + drink.tip;
-
-  resultEl.classList.add('show');
-  resultEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  document.getElementById('rTip').innerHTML = '💡 <strong>Pro Tip:</strong> '+drink.tip;
+  resultCard.classList.add('show');
+  resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-// ============================================================
-// TRY AGAIN — RESET
-// ============================================================
-document.getElementById('tryAgainBtn').addEventListener('click', function() {
-  resultEl.classList.remove('show');
+// ═══════════════════════════════════════════════════
+// TRY AGAIN
+// ═══════════════════════════════════════════════════
+document.getElementById('tryAgainBtn').addEventListener('click', function(){
+  resultCard.classList.remove('show');
   winnerEl.classList.remove('show');
-  slotWrapEl.classList.remove('visible');
-  reelTextEl.classList.remove('landed','spinning');
-  reelTextEl.textContent = 'Insert coin…';
+  slotWrap.classList.remove('visible');
+  reelEl.classList.remove('landed','spinning');
+  reelEl.textContent = 'Insert coin…';
   setLights(null);
-  window.scrollTo({ top:0, behavior:'smooth' });
+  window.scrollTo({top:0,behavior:'smooth'});
 });
 
-// ============================================================
-// BUTTON WIRING
-// ============================================================
-findBtn.addEventListener('click', function() { startSpin(pickDrink(false)); });
-surpriseBtn.addEventListener('click', function() { startSpin(pickDrink(true)); });
+// ═══════════════════════════════════════════════════
+// BREW BOARD (localStorage)
+// ═══════════════════════════════════════════════════
+var STORAGE_KEY = 'brewLabBoard_v1';
+var NAME_KEY    = 'brewLabName';
+
+function loadBoard() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveBoard(arr) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch(e){}
+}
+function getSavedName() {
+  return localStorage.getItem(NAME_KEY) || '';
+}
+function saveUserName(name) {
+  try { localStorage.setItem(NAME_KEY, name); } catch(e){}
+}
+
+function renderBoard() {
+  var board = loadBoard();
+  var boardEl   = document.getElementById('brewBoard');
+  var gridEl    = document.getElementById('boardGrid');
+  var emptyEl   = document.getElementById('boardEmpty');
+
+  if (!board.length) {
+    boardEl.classList.remove('visible');
+    return;
+  }
+  boardEl.classList.add('visible');
+  emptyEl.style.display = 'none';
+  gridEl.innerHTML = board.map(function(entry, idx){
+    return '<div class="board-card" data-idx="'+idx+'">'+
+      '<button class="board-remove" data-remove="'+idx+'" title="Remove">✕</button>'+
+      '<div class="board-card-name">❤️ '+escHtml(entry.name)+'</div>'+
+      '<div class="board-card-drink">'+entry.emoji+' '+escHtml(entry.drink)+'</div>'+
+      '<div class="board-card-meta">'+
+        (entry.temp==='iced'?'🧊 Iced':'🔥 Hot')+' · '+(entry.type==='coffee'?'☕ Coffee':'🍵 Chai')+
+        ' · '+escHtml(entry.date)+
+      '</div>'+
+      '<div class="board-card-actions">'+
+        '<button class="btn sm-btn" data-brewagain="'+idx+'">☕ Brew Again</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // Remove buttons
+  gridEl.querySelectorAll('[data-remove]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = parseInt(btn.dataset.remove, 10);
+      var arr = loadBoard();
+      arr.splice(i, 1);
+      saveBoard(arr);
+      renderBoard();
+    });
+  });
+
+  // Brew Again buttons
+  gridEl.querySelectorAll('[data-brewagain]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = parseInt(btn.dataset.brewagain, 10);
+      var entry = loadBoard()[i];
+      if (!entry) return;
+      var drink = DRINKS.find(function(d){return d.name === entry.drink;});
+      if (!drink) return;
+      window.scrollTo({top:0,behavior:'smooth'});
+      setTimeout(function(){startSpin(drink);}, 200);
+    });
+  });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── HEART BUTTON / SAVE MODAL ──
+var saveModal      = document.getElementById('saveModal');
+var modalNameInput = document.getElementById('modalNameInput');
+var modalDrinkName = document.getElementById('modalDrinkName');
+
+document.getElementById('heartBtn').addEventListener('click', function(){
+  if (!currentDrink) return;
+  modalDrinkName.textContent = currentDrink.name;
+  modalNameInput.value = getSavedName();
+  saveModal.classList.add('open');
+  modalNameInput.focus();
+});
+
+document.getElementById('modalCancelBtn').addEventListener('click', function(){
+  saveModal.classList.remove('open');
+});
+saveModal.addEventListener('click', function(e){
+  if (e.target === saveModal) saveModal.classList.remove('open');
+});
+
+document.getElementById('modalSaveBtn').addEventListener('click', function(){
+  var name = modalNameInput.value.trim() || 'You';
+  saveUserName(name);
+  var arr = loadBoard();
+  arr.unshift({
+    name:  name,
+    drink: currentDrink.name,
+    emoji: currentDrink.emoji,
+    temp:  currentDrink.temp,
+    type:  currentDrink.type,
+    date:  new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+  });
+  // Keep max 20 entries
+  if (arr.length > 20) arr = arr.slice(0, 20);
+  saveBoard(arr);
+  saveModal.classList.remove('open');
+  var hb = document.getElementById('heartBtn');
+  hb.classList.add('saved');
+  hb.textContent = '❤️ Saved!';
+  renderBoard();
+});
+
+modalNameInput.addEventListener('keydown', function(e){
+  if (e.key === 'Enter') document.getElementById('modalSaveBtn').click();
+});
+
+// ═══════════════════════════════════════════════════
+// WIRE UP MAIN BUTTONS
+// ═══════════════════════════════════════════════════
+findBtn.addEventListener('click', function(){startSpin(pickDrink(false));});
+surpriseBtn.addEventListener('click', function(){startSpin(pickDrink(true));});
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+renderBoard();
 </script>
 </body>
 </html>
