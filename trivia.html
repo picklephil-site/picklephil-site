@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Pickle Phil's Trivia</title>
-<meta name="description" content="Test your knowledge at Pickle Phil's Trivia — endless random questions, all topics, with a live leaderboard." />
+<meta name="description" content="Solo or live team trivia — all topics, endless questions, live leaderboard." />
 <link rel="icon" type="image/png" href="/img/favicon.png" />
 <style>
 :root{
@@ -13,6 +13,8 @@
   --btnText:#0d3d24; --radius:16px;
   --glass:rgba(255,255,255,.10); --glass-border:rgba(255,255,255,.22);
   --shadow:0 18px 45px rgba(0,0,0,.40);
+  --red:#e74c3c; --red-dim:rgba(231,76,60,.22);
+  --green-dim:rgba(46,204,113,.22);
 }
 *{box-sizing:border-box}
 body{
@@ -22,38 +24,49 @@ body{
     radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
     radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
     linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
-  background-attachment:fixed;
-  min-height:100vh; text-align:center;
+  background-attachment:fixed; min-height:100vh; text-align:center;
   display:flex; flex-direction:column; align-items:center;
 }
-.wrap{width:min(820px,100%); padding:28px 20px;}
-.back{display:inline-block; margin-bottom:18px; opacity:.7; font-size:.95rem; color:var(--text); text-decoration:none;}
+.wrap{width:min(820px,100%); padding:24px 18px;}
+.back{display:inline-block; margin-bottom:16px; opacity:.65; font-size:.92rem; color:var(--text); text-decoration:none;}
 .back:hover{opacity:1;}
-h1{font-size:clamp(30px,6vw,52px); margin:0 0 6px; font-weight:900;}
-.lead{font-size:1.05rem; opacity:.88; margin:0 auto 24px; max-width:520px;}
-
-/* Progress */
-.progress-wrap{background:rgba(255,255,255,.12); border-radius:99px; height:8px; margin:0 0 22px; overflow:hidden;}
-.progress-bar{height:100%; border-radius:99px; background:linear-gradient(90deg,#2ecc71,#27ae60); transition:width .4s ease;}
+h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
+.lead{font-size:1.02rem; opacity:.85; margin:0 auto 22px; max-width:500px;}
 
 /* Card */
 .card{
   background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
   border:1px solid var(--glass-border); border-radius:var(--radius);
-  padding:28px 24px; box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
-  margin-bottom:18px; text-align:left;
+  padding:24px 22px; box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
+  margin-bottom:16px; text-align:left;
 }
-.q-meta{font-size:.85rem; opacity:.65; margin:0 0 8px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;}
-.q-cat{opacity:.5; font-weight:400; margin-left:6px;}
-.q-text{font-size:clamp(1.05rem,2.4vw,1.35rem); font-weight:700; line-height:1.45; margin:0 0 20px;}
 
-/* Answers */
+/* Buttons */
+.btn{
+  color:var(--btnText); background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  border:1px solid rgba(255,255,255,.6); border-radius:12px;
+  padding:12px 24px; font-weight:800; font-size:.98rem; cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .15s, box-shadow .15s; margin:5px; display:inline-block; text-decoration:none;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.34);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{opacity:.45; cursor:default; transform:none !important;}
+.btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border-color:#27ae60;}
+.btn--red{background:linear-gradient(180deg,#e74c3c,#c0392b); color:#fff; border-color:#c0392b;}
+.btn--sm{padding:9px 16px; font-size:.88rem;}
+
+/* Progress */
+.progress-wrap{background:rgba(255,255,255,.12); border-radius:99px; height:7px; margin:0 0 20px; overflow:hidden;}
+.progress-bar{height:100%; border-radius:99px; background:linear-gradient(90deg,#2ecc71,#27ae60); transition:width .4s ease;}
+
+/* Quiz answers */
 .answers{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-@media(max-width:520px){.answers{grid-template-columns:1fr;}}
+@media(max-width:500px){.answers{grid-template-columns:1fr;}}
 .ans-btn{
   background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18);
-  color:var(--text); border-radius:12px; padding:13px 15px;
-  font-size:.97rem; font-weight:600; cursor:pointer; text-align:left;
+  color:var(--text); border-radius:12px; padding:13px 14px;
+  font-size:.95rem; font-weight:600; cursor:pointer; text-align:left;
   transition:background .15s, border-color .15s, transform .12s; line-height:1.35;
 }
 .ans-btn:hover:not(:disabled){background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.5); transform:translateY(-2px);}
@@ -62,113 +75,210 @@ h1{font-size:clamp(30px,6vw,52px); margin:0 0 6px; font-weight:900;}
 .ans-btn.wrong{background:rgba(231,76,60,.30); border-color:#e74c3c;}
 .ans-btn.reveal{background:rgba(46,204,113,.20); border-color:rgba(46,204,113,.4);}
 
-/* Feedback */
-.feedback{min-height:44px; font-size:1rem; font-weight:700; padding:8px 0 2px; opacity:0; transition:opacity .2s;}
+.feedback{min-height:40px; font-size:.98rem; font-weight:700; padding:7px 0 2px; opacity:0; transition:opacity .2s;}
 .feedback.show{opacity:1;}
 .feedback.good{color:#2ecc71;}
 .feedback.bad{color:#e74c3c;}
 
-/* Buttons */
-.btn{
-  color:var(--btnText); background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
-  border:1px solid rgba(255,255,255,.6); border-radius:12px;
-  padding:13px 26px; font-weight:800; font-size:1rem; cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.9);
-  transition:transform .15s, box-shadow .15s; margin:6px; display:inline-block; text-decoration:none;
-}
-.btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.36);}
-.btn:active{transform:translateY(0);}
-.btn--green{background:linear-gradient(180deg,#2ecc71,#27ae60); color:#fff; border-color:#27ae60;}
-.btn--green:hover{filter:brightness(1.05);}
-
-/* Loading */
+/* Spinner */
 #loading-screen{padding:60px 0;}
-.spinner{display:inline-block; width:44px; height:44px; border:4px solid rgba(255,255,255,.2); border-top-color:#2ecc71; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px;}
+.spinner{display:inline-block; width:40px; height:40px; border:4px solid rgba(255,255,255,.18); border-top-color:#2ecc71; border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Score screen */
-#score-screen{display:none;}
-.score-big{font-size:clamp(60px,14vw,100px); font-weight:900; line-height:1;
+/* Solo score screen */
+.score-big{font-size:clamp(56px,13vw,96px); font-weight:900; line-height:1;
   background:linear-gradient(180deg,#fff 0%,#a8f0c4 100%);
   -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
-.score-label{font-size:1.1rem; opacity:.8; margin:6px 0 18px;}
-.verdict{
-  background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
-  border:1px solid var(--glass-border); border-radius:var(--radius);
-  padding:20px; margin:14px 0 20px; font-size:1.1rem; font-weight:700; line-height:1.6;
-}
-
-/* Submit score */
-.submit-area{margin:0 0 24px;}
-.submit-area p{margin:0 0 10px; opacity:.85;}
+.score-label{font-size:1.05rem; opacity:.75; margin:5px 0 16px;}
+.verdict{background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.28)); border:1px solid var(--glass-border); border-radius:var(--radius); padding:18px; margin:12px 0 18px; font-size:1.08rem; font-weight:700; line-height:1.6;}
 .name-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
-.name-input{
-  background:rgba(255,255,255,.12); border:1px solid var(--glass-border);
-  color:var(--text); border-radius:12px; padding:12px 16px; font-size:1rem;
-  font-weight:600; outline:none; width:min(260px,80vw);
-}
-.name-input::placeholder{opacity:.5;}
+.name-input{background:rgba(255,255,255,.12); border:1px solid var(--glass-border); color:var(--text); border-radius:12px; padding:12px 15px; font-size:.98rem; font-weight:600; outline:none; width:min(240px,75vw);}
+.name-input::placeholder{opacity:.45;}
 .name-input:focus{border-color:rgba(46,204,113,.6);}
-.submit-status{margin-top:10px; font-size:.95rem; min-height:1.4em; font-weight:700;}
+.submit-status{margin-top:9px; font-size:.92rem; min-height:1.3em; font-weight:700;}
 .submit-status.good{color:#2ecc71;}
 .submit-status.bad{color:#e74c3c;}
 
 /* Leaderboard */
-#leaderboard-section{margin-top:30px;}
-.lb-title{font-size:1.4rem; font-weight:800; margin:0 0 14px;}
-.lb-table{width:100%; border-collapse:collapse; font-size:.97rem;}
-.lb-table th{text-align:left; padding:8px 10px; opacity:.6; font-size:.8rem; letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.12);}
-.lb-table td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.06);}
-.lb-table tr:first-child td{font-weight:800;}
-.lb-rank{opacity:.55; width:36px;}
+.lb-title{font-size:1.3rem; font-weight:800; margin:0 0 12px;}
+.lb-table{width:100%; border-collapse:collapse; font-size:.93rem;}
+.lb-table th{text-align:left; padding:7px 9px; opacity:.55; font-size:.78rem; letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.1);}
+.lb-table td{padding:9px 9px; border-bottom:1px solid rgba(255,255,255,.05);}
 .lb-score{font-weight:800; color:#2ecc71; white-space:nowrap;}
-.lb-date{opacity:.45; font-size:.85rem; white-space:nowrap;}
-.lb-empty{opacity:.5; padding:20px; text-align:center;}
-.gold{color:#f1c40f;}
-.silver{color:#bdc3c7;}
-.bronze{color:#cd7f32;}
+.lb-date{opacity:.4; font-size:.82rem; white-space:nowrap;}
+.lb-empty{opacity:.45; padding:18px; text-align:center; font-size:.95rem;}
 
-/* Start screen */
-.emoji-big{font-size:4rem; display:block; margin-bottom:8px;}
-.tabs{display:flex; gap:10px; justify-content:center; margin-bottom:24px; flex-wrap:wrap;}
-.tab-btn{
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
-  color:var(--text); border-radius:10px; padding:9px 18px; font-size:.9rem;
-  font-weight:700; cursor:pointer; transition:.15s;
+/* ── LIVE GAME ───────────────────────────────────────────────── */
+
+/* Team score bar */
+.score-bar{
+  display:flex; gap:12px; margin-bottom:18px; justify-content:center;
 }
-.tab-btn.active,.tab-btn:hover{background:rgba(46,204,113,.25); border-color:rgba(46,204,113,.5);}
+.score-bar .team-block{
+  flex:1; max-width:220px; border-radius:14px; padding:12px 16px;
+  font-size:1.05rem; font-weight:800; text-align:center;
+  border:2px solid transparent;
+}
+.team-block.red{ background:var(--red-dim); border-color:var(--red); }
+.team-block.green{ background:var(--green-dim); border-color:var(--accent); }
+.team-block .team-pts{ font-size:2rem; font-weight:900; display:block; line-height:1; }
+.team-block.winner{ transform:scale(1.05); box-shadow:0 0 0 3px rgba(255,255,255,.4); }
+
+/* Team picker */
+.team-picker{ display:flex; gap:12px; justify-content:center; margin:14px 0; }
+.team-pick-btn{
+  flex:1; max-width:180px; border-radius:14px; padding:14px; border:2px solid transparent;
+  font-size:1rem; font-weight:800; cursor:pointer; transition:.18s;
+  background:rgba(255,255,255,.07);
+}
+.team-pick-btn.red{ border-color:var(--red); color:var(--red); }
+.team-pick-btn.green{ border-color:var(--accent); color:var(--accent); }
+.team-pick-btn.selected.red{ background:var(--red-dim); box-shadow:0 0 0 2px var(--red); }
+.team-pick-btn.selected.green{ background:var(--green-dim); box-shadow:0 0 0 2px var(--accent); }
+
+/* Room code display */
+.room-code{
+  font-size:clamp(52px,14vw,88px); font-weight:900; letter-spacing:.12em;
+  background:linear-gradient(180deg,#fff,#a8f0c4);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  line-height:1; margin:8px 0 4px;
+}
+.room-code-label{ opacity:.6; font-size:.9rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+
+/* Player list */
+.player-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:9px; margin:14px 0; }
+.player-chip{
+  border-radius:10px; padding:9px 12px; font-weight:700; font-size:.9rem;
+  border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; gap:7px;
+}
+.player-chip.red{ background:var(--red-dim); border-color:rgba(231,76,60,.4); }
+.player-chip.green{ background:var(--green-dim); border-color:rgba(46,204,113,.35); }
+.player-chip .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.player-chip .dot.red{ background:var(--red); }
+.player-chip .dot.green{ background:var(--accent); }
+
+/* Live question */
+.q-meta{ font-size:.82rem; opacity:.6; margin:0 0 7px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.q-text{ font-size:clamp(1.05rem,2.4vw,1.35rem); font-weight:700; line-height:1.45; margin:0 0 18px; }
+.answered-status{ font-size:.9rem; opacity:.65; margin:10px 0 4px; min-height:1.3em; }
+
+/* Reveal player results */
+.results-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px; margin:14px 0; }
+.result-chip{
+  border-radius:10px; padding:9px 12px; font-weight:700; font-size:.88rem;
+  border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; gap:7px;
+}
+.result-chip.correct-ans{ background:rgba(46,204,113,.22); border-color:rgba(46,204,113,.4); }
+.result-chip.wrong-ans{ background:rgba(255,255,255,.05); opacity:.6; }
+.result-chip .res-icon{ font-size:1.1rem; flex-shrink:0; }
+
+/* Score delta */
+.score-delta{ margin:12px 0; font-size:1rem; opacity:.8; }
+.score-delta span{ font-weight:800; }
+
+/* Final winner */
+.winner-banner{
+  font-size:clamp(22px,5vw,38px); font-weight:900; margin:10px 0;
+  padding:18px; border-radius:var(--radius);
+}
+.winner-banner.red{ background:var(--red-dim); border:2px solid var(--red); }
+.winner-banner.green{ background:var(--green-dim); border:2px solid var(--accent); }
+.winner-banner.tie{ background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.3); }
+
+/* Join code input */
+.code-input{
+  background:rgba(255,255,255,.12); border:2px solid var(--glass-border);
+  color:var(--text); border-radius:12px; padding:14px 18px;
+  font-size:1.6rem; font-weight:900; outline:none; width:min(180px,60vw);
+  text-align:center; letter-spacing:.15em; text-transform:uppercase;
+}
+.code-input::placeholder{ opacity:.35; letter-spacing:.05em; font-size:1rem; font-weight:400; }
+.code-input:focus{ border-color:rgba(46,204,113,.7); }
+
+/* Section divider */
+.divider{ height:1px; background:rgba(255,255,255,.1); margin:20px 0; }
+
+/* Mode picker on start screen */
+.mode-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:10px 0 20px; }
+@media(max-width:480px){ .mode-grid{ grid-template-columns:1fr; } }
+.mode-card{
+  background:linear-gradient(165deg,var(--glass),rgba(8,40,24,.28));
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:20px 16px; cursor:pointer; transition:.2s; text-align:center;
+}
+.mode-card:hover{ border-color:rgba(46,204,113,.5); transform:translateY(-3px); }
+.mode-card .mode-icon{ font-size:2.4rem; display:block; margin-bottom:8px; }
+.mode-card h3{ margin:0 0 5px; font-size:1.1rem; font-weight:800; }
+.mode-card p{ margin:0; font-size:.88rem; opacity:.7; line-height:1.4; }
+
+/* Waiting pulse */
+@keyframes pulse{ 0%,100%{ opacity:.6; } 50%{ opacity:1; } }
+.pulse{ animation:pulse 1.8s ease-in-out infinite; }
+
+/* q-meta in live context */
+.q-meta-row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+.q-num{ font-size:.82rem; opacity:.6; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.q-cat-badge{ font-size:.78rem; background:rgba(255,255,255,.1); border-radius:6px; padding:2px 8px; opacity:.75; }
+
+/* Answered overlay on ans-btn */
+.ans-btn.my-answer{ box-shadow:0 0 0 2px rgba(255,255,255,.5); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="/">← Back to the Jar</a>
 
-  <!-- START SCREEN -->
+  <!-- ═══════════════════════════════════════════════════ START -->
   <div id="start-screen">
-    <span class="emoji-big">🧠</span>
+    <span style="font-size:3.5rem;display:block;margin-bottom:6px;">🧠</span>
     <h1>Pickle Phil's Trivia</h1>
-    <p class="lead">10 random questions. All topics. No Google. No peeking. Your score goes on the board.</p>
-    <button class="btn btn--green" id="start-btn" style="font-size:1.1rem; padding:15px 32px;">Let's Go 🥒</button>
-    <div id="leaderboard-section">
-      <div class="card" style="margin-top:28px;">
-        <p class="lb-title">🏆 Leaderboard</p>
-        <div id="lb-content"><p class="lb-empty">Loading scores…</p></div>
+    <p class="lead">All topics. Endless questions. Play solo or go head‑to‑head with teams.</p>
+
+    <div class="mode-grid">
+      <div class="mode-card" id="solo-mode-btn">
+        <span class="mode-icon">🎮</span>
+        <h3>Solo Play</h3>
+        <p>10 random questions. Score goes on the leaderboard.</p>
       </div>
+      <div class="mode-card" id="live-mode-btn">
+        <span class="mode-icon">🔴🟢</span>
+        <h3>Live Game</h3>
+        <p>Host a room or join one. Red vs Green team battle.</p>
+      </div>
+    </div>
+
+    <!-- Join a game shortcut -->
+    <div class="card" style="text-align:center; margin-bottom:16px;">
+      <p style="margin:0 0 10px; font-weight:700;">Have a room code? Jump in:</p>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <input class="code-input" id="join-code-input" type="text" maxlength="4" placeholder="CODE" />
+        <button class="btn btn--green" id="join-code-btn">Join 🟢</button>
+      </div>
+      <div id="join-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <p class="lb-title">🏆 Solo Leaderboard</p>
+      <div id="lb-content"><p class="lb-empty">Loading…</p></div>
     </div>
   </div>
 
-  <!-- LOADING SCREEN -->
-  <div id="loading-screen" style="display:none;">
+  <!-- ═══════════════════════════════════════════════ LOADING -->
+  <div id="loading-screen" style="display:none; padding:60px 0;">
     <div class="spinner"></div>
-    <p style="opacity:.7;">Fetching fresh questions…</p>
+    <p style="opacity:.65;">Fetching fresh questions…</p>
   </div>
 
-  <!-- QUIZ SCREEN -->
+  <!-- ══════════════════════════════════════════ SOLO: QUIZ -->
   <div id="quiz-screen" style="display:none;">
-    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:14px;">🧠 Trivia</h1>
+    <h1 style="font-size:clamp(22px,4vw,32px); margin-bottom:12px;">🧠 Trivia</h1>
     <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
     <div class="card">
-      <p class="q-meta" id="q-meta">Question 1 of 10 <span class="q-cat" id="q-cat"></span></p>
+      <div class="q-meta-row">
+        <span class="q-num" id="q-meta">Question 1 of 10</span>
+        <span class="q-cat-badge" id="q-cat"></span>
+      </div>
       <p class="q-text" id="q-text"></p>
       <div class="answers" id="answers"></div>
       <div class="feedback" id="feedback"></div>
@@ -176,243 +286,578 @@ h1{font-size:clamp(30px,6vw,52px); margin:0 0 6px; font-weight:900;}
     <button class="btn" id="next-btn" disabled>Next →</button>
   </div>
 
-  <!-- SCORE SCREEN -->
-  <div id="score-screen">
-    <span class="emoji-big">🏆</span>
+  <!-- ══════════════════════════════════════════ SOLO: SCORE -->
+  <div id="score-screen" style="display:none;">
+    <span style="font-size:3.5rem;display:block;margin-bottom:4px;">🏆</span>
     <div class="score-big" id="score-display"></div>
     <div class="score-label">out of 10</div>
     <div class="verdict" id="verdict"></div>
-
-    <div class="submit-area card" style="text-align:center;">
-      <p style="font-size:1.05rem; font-weight:700; margin-bottom:8px;">📋 Submit your score to the leaderboard</p>
+    <div class="card" style="text-align:center; margin-bottom:14px;">
+      <p style="font-size:1rem; font-weight:700; margin:0 0 10px;">📋 Submit to leaderboard</p>
       <div class="name-row">
         <input class="name-input" id="name-input" type="text" placeholder="Your name" maxlength="30" />
         <button class="btn btn--green" id="submit-btn">Submit 🏆</button>
       </div>
       <div class="submit-status" id="submit-status"></div>
     </div>
-
     <button class="btn" id="replay-btn">Play Again 🧠</button>
     <a class="btn" href="/">Back to the Jar 🥒</a>
-
-    <div class="card" style="margin-top:28px; text-align:left;">
+    <div class="card" style="margin-top:24px;">
       <p class="lb-title">🏆 Leaderboard</p>
-      <div id="lb-content-score"><p class="lb-empty">Loading scores…</p></div>
+      <div id="lb-content-score"><p class="lb-empty">Loading…</p></div>
     </div>
   </div>
-</div>
+
+  <!-- ══════════════════════════════════════ LIVE: HOST SETUP -->
+  <div id="host-setup-screen" style="display:none;">
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:8px;">🎮 Host a Game</h1>
+    <p class="lead">Pick your team, then create the room.</p>
+    <div class="card" style="text-align:center;">
+      <p style="font-weight:700; margin:0 0 8px;">Your name:</p>
+      <input class="name-input" id="host-name-input" type="text" placeholder="Your name" maxlength="30" style="margin-bottom:16px; display:block; margin-inline:auto;" />
+      <p style="font-weight:700; margin:0 0 8px;">Pick your team:</p>
+      <div class="team-picker">
+        <button class="team-pick-btn red selected" id="host-team-red" onclick="selectHostTeam('red')">🔴 Red Team</button>
+        <button class="team-pick-btn green" id="host-team-green" onclick="selectHostTeam('green')">🟢 Green Team</button>
+      </div>
+      <button class="btn btn--green" id="create-room-btn" style="margin-top:16px; font-size:1.05rem; padding:14px 30px;">Create Room 🚀</button>
+      <div id="create-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
+    </div>
+    <button class="btn" onclick="show('start-screen')" style="margin-top:8px;">← Back</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════ LIVE: HOST LOBBY -->
+  <div id="host-lobby-screen" style="display:none;">
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:4px;">🎮 Your Room</h1>
+    <p class="lead pulse">Waiting for players to join…</p>
+    <div class="card" style="text-align:center;">
+      <p class="room-code-label">Room Code</p>
+      <div class="room-code" id="lobby-code">----</div>
+      <p style="opacity:.6; font-size:.88rem; margin:4px 0 16px;">Share this code — players go to <strong>philliphinshaw.com/trivia</strong></p>
+      <div id="lobby-players" class="player-grid"></div>
+      <div class="divider"></div>
+      <button class="btn btn--green" id="start-game-btn" style="font-size:1.05rem; padding:14px 32px;" disabled>Start Game ▶</button>
+      <p id="start-hint" style="opacity:.55; font-size:.85rem; margin:8px 0 0;">Need at least 2 players to start</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ LIVE: JOIN LOBBY -->
+  <div id="join-setup-screen" style="display:none;">
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:8px;">🟢 Join a Game</h1>
+    <div class="card" style="text-align:center;">
+      <p style="font-weight:700; margin:0 0 8px;">Your name:</p>
+      <input class="name-input" id="join-name-input" type="text" placeholder="Your name" maxlength="30" style="margin-bottom:16px; display:block; margin-inline:auto;" />
+      <p style="font-weight:700; margin:0 0 8px;">Room code:</p>
+      <input class="code-input" id="join-room-code-input" type="text" maxlength="4" placeholder="CODE" style="margin-bottom:16px;" />
+      <p style="font-weight:700; margin:0 0 8px;">Pick your team:</p>
+      <div class="team-picker">
+        <button class="team-pick-btn red selected" id="join-team-red" onclick="selectJoinTeam('red')">🔴 Red Team</button>
+        <button class="team-pick-btn green" id="join-team-green" onclick="selectJoinTeam('green')">🟢 Green Team</button>
+      </div>
+      <button class="btn btn--green" id="join-room-btn" style="margin-top:16px; font-size:1.05rem; padding:14px 30px;">Join Room 🚀</button>
+      <div id="join-setup-error" style="margin-top:8px; color:#e74c3c; font-weight:700; min-height:1.2em; font-size:.9rem;"></div>
+    </div>
+    <button class="btn" onclick="show('start-screen')" style="margin-top:8px;">← Back</button>
+  </div>
+
+  <!-- ══════════════════════════════════════ LIVE: PLAYER LOBBY -->
+  <div id="player-lobby-screen" style="display:none;">
+    <h1 style="font-size:clamp(22px,4vw,34px); margin-bottom:4px;">✅ You're In!</h1>
+    <p class="lead pulse">Waiting for the host to start…</p>
+    <div class="card" style="text-align:center;">
+      <p class="room-code-label">Room</p>
+      <div class="room-code" id="player-lobby-code" style="font-size:clamp(36px,10vw,64px);">----</div>
+      <div id="player-lobby-players" class="player-grid" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ LIVE: QUESTION -->
+  <div id="live-question-screen" style="display:none;">
+    <div class="score-bar" id="lq-score-bar"></div>
+    <div class="progress-wrap"><div class="progress-bar" id="lq-progress-bar" style="width:0%"></div></div>
+    <div class="card">
+      <div class="q-meta-row">
+        <span class="q-num" id="lq-meta">Q 1/10</span>
+        <span class="q-cat-badge" id="lq-cat"></span>
+      </div>
+      <p class="q-text" id="lq-text"></p>
+      <div class="answers" id="lq-answers"></div>
+      <div class="answered-status" id="lq-status"></div>
+    </div>
+    <div id="lq-host-controls" style="display:none;">
+      <button class="btn btn--green" id="reveal-btn">Reveal Answers 👁</button>
+    </div>
+    <div id="lq-wait-msg" style="opacity:.6; font-size:.9rem; margin-top:8px;"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ LIVE: REVEAL -->
+  <div id="live-reveal-screen" style="display:none;">
+    <div class="score-bar" id="lr-score-bar"></div>
+    <div class="card">
+      <div class="q-meta-row">
+        <span class="q-num" id="lr-meta">Q 1/10</span>
+        <span class="q-cat-badge" id="lr-cat"></span>
+      </div>
+      <p class="q-text" id="lr-text"></p>
+      <div class="answers" id="lr-answers"></div>
+      <div class="score-delta" id="lr-delta"></div>
+      <div class="divider"></div>
+      <p style="font-weight:700; margin:0 0 8px; opacity:.8; font-size:.9rem;">THIS ROUND:</p>
+      <div class="results-grid" id="lr-results"></div>
+    </div>
+    <div id="lr-host-controls" style="display:none;">
+      <button class="btn btn--green" id="next-q-btn">Next Question →</button>
+    </div>
+    <div id="lr-wait-msg" style="opacity:.6; font-size:.9rem; margin-top:8px; padding:4px;" class="pulse"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════ LIVE: FINISHED -->
+  <div id="live-finished-screen" style="display:none;">
+    <span style="font-size:3.5rem;display:block;margin-bottom:8px;">🎉</span>
+    <h1 style="margin-bottom:12px;">Game Over!</h1>
+    <div id="winner-banner" class="winner-banner tie">It's a Tie! 🤝</div>
+    <div class="score-bar" id="lf-score-bar" style="margin-top:16px;"></div>
+    <div class="card" style="margin-top:10px;">
+      <p style="font-weight:700; margin:0 0 10px; opacity:.8; font-size:.9rem;">PLAYER SCORES:</p>
+      <div class="results-grid" id="lf-players"></div>
+    </div>
+    <div id="lf-host-controls" style="display:none;">
+      <button class="btn btn--green" id="play-again-live-btn" style="margin-top:6px;">Play Again 🚀</button>
+    </div>
+    <a class="btn" href="/trivia.html" style="margin-top:6px; text-decoration:none;">New Game</a>
+    <a class="btn" href="/" style="margin-top:6px; text-decoration:none;">Back to the Jar 🥒</a>
+  </div>
+
+</div><!-- .wrap -->
 
 <script>
 var API = 'https://trivia-api.philliphinshaw.workers.dev';
-var round = [], current = 0, score = 0, answered = false;
 
-function decodeHTML(str) {
-  var txt = document.createElement('textarea');
-  txt.innerHTML = str;
-  return txt.value;
-}
+// ─── SCREEN MANAGEMENT ────────────────────────────────────────────────────
 
-function shuffle(arr) {
-  var a = arr.slice();
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var t = a[i]; a[i] = a[j]; a[j] = t;
-  }
-  return a;
-}
+var SCREENS = ['start-screen','loading-screen','quiz-screen','score-screen',
+  'host-setup-screen','host-lobby-screen','join-setup-screen','player-lobby-screen',
+  'live-question-screen','live-reveal-screen','live-finished-screen'];
 
 function show(id) {
-  ['start-screen','loading-screen','quiz-screen','score-screen'].forEach(function(s){
-    document.getElementById(s).style.display = s === id ? 'block' : 'none';
-  });
+  SCREENS.forEach(function(s){ document.getElementById(s).style.display = s === id ? 'block' : 'none'; });
 }
 
-function fetchQuestions(cb) {
+// ─── UTILITIES ────────────────────────────────────────────────────────────
+
+function decodeHTML(str) {
+  var t = document.createElement('textarea'); t.innerHTML = str; return t.value;
+}
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── SOLO PLAY ────────────────────────────────────────────────────────────
+
+var soloRound=[], soloCurrent=0, soloScore=0, soloAnswered=false;
+
+function startSolo() {
   show('loading-screen');
   fetch('https://opentdb.com/api.php?amount=10&type=multiple')
     .then(function(r){ return r.json(); })
     .then(function(data){
-      if (!data.results || !data.results.length) { cb(null); return; }
-      var questions = data.results.map(function(q){
+      if (!data.results || !data.results.length) { alert('Could not load questions — try again.'); show('start-screen'); return; }
+      soloRound = data.results.map(function(q){
         var correct = decodeHTML(q.correct_answer);
         var all = shuffle(q.incorrect_answers.map(decodeHTML).concat([correct]));
-        return {
-          q: decodeHTML(q.question),
-          a: all,
-          correct: all.indexOf(correct),
-          cat: decodeHTML(q.category)
-        };
+        return { q: decodeHTML(q.question), a: all, correct: all.indexOf(correct), cat: decodeHTML(q.category) };
       });
-      cb(questions);
+      soloCurrent=0; soloScore=0; soloAnswered=false;
+      document.getElementById('submit-status').textContent='';
+      document.getElementById('submit-btn').disabled=false;
+      show('quiz-screen'); showSoloQuestion();
     })
-    .catch(function(){ cb(null); });
+    .catch(function(){ alert('Could not load questions — check connection.'); show('start-screen'); });
 }
 
-function startGame() {
-  fetchQuestions(function(questions){
-    if (!questions) {
-      alert('Could not load questions — check your connection and try again.');
-      show('start-screen');
-      return;
-    }
-    round = questions;
-    current = 0; score = 0; answered = false;
-    document.getElementById('submit-status').textContent = '';
-    document.getElementById('submit-btn').disabled = false;
-    show('quiz-screen');
-    showQuestion();
-  });
-}
-
-function showQuestion() {
-  answered = false;
-  var q = round[current];
-  document.getElementById('q-meta').innerHTML = 'Question ' + (current+1) + ' of 10 <span class="q-cat">· ' + q.cat + '</span>';
+function showSoloQuestion() {
+  soloAnswered=false;
+  var q = soloRound[soloCurrent];
+  document.getElementById('q-meta').textContent = 'Question '+(soloCurrent+1)+' of 10';
+  document.getElementById('q-cat').textContent = q.cat;
   document.getElementById('q-text').textContent = q.q;
-  document.getElementById('progress-bar').style.width = (current / 10 * 100) + '%';
-
-  var fb = document.getElementById('feedback');
-  fb.textContent = ''; fb.className = 'feedback';
-
-  var nextBtn = document.getElementById('next-btn');
-  nextBtn.disabled = true;
-  nextBtn.textContent = current === 9 ? 'See Results 🏆' : 'Next →';
-
-  var container = document.getElementById('answers');
-  container.innerHTML = '';
-  q.a.forEach(function(ans, i){
-    var btn = document.createElement('button');
-    btn.className = 'ans-btn';
-    btn.textContent = ans;
-    btn.addEventListener('click', function(){ pickAnswer(i); });
-    container.appendChild(btn);
+  document.getElementById('progress-bar').style.width = (soloCurrent/10*100)+'%';
+  var fb=document.getElementById('feedback'); fb.textContent=''; fb.className='feedback';
+  var nb=document.getElementById('next-btn'); nb.disabled=true;
+  nb.textContent = soloCurrent===9 ? 'See Results 🏆' : 'Next →';
+  var c=document.getElementById('answers'); c.innerHTML='';
+  q.a.forEach(function(ans,i){
+    var btn=document.createElement('button'); btn.className='ans-btn'; btn.textContent=ans;
+    btn.addEventListener('click',function(){ pickSoloAnswer(i); }); c.appendChild(btn);
   });
 }
 
-function pickAnswer(idx) {
-  if (answered) return;
-  answered = true;
-  var q = round[current];
-  var btns = document.querySelectorAll('.ans-btn');
-  var fb = document.getElementById('feedback');
-  btns.forEach(function(b){ b.disabled = true; });
-
-  if (idx === q.correct) {
-    score++;
-    btns[idx].classList.add('correct');
-    fb.textContent = ['🎉 Nailed it!','✅ Correct!','🥒 Crunchy!','💪 Easy money.','🎯 Got it!'][Math.floor(Math.random()*5)];
-    fb.className = 'feedback show good';
+function pickSoloAnswer(idx) {
+  if (soloAnswered) return; soloAnswered=true;
+  var q=soloRound[soloCurrent];
+  var btns=document.querySelectorAll('.ans-btn'), fb=document.getElementById('feedback');
+  btns.forEach(function(b){ b.disabled=true; });
+  if (idx===q.correct) {
+    soloScore++; btns[idx].classList.add('correct');
+    fb.textContent=['🎉 Nailed it!','✅ Correct!','🥒 Crunchy!','💪 Easy money.','🎯 Got it!'][Math.floor(Math.random()*5)];
+    fb.className='feedback show good';
   } else {
-    btns[idx].classList.add('wrong');
-    btns[q.correct].classList.add('reveal');
-    fb.textContent = '❌ Nope! Answer: ' + q.a[q.correct];
-    fb.className = 'feedback show bad';
+    btns[idx].classList.add('wrong'); btns[q.correct].classList.add('reveal');
+    fb.textContent='❌ Nope! Answer: '+q.a[q.correct]; fb.className='feedback show bad';
   }
-  document.getElementById('next-btn').disabled = false;
+  document.getElementById('next-btn').disabled=false;
 }
 
-function nextQuestion() {
-  current++;
-  if (current >= 10) { showScore(); return; }
-  showQuestion();
-}
+var VERDICTS=[[0,1,"🥒 Zero to one? Did you just wake up from a 10-year pickle coma?"],[2,3,"😬 Yikes. The brine has not been kind to your brain cells."],[4,5,"😐 Mid. Straight up mid. The jar is unimpressed."],[6,7,"👍 Solid! You're officially a jar of decent knowledge."],[8,9,"🎯 Nice work. The brine is strong with this one."],[10,10,"🏆 PERFECT SCORE. You absolute legend. Maximum dill energy."]];
 
-var VERDICTS = [
-  [0,1,"🥒 Zero to one? Did you just wake up from a 10-year pickle coma?"],
-  [2,3,"😬 Yikes. The brine has not been kind to your brain cells."],
-  [4,5,"😐 Mid. Straight up mid. The jar is unimpressed."],
-  [6,7,"👍 Solid! You're officially a jar of decent knowledge."],
-  [8,9,"🎯 Nice work. The brine is strong with this one."],
-  [10,10,"🏆 PERFECT SCORE. You absolute legend. Maximum dill energy."]
-];
-
-function showScore() {
+function showSoloScore() {
   show('score-screen');
-  document.getElementById('score-display').textContent = score;
-  var v = VERDICTS.find(function(r){ return score >= r[0] && score <= r[1]; });
-  document.getElementById('verdict').textContent = v ? v[2] : '';
+  document.getElementById('score-display').textContent=soloScore;
+  var v=VERDICTS.find(function(r){ return soloScore>=r[0]&&soloScore<=r[1]; });
+  document.getElementById('verdict').textContent=v?v[2]:'';
   loadLeaderboard('lb-content-score');
 }
 
-function submitScore() {
-  var name = document.getElementById('name-input').value.trim() || 'Anonymous';
-  var btn = document.getElementById('submit-btn');
-  var status = document.getElementById('submit-status');
-  btn.disabled = true;
-  status.textContent = 'Submitting…';
-  status.className = 'submit-status';
-
-  fetch(API, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ name: name, score: score, total: 10 })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    if (data.ok) {
-      status.textContent = '✅ Score submitted! You ranked #' + data.rank + ' overall.';
-      status.className = 'submit-status good';
-      loadLeaderboard('lb-content-score');
-    } else {
-      status.textContent = '❌ Something went wrong. Try again.';
-      status.className = 'submit-status bad';
-      btn.disabled = false;
-    }
-  })
-  .catch(function(){
-    status.textContent = '❌ Could not reach the server.';
-    status.className = 'submit-status bad';
-    btn.disabled = false;
-  });
-}
-
-var MEDALS = ['🥇','🥈','🥉'];
-
-function buildLeaderboard(scores, containerId) {
-  var el = document.getElementById(containerId);
-  if (!el) return;
-  if (!scores || !scores.length) {
-    el.innerHTML = '<p class="lb-empty">No scores yet — be the first! 🥒</p>';
-    return;
-  }
-  var top = scores.slice(0, 20);
-  var rows = top.map(function(s, i){
-    var medal = MEDALS[i] || (i+1);
-    var dateStr = s.ts ? new Date(s.ts).toLocaleDateString() : '';
-    return '<tr><td class="lb-rank">' + medal + '</td>' +
-      '<td><strong>' + escHtml(s.name) + '</strong></td>' +
-      '<td class="lb-score">' + s.score + '/10</td>' +
-      '<td class="lb-date">' + dateStr + '</td></tr>';
-  }).join('');
-  el.innerHTML = '<table class="lb-table"><thead><tr>' +
-    '<th>#</th><th>Name</th><th>Score</th><th>Date</th>' +
-    '</tr></thead><tbody>' + rows + '</tbody></table>';
-}
-
-function loadLeaderboard(containerId) {
-  fetch(API)
+function submitSoloScore() {
+  var name=document.getElementById('name-input').value.trim()||'Anonymous';
+  var btn=document.getElementById('submit-btn'), status=document.getElementById('submit-status');
+  btn.disabled=true; status.textContent='Submitting…'; status.className='submit-status';
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name,score:soloScore,total:10}) })
     .then(function(r){ return r.json(); })
-    .then(function(scores){ buildLeaderboard(scores, containerId); })
-    .catch(function(){
-      var el = document.getElementById(containerId);
-      if (el) el.innerHTML = '<p class="lb-empty">Could not load scores.</p>';
-    });
+    .then(function(d){
+      if (d.ok) { status.textContent='✅ Submitted! You ranked #'+d.rank+' overall.'; status.className='submit-status good'; loadLeaderboard('lb-content-score'); }
+      else { status.textContent='❌ Something went wrong.'; status.className='submit-status bad'; btn.disabled=false; }
+    })
+    .catch(function(){ status.textContent='❌ Could not reach the server.'; status.className='submit-status bad'; btn.disabled=false; });
 }
 
-function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function loadLeaderboard(id) {
+  fetch(API).then(function(r){ return r.json(); }).then(function(scores){ buildLeaderboard(scores,id); }).catch(function(){ var el=document.getElementById(id); if(el) el.innerHTML='<p class="lb-empty">Could not load scores.</p>'; });
 }
 
-// Wire up
-document.getElementById('start-btn').addEventListener('click', startGame);
-document.getElementById('next-btn').addEventListener('click', nextQuestion);
-document.getElementById('replay-btn').addEventListener('click', startGame);
-document.getElementById('submit-btn').addEventListener('click', submitScore);
-document.getElementById('name-input').addEventListener('keydown', function(e){
-  if (e.key === 'Enter') submitScore();
+function buildLeaderboard(scores,id) {
+  var el=document.getElementById(id); if (!el) return;
+  if (!scores||!scores.length) { el.innerHTML='<p class="lb-empty">No scores yet — be the first! 🥒</p>'; return; }
+  var medals=['🥇','🥈','🥉'];
+  var rows=scores.slice(0,20).map(function(s,i){
+    return '<tr><td style="opacity:.5;width:32px;">'+(medals[i]||(i+1))+'</td><td><strong>'+esc(s.name)+'</strong></td><td class="lb-score">'+s.score+'/10</td><td class="lb-date">'+(s.ts?new Date(s.ts).toLocaleDateString():'')+'</td></tr>';
+  }).join('');
+  el.innerHTML='<table class="lb-table"><thead><tr><th>#</th><th>Name</th><th>Score</th><th>Date</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// Solo wiring
+document.getElementById('solo-mode-btn').addEventListener('click', startSolo);
+document.getElementById('next-btn').addEventListener('click', function(){
+  soloCurrent++;
+  if (soloCurrent>=10) showSoloScore(); else showSoloQuestion();
+});
+document.getElementById('replay-btn').addEventListener('click', startSolo);
+document.getElementById('submit-btn').addEventListener('click', submitSoloScore);
+document.getElementById('name-input').addEventListener('keydown', function(e){ if(e.key==='Enter') submitSoloScore(); });
+
+// ─── LIVE GAME ────────────────────────────────────────────────────────────
+
+var liveCode=null, liveHostId=null, livePlayerId=null, liveMyTeam='red';
+var livePoll=null, liveCurrentQ=-1, liveMyAnswered=false, liveRoom=null;
+var hostSelectedTeam='red', joinSelectedTeam='red';
+
+function selectHostTeam(team) {
+  hostSelectedTeam=team;
+  document.getElementById('host-team-red').classList.toggle('selected', team==='red');
+  document.getElementById('host-team-green').classList.toggle('selected', team==='green');
+}
+function selectJoinTeam(team) {
+  joinSelectedTeam=team;
+  document.getElementById('join-team-red').classList.toggle('selected', team==='red');
+  document.getElementById('join-team-green').classList.toggle('selected', team==='green');
+}
+
+document.getElementById('live-mode-btn').addEventListener('click', function(){ show('host-setup-screen'); });
+
+// Quick join from start screen
+document.getElementById('join-code-btn').addEventListener('click', function(){
+  var code=document.getElementById('join-code-input').value.trim().toUpperCase();
+  if (!code || code.length<4) { document.getElementById('join-error').textContent='Enter a 4-letter code.'; return; }
+  document.getElementById('join-room-code-input').value=code;
+  show('join-setup-screen');
+});
+document.getElementById('join-code-input').addEventListener('keydown', function(e){
+  if(e.key==='Enter') document.getElementById('join-code-btn').click();
 });
 
-// Load leaderboard on start screen
+// Create room
+document.getElementById('create-room-btn').addEventListener('click', function(){
+  var name=document.getElementById('host-name-input').value.trim()||'Host';
+  var btn=document.getElementById('create-room-btn');
+  btn.disabled=true; document.getElementById('create-error').textContent='Creating room…';
+  fetch(API+'/room', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name,team:hostSelectedTeam}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error) { document.getElementById('create-error').textContent='❌ '+d.error; btn.disabled=false; return; }
+      liveCode=d.code; liveHostId=d.hostId; livePlayerId=d.playerId; liveMyTeam=hostSelectedTeam;
+      document.getElementById('create-error').textContent='';
+      document.getElementById('lobby-code').textContent=d.code;
+      show('host-lobby-screen');
+      startLivePoll();
+    })
+    .catch(function(){ document.getElementById('create-error').textContent='❌ Could not create room.'; btn.disabled=false; });
+});
+
+// Join room
+document.getElementById('join-room-btn').addEventListener('click', function(){
+  var name=document.getElementById('join-name-input').value.trim()||'Player';
+  var code=document.getElementById('join-room-code-input').value.trim().toUpperCase();
+  if (!code||code.length<4) { document.getElementById('join-setup-error').textContent='Enter a 4-letter code.'; return; }
+  var btn=document.getElementById('join-room-btn');
+  btn.disabled=true; document.getElementById('join-setup-error').textContent='Joining…';
+  fetch(API+'/room/'+code+'/join', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name,team:joinSelectedTeam}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error) { document.getElementById('join-setup-error').textContent='❌ '+d.error; btn.disabled=false; return; }
+      liveCode=code; liveHostId=null; livePlayerId=d.playerId; liveMyTeam=joinSelectedTeam;
+      document.getElementById('player-lobby-code').textContent=code;
+      document.getElementById('join-setup-error').textContent='';
+      show('player-lobby-screen');
+      startLivePoll();
+    })
+    .catch(function(){ document.getElementById('join-setup-error').textContent='❌ Could not join. Check the code.'; btn.disabled=false; });
+});
+
+// Start game (host)
+document.getElementById('start-game-btn').addEventListener('click', function(){
+  var btn=document.getElementById('start-game-btn'); btn.disabled=true; btn.textContent='Starting…';
+  fetch(API+'/room/'+liveCode+'/start', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hostId:liveHostId}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if (d.error) { btn.disabled=false; btn.textContent='Start Game ▶'; alert('❌ '+d.error); } })
+    .catch(function(){ btn.disabled=false; btn.textContent='Start Game ▶'; });
+});
+
+// Reveal (host)
+document.getElementById('reveal-btn').addEventListener('click', function(){
+  document.getElementById('reveal-btn').disabled=true;
+  fetch(API+'/room/'+liveCode+'/next', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hostId:liveHostId}) })
+    .then(function(r){ return r.json(); })
+    .catch(function(){});
+});
+
+// Next question (host)
+document.getElementById('next-q-btn').addEventListener('click', function(){
+  document.getElementById('next-q-btn').disabled=true;
+  fetch(API+'/room/'+liveCode+'/next', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hostId:liveHostId}) })
+    .then(function(r){ return r.json(); })
+    .catch(function(){});
+});
+
+// Play again (host)
+document.getElementById('play-again-live-btn').addEventListener('click', function(){
+  stopLivePoll();
+  document.getElementById('create-room-btn').disabled=false;
+  document.getElementById('create-error').textContent='';
+  document.getElementById('host-name-input').value='';
+  liveCode=null; liveHostId=null; livePlayerId=null; liveCurrentQ=-1; liveMyAnswered=false;
+  show('host-setup-screen');
+});
+
+// ─── POLLING ──────────────────────────────────────────────────────────────
+
+function startLivePoll() { stopLivePoll(); pollRoom(); livePoll=setInterval(pollRoom, 2000); }
+function stopLivePoll() { if (livePoll) { clearInterval(livePoll); livePoll=null; } }
+
+function pollRoom() {
+  if (!liveCode) return;
+  fetch(API+'/room/'+liveCode)
+    .then(function(r){ if(r.status===404){ stopLivePoll(); alert('Room expired or not found.'); show('start-screen'); return null; } return r.json(); })
+    .then(function(room){ if(room) handleRoomState(room); })
+    .catch(function(){});
+}
+
+function handleRoomState(room) {
+  liveRoom=room;
+  var isHost=!!liveHostId;
+
+  if (room.phase==='lobby') {
+    renderLobbyPlayers(room.players);
+    // Enable start button if 2+ players
+    if (isHost) {
+      var btn=document.getElementById('start-game-btn');
+      var hint=document.getElementById('start-hint');
+      var canStart=room.players.length>=2;
+      btn.disabled=!canStart;
+      hint.style.display=canStart?'none':'block';
+    }
+    return;
+  }
+
+  var qIdx=room.currentQ;
+  var phase=room.phase;
+
+  if (phase==='question') {
+    if (liveCurrentQ!==qIdx) {
+      liveCurrentQ=qIdx; liveMyAnswered=false;
+      renderLiveQuestion(room, isHost);
+    } else {
+      updateAnsweredStatus(room);
+    }
+  } else if (phase==='reveal') {
+    if (liveCurrentQ!==qIdx || getCurrentScreen()!=='live-reveal-screen') {
+      liveCurrentQ=qIdx;
+      renderLiveReveal(room, isHost);
+    }
+  } else if (phase==='finished') {
+    if (getCurrentScreen()!=='live-finished-screen') {
+      renderLiveFinished(room, isHost);
+    }
+  }
+}
+
+function getCurrentScreen() {
+  return SCREENS.find(function(s){ return document.getElementById(s).style.display!=='none'; })||'';
+}
+
+function renderLobbyPlayers(players) {
+  var isHost=!!liveHostId;
+  var container=isHost ? document.getElementById('lobby-players') : document.getElementById('player-lobby-players');
+  if (!container) return;
+  container.innerHTML=players.map(function(p){
+    return '<div class="player-chip '+p.team+'"><div class="dot '+p.team+'"></div><span>'+esc(p.name)+'</span></div>';
+  }).join('');
+}
+
+function scoreBar(scores, containerId) {
+  var el=document.getElementById(containerId); if (!el) return;
+  el.innerHTML=
+    '<div class="team-block red"><span class="team-pts">'+( scores.red||0)+'</span>🔴 Red Team</div>'+
+    '<div class="team-block green"><span class="team-pts">'+(scores.green||0)+'</span>🟢 Green Team</div>';
+}
+
+function renderLiveQuestion(room, isHost) {
+  show('live-question-screen');
+  var q=room.currentQuestion;
+  document.getElementById('lq-meta').textContent='Q '+(room.currentQ+1)+'/'+( room.totalQuestions||10);
+  document.getElementById('lq-cat').textContent=q?q.cat:'';
+  document.getElementById('lq-text').textContent=q?q.q:'';
+  scoreBar(room.scores,'lq-score-bar');
+  document.getElementById('lq-progress-bar').style.width=(room.currentQ/(room.totalQuestions||10)*100)+'%';
+
+  var c=document.getElementById('lq-answers'); c.innerHTML='';
+  if (q) q.a.forEach(function(ans,i){
+    var btn=document.createElement('button'); btn.className='ans-btn'; btn.textContent=ans;
+    if (liveMyAnswered) { btn.disabled=true; }
+    else {
+      btn.addEventListener('click', function(){ submitLiveAnswer(i, q.a.length); });
+    }
+    c.appendChild(btn);
+  });
+
+  document.getElementById('lq-host-controls').style.display=isHost?'block':'none';
+  document.getElementById('reveal-btn').disabled=false;
+  document.getElementById('lq-wait-msg').textContent=isHost?'':'Waiting for host to reveal answers…';
+  updateAnsweredStatus(room);
+}
+
+function updateAnsweredStatus(room) {
+  var total=room.players?room.players.length:0;
+  var answered=Object.keys(room.answers||{}).length;
+  var myAns=room.answers&&room.answers[livePlayerId];
+  var status='';
+  if (myAns) {
+    status='✅ You answered · '+answered+'/'+total+' players done';
+  } else {
+    status='⏳ '+answered+'/'+total+' players answered';
+  }
+  document.getElementById('lq-status').textContent=status;
+}
+
+function submitLiveAnswer(idx) {
+  if (liveMyAnswered) return;
+  liveMyAnswered=true;
+  var btns=document.querySelectorAll('#lq-answers .ans-btn');
+  btns.forEach(function(b,i){ b.disabled=true; if(i===idx) b.classList.add('my-answer'); });
+  fetch(API+'/room/'+liveCode+'/answer', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({playerId:livePlayerId, answer:idx}) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var btns=document.querySelectorAll('#lq-answers .ans-btn');
+      if (d.correct) { btns[idx].classList.add('correct'); document.getElementById('lq-status').textContent='✅ Correct! Waiting for others…'; }
+      else { btns[idx].classList.add('wrong'); document.getElementById('lq-status').textContent='❌ Wrong! Waiting for others…'; }
+    })
+    .catch(function(){});
+}
+
+function renderLiveReveal(room, isHost) {
+  show('live-reveal-screen');
+  var q=room.currentQuestion;
+  document.getElementById('lr-meta').textContent='Q '+(room.currentQ+1)+'/'+(room.totalQuestions||10);
+  document.getElementById('lr-cat').textContent=q?q.cat:'';
+  document.getElementById('lr-text').textContent=q?q.q:'';
+  scoreBar(room.scores,'lr-score-bar');
+
+  // Render answers with correct highlighted
+  var c=document.getElementById('lr-answers'); c.innerHTML='';
+  if (q) q.a.forEach(function(ans,i){
+    var btn=document.createElement('button'); btn.className='ans-btn'; btn.disabled=true;
+    btn.textContent=ans;
+    if (i===q.correct) btn.classList.add('correct'); else btn.classList.add('wrong');
+    c.appendChild(btn);
+  });
+
+  // Score delta this round
+  var redGain=0, greenGain=0;
+  var answers=room.answers||{};
+  (room.players||[]).forEach(function(p){
+    var ans=answers[p.id];
+    if (ans&&ans.correct) { if(p.team==='red') redGain++; else greenGain++; }
+  });
+  var delta='';
+  if (redGain||greenGain) delta='This round: '+(redGain?'🔴 +'+redGain+' ':'')+(greenGain?'🟢 +'+greenGain:'');
+  document.getElementById('lr-delta').textContent=delta;
+
+  // Player results
+  var rg=document.getElementById('lr-results');
+  rg.innerHTML=(room.players||[]).map(function(p){
+    var ans=answers[p.id];
+    var got=ans&&ans.correct;
+    var cls='result-chip '+(got?'correct-ans':'wrong-ans');
+    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span><span style="color:'+(p.team==='red'?'#e74c3c':'#2ecc71')+'">'+esc(p.name)+'</span></div>';
+  }).join('');
+
+  document.getElementById('lr-host-controls').style.display=isHost?'block':'none';
+  document.getElementById('next-q-btn').disabled=false;
+  var isLast=room.currentQ>=(room.totalQuestions||10)-1;
+  document.getElementById('next-q-btn').textContent=isLast?'See Final Results 🏆':'Next Question →';
+  document.getElementById('lr-wait-msg').textContent=isHost?'':'Waiting for host to continue…';
+}
+
+function renderLiveFinished(room, isHost) {
+  show('live-finished-screen');
+  stopLivePoll();
+
+  var red=room.scores.red||0, green=room.scores.green||0;
+  var banner=document.getElementById('winner-banner');
+  if (red>green) { banner.textContent='🔴 Red Team Wins! 🏆'; banner.className='winner-banner red'; }
+  else if (green>red) { banner.textContent='🟢 Green Team Wins! 🏆'; banner.className='winner-banner green'; }
+  else { banner.textContent="It's a Tie! 🤝"; banner.className='winner-banner tie'; }
+
+  // Score bar with winner highlight
+  var sb=document.getElementById('lf-score-bar');
+  sb.innerHTML=
+    '<div class="team-block red'+(red>green?' winner':'')+'"><span class="team-pts">'+red+'</span>🔴 Red Team</div>'+
+    '<div class="team-block green'+(green>red?' winner':'')+'"><span class="team-pts">'+green+'</span>🟢 Green Team</div>';
+
+  // Player scores sorted
+  var players=(room.players||[]).slice().sort(function(a,b){ return (b.score||0)-(a.score||0); });
+  document.getElementById('lf-players').innerHTML=players.map(function(p,i){
+    return '<div class="result-chip '+(i===0?'correct-ans':'')+'"><span style="color:'+(p.team==='red'?'#e74c3c':'#2ecc71')+'">'+esc(p.name)+'</span><span style="margin-left:auto; font-size:1.1rem; font-weight:900;">'+(p.score||0)+'</span></div>';
+  }).join('');
+
+  document.getElementById('lf-host-controls').style.display=isHost?'block':'none';
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+
+show('start-screen');
 loadLeaderboard('lb-content');
 </script>
 </body>
