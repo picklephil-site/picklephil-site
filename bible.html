@@ -59,10 +59,12 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
 
 .controls{
   display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  background:linear-gradient(165deg, rgba(12,58,34,.96), rgba(8,40,24,.97));
   border:1px solid var(--glass-border); border-radius:var(--radius);
   padding:14px 18px; margin-bottom:18px;
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  position:sticky; top:10px; z-index:100;
+  box-shadow:0 8px 28px rgba(0,0,0,.45);
 }
 .controls select{
   background:#0f2d18; color:var(--text); border:1px solid var(--glass-border);
