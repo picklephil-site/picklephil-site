@@ -209,6 +209,7 @@ var PHRASES = [
 
 var currentAudio = null;
 var currentAbort = null;
+var currentBlobUrl = null; // kept alive for download even after playback ends
 var selectedVoiceId = 'nPczCjzI2devNBz1zQrb'; // Brian — British
 var EL_KEY = 'sk_b691a044ad0303e329924dd26f843ce6dde1340ea90b2c95';
 
@@ -296,8 +297,9 @@ function speakIt() {
     return;
   }
 
-  // Cancel any in-flight fetch and stop current audio
+  // Cancel any in-flight fetch, stop current audio, free old blob
   if (currentAbort) { currentAbort.abort(); currentAbort = null; }
+  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
   stopIt();
 
   var voice = selectedVoiceId;
@@ -323,13 +325,10 @@ function speakIt() {
     .then(function(blob) {
       if (abort.signal.aborted) return; // stale — a newer request already started
       blobUrl = URL.createObjectURL(blob);
+      currentBlobUrl = blobUrl; // keep alive for download
       currentAudio = new Audio(blobUrl);
-      currentAudio.addEventListener('ended', function() {
-        if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
-        onDone();
-      });
+      currentAudio.addEventListener('ended', onDone);
       currentAudio.addEventListener('error', function() {
-        if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
         onDone();
         setStatus('⚠️ Playback error — try again.', true);
       });
