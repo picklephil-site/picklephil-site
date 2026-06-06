@@ -325,7 +325,7 @@ function speakIt() {
   var blobUrl = null;
   fetch(url, { signal: abort.signal })
     .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t); });
       return r.blob();
     })
     .then(function(blob) {
@@ -356,7 +356,7 @@ function speakIt() {
       if (err.name === 'AbortError') return;
       if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
       onDone();
-      setStatus('⚠️ Could not load audio — try again.', true);
+      setStatus('⚠️ ' + (err.message || 'Could not load audio'), true);
       document.getElementById('speak-btn').disabled = false;
     });
 }
