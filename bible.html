@@ -78,8 +78,8 @@ a,a:hover,a:active,a:visited{color:var(--text);text-decoration:none;}
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   box-shadow:0 8px 28px rgba(0,0,0,.45);
   overflow:hidden;
-  transition: padding .25s ease, max-height .25s ease, opacity .2s ease;
-  max-height:200px;
+  transition: padding .25s ease, max-height .35s ease, opacity .2s ease;
+  max-height:600px;
 }
 .controls.collapsed{
   padding:10px 18px; max-height:56px; flex-wrap:nowrap;
@@ -246,7 +246,7 @@ footer{margin:40px 0 16px;opacity:.7;font-size:.9rem;}
         <select id="chap" title="Choose chapter"></select>
 
         <label for="verse" id="verseLbl" style="display:none;">Verse</label>
-        <select id="verse" title="Jump to verse" style="display:none;min-width:100px;"></select>
+        <select id="verse" title="Jump to verse" style="display:none;"></select>
 
         <div class="font-btns">
           <button id="fontDn" title="Smaller text">A−</button>
