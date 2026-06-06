@@ -296,14 +296,19 @@ function speakIt() {
   stopIt();
 
   var voice = selectedVoiceId || 'Brian';
-  var url = 'https://trivia-api.philliphinshaw.workers.dev/tts?voice='
-    + encodeURIComponent(voice) + '&text=' + encodeURIComponent(text);
+  // Call ElevenLabs directly from the browser (no proxy needed)
+  var EL_KEY = 'sk_79ca0c5f26c95c2368d63916639bdf509080e7a3e0d5f9bf';
+  var EL_URL = 'https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voice);
 
   setStatus('Loading…', false);
   document.getElementById('speak-btn').disabled = true;
 
   var blobUrl = null;
-  fetch(url)
+  fetch(EL_URL, {
+    method: 'POST',
+    headers: { 'xi-api-key': EL_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+    body: JSON.stringify({ text: text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } })
+  })
     .then(function(r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.blob();
