@@ -76,18 +76,9 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
 .ans-btn.my-vote{box-shadow:0 0 0 2px rgba(255,255,255,.6); background:rgba(255,255,255,.15);}
 .ans-btn.my-answer{box-shadow:0 0 0 2px rgba(255,255,255,.5);}
 
-/* Vote count badge on answer buttons */
-.vote-badge{
-  display:inline-block; background:rgba(255,255,255,.28); border-radius:99px;
-  padding:1px 8px; font-size:.75rem; font-weight:800; margin-left:7px;
-  vertical-align:middle; line-height:1.6;
-}
-
-.captain-hint{
-  font-size:.85rem; font-weight:700; padding:7px 0 10px; line-height:1.4;
-}
-.captain-hint.is-captain{color:#f0c040;}
-.captain-hint.not-captain{opacity:.65;}
+/* Answer wrapper — button + voter names below */
+.ans-wrap{ display:flex; flex-direction:column; gap:4px; }
+.vote-names{ font-size:.78rem; min-height:1.1em; color:rgba(255,255,255,.6); text-align:left; padding:0 4px; line-height:1.4; }
 
 .feedback{min-height:40px; font-size:.98rem; font-weight:700; padding:7px 0 2px; opacity:0; transition:opacity .2s;}
 .feedback.show{opacity:1;}
@@ -367,9 +358,11 @@ h1{font-size:clamp(28px,6vw,50px); margin:0 0 6px; font-weight:900;}
         <span class="q-cat-badge" id="lq-cat"></span>
       </div>
       <p class="q-text" id="lq-text"></p>
-      <div id="lq-captain-hint"></div>
       <div class="answers" id="lq-answers"></div>
       <div class="answered-status" id="lq-status"></div>
+    </div>
+    <div id="lq-captain-controls" style="display:none; margin-top:4px;">
+      <button class="btn btn--sm" id="force-submit-btn" onclick="forceSubmit()" style="background:rgba(240,192,64,.2);border-color:rgba(240,192,64,.5);color:#f0c040;">👑 Submit Now (current votes)</button>
     </div>
     <div id="lq-host-controls" style="display:none; margin-top:4px;">
       <button class="btn btn--ghost btn--sm" onclick="endGame()">⚡ End Game</button>
@@ -871,7 +864,6 @@ function handleRoomState(room) {
       renderLiveQuestion(room, isHost);
     } else {
       updateAnsweredStatus(room);
-      updateVoteBadges(room.myVotes || {});
     }
   } else if (phase==='reveal') {
     if (liveCurrentQ!==qIdx || getCurrentScreen()!=='live-reveal-screen') {
@@ -948,128 +940,118 @@ function renderLiveQuestion(room, isHost) {
   scoreBar(room.scores,'lq-score-bar');
   document.getElementById('lq-progress-bar').style.width=(room.currentQ/(room.totalQuestions||10)*100)+'%';
 
-  var isCaptain = amICaptain();
-  var myVotes = room.myVotes || {};
-  var voteCounts = buildVoteCounts(myVotes, q ? q.a.length : 4);
-
-  // Captain hint
-  var hint = document.getElementById('lq-captain-hint');
-  if (isCaptain) {
-    hint.innerHTML='<div class="captain-hint is-captain">👑 You\'re the captain — tap to submit your team\'s final answer!</div>';
-  } else {
-    hint.innerHTML='<div class="captain-hint not-captain">Tap an answer to vote. Your 👑 captain makes the final call.</div>';
-  }
-
-  // Build answer buttons
-  var c=document.getElementById('lq-answers'); c.innerHTML='';
-  if (q) q.a.forEach(function(ans,i){
-    var btn=document.createElement('button');
-    btn.className='ans-btn';
-    btn.dataset.idx=i;
-
-    var badge = voteCounts[i] > 0 ? '<span class="vote-badge">'+voteCounts[i]+'</span>' : '';
-    btn.innerHTML=esc(ans)+badge;
-
-    // Already submitted (captain) or already voted (non-captain with my vote)
-    if (liveMyAnswered) {
-      btn.disabled=true;
-      if (i===liveMyVote) btn.classList.add('my-answer');
-    } else if (liveMyVote!==null && !isCaptain) {
-      // Can change vote — keep active but highlight current
-      if (i===liveMyVote) btn.classList.add('my-vote');
-      btn.addEventListener('click', function(){ submitLiveVote(i); });
-    } else if (isCaptain) {
-      btn.addEventListener('click', function(){ submitLiveAnswer(i); });
-    } else {
-      btn.addEventListener('click', function(){ submitLiveVote(i); });
-    }
-    c.appendChild(btn);
-  });
-
+  buildAnswerButtons(room, q);
   document.getElementById('lq-host-controls').style.display=isHost?'block':'none';
+  document.getElementById('lq-captain-controls').style.display=amICaptain()?'block':'none';
+  var fsBtn=document.getElementById('force-submit-btn'); if(fsBtn) fsBtn.disabled=false;
   updateAnsweredStatus(room);
 }
 
-function buildVoteCounts(myVotes, numAnswers) {
-  var counts = [];
-  for (var i=0; i<numAnswers; i++) counts.push(0);
-  Object.values(myVotes).forEach(function(idx){
-    if (idx >= 0 && idx < numAnswers) counts[idx]++;
+function buildAnswerButtons(room, q) {
+  var myVotes = room.myVotes || {};
+  var teamSubmitted = room.teamAnswers && room.teamAnswers[liveMyTeam];
+  var c=document.getElementById('lq-answers'); c.innerHTML='';
+  if (!q) return;
+
+  q.a.forEach(function(ans, i){
+    // Wrapper holds button + voter names
+    var wrap = document.createElement('div');
+    wrap.className='ans-wrap';
+
+    var btn=document.createElement('button');
+    btn.className='ans-btn';
+    btn.textContent=ans;
+
+    if (teamSubmitted || liveMyAnswered) {
+      btn.disabled=true;
+      if (liveMyVote===i) btn.classList.add('my-vote');
+    } else {
+      if (liveMyVote===i) btn.classList.add('my-vote');
+      btn.addEventListener('click', function(){ castVote(i); });
+    }
+    wrap.appendChild(btn);
+
+    // Voter names below button
+    var names = document.createElement('div');
+    names.className='vote-names';
+    names.id='vote-names-'+i;
+    names.textContent = voterNames(myVotes, i, room.players);
+    wrap.appendChild(names);
+
+    c.appendChild(wrap);
   });
-  return counts;
 }
 
-function updateVoteBadges(myVotes) {
-  var btns = document.querySelectorAll('#lq-answers .ans-btn');
-  var numAnswers = btns.length;
-  if (!numAnswers) return;
-  var counts = buildVoteCounts(myVotes, numAnswers);
-  btns.forEach(function(btn, i){
-    var existing = btn.querySelector('.vote-badge');
-    if (counts[i] > 0) {
-      if (existing) { existing.textContent=counts[i]; }
-      else {
-        var badge = document.createElement('span');
-        badge.className='vote-badge'; badge.textContent=counts[i];
-        btn.appendChild(badge);
-      }
-    } else {
-      if (existing) existing.remove();
+function voterNames(myVotes, answerIdx, players) {
+  var names = [];
+  for (var pid in myVotes) {
+    if (myVotes[pid] === answerIdx) {
+      var p = players && players.find(function(pl){ return pl.id===pid; });
+      if (p) names.push(p.name + (p.captain ? ' 👑' : ''));
+    }
+  }
+  return names.length ? names.join(', ') : '';
+}
+
+function updateAnsweredStatus(room) {
+  var myVotes = room.myVotes || {};
+  var myTeamPlayers = (room.players||[]).filter(function(p){ return p.team===liveMyTeam; });
+  var votedCount = Object.keys(myVotes).length;
+  var totalCount = myTeamPlayers.length;
+  var teamSubmitted = room.teamAnswers && room.teamAnswers[liveMyTeam];
+  var teamLabel = liveMyTeam==='red' ? '🔴' : '🔵';
+  var status = '';
+  if (teamSubmitted) {
+    status = '✅ '+teamLabel+' Team submitted! Waiting for other team…';
+  } else if (votedCount >= totalCount && totalCount > 0) {
+    status = '✅ All '+totalCount+' voted — submitting majority…';
+  } else {
+    status = teamLabel+' '+votedCount+'/'+totalCount+' teammates voted';
+  }
+  var el = document.getElementById('lq-status');
+  if (el) el.textContent=status;
+  // Hide captain submit button once team has submitted
+  var captCtrl=document.getElementById('lq-captain-controls');
+  if (captCtrl && teamSubmitted) captCtrl.style.display='none';
+
+  // Update voter name lists under each button (without rebuilding buttons)
+  var wraps = document.querySelectorAll('#lq-answers .ans-wrap');
+  wraps.forEach(function(wrap, i){
+    var namesEl = wrap.querySelector('.vote-names');
+    if (namesEl) namesEl.textContent = voterNames(room.myVotes||{}, i, room.players);
+    // Highlight my vote
+    var btn = wrap.querySelector('.ans-btn');
+    if (btn) {
+      btn.classList.toggle('my-vote', liveMyVote===i);
     }
   });
 }
 
-function updateAnsweredStatus(room) {
-  var myTeamCaptainId = room.captains && room.captains[liveMyTeam];
-  var captainAnswered = myTeamCaptainId && room.answers && room.answers[myTeamCaptainId];
-  var myVotes = room.myVotes || {};
-  var myTeamVoteCount = Object.keys(myVotes).length;
-  var myTeamPlayerCount = (room.players||[]).filter(function(p){ return p.team===liveMyTeam; }).length;
-  var teamLabel = liveMyTeam==='red' ? '🔴' : '🔵';
-  var status = '';
-  if (captainAnswered) {
-    status = '✅ '+teamLabel+' Your captain submitted! Waiting for other team…';
-  } else if (liveMyAnswered) {
-    status = '✅ You submitted · waiting for other team captain…';
-  } else {
-    status = teamLabel+' '+myTeamVoteCount+'/'+myTeamPlayerCount+' voted · waiting for 👑 captain to submit';
-  }
-  document.getElementById('lq-status').textContent=status;
-}
-
-function submitLiveVote(idx) {
+function castVote(idx) {
   liveMyVote = idx;
-  // Optimistic UI — update button highlights immediately
-  var btns=document.querySelectorAll('#lq-answers .ans-btn');
-  btns.forEach(function(b,i){
-    b.classList.remove('my-vote');
-    if (i===idx) b.classList.add('my-vote');
+  // Optimistic highlight immediately
+  document.querySelectorAll('#lq-answers .ans-btn').forEach(function(b,i){
+    b.classList.toggle('my-vote', i===idx);
   });
   fetch(API+'/room/'+liveCode+'/vote', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({playerId:livePlayerId, answer:idx})
-  }).catch(function(){});
-}
-
-function submitLiveAnswer(idx) {
-  if (liveMyAnswered) return;
-  liveMyAnswered=true;
-  liveMyVote=idx;
-  var btns=document.querySelectorAll('#lq-answers .ans-btn');
-  btns.forEach(function(b,i){ b.disabled=true; if(i===idx) b.classList.add('my-answer'); });
-  fetch(API+'/room/'+liveCode+'/answer', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body:JSON.stringify({playerId:livePlayerId, answer:idx})
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
-    if (d.correct) {
-      document.getElementById('lq-status').textContent='✅ Correct! Waiting for other team…';
-    } else {
-      document.getElementById('lq-status').textContent='❌ Wrong! Waiting for other team…';
-    }
+    if (d.allVoted) liveMyAnswered=true;
   })
   .catch(function(){});
+}
+
+// Captain force-submit (AFK safety valve — shown after a short delay)
+function forceSubmit() {
+  if (liveMyAnswered) return;
+  liveMyAnswered=true;
+  fetch(API+'/room/'+liveCode+'/answer', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({playerId:livePlayerId, answer: liveMyVote !== null ? liveMyVote : 0})
+  }).catch(function(){});
 }
 
 // ─── LIVE REVEAL ─────────────────────────────────────────────────────────────
@@ -1090,29 +1072,37 @@ function renderLiveReveal(room, isHost) {
     c.appendChild(btn);
   });
 
-  // Score delta — only captains' answers count
-  var redGain=0, blueGain=0;
-  var answers=room.answers||{};
-  (room.players||[]).forEach(function(p){
-    if (p.captain) {
-      var ans=answers[p.id];
-      if (ans&&ans.correct) { if(p.team==='red') redGain++; else blueGain++; }
-    }
-  });
+  // Score delta from team answers
+  var teamAnswers = room.teamAnswers || {};
+  var redGain = teamAnswers.red && teamAnswers.red.correct ? 1 : 0;
+  var blueGain = teamAnswers.blue && teamAnswers.blue.correct ? 1 : 0;
   var delta='';
-  if (redGain||blueGain) delta='This round: '+(redGain?'🔴 +'+redGain+' ':'')+(blueGain?'🔵 +'+blueGain:'');
+  if (redGain||blueGain) delta='This round: '+(redGain?'🔴 +1 ':'')+(blueGain?'🔵 +1':'');
   document.getElementById('lr-delta').textContent=delta;
 
-  // Show captain results
-  var captainPlayers=(room.players||[]).filter(function(p){ return p.captain; });
+  // Show each team's submitted answer with voter names
   var rg=document.getElementById('lr-results');
-  rg.innerHTML=captainPlayers.map(function(p){
-    var ans=answers[p.id];
-    var got=ans&&ans.correct;
-    var cls='result-chip '+(got?'correct-ans':'wrong-ans');
-    return '<div class="'+cls+'"><span class="res-icon">'+(got?'✅':'❌')+'</span>'+
-      '<span style="color:'+(p.team==='red'?'#CC0000':'#82b4ff')+'">👑 '+esc(p.name)+'</span></div>';
+  var teamRows = ['red','blue'].map(function(team){
+    var ta = teamAnswers[team];
+    if (!ta && ta !== 0) return ''; // team didn't submit
+    var teamPlayers = (room.players||[]).filter(function(p){ return p.team===team; });
+    var chosenText = q ? q.a[ta.idx] : '?';
+    var got = ta.correct;
+    var cls = 'result-chip '+(got?'correct-ans':'wrong-ans');
+    var color = team==='red' ? '#CC0000' : '#82b4ff';
+    var icon = got ? '✅' : '❌';
+    var teamLabel = team==='red' ? '🔴' : '🔵';
+    var names = teamPlayers.map(function(p){ return esc(p.name)+(p.captain?' 👑':''); }).join(', ');
+    return '<div class="'+cls+'" style="flex-direction:column; align-items:flex-start; gap:4px;">'+
+      '<div style="display:flex; align-items:center; gap:7px;">'+
+        '<span class="res-icon">'+icon+'</span>'+
+        '<span style="color:'+color+'; font-weight:800;">'+teamLabel+' Team</span>'+
+      '</div>'+
+      '<div style="font-size:.9rem; opacity:.9;">→ '+esc(chosenText)+'</div>'+
+      '<div style="font-size:.75rem; opacity:.6;">'+names+'</div>'+
+    '</div>';
   }).join('');
+  rg.innerHTML = teamRows || '<div style="opacity:.5">No submissions</div>';
 
   document.getElementById('lr-host-controls').style.display=isHost?'block':'none';
   document.getElementById('next-q-btn').disabled=false;
