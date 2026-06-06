@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pickle Phil’s Playground</title>
+<meta name="description" content="The Pickle Playground — briny mini-apps, oracles, and good clean fun straight out of the jar." />
+<link rel="icon" type="image/png" href="/img/favicon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+    --text:#f5f7f5;
+    --accent:#2ecc71;
+    --btnText:#0d3d24;
+    --radius:18px; --shadow:0 18px 45px rgba(0,0,0,.40);
+    --glass: rgba(255,255,255,.10);
+    --glass-border: rgba(255,255,255,.22);
+    --panel-b: rgba(8,40,24,.28);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+    background:
+      radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
+      radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
+      radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
+    background-attachment:fixed;
+    min-height:100vh; text-align:center; display:flex; flex-direction:column; align-items:center;
+  }
+  .wrap{width:min(1120px,100%); padding:22px}
+
+  .farmhouse{
+    font-family:"Amatic SC", system-ui, Segoe UI, sans-serif;
+    font-weight:700; letter-spacing:1px;
+    font-size: clamp(46px, 8vw, 92px); line-height:1; margin:14px 0 6px;
+    background:linear-gradient(180deg,#ffffff 0%, #c7f2d8 100%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    filter:drop-shadow(0 2px 10px rgba(46,204,113,.25));
+  }
+  .lead{margin:0 auto 8px; font-size:1.15rem; opacity:.95; max-width:640px}
+
+  .btn{
+    color:var(--btnText) !important; text-decoration:none;
+    background:linear-gradient(180deg,#ffffff 0%, #e6efe8 100%);
+    padding:12px 20px; border-radius:12px; font-weight:700; margin:6px;
+    display:inline-block; border:1px solid rgba(255,255,255,.6);
+    box-shadow:0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.9);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease; cursor:pointer;
+    font-size:1rem; font-family:inherit;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.38), 0 0 0 2px rgba(46,204,113,.35), inset 0 1px 0 rgba(255,255,255,.9); filter:brightness(1.02); }
+  .btn:active{ transform:translateY(0); }
+
+  .grid{display:grid; gap:18px; grid-template-columns:repeat(12,1fr); text-align:left; margin-top:22px}
+  .card{
+    grid-column:span 6;
+    background:linear-gradient(165deg, var(--glass), var(--panel-b));
+    -webkit-backdrop-filter:blur(14px) saturate(120%); backdrop-filter:blur(14px) saturate(120%);
+    border:1px solid var(--glass-border); border-radius:var(--radius);
+    padding:22px; box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
+    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    display:flex; flex-direction:column;
+  }
+  .card:hover{ transform:translateY(-4px); border-color:rgba(46,204,113,.5); }
+  .card h3{margin:2px 0 6px; font-size:1.25rem; font-weight:800}
+  .card .blurb{opacity:.9; line-height:1.45; margin:0 0 14px; font-size:.98rem}
+
+  .out{
+    background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12);
+    border-radius:12px; padding:16px; margin:4px 0 12px; min-height:64px;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-size:1.15rem; font-weight:700; line-height:1.4;
+  }
+  .fade{animation:fade .4s ease}
+  @keyframes fade{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
+
+  .field{
+    width:100%; padding:12px 14px; border-radius:12px; margin:0 0 10px;
+    border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.92);
+    color:#0d2b1a; font-size:1rem; font-family:inherit;
+  }
+  .row{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+  .spacer{flex:1}
+
+  /* Dill-o-meter bar */
+  .meter{height:18px; border-radius:999px; background:rgba(0,0,0,.25); overflow:hidden; border:1px solid rgba(255,255,255,.14); margin:6px 0 10px}
+  .meter > i{display:block; height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,#2ecc71,#a8f0c4); transition:width .8s cubic-bezier(.22,1,.36,1)}
+
+  /* Clicker pickle */
+  .clicker{font-size:3.4rem; cursor:pointer; user-select:none; transform-origin:50% 80%; line-height:1}
+  .clicker.pop{animation:pop .18s ease}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.28) rotate(-6deg)}100%{transform:scale(1)}}
+
+  .stat{opacity:.9; font-size:.95rem}
+  footer{margin:40px 0 16px; opacity:.8}
+  @media (max-width:860px){ .grid .card{grid-column:span 12} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="farmhouse">The Pickle Playground</h1>
+    <p class="lead">Briny mini-apps, oracles, and good clean fun — where the half-baked ideas come to ferment. 🥒</p>
+
+    <section class="grid" aria-label="Playground games">
+
+      <!-- The Briny Oracle -->
+      <article class="card">
+        <h3>🔮 The Briny Oracle</h3>
+        <p class="blurb">Ask the all-knowing pickle a yes/no question and receive your fermented wisdom.</p>
+        <input class="field" id="oracleQ" type="text" placeholder="Will today be crunchy?" maxlength="120" />
+        <div class="out" id="oracleOut">The brine awaits your question…</div>
+        <div class="row"><button class="btn" id="oracleBtn">🥒 Consult the Oracle</button></div>
+      </article>
+
+      <!-- Pickle Name Generator -->
+      <article class="card">
+        <h3>🏷️ Pickle Name Generator</h3>
+        <p class="blurb">Drop in your name and discover your one-and-only pickle alter-ego.</p>
+        <input class="field" id="nameIn" type="text" placeholder="Your name…" maxlength="40" />
+        <div class="out" id="nameOut">Your briny identity awaits.</div>
+        <div class="row">
+          <button class="btn" id="nameBtn">✨ Picklify Me</button>
+          <button class="btn" id="nameCopy">📋 Copy</button>
+        </div>
+      </article>
+
+      <!-- Big Dill-o-Meter -->
+      <article class="card">
+        <h3>📊 The Big Dill-o-Meter</h3>
+        <p class="blurb">Scientifically* measure how big a dill you are right now. (*not scientifically.)</p>
+        <div class="out" id="dillOut" style="font-size:2.2rem;">—</div>
+        <div class="meter"><i id="dillBar"></i></div>
+        <div class="row"><button class="btn" id="dillBtn">📏 Measure My Dill</button></div>
+      </article>
+
+      <!-- Pickle Clicker -->
+      <article class="card">
+        <h3>🕹️ Pickle Clicker</h3>
+        <p class="blurb">Tap the pickle. That’s it. That’s the game. Your record is saved in the jar.</p>
+        <div class="out" style="flex-direction:column; gap:6px;">
+          <div class="clicker" id="clicker" role="button" tabindex="0" aria-label="Click the pickle">🥒</div>
+          <div class="stat">Crunches: <b id="clkCount">0</b> · Best: <b id="clkBest">0</b></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="clkReset">↺ Reset Counter</button>
+          <span class="spacer"></span>
+        </div>
+      </article>
+
+      <!-- Roast Barrel cross-link -->
+      <article class="card" style="grid-column:span 12; align-items:center; text-align:center;">
+        <h3>🔥 Hungry for More?</h3>
+        <p class="blurb" style="max-width:560px;">Step over to the Roast Barrel and let Pickle Phil dunk you in some good-natured brine.</p>
+        <div><a class="btn" href="/roast.html">🔥 Open the Roast Barrel</a></div>
+      </article>
+
+    </section>
+
+    <div style="margin-top:28px;">
+      <a class="btn" href="/index.html">🏠 Back to the Jar</a>
+    </div>
+
+    <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
+  </div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  function flash(el){ el.classList.remove('fade'); void el.offsetWidth; el.classList.add('fade'); }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+  /* ---- The Briny Oracle ---- */
+  (function(){
+    var ANSWERS = [
+      "It is briney certain. 🥒","Without a dill of a doubt.","Signs point to crunchy. 👍",
+      "The brine says yes.","Absolutely, big dill.","You can count on it — pinky-pickle promise.",
+      "Hmm… ask again after it ferments.","The jar is cloudy on that one.","Reply hazy, more brine needed.",
+      "Better not soak on it right now.","Don’t get yourself in a pickle — no.","My sources (cucumbers) say no.",
+      "Sour outlook. 😬","Doubtful, and a little salty about it.","Not a snowball’s chance in the brine."
+    ];
+    var q=document.getElementById('oracleQ'), out=document.getElementById('oracleOut'), btn=document.getElementById('oracleBtn');
+    function ask(){
+      if(!q.value.trim()){ out.textContent = "🥒 Ask me something first, friend."; flash(out); return; }
+      out.textContent = pick(ANSWERS); flash(out);
+    }
+    btn.addEventListener('click', ask);
+    q.addEventListener('keydown', function(e){ if(e.key==='Enter') ask(); });
+  })();
+
+  /* ---- Pickle Name Generator ---- */
+  (function(){
+    var FIRST = ["Sir","Lord","Captain","Madame","Baron","Lil","Big","Sweet","Sour","Crunchy","Dapper","Spicy","Mighty","Tangy","Brave"];
+    var ADJ   = ["Dill","Brine","Gherkin","Kosher","Cornichon","Bread-n-Butter","Half-Sour","Zesty","Crispy","Vinegar","Mustard-Seed","Garlic"];
+    var LAST  = ["Picklesworth","McCrunch","Brinebottom","von Gherkin","Dillington","Sourpatch","Crispwell","Jarsley","Fermenton","Picklebee","Saltlewood","Crunchowski"];
+    var inp=document.getElementById('nameIn'), out=document.getElementById('nameOut'),
+        btn=document.getElementById('nameBtn'), copy=document.getElementById('nameCopy');
+    // Deterministic per name: same name -> same pickle identity
+    function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))>>>0; } return h; }
+    function gen(){
+      var n=inp.value.trim();
+      if(!n){ out.textContent="🥒 Type your name to be picklified."; flash(out); return; }
+      var h=hash(n.toLowerCase());
+      var name = FIRST[h%FIRST.length] + " " + ADJ[(h>>4)%ADJ.length] + " " + LAST[(h>>8)%LAST.length];
+      out.textContent = "🥒 " + name; flash(out);
+    }
+    btn.addEventListener('click', gen);
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter') gen(); });
+    copy.addEventListener('click', async function(){
+      var t=out.textContent.replace(/^🥒\s*/,'');
+      try{ await navigator.clipboard.writeText(t); copy.textContent="✅ Copied!"; setTimeout(function(){copy.textContent="📋 Copy";},1400); }
+      catch(e){ alert(t); }
+    });
+  })();
+
+  /* ---- Big Dill-o-Meter ---- */
+  (function(){
+    var TIERS = [
+      [0,  "🥒 Smol Gherkin",      "Barely a snack. We still love you."],
+      [25, "🥒 Decent Dill",       "Respectable crunch. Solid showing."],
+      [50, "🥒 Certified Big Dill","Now we’re fermenting with gas."],
+      [75, "🥒 KIND OF A BIG DILL","People are talking. Mostly good things."],
+      [92, "🥒 SUPREME OVERLORD OF THE BRINE","Legend. Myth. Pickle."]
+    ];
+    var out=document.getElementById('dillOut'), bar=document.getElementById('dillBar'), btn=document.getElementById('dillBtn');
+    btn.addEventListener('click', function(){
+      var v=Math.floor(Math.random()*101);
+      var tier=TIERS[0];
+      for(var i=0;i<TIERS.length;i++){ if(v>=TIERS[i][0]) tier=TIERS[i]; }
+      bar.style.width = v + "%";
+      out.innerHTML = v + "% — " + tier[1] + "<div style='font-size:.95rem;font-weight:400;opacity:.85;margin-top:6px'>" + tier[2] + "</div>";
+      flash(out);
+    });
+  })();
+
+  /* ---- Pickle Clicker ---- */
+  (function(){
+    var KEY="pickleClickerBest";
+    var pic=document.getElementById('clicker'), cnt=document.getElementById('clkCount'),
+        best=document.getElementById('clkBest'), reset=document.getElementById('clkReset');
+    var count=0, hi=0;
+    try{ hi=parseInt(localStorage.getItem(KEY)||"0",10)||0; }catch(e){}
+    best.textContent=hi;
+    function crunch(){
+      count++; cnt.textContent=count;
+      if(count>hi){ hi=count; best.textContent=hi; try{ localStorage.setItem(KEY,String(hi)); }catch(e){} }
+      pic.classList.remove('pop'); void pic.offsetWidth; pic.classList.add('pop');
+    }
+    pic.addEventListener('click', crunch);
+    pic.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); crunch(); } });
+    reset.addEventListener('click', function(){ count=0; cnt.textContent="0"; });
+  })();
+</script>
+</body>
+</html>
