@@ -41,12 +41,18 @@ h1{font-size:clamp(28px,6vw,48px); margin:0 0 6px; font-weight:900;}
 .label{font-size:.82rem; font-weight:800; letter-spacing:.6px; text-transform:uppercase; opacity:.65; margin-bottom:8px; display:block;}
 
 textarea{
-  width:100%; background:rgba(255,255,255,.1); border:1px solid var(--glass-border);
+  width:100%; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.35);
   color:var(--text); border-radius:12px; padding:14px 16px; font-size:1.05rem;
-  font-family:inherit; resize:vertical; outline:none; min-height:110px; line-height:1.5;
+  font-family:inherit; resize:vertical; outline:none; min-height:130px; line-height:1.5;
+  cursor:text; user-select:text; -webkit-user-select:text;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.25);
 }
-textarea::placeholder{opacity:.4;}
-textarea:focus{border-color:rgba(46,204,113,.6);}
+textarea::placeholder{opacity:.55; font-style:italic;}
+textarea:focus{
+  border-color:#2ecc71;
+  background:rgba(255,255,255,.2);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.25), 0 0 0 3px rgba(46,204,113,.25);
+}
 
 .controls{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
 @media(max-width:480px){.controls{grid-template-columns:1fr;}}
@@ -140,8 +146,8 @@ input[type=range]{
   </div>
 
   <div class="card">
-    <label class="label" for="speech-text">What do you want to say?</label>
-    <textarea id="speech-text" placeholder="Type something here… the more ridiculous the better." maxlength="500"></textarea>
+    <label class="label" for="speech-text">✏️ Type what you want it to say</label>
+    <textarea id="speech-text" placeholder="Click here and start typing… the more ridiculous the better." maxlength="500"></textarea>
 
     <div class="controls">
       <div>
