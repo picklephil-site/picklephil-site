@@ -49,17 +49,38 @@
     max-width:580px; margin-inline:auto;
   }
 
-  /* Responsive 16:9 playlist embed */
+  /* Responsive 16:9 player */
   .player-wrap{
     position:relative; width:100%; padding-top:56.25%;
     border-radius:var(--radius); overflow:hidden;
     box-shadow:var(--shadow), 0 0 0 1px var(--glass-border);
-    background:#000; margin-bottom:28px;
+    background:#000; margin-bottom:16px;
   }
-  .player-wrap iframe{
-    position:absolute; inset:0;
-    width:100%; height:100%; border:none;
+  .player-wrap > div {
+    position:absolute; inset:0; width:100%; height:100%;
   }
+
+  /* Prev / Next nav */
+  .nav-btns{
+    display:flex; gap:12px; justify-content:center;
+    margin-bottom:28px;
+  }
+  .nav-btn{
+    color:var(--btnText); text-decoration:none;
+    background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
+    padding:12px 28px; border-radius:12px; font-weight:700; font-size:1rem;
+    border:1px solid rgba(255,255,255,.6);
+    box-shadow:0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.9);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    cursor:pointer;
+  }
+  .nav-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 30px rgba(0,0,0,.38), 0 0 0 2px rgba(46,204,113,.35), inset 0 1px 0 rgba(255,255,255,.9);
+    filter:brightness(1.02);
+  }
+  .nav-btn:active{transform:translateY(0);}
+  .nav-btn:disabled{opacity:.4; cursor:not-allowed; transform:none; filter:none;}
 
   .flavor{
     background:linear-gradient(165deg, var(--glass), rgba(8,40,24,.28));
@@ -100,22 +121,22 @@
       Singing telegrams, pickle style. Every gram hand-delivered with a mic, a melody, and maximum brine energy.
     </p>
 
-    <!-- YouTube Playlist Embed -->
+    <!-- YouTube IFrame API player -->
     <div class="player-wrap">
-      <iframe
-        src="https://www.youtube.com/embed/videoseries?list=PLsXNg5w9I0ifycRiRDw5Iy8YAdDU9P86Y"
-        title="PickleGrams Playlist — The Real Dill Phil"
-        allow="encrypted-media; picture-in-picture"
-        allowfullscreen
-        loading="lazy">
-      </iframe>
+      <div id="yt-player"></div>
+    </div>
+
+    <!-- Prev / Next buttons -->
+    <div class="nav-btns">
+      <button class="nav-btn" id="btn-prev" disabled>⬅️ Prev</button>
+      <button class="nav-btn" id="btn-next" disabled>Next ➡️</button>
     </div>
 
     <div class="flavor">
       <strong>What's a PickleGram?</strong> It's like a singing telegram, but crunchier.
       Pickle Phil shows up, belt in hand (metaphorically), and delivers a personalized song
-      straight from the brine. Browse the full archive above — use the playlist menu to jump
-      between grams.
+      straight from the brine. Use the buttons above to step through every gram, or tap the
+      playlist icon inside the player to jump to any one directly.
     </div>
 
     <div>
@@ -125,8 +146,40 @@
     <footer>© <span id="year"></span> Pickle Phil · Stay Crunchy 🥒</footer>
   </div>
 
-  <script>
-    (function(){ var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); })();
-  </script>
+<script>
+  (function(){ var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); })();
+
+  var player;
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  window.onYouTubeIframeAPIReady = function() {
+    player = new YT.Player('yt-player', {
+      width: '100%',
+      height: '100%',
+      playerVars: {
+        listType: 'playlist',
+        list: 'PLsXNg5w9I0ifycRiRDw5Iy8YAdDU9P86Y',
+        rel: 0,
+        modestbranding: 1
+      },
+      events: {
+        onReady: function() {
+          btnPrev.disabled = false;
+          btnNext.disabled = false;
+        }
+      }
+    });
+  };
+
+  btnPrev.addEventListener('click', function() {
+    if (player && player.previousVideo) player.previousVideo();
+  });
+
+  btnNext.addEventListener('click', function() {
+    if (player && player.nextVideo) player.nextVideo();
+  });
+</script>
+<script src="https://www.youtube.com/iframe_api" defer></script>
 </body>
 </html>
