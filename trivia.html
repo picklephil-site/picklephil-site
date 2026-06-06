@@ -513,7 +513,7 @@ var soloRound=[], soloCurrent=0, soloScore=0, soloAnswered=false;
 
 function startSolo() {
   show('loading-screen');
-  fetch('https://opentdb.com/api.php?amount=10&type=multiple')
+  fetch('https://opentdb.com/api.php?amount=10&type=multiple&difficulty=easy')
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (!data.results || !data.results.length) { alert('Could not load questions — try again.'); show('start-screen'); return; }
