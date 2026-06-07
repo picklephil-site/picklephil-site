@@ -369,6 +369,8 @@ function canPlaceOnFoundation(card,f){
   const top=fc[fc.length-1];
   return card.s===f.s && RANK_VAL[card.r]===RANK_VAL[top.r]+1;
 }
+function flipTop(col){ if(col.length&&!col.at(-1).up){ col.at(-1).up=true; score+=5; } }
+
 function canPlaceOnTableau(card,ci){
   const tc=state.tableau[ci];
   if(!tc.length) return card.r==='K';
@@ -432,7 +434,7 @@ function handleFoundationClick(fi){
   else if(selected.from==='tableau'){
     const col=state.tableau[selected.colIdx];
     col.splice(col.indexOf(card),1);
-    if(col.length&&!col.at(-1).up) col.at(-1).up=true;
+    flipTop(col);
   }
   f.cards.push(card);score+=10;moves++;selected=null;setMsg('');
   autoFoundation();
@@ -448,11 +450,11 @@ function handleTableauCardClick(ci,cardi){
     const cards=selected.cards;
     if(canPlaceOnTableau(cards[0],ci)){
       pushHistory();
-      if(selected.from==='waste') state.waste.pop();
+      if(selected.from==='waste'){ state.waste.pop(); score+=5; }
       else if(selected.from==='tableau'){
         const sc=state.tableau[selected.colIdx];
         sc.splice(selected.cardIdx);
-        if(sc.length&&!sc.at(-1).up) sc.at(-1).up=true;
+        flipTop(sc);
         score+=5;
       }
       state.tableau[ci].push(...cards);
@@ -473,11 +475,11 @@ function handleTableauEmptyClick(ci){
   const cards=selected.cards;
   if(cards[0].r!=='K'){ setMsg('Only Kings can start an empty column.');clearSel();return; }
   pushHistory();
-  if(selected.from==='waste') state.waste.pop();
+  if(selected.from==='waste'){ state.waste.pop(); score+=5; }
   else if(selected.from==='tableau'){
     const sc=state.tableau[selected.colIdx];
     sc.splice(selected.cardIdx);
-    if(sc.length&&!sc.at(-1).up) sc.at(-1).up=true;
+    flipTop(sc);
     score+=5;
   }
   state.tableau[ci].push(...cards);
@@ -498,7 +500,7 @@ function handleDblClick(from,ci){
       else{
         const col=state.tableau[ci];
         col.splice(col.lastIndexOf(card),1);
-        if(col.length&&!col.at(-1).up) col.at(-1).up=true;
+        flipTop(col);
       }
       f.cards.push(card);score+=10;moves++;selected=null;setMsg('');
       autoFoundation();
@@ -529,7 +531,7 @@ function doDropOnFoundation(fi){
   if(!canPlaceOnFoundation(card,f)) return;
   pushHistory();
   if(data.from==='waste') state.waste.pop();
-  else{ const col=state.tableau[data.colIdx]; col.splice(col.indexOf(card),1); if(col.length&&!col.at(-1).up) col.at(-1).up=true; }
+  else{ const col=state.tableau[data.colIdx]; col.splice(col.indexOf(card),1); flipTop(col); }
   f.cards.push(card); score+=10; moves++; selected=null; setMsg('');
   autoFoundation(); if(checkWin()) triggerWin(); else render();
 }
@@ -540,8 +542,8 @@ function doDropOnTableau(ci){
   const cards=data.cards;
   if(!canPlaceOnTableau(cards[0],ci)) return;
   pushHistory();
-  if(data.from==='waste') state.waste.pop();
-  else{ const sc=state.tableau[data.colIdx]; sc.splice(data.cardIdx); if(sc.length&&!sc.at(-1).up) sc.at(-1).up=true; score+=5; }
+  if(data.from==='waste'){ state.waste.pop(); score+=5; }
+  else{ const sc=state.tableau[data.colIdx]; sc.splice(data.cardIdx); flipTop(sc); score+=5; }
   state.tableau[ci].push(...cards); moves++; selected=null; setMsg('');
   autoFoundation(); if(checkWin()) triggerWin(); else render();
 }
