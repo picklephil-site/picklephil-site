@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pickle Solitaire — The Real Dill Phil</title>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c3a22;--bg2:#1c8a4e;--bg3:#072a18;
+  --text:#f5f7f5;--accent:#2ecc71;--btnText:#0d3d24;
+  --card-bg:#fff;--card-border:#ccc;--card-radius:8px;
+  --red:#c0392b;--black:#1a1a2e;
+  --empty:rgba(255,255,255,.10);--empty-border:rgba(255,255,255,.22);
+  --select:0 0 0 3px #2ecc71, 0 0 16px rgba(46,204,113,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Segoe UI,Tahoma,sans-serif;color:var(--text);
+  background:radial-gradient(900px 600px at 78% 8%,rgba(46,204,113,.28),transparent 60%),
+    radial-gradient(1100px 800px at 12% 0%,var(--bg2) 0%,transparent 55%),
+    radial-gradient(circle at 50% 120%,#0f4a2c 0%,var(--bg3) 70%),
+    linear-gradient(160deg,var(--bg) 0%,var(--bg3) 100%);
+  background-attachment:fixed;min-height:100vh;
+}
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;
+  background:rgba(0,0,0,.25);border-bottom:1px solid rgba(255,255,255,.1);
+}
+header h1{
+  font-family:'Amatic SC',cursive;font-size:2rem;color:var(--accent);
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.back-btn{
+  color:var(--btnText);text-decoration:none;
+  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  padding:8px 16px;border-radius:10px;font-weight:700;font-size:.85rem;
+  border:1px solid rgba(255,255,255,.6);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  transition:transform .15s,box-shadow .15s;
+}
+.back-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.32)}
+
+#controls{
+  display:flex;align-items:center;gap:12px;padding:12px 20px;
+  flex-wrap:wrap;
+}
+.ctrl-btn{
+  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  color:var(--btnText);border:1px solid rgba(255,255,255,.5);
+  padding:7px 16px;border-radius:10px;font-weight:700;font-size:.85rem;
+  cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.22);
+  transition:transform .15s,box-shadow .15s;
+}
+.ctrl-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.ctrl-btn:active{transform:translateY(0)}
+#score-box{
+  margin-left:auto;font-size:.9rem;opacity:.85;
+  background:rgba(0,0,0,.25);padding:6px 14px;border-radius:10px;
+}
+#msg{
+  text-align:center;font-size:1rem;font-weight:600;
+  color:var(--accent);min-height:24px;padding:2px 0;
+}
+
+/* ── game table ── */
+#table{
+  padding:16px 10px 40px;
+  display:flex;flex-direction:column;gap:16px;
+  max-width:860px;margin:0 auto;
+  user-select:none;
+}
+
+/* top row: stock + waste + gap + 4 foundations */
+#top-row{
+  display:flex;gap:10px;align-items:flex-start;flex-wrap:nowrap;
+}
+.spacer{flex:1}
+
+/* tableau */
+#tableau-row{
+  display:flex;gap:8px;align-items:flex-start;
+}
+.col{
+  flex:1;display:flex;flex-direction:column;
+  position:relative;min-height:130px;
+}
+
+/* card slot (empty placeholder) */
+.slot{
+  width:100%;max-width:100px;aspect-ratio:5/7;
+  border:2px dashed var(--empty-border);border-radius:var(--card-radius);
+  background:var(--empty);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;opacity:.5;
+  cursor:pointer;flex-shrink:0;
+}
+
+/* real card */
+.card{
+  width:100%;max-width:100px;aspect-ratio:5/7;
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--card-radius);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:800;
+  cursor:pointer;position:relative;
+  box-shadow:0 3px 10px rgba(0,0,0,.30);
+  transition:box-shadow .12s,transform .12s;
+  flex-shrink:0;
+}
+.card.red{color:var(--red)}
+.card.black{color:var(--black)}
+.card.face-down{
+  background:repeating-linear-gradient(
+    135deg,#1c8a4e 0,#1c8a4e 4px,#0c5c32 4px,#0c5c32 8px);
+  cursor:default;color:transparent;
+}
+.card.face-down::after{
+  content:"🥒";font-size:1.4rem;color:rgba(255,255,255,.4);
+}
+.card.selected{
+  box-shadow:var(--select);transform:translateY(-4px);
+  z-index:10;
+}
+.card:hover:not(.face-down){
+  box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 2px rgba(46,204,113,.3);
+}
+
+/* stacked tableau cards overlap */
+.col .card, .col .slot{
+  margin-top:0;
+}
+.col .card + .card{
+  margin-top:-72%;  /* overlap — face-down */
+}
+.col .card.face-up + .card{
+  margin-top:-58%;
+}
+
+/* corner pips */
+.pip-tl{position:absolute;top:4px;left:6px;line-height:1;font-size:.75rem}
+.pip-br{position:absolute;bottom:4px;right:6px;line-height:1;font-size:.75rem;transform:rotate(180deg)}
+.suit-center{font-size:1.4rem}
+
+/* stock card */
+#stock .card, #waste .card{
+  width:70px;height:98px;aspect-ratio:unset;
+  max-width:none;
+}
+#stock .slot, #waste .slot{
+  width:70px;height:98px;aspect-ratio:unset;max-width:none;
+}
+
+/* foundation */
+.foundation{
+  width:70px;height:98px;
+  border:2px dashed var(--empty-border);border-radius:var(--card-radius);
+  background:var(--empty);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;opacity:.6;
+  cursor:pointer;position:relative;flex-shrink:0;
+}
+.foundation .card{
+  position:absolute;inset:0;width:100%;height:100%;aspect-ratio:unset;max-width:none;
+}
+
+/* win overlay */
+#win-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.7);z-index:100;
+  align-items:center;justify-content:center;
+}
+#win-overlay.show{display:flex}
+#win-box{
+  background:linear-gradient(135deg,#0f4a2c,#1c8a4e);
+  border:2px solid var(--accent);border-radius:20px;
+  padding:40px 50px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+#win-box h2{font-family:'Amatic SC',cursive;font-size:3rem;color:var(--accent);margin-bottom:12px}
+#win-box p{margin-bottom:24px;font-size:1.1rem;opacity:.9}
+#win-box button{
+  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  color:var(--btnText);border:none;padding:12px 28px;border-radius:12px;
+  font-weight:800;font-size:1rem;cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.3);
+}
+
+@media(max-width:620px){
+  .col .card + .card{margin-top:-78%}
+  .col .card.face-up + .card{margin-top:-64%}
+  #top-row{gap:6px}
+  #tableau-row{gap:4px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🥒 Pickle Solitaire</h1>
+  <a class="back-btn" href="/">← Back to the Jar</a>
+</header>
+
+<div id="controls">
+  <button class="ctrl-btn" id="new-game-btn">New Game</button>
+  <button class="ctrl-btn" id="undo-btn">Undo</button>
+  <label style="font-size:.85rem;display:flex;align-items:center;gap:6px;cursor:pointer">
+    <input type="checkbox" id="draw3" style="cursor:pointer"> Draw 3
+  </label>
+  <span id="score-box">Score: <span id="score">0</span> | Moves: <span id="moves">0</span></span>
+</div>
+<div id="msg"></div>
+
+<div id="table">
+  <div id="top-row">
+    <div id="stock"></div>
+    <div id="waste"></div>
+    <div class="spacer"></div>
+    <div id="foundations"></div>
+  </div>
+  <div id="tableau-row" id="tableau"></div>
+</div>
+
+<div id="win-overlay">
+  <div id="win-box">
+    <h2>🥒 You Dill-ivered! 🥒</h2>
+    <p id="win-msg"></p>
+    <button id="play-again-btn">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ── constants ──────────────────────────────────────────────────────────────
+const SUITS = ['♠','♥','♦','♣'];
+const SUIT_COLOR = {♠:'black',♣:'black',♥:'red',♦:'red'};
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const RANK_VAL = Object.fromEntries(RANKS.map((r,i)=>[r,i+1]));
+
+// ── state ──────────────────────────────────────────────────────────────────
+let state, history, score, moves, draw3;
+
+function newDeck(){
+  const d=[];
+  for(const s of SUITS) for(const r of RANKS) d.push({s,r,up:false});
+  return d;
+}
+function shuffle(d){
+  for(let i=d.length-1;i>0;i--){const j=Math.random()*i|0;[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+
+function initGame(){
+  const deck = shuffle(newDeck());
+  const tableau = Array.from({length:7},()=>[]);
+  let idx=0;
+  for(let c=0;c<7;c++){
+    for(let r=0;r<=c;r++){
+      const card=deck[idx++];
+      card.up = r===c;
+      tableau[c].push(card);
+    }
+  }
+  const stock = deck.slice(idx).map(c=>({...c,up:false}));
+  state = {
+    tableau,
+    stock,
+    waste:[],
+    foundations:[{s:'♠',cards:[]},{s:'♥',cards:[]},{s:'♦',cards:[]},{s:'♣',cards:[]}],
+    selected:null,  // {from,fromType,fromIdx,cards}
+  };
+  history=[];score=0;moves=0;
+  render();
+  setMsg('');
+}
+
+// ── snapshot for undo ──────────────────────────────────────────────────────
+function snapshot(){
+  return JSON.parse(JSON.stringify({tableau:state.tableau,stock:state.stock,waste:state.waste,foundations:state.foundations,score,moves}));
+}
+function pushHistory(){ history.push(snapshot()); if(history.length>50) history.shift(); }
+
+// ── move helpers ───────────────────────────────────────────────────────────
+function canPlaceOnFoundation(card, foundation){
+  const fc = foundation.cards;
+  if(fc.length===0) return card.r==='A' && card.s===foundation.s;
+  const top = fc[fc.length-1];
+  return card.s===foundation.s && RANK_VAL[card.r]===RANK_VAL[top.r]+1;
+}
+function canPlaceOnTableau(card, targetCol){
+  const tc = state.tableau[targetCol];
+  if(tc.length===0) return card.r==='K';
+  const top = tc.filter(c=>c.up).at(-1);
+  if(!top) return false;
+  return SUIT_COLOR[card.s]!==SUIT_COLOR[top.s] && RANK_VAL[card.r]===RANK_VAL[top.r]-1;
+}
+
+function autoFoundation(){
+  // try to auto-send face-up cards that are safe to auto-move
+  // "safe" = rank ≤ 2, or all lower-rank cards of opposite colors already on foundations
+  let moved=true;
+  while(moved){
+    moved=false;
+    // check waste top
+    const wt = state.waste.at(-1);
+    if(wt){
+      for(const f of state.foundations){
+        if(canPlaceOnFoundation(wt,f)){
+          if(isSafeAuto(wt)){
+            pushHistory();
+            state.waste.pop();
+            f.cards.push(wt);
+            score+=10;moves++;moved=true;
+            break;
+          }
+        }
+      }
+    }
+    // check each tableau top
+    for(const col of state.tableau){
+      const top = col.filter(c=>c.up).at(-1);
+      if(!top) continue;
+      for(const f of state.foundations){
+        if(canPlaceOnFoundation(top,f)){
+          if(isSafeAuto(top)){
+            pushHistory();
+            col.splice(col.indexOf(top),1);
+            if(col.length && !col.at(-1).up) col.at(-1).up=true;
+            f.cards.push(top);
+            score+=10;moves++;moved=true;
+            break;
+          }
+        }
+      }
+      if(moved) break;
+    }
+  }
+}
+function isSafeAuto(card){
+  // safe to auto-move if rank<=2, or for rank>2 check both opposite-color suits have rank-1 on foundations
+  if(RANK_VAL[card.r]<=2) return true;
+  const needed = RANK_VAL[card.r]-1;
+  const oppositeColors = SUIT_COLOR[card.s]==='red' ? ['♠','♣'] : ['♥','♦'];
+  return oppositeColors.every(s=>{
+    const f = state.foundations.find(f=>f.s===s);
+    return f && f.cards.length>=needed;
+  });
+}
+
+function checkWin(){
+  return state.foundations.every(f=>f.cards.length===13);
+}
+
+// ── selection / click logic ────────────────────────────────────────────────
+let selected = null; // {from,cards,colIdx,cardIdx}
+
+function clearSel(){ selected=null; render(); }
+
+function handleStockClick(){
+  if(state.stock.length===0){
+    if(state.waste.length===0) return;
+    pushHistory();
+    state.stock = state.waste.reverse().map(c=>({...c,up:false}));
+    state.waste=[];
+    moves++;
+    score = Math.max(0,score-100);
+    render();return;
+  }
+  pushHistory();
+  const n = draw3 ? 3 : 1;
+  for(let i=0;i<n&&state.stock.length;i++){
+    const c=state.stock.pop(); c.up=true; state.waste.push(c);
+  }
+  moves++;clearSel();
+}
+
+function handleWasteClick(){
+  if(!state.waste.length) return;
+  if(selected?.from==='waste'){ clearSel();return; }
+  selected={from:'waste',cards:[state.waste.at(-1)]};
+  render();
+}
+
+function handleFoundationClick(fi){
+  // try to land selected card onto a foundation
+  if(!selected) return;
+  const card=selected.cards[0];
+  if(selected.cards.length>1){ clearSel();return; } // can only move 1 to foundation
+  const f=state.foundations[fi];
+  if(!canPlaceOnFoundation(card,f)){ setMsg('Can\'t place that there.');clearSel();return; }
+  pushHistory();
+  if(selected.from==='waste') state.waste.pop();
+  else if(selected.from==='tableau'){
+    const col=state.tableau[selected.colIdx];
+    col.splice(col.indexOf(card),1);
+    if(col.length && !col.at(-1).up) col.at(-1).up=true;
+  }
+  f.cards.push(card);
+  score+=10;moves++;
+  selected=null;
+  setMsg('');
+  autoFoundation();
+  if(checkWin()) showWin();
+  else render();
+}
+
+function handleTableauCardClick(colIdx, cardIdx){
+  const col=state.tableau[colIdx];
+  const card=col[cardIdx];
+  if(!card.up) return; // can't pick face-down
+
+  // if same card is selected, deselect
+  if(selected?.from==='tableau' && selected.colIdx===colIdx && selected.cardIdx===cardIdx){
+    clearSel();return;
+  }
+
+  // if we have a selection, try to move it here
+  if(selected){
+    const cards=selected.cards;
+    if(canPlaceOnTableau(cards[0],colIdx)){
+      pushHistory();
+      if(selected.from==='waste') state.waste.pop();
+      else if(selected.from==='tableau'){
+        const sc=state.tableau[selected.colIdx];
+        sc.splice(selected.cardIdx);
+        if(sc.length && !sc.at(-1).up) sc.at(-1).up=true;
+        score+=5;
+      }
+      state.tableau[colIdx].push(...cards);
+      moves++;selected=null;setMsg('');
+      autoFoundation();
+      if(checkWin()) showWin();
+      else render();
+      return;
+    }
+    // can't move there — maybe select new card
+    setMsg('');
+  }
+
+  // select this card and all face-up cards below it
+  const faceUpStart = col.findIndex(c=>c.up);
+  if(cardIdx<faceUpStart){ clearSel();return; }
+  selected={from:'tableau',colIdx,cardIdx,cards:col.slice(cardIdx)};
+  render();
+}
+
+function handleTableauEmptyClick(colIdx){
+  if(!selected) return;
+  const cards=selected.cards;
+  if(cards[0].r!=='K'){ setMsg('Only Kings can go there.');clearSel();return; }
+  pushHistory();
+  if(selected.from==='waste') state.waste.pop();
+  else if(selected.from==='tableau'){
+    const sc=state.tableau[selected.colIdx];
+    sc.splice(selected.cardIdx);
+    if(sc.length && !sc.at(-1).up) sc.at(-1).up=true;
+    score+=5;
+  }
+  state.tableau[colIdx].push(...cards);
+  moves++;selected=null;setMsg('');
+  autoFoundation();
+  if(checkWin()) showWin();
+  else render();
+}
+
+// quick auto-send waste/tableau top to foundation on double-click
+function handleDoubleClick(from, colIdx){
+  let card;
+  if(from==='waste') card=state.waste.at(-1);
+  else{
+    const col=state.tableau[colIdx];
+    card=col.filter(c=>c.up).at(-1);
+  }
+  if(!card) return;
+  for(const f of state.foundations){
+    if(canPlaceOnFoundation(card,f)){
+      pushHistory();
+      if(from==='waste') state.waste.pop();
+      else{
+        const col=state.tableau[colIdx];
+        col.splice(col.lastIndexOf(card),1);
+        if(col.length && !col.at(-1).up) col.at(-1).up=true;
+      }
+      f.cards.push(card);
+      score+=10;moves++;selected=null;setMsg('');
+      autoFoundation();
+      if(checkWin()) showWin();
+      else render();
+      return;
+    }
+  }
+  setMsg('No foundation spot for that yet.');
+}
+
+// ── render ─────────────────────────────────────────────────────────────────
+function cardEl(card, selKey){
+  const d=document.createElement('div');
+  d.className='card'+(card.up?(' '+(SUIT_COLOR[card.s])):'  face-down');
+  if(!card.up) return d;
+  if(selKey && selected && isSelected(selKey)) d.classList.add('selected');
+  const tl=document.createElement('span'); tl.className='pip-tl'; tl.textContent=card.r+card.s;
+  const br=document.createElement('span'); br.className='pip-br'; br.textContent=card.r+card.s;
+  const ctr=document.createElement('span'); ctr.className='suit-center'; ctr.textContent=card.s;
+  d.append(tl,ctr,br);
+  return d;
+}
+function isSelected(key){
+  if(!selected) return false;
+  if(selected.from==='waste' && key==='waste') return true;
+  if(selected.from==='tableau' && key.startsWith('t:')){
+    const [,ci,cardi]=key.split(':').map(Number);
+    return selected.colIdx===ci && cardi>=selected.cardIdx;
+  }
+  return false;
+}
+function slotEl(){ const d=document.createElement('div'); d.className='slot'; return d; }
+
+function render(){
+  // stock
+  const stockEl=document.getElementById('stock');
+  stockEl.innerHTML='';
+  if(state.stock.length){
+    const c=cardEl({s:'♠',r:'A',up:false});
+    c.onclick=handleStockClick;
+    stockEl.appendChild(c);
+  } else {
+    const s=slotEl(); s.textContent='↺'; s.style.fontSize='2rem'; s.style.opacity='.7';
+    s.onclick=handleStockClick; stockEl.appendChild(s);
+  }
+
+  // waste
+  const wasteEl=document.getElementById('waste');
+  wasteEl.innerHTML='';
+  if(state.waste.length){
+    const show = draw3 ? state.waste.slice(-3) : [state.waste.at(-1)];
+    show.forEach((card,i,arr)=>{
+      const isTop=i===arr.length-1;
+      const c=cardEl(card, isTop?'waste':null);
+      c.style.position='relative';
+      if(i>0) c.style.marginLeft=`${i*18}px`;
+      if(isTop){
+        c.onclick=()=>handleWasteClick();
+        c.ondblclick=()=>handleDoubleClick('waste');
+      }
+      wasteEl.appendChild(c);
+    });
+    wasteEl.style.display='flex';wasteEl.style.alignItems='flex-start';
+  } else {
+    const s=slotEl(); wasteEl.appendChild(s);
+  }
+
+  // foundations
+  const foundEl=document.getElementById('foundations');
+  foundEl.innerHTML='';
+  foundEl.style.display='flex'; foundEl.style.gap='8px';
+  state.foundations.forEach((f,fi)=>{
+    const fd=document.createElement('div'); fd.className='foundation';
+    fd.textContent=f.s;
+    if(f.cards.length){
+      const top=f.cards.at(-1);
+      const c=cardEl(top);
+      c.style.position='absolute';c.style.inset='0';c.style.width='100%';c.style.height='100%';c.style.maxWidth='none';c.style.aspectRatio='unset';
+      fd.appendChild(c);
+    }
+    fd.onclick=()=>handleFoundationClick(fi);
+    foundEl.appendChild(fd);
+  });
+
+  // tableau
+  const tabEl=document.getElementById('tableau-row');
+  tabEl.innerHTML='';
+  state.tableau.forEach((col,ci)=>{
+    const colEl=document.createElement('div'); colEl.className='col';
+    if(col.length===0){
+      const s=slotEl(); s.textContent='K'; s.style.fontSize='1rem'; s.style.opacity='.45';
+      s.onclick=()=>handleTableauEmptyClick(ci);
+      colEl.appendChild(s);
+    } else {
+      col.forEach((card,cardi)=>{
+        const key=`t:${ci}:${cardi}`;
+        const c=cardEl(card,key);
+        c.onclick=()=>handleTableauCardClick(ci,cardi);
+        c.ondblclick=()=>{ if(cardi===col.length-1 && card.up) handleDoubleClick('tableau',ci); };
+        // stacking margins
+        if(cardi>0){
+          const prev=col[cardi-1];
+          c.style.marginTop=prev.up ? '-58%' : '-72%';
+        }
+        colEl.appendChild(c);
+      });
+    }
+    tabEl.appendChild(colEl);
+  });
+
+  document.getElementById('score').textContent=score;
+  document.getElementById('moves').textContent=moves;
+}
+
+function setMsg(t){ document.getElementById('msg').textContent=t; }
+
+function showWin(){
+  document.getElementById('win-msg').textContent=`Finished in ${moves} moves with a score of ${score}!`;
+  document.getElementById('win-overlay').classList.add('show');
+}
+
+// ── init ──────────────────────────────────────────────────────────────────
+document.getElementById('new-game-btn').onclick=()=>{ if(confirm('Start a new game?')) initGame(); };
+document.getElementById('undo-btn').onclick=()=>{
+  if(!history.length){ setMsg('Nothing to undo.');return; }
+  const s=history.pop();
+  state.tableau=s.tableau; state.stock=s.stock; state.waste=s.waste; state.foundations=s.foundations;
+  score=s.score; moves=s.moves; selected=null; setMsg('');
+  score=Math.max(0,score-2);
+  render();
+};
+document.getElementById('draw3').onchange=e=>{ draw3=e.target.checked; if(confirm('Changing draw mode will start a new game. Continue?')) initGame(); else e.target.checked=!e.target.checked; };
+document.getElementById('play-again-btn').onclick=()=>{ document.getElementById('win-overlay').classList.remove('show'); initGame(); };
+
+// kick off
+draw3=false;
+initGame();
+</script>
+</body>
+</html>
