@@ -7,13 +7,14 @@
 <link rel="icon" type="image/png" href="/img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<!-- Supabase client (real-time multiplayer) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0c3a22;--text:#f5f7f5;--accent:#2ecc71;
-  --btnText:#0d3d24;--radius:18px;
-  --shadow:0 18px 45px rgba(0,0,0,.40);
-  --glass:rgba(255,255,255,.10);--glass-border:rgba(255,255,255,.22);
+  --btnText:#0d3d24;--r:14px;
+  --glass:rgba(255,255,255,.10);--gb:rgba(255,255,255,.22);
 }
 body{
   font-family:'Inter',sans-serif;
@@ -23,413 +24,814 @@ body{
     linear-gradient(135deg,#0c3a22 0%,#0a2d1a 100%);
   min-height:100vh;color:var(--text);padding-bottom:40px;
 }
-.wrap{width:min(580px,100%);margin:0 auto;padding:22px}
+#wrap{width:min(800px,100%);margin:0 auto;padding:16px}
 .farmhouse{font-family:'Amatic SC',cursive;font-weight:700;letter-spacing:.03em}
-h1.farmhouse{font-size:clamp(2.2rem,6vw,3.6rem);color:var(--accent);text-shadow:0 2px 20px rgba(46,204,113,.4)}
-.card{
-  background:var(--glass);border:1px solid var(--glass-border);
-  border-radius:var(--radius);padding:14px 18px;backdrop-filter:blur(12px);
-}
+h1.farmhouse{font-size:clamp(2rem,6vw,3.2rem);color:var(--accent);text-shadow:0 2px 18px rgba(46,204,113,.4)}
+.card{background:var(--glass);border:1px solid var(--gb);border-radius:var(--r);padding:16px 20px;backdrop-filter:blur(12px)}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:5px;
-  padding:.5rem 1.2rem;border:none;border-radius:10px;
-  font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;
-  cursor:pointer;transition:transform .15s,box-shadow .15s;user-select:none;
+  padding:.48rem 1.1rem;border:none;border-radius:9px;
+  font-family:'Inter',sans-serif;font-size:.87rem;font-weight:600;
+  cursor:pointer;transition:transform .14s,box-shadow .14s,opacity .14s;user-select:none;
 }
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
-.btn:active{transform:translateY(0)}
-.btn-primary{background:var(--accent);color:var(--btnText)}
-.btn-ghost{background:var(--glass);color:var(--text);border:1px solid var(--glass-border)}
-.back-link{color:var(--accent);text-decoration:none;font-size:.9rem;opacity:.8}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn-g{background:var(--accent);color:var(--btnText)}
+.btn-w{background:var(--glass);color:var(--text);border:1px solid var(--gb)}
+.back-link{color:var(--accent);text-decoration:none;font-size:.88rem;opacity:.8}
 .back-link:hover{opacity:1}
-#game-area{display:flex;flex-direction:column;align-items:center;gap:12px}
+.inp{
+  width:100%;padding:.5rem .8rem;border-radius:9px;
+  background:rgba(255,255,255,.08);border:1px solid var(--gb);
+  color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;
+}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{opacity:.45}
+.hidden{display:none!important}
+label{display:block;font-size:.8rem;opacity:.65;margin-bottom:4px;margin-top:12px}
+.err{color:#e74c3c;font-size:.82rem;margin-top:4px}
+
+/* ── SETUP ── */
+#scr-setup .sql-block{
+  background:rgba(0,0,0,.35);border-radius:9px;padding:12px 14px;
+  font-family:monospace;font-size:.72rem;line-height:1.55;
+  color:#a8d8a8;overflow-x:auto;white-space:pre;margin-top:8px;max-height:240px;overflow-y:auto;
+}
+#scr-setup summary{cursor:pointer;font-size:.83rem;opacity:.7;margin-top:12px;list-style:none}
+#scr-setup summary:hover{opacity:1}
+
+/* ── HOME ── */
+.tabs{display:flex;gap:0;margin:14px 0 0}
+.tab{flex:1;padding:.5rem;text-align:center;font-weight:600;font-size:.88rem;
+  background:rgba(255,255,255,.05);border:1px solid var(--gb);cursor:pointer;
+  transition:background .14s;
+}
+.tab:first-child{border-radius:9px 0 0 9px}
+.tab:last-child{border-radius:0 9px 9px 0}
+.tab.active{background:var(--accent);color:var(--btnText);border-color:var(--accent)}
+.pcount-row{display:flex;align-items:center;gap:12px;margin-top:10px}
+.pcount-row input[type=range]{flex:1;accent-color:var(--accent)}
+#pcount-val{font-weight:700;font-size:1.1rem;color:var(--accent);min-width:18px;text-align:center}
+
+/* ── PLAY SCREEN ── */
+#play-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+#play-header .code-badge{
+  font-family:monospace;font-weight:700;font-size:1.1rem;letter-spacing:.1em;
+  background:rgba(46,204,113,.18);border:1px solid rgba(46,204,113,.4);
+  border-radius:8px;padding:4px 10px;color:var(--accent);
+}
+#play-main{display:grid;grid-template-columns:1fr 230px;gap:12px;align-items:start}
+@media(max-width:650px){
+  #play-main{grid-template-columns:1fr}
+  #side-panel{order:2}
+  #center-area{order:1}
+}
+#center-area{display:flex;flex-direction:column;gap:8px;align-items:center}
 #board{cursor:pointer;touch-action:manipulation;display:block;max-width:100%}
-.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
-.pchip{
-  display:flex;align-items:center;gap:7px;
-  padding:7px 13px;border-radius:10px;font-weight:600;font-size:.88rem;
-  background:var(--glass);border:1px solid transparent;transition:border-color .2s;
+#turn-bar{
+  width:100%;background:var(--glass);border:1px solid var(--gb);
+  border-radius:9px;padding:7px 12px;font-weight:600;font-size:.88rem;text-align:center;
 }
-.pchip.active{border-color:var(--accent)}
-.dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.3);flex-shrink:0}
-.wins{font-size:.72rem;opacity:.6;background:rgba(255,255,255,.1);padding:1px 6px;border-radius:5px;margin-left:2px}
-#msg{
-  flex:1;text-align:center;font-weight:600;font-size:.92rem;
-  padding:6px 10px;background:var(--glass);border-radius:8px;
-  border:1px solid var(--glass-border);min-width:110px;
+/* Lobby area (inside center-area) */
+#lobby-area{width:100%}
+.slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.slot-card{
+  display:flex;align-items:center;gap:8px;padding:9px 11px;
+  background:rgba(255,255,255,.06);border:1px solid var(--gb);border-radius:9px;
+  font-size:.85rem;
 }
-#controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.hint{font-size:.74rem;opacity:.45;text-align:center;line-height:1.55}
+.slot-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
+.slot-name{font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot-empty{opacity:.35;font-style:italic}
+/* Side panel */
+#side-panel{display:flex;flex-direction:column;gap:8px}
+#player-list-mini{font-size:.8rem}
+.mini-player{display:flex;align-items:center;gap:6px;padding:3px 0;opacity:.75}
+.mini-player.active-turn{opacity:1;font-weight:700}
+.mini-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+/* Chat */
+#chat-box{display:flex;flex-direction:column;height:260px}
+#chat-msgs{flex:1;overflow-y:auto;font-size:.8rem;line-height:1.5;padding:4px 0;scrollbar-width:thin}
+#chat-msgs .cm{padding:2px 0}
+#chat-msgs .cm .author{font-weight:600}
+#chat-msgs .cm .body{opacity:.85}
+#chat-msgs .sys{opacity:.45;font-style:italic;font-size:.75rem}
+.chat-row{display:flex;gap:6px;margin-top:8px}
+#chat-inp, #chat-inp-g{flex:1}
+/* Win overlay */
+#win-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;z-index:99;
+}
+#win-overlay .win-card{
+  background:linear-gradient(135deg,rgba(46,204,113,.25),rgba(8,40,24,.6));
+  border:1px solid rgba(46,204,113,.5);border-radius:20px;
+  padding:36px 44px;text-align:center;max-width:320px;
+}
+#win-overlay h2.farmhouse{font-size:2.8rem}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header style="margin-bottom:12px">
+<div id="wrap">
+  <header style="margin-bottom:10px">
     <a href="index.html" class="back-link">← Back to Pickle Phil's</a>
   </header>
-  <div style="text-align:center;margin-bottom:16px">
+  <div style="text-align:center;margin-bottom:14px">
     <h1 class="farmhouse">Chinese Checkers</h1>
-    <p style="opacity:.6;font-size:.85rem;margin-top:3px">Race all your marbles to the opposite triangle!</p>
+    <p style="opacity:.55;font-size:.83rem;margin-top:2px">Up to 6 players · Room codes · Live chat</p>
   </div>
-  <div id="game-area">
-    <div class="hud">
-      <div class="pchip" id="chip1">
-        <div class="dot" style="background:#e74c3c"></div>
-        <span>Player 1</span>
-        <span class="wins" id="w1">0</span>
-      </div>
-      <div id="msg">…</div>
-      <div class="pchip" id="chip2">
-        <div class="dot" style="background:#3498db"></div>
-        <span id="p2lbl">Player 2</span>
-        <span class="wins" id="w2">0</span>
+
+  <!-- ══ SETUP SCREEN ══════════════════════════════════════════════════ -->
+  <div id="scr-setup" class="screen hidden">
+    <div class="card">
+      <p style="font-weight:600;font-size:1rem;margin-bottom:4px">Supabase Setup Required</p>
+      <p style="font-size:.84rem;opacity:.7;line-height:1.5">
+        This game uses <strong>Supabase</strong> (free) for real-time rooms and chat.
+        Create a free project at <strong>supabase.com</strong>, run the SQL below, then paste your credentials.
+      </p>
+      <details style="margin-top:10px">
+        <summary>Show SQL to run in Supabase SQL Editor</summary>
+        <div class="sql-block">-- Run this once in your Supabase SQL Editor
+create table if not exists cc_rooms (
+  id uuid primary key default gen_random_uuid(),
+  code char(6) unique not null,
+  player_count int not null default 2,
+  host_slot int not null default 1,
+  state jsonb not null default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+create table if not exists cc_messages (
+  id uuid primary key default gen_random_uuid(),
+  room_id uuid not null references cc_rooms(id) on delete cascade,
+  slot int,
+  name text not null,
+  body text not null,
+  created_at timestamptz default now()
+);
+alter publication supabase_realtime add table cc_rooms;
+alter publication supabase_realtime add table cc_messages;
+alter table cc_rooms enable row level security;
+alter table cc_messages enable row level security;
+create policy "open" on cc_rooms for all using (true) with check (true);
+create policy "open" on cc_messages for all using (true) with check (true);</div>
+      </details>
+      <label>Project URL (e.g. https://abc123.supabase.co)</label>
+      <input class="inp" id="cfg-url" placeholder="https://xxxxx.supabase.co">
+      <label>Anon / Public Key</label>
+      <input class="inp" id="cfg-key" placeholder="eyJ...">
+      <p id="cfg-err" class="err"></p>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn btn-g" id="btn-save-cfg" style="flex:1">Save &amp; Continue</button>
       </div>
     </div>
-    <canvas id="board"></canvas>
-    <div id="controls">
-      <button class="btn btn-primary" id="btnNew">New Game</button>
-      <button class="btn btn-ghost" id="btnAI">🤖 vs AI: Off</button>
+  </div>
+
+  <!-- ══ HOME SCREEN ═══════════════════════════════════════════════════ -->
+  <div id="scr-home" class="screen hidden">
+    <div class="card" style="max-width:360px;margin:0 auto">
+      <label>Your name</label>
+      <input class="inp" id="inp-name" placeholder="Enter your name" maxlength="18" autocomplete="off">
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="create">Create Room</div>
+        <div class="tab" data-tab="join">Join Room</div>
+      </div>
+      <div id="panel-create" style="margin-top:14px">
+        <label>Number of players</label>
+        <div class="pcount-row">
+          <span style="font-size:.8rem;opacity:.6">2</span>
+          <input type="range" min="2" max="6" value="2" id="inp-pcount">
+          <span id="pcount-val">2</span>
+        </div>
+        <p style="font-size:.75rem;opacity:.5;margin-top:6px" id="pcount-note">Head-to-head — top vs. bottom</p>
+        <button class="btn btn-g" id="btn-create" style="width:100%;margin-top:14px">Create Room</button>
+      </div>
+      <div id="panel-join" class="hidden" style="margin-top:14px">
+        <label>Room code</label>
+        <input class="inp" id="inp-code" placeholder="6-letter code (e.g. PICKLE)" maxlength="6"
+          autocomplete="off" style="text-transform:uppercase;letter-spacing:.1em">
+        <button class="btn btn-g" id="btn-join" style="width:100%;margin-top:12px">Join Room</button>
+      </div>
+      <p id="home-err" class="err" style="margin-top:6px"></p>
+      <p style="font-size:.73rem;opacity:.4;margin-top:12px;text-align:center">
+        Want to play solo or pass-and-play? Use a private room code — share it with whoever is next to you.
+      </p>
     </div>
-    <p class="hint">Select a marble, then click where to move it.<br>Chain hops are allowed — click your final destination.</p>
+  </div>
+
+  <!-- ══ PLAY SCREEN (lobby + game) ═══════════════════════════════════ -->
+  <div id="scr-play" class="screen hidden">
+    <!-- Header -->
+    <div id="play-header">
+      <span id="room-badge" class="code-badge"></span>
+      <button class="btn btn-w" id="btn-copy-code" style="font-size:.78rem;padding:.35rem .8rem">Copy Code</button>
+      <span id="my-chip" style="font-size:.83rem;opacity:.75"></span>
+      <button class="btn btn-w" id="btn-leave" style="margin-left:auto;font-size:.78rem;padding:.35rem .8rem">Leave</button>
+    </div>
+
+    <div id="play-main">
+      <!-- Center: board (game) OR lobby slots -->
+      <div id="center-area">
+        <!-- Lobby player slots (shown before game starts) -->
+        <div id="lobby-area" class="card hidden" style="width:100%">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <span style="font-weight:600">Players in Room</span>
+            <button class="btn btn-g" id="btn-start" disabled>Start Game</button>
+          </div>
+          <div class="slot-grid" id="slot-grid"></div>
+          <p id="lobby-hint" style="font-size:.76rem;opacity:.5;margin-top:10px;text-align:center"></p>
+        </div>
+        <!-- Game board -->
+        <div id="board-area" class="hidden">
+          <div id="turn-bar">…</div>
+          <canvas id="board"></canvas>
+        </div>
+      </div>
+
+      <!-- Side panel: player list + chat -->
+      <div id="side-panel">
+        <!-- Mini player list (game phase) -->
+        <div id="player-list-mini" class="card hidden"></div>
+        <!-- Chat -->
+        <div id="chat-box" class="card">
+          <p style="font-weight:600;font-size:.82rem;margin-bottom:6px">💬 Chat</p>
+          <div id="chat-msgs"></div>
+          <div class="chat-row">
+            <input class="inp" id="chat-inp" placeholder="Message…" maxlength="200" autocomplete="off">
+            <button class="btn btn-g" id="btn-send" style="padding:.48rem .8rem">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Win overlay -->
+<div id="win-overlay" class="hidden">
+  <div class="win-card">
+    <h2 class="farmhouse" id="win-title" style="margin-bottom:6px"></h2>
+    <p id="win-sub" style="opacity:.7;font-size:.9rem;margin-bottom:20px"></p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-g" id="btn-play-again">Play Again</button>
+      <button class="btn btn-w" id="btn-leave-end">Leave</button>
+    </div>
   </div>
 </div>
 
 <script>
 'use strict';
 
-// ─── BOARD LAYOUT ──────────────────────────────────────────────────────────
-// 17 rows; widest row (index 4 and 12) has 13 holes; total = 121 nodes.
+// ─── SUPABASE CONFIG ────────────────────────────────────────────────────────
+// Credentials are stored in localStorage (entered in the setup screen).
+// You can also hard-code them here instead:
+const HARDCODED_URL = '';  // e.g. 'https://xxx.supabase.co'
+const HARDCODED_KEY = '';  // e.g. 'eyJhbGciOiJIUzI1NiIs...'
+
+function savedURL(){ return localStorage.getItem('cc_sb_url') || HARDCODED_URL; }
+function savedKEY(){ return localStorage.getItem('cc_sb_key') || HARDCODED_KEY; }
+function isConfigured(){ const u=savedURL(),k=savedKEY(); return u&&k&&u.includes('.supabase.co'); }
+
+let db; // Supabase client, set in boot()
+
+// ─── BOARD DATA ─────────────────────────────────────────────────────────────
 const ROW_CNT = [1,2,3,4,13,12,11,10,9,10,11,12,13,4,3,2,1];
 
-// Each row is centered on a 0‒12 column grid (widest row fills 0‒12).
-// Returns the left-edge absolute column for row r.
-function startCol(r){ return (13 - ROW_CNT[r]) / 2; }
+function startCol(r){ return (13-ROW_CNT[r])/2; }
 
-// Build node list
 const nodes = [];
-const nodeByPos = {}; // "r|col*2" → id (col*2 is always integer)
+const byPos = {}; // "r|c*2" → id
 
-ROW_CNT.forEach((cnt, r) => {
-  for (let c = 0; c < cnt; c++) {
-    const id   = nodes.length;
-    const absC = startCol(r) + c;
-    nodes.push({ id, r, c, absC, zone: '' });
-    nodeByPos[r + '|' + Math.round(absC * 2)] = id;
+ROW_CNT.forEach((cnt,r)=>{
+  for(let c=0;c<cnt;c++){
+    const id=nodes.length, absC=startCol(r)+c;
+    nodes.push({id,r,c,absC,zone:''});
+    byPos[r+'|'+Math.round(absC*2)]=id;
   }
 });
 
-function findNode(r, absC) {
-  return nodeByPos[r + '|' + Math.round(absC * 2)];
-}
+function findNode(r,absC){ return byPos[r+'|'+Math.round(absC*2)]; }
 
-// ─── ZONE LABELLING ────────────────────────────────────────────────────────
-// top / bottom  → player starting / goal triangles
-// top-left, top-right, bottom-left, bottom-right → unused in 2-player
-// center → neutral field
-function zoneOf(r, c) {
-  if (r <= 3)  return 'top';
-  if (r >= 13) return 'bottom';
-  if (r <= 7) {
-    const lim = 8 - r; // 4 at row 4, tapering to 1 at row 7
-    if (c < lim)                return 'top-left';
-    if (c >= ROW_CNT[r] - lim)  return 'top-right';
-  }
-  if (r >= 9) {
-    const lim = r - 8; // 1 at row 9, tapering to 4 at row 12
-    if (c < lim)                return 'bottom-left';
-    if (c >= ROW_CNT[r] - lim)  return 'bottom-right';
-  }
+function zoneOf(r,c){
+  if(r<=3) return 'top';
+  if(r>=13) return 'bottom';
+  if(r<=7){const l=8-r;if(c<l)return'top-left';if(c>=ROW_CNT[r]-l)return'top-right';}
+  if(r>=9){const l=r-8;if(c<l)return'bottom-left';if(c>=ROW_CNT[r]-l)return'bottom-right';}
   return 'center';
 }
-nodes.forEach(n => { n.zone = zoneOf(n.r, n.c); });
+nodes.forEach(n=>{n.zone=zoneOf(n.r,n.c);});
 
-// ─── ADJACENCY (hex lattice) ─────────────────────────────────────────────
-// Two nodes are hex-adjacent iff dist² = 1 on the lattice where
-//   x = absC, y = r * sqrt(3)/2.  Equivalent to: dc²+ dr² * ¾ = 1.
-const ADJ = nodes.map(() => []);
-for (let i = 0; i < nodes.length; i++) {
-  for (let j = i + 1; j < nodes.length; j++) {
-    const a = nodes[i], b = nodes[j];
-    const dr = a.r - b.r, dc = a.absC - b.absC;
-    if (Math.abs(dc * dc + dr * dr * 0.75 - 1) < 1e-9) {
-      ADJ[i].push(j); ADJ[j].push(i);
-    }
+const ADJ = nodes.map(()=>[]);
+for(let i=0;i<nodes.length;i++){
+  for(let j=i+1;j<nodes.length;j++){
+    const a=nodes[i],b=nodes[j],dr=a.r-b.r,dc=a.absC-b.absC;
+    if(Math.abs(dc*dc+dr*dr*.75-1)<1e-9){ADJ[i].push(j);ADJ[j].push(i);}
   }
 }
 
-// ─── GAME STATE ────────────────────────────────────────────────────────────
-let marbles, selected, validMoves, turn, over, aiOn;
-let wins = [0, 0, 0]; // index 1 = p1, 2 = p2
+// ─── PLAYER CONSTANTS ────────────────────────────────────────────────────────
+// slot → zone where they start
+const SLOT_ZONE = {1:'top',2:'top-right',3:'bottom-right',4:'bottom',5:'bottom-left',6:'top-left'};
+// slot → zone they're racing to fill
+const SLOT_GOAL = {1:'bottom',2:'bottom-left',3:'top-left',4:'top',5:'top-right',6:'bottom-right'};
 
-function init() {
-  marbles    = new Int8Array(nodes.length); // 0=empty 1=p1 2=p2
-  selected   = null;
-  validMoves = new Set();
-  turn       = 1;
-  over       = false;
-  nodes.forEach(n => {
-    if (n.zone === 'top')    marbles[n.id] = 1;
-    if (n.zone === 'bottom') marbles[n.id] = 2;
+// Which slots are active for each player count
+const ROSTERS = {
+  2:[1,4],
+  3:[1,3,5],
+  4:[1,2,4,5],
+  5:[1,2,3,4,5],
+  6:[1,2,3,4,5,6]
+};
+
+const PC_NOTE = {
+  2:'Head-to-head — top vs. bottom',
+  3:'Three-way — every other corner',
+  4:'Four corners — two opposing pairs',
+  5:'Five players — all but one corner',
+  6:'Full game — all six corners'
+};
+
+// Marble colors per slot
+const SLOT_COLOR = {
+  1:{m:'#e74c3c',g:'rgba(255,160,160,.55)'},
+  2:{m:'#3498db',g:'rgba(130,200,255,.55)'},
+  3:{m:'#2ecc71',g:'rgba(100,255,160,.55)'},
+  4:{m:'#f1c40f',g:'rgba(255,235,100,.55)'},
+  5:{m:'#9b59b6',g:'rgba(200,150,255,.55)'},
+  6:{m:'#e67e22',g:'rgba(255,190,100,.55)'},
+};
+
+// Zone background tints — keyed by zone name; color matches the slot that starts there
+const ZONE_TINT = {
+  'top':          'rgba(231, 76, 60,.28)',
+  'top-right':    'rgba( 52,152,219,.28)',
+  'bottom-right': 'rgba( 46,204,113,.28)',
+  'bottom':       'rgba(241,196, 15,.28)',
+  'bottom-left':  'rgba(155, 89,182,.28)',
+  'top-left':     'rgba(230,126, 34,.28)',
+  'center':       'rgba(255,255,255,.05)',
+};
+
+// ─── GAME-LOGIC HELPERS ──────────────────────────────────────────────────────
+function initMarbles(activeSlots){
+  const mb = new Array(nodes.length).fill(0);
+  nodes.forEach(n=>{
+    const slot=activeSlots.find(s=>SLOT_ZONE[s]===n.zone);
+    if(slot) mb[n.id]=slot;
   });
-  updateHUD(); draw();
+  return mb;
 }
 
-// P1 starts top → goal bottom; P2 starts bottom → goal top.
-const GOAL = { 1: 'bottom', 2: 'top' };
-
-function won(p) {
-  return nodes.filter(n => n.zone === GOAL[p]).every(n => marbles[n.id] === p);
-}
-
-// ─── VALID MOVES ───────────────────────────────────────────────────────────
-function getMoves(id) {
-  const moves = new Set();
-
-  // Single step to empty adjacent cell
-  ADJ[id].forEach(nb => { if (!marbles[nb]) moves.add(nb); });
-
-  // Chain hops: BFS over hop positions
-  const seen = new Set([id]);
-  const q = [id];
-  while (q.length) {
-    const cur = q.shift();
-    ADJ[cur].forEach(nb => {
-      if (!marbles[nb]) return; // no marble to hop over
-      const nc = nodes[nb], cc = nodes[cur];
-      const lr = 2 * nc.r    - cc.r;
-      const la = 2 * nc.absC - cc.absC;
-      const land = findNode(lr, la);
-      if (land !== undefined && !marbles[land] && !seen.has(land)) {
-        seen.add(land);
-        moves.add(land);
-        q.push(land);
+function getMoves(nodeId, marbles){
+  const moves=new Set();
+  ADJ[nodeId].forEach(nb=>{if(!marbles[nb])moves.add(nb);});
+  const seen=new Set([nodeId]), q=[nodeId];
+  while(q.length){
+    const cur=q.shift();
+    ADJ[cur].forEach(nb=>{
+      if(!marbles[nb])return;
+      const nc=nodes[nb],cc=nodes[cur];
+      const lr=2*nc.r-cc.r, la=2*nc.absC-cc.absC;
+      const land=findNode(lr,la);
+      if(land!==undefined&&!marbles[land]&&!seen.has(land)){
+        seen.add(land);moves.add(land);q.push(land);
       }
     });
   }
   return moves;
 }
 
-// ─── APPLY MOVE ────────────────────────────────────────────────────────────
-function applyMove(from, to) {
-  marbles[to]   = marbles[from];
-  marbles[from] = 0;
-  selected   = null;
-  validMoves = new Set();
-  if (won(turn)) {
-    over = true;
-    wins[turn]++;
-    updateHUD(); draw();
-    return;
-  }
-  turn = turn === 1 ? 2 : 1;
-  updateHUD(); draw();
-  if (aiOn && turn === 2 && !over) setTimeout(runAI, 420);
+function wonCheck(slot, marbles){
+  const g=SLOT_GOAL[slot];
+  return nodes.filter(n=>n.zone===g).every(n=>marbles[n.id]===slot);
 }
 
-// ─── GREEDY AI ─────────────────────────────────────────────────────────────
-// Score = advancement toward goal row.  P2 wants lower rows → score = 16 − r.
-function nodeScore(id) { return 16 - nodes[id].r; }
+// ─── APP STATE ───────────────────────────────────────────────────────────────
+let myName='', mySlot=0, roomId='', roomCode='', hostSlot=1;
+let gameState=null; // {marbles,turn,over,winner,players,playerCount,started,active}
+let selected=null, validMoves=new Set();
+let realtimeSub=null;
 
-function runAI() {
-  let best = -Infinity, from = null, to = null;
-  nodes.forEach(n => {
-    if (marbles[n.id] !== 2) return;
-    getMoves(n.id).forEach(tid => {
-      const g = nodeScore(tid) - nodeScore(n.id);
-      if (g > best || (g === best && Math.random() < 0.25)) {
-        best = g; from = n.id; to = tid;
-      }
-    });
-  });
-  // fallback: any legal move
-  if (from === null) {
-    outer: for (const n of nodes) {
-      if (marbles[n.id] !== 2) continue;
-      for (const tid of getMoves(n.id)) { from = n.id; to = tid; break outer; }
-    }
-  }
-  if (from !== null) applyMove(from, to);
+// ─── CANVAS / RENDER ─────────────────────────────────────────────────────────
+const canvas=document.getElementById('board');
+const ctx=canvas.getContext('2d');
+const SQ3=Math.sqrt(3), PAD=24;
+let STEP=28, RN=10;
+
+function resizeCanvas(){
+  const mw=Math.min(window.innerWidth-40,440);
+  STEP=Math.max(18,Math.floor((mw-2*PAD)/12));
+  RN=Math.floor(STEP*.38);
+  canvas.width=12*STEP+2*PAD;
+  canvas.height=Math.ceil(16*STEP*SQ3/2)+2*PAD;
 }
 
-// ─── RENDERING ─────────────────────────────────────────────────────────────
-const canvas = document.getElementById('board');
-const ctx    = canvas.getContext('2d');
-const SQ3    = Math.sqrt(3);
-const PAD    = 26;
-let   STEP   = 30, RN = 11;
+function pt(n){return{x:PAD+n.absC*STEP, y:PAD+n.r*STEP*SQ3/2};}
 
-function resize() {
-  const mw  = Math.min(window.innerWidth - 44, 520);
-  STEP      = Math.max(20, Math.floor((mw - 2 * PAD) / 12));
-  RN        = Math.floor(STEP * 0.38);
-  canvas.width  = 12 * STEP + 2 * PAD;
-  canvas.height = Math.ceil(16 * STEP * SQ3 / 2) + 2 * PAD;
-}
-
-function pt(n) {
-  return { x: PAD + n.absC * STEP, y: PAD + n.r * STEP * SQ3 / 2 };
-}
-
-// Background tints for the six triangle zones
-const ZONE_FILL = {
-  'top':          'rgba(231, 76, 60, 0.30)',
-  'bottom':       'rgba( 52,152,219, 0.30)',
-  'top-left':     'rgba(241,196, 15, 0.18)',
-  'top-right':    'rgba(155, 89,182, 0.18)',
-  'bottom-left':  'rgba(230,126, 34, 0.18)',
-  'bottom-right': 'rgba( 26,188,156, 0.18)',
-  'center':       'rgba(255,255,255, 0.06)',
-};
-const MARBLE_CLR  = { 1: '#e74c3c', 2: '#3498db' };
-const MARBLE_GLOW = { 1: 'rgba(255,160,160,.55)', 2: 'rgba(130,200,255,.55)' };
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  nodes.forEach(n => {
-    const { x, y } = pt(n);
-    const sel  = n.id === selected;
-    const move = validMoves.has(n.id);
-    const mb   = marbles[n.id];
-
+function draw(){
+  if(!gameState)return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const mb=gameState.marbles;
+  nodes.forEach(n=>{
+    const{x,y}=pt(n);
+    const sel=n.id===selected, isMove=validMoves.has(n.id), marble=mb[n.id];
     // Hole
-    ctx.beginPath();
-    ctx.arc(x, y, RN, 0, Math.PI * 2);
-    ctx.fillStyle = ZONE_FILL[n.zone];
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.13)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Move-target dot (empty destination)
-    if (move && !mb) {
-      ctx.beginPath();
-      ctx.arc(x, y, RN * 0.42, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(46,204,113,.75)';
-      ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,RN,0,Math.PI*2);
+    ctx.fillStyle=ZONE_TINT[n.zone];ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.11)';ctx.lineWidth=1;ctx.stroke();
+    // Move dot
+    if(isMove&&!marble){
+      ctx.beginPath();ctx.arc(x,y,RN*.42,0,Math.PI*2);
+      ctx.fillStyle='rgba(46,204,113,.72)';ctx.fill();
     }
-
     // Marble
-    if (mb) {
-      // Drop shadow
-      ctx.beginPath();
-      ctx.arc(x + 1, y + 2, RN * 0.82, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,.28)';
-      ctx.fill();
-
-      // Shiny gradient sphere
-      const g = ctx.createRadialGradient(
-        x - RN * .28, y - RN * .28, RN * .04,
-        x, y, RN * .82
-      );
-      g.addColorStop(0,   MARBLE_GLOW[mb]);
-      g.addColorStop(0.4, MARBLE_CLR[mb]);
-      g.addColorStop(1,   'rgba(0,0,0,.45)');
-      ctx.beginPath();
-      ctx.arc(x, y, RN * 0.82, 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
-
-      // Selection ring
-      if (sel) {
-        ctx.beginPath();
-        ctx.arc(x, y, RN, 0, Math.PI * 2);
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-        // Pulse glow
-        ctx.beginPath();
-        ctx.arc(x, y, RN + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255,255,255,.25)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+    if(marble){
+      const cl=SLOT_COLOR[marble];
+      ctx.beginPath();ctx.arc(x+1,y+2,RN*.82,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,.26)';ctx.fill();
+      const g=ctx.createRadialGradient(x-RN*.26,y-RN*.26,RN*.04,x,y,RN*.82);
+      g.addColorStop(0,cl.g);g.addColorStop(.38,cl.m);g.addColorStop(1,'rgba(0,0,0,.45)');
+      ctx.beginPath();ctx.arc(x,y,RN*.82,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+      if(sel){
+        ctx.beginPath();ctx.arc(x,y,RN,0,Math.PI*2);
+        ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+        ctx.beginPath();ctx.arc(x,y,RN+4,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=2;ctx.stroke();
       }
     }
   });
 }
 
-// ─── CLICK / TOUCH ─────────────────────────────────────────────────────────
-function tap(evt) {
-  if (over) return;
-  if (aiOn && turn === 2) return;
-  const r   = canvas.getBoundingClientRect();
-  const sx  = canvas.width  / r.width;
-  const sy  = canvas.height / r.height;
-  const cx  = (evt.clientX - r.left) * sx;
-  const cy  = (evt.clientY - r.top)  * sy;
-
-  // Find nearest node within click radius
-  let hit = null, best = Infinity;
-  nodes.forEach(n => {
-    const { x, y } = pt(n);
-    const d = Math.hypot(cx - x, cy - y);
-    if (d < STEP * 0.55 && d < best) { hit = n; best = d; }
-  });
-  if (!hit) return;
-
-  // Land on a valid destination
-  if (selected !== null && validMoves.has(hit.id)) {
-    applyMove(selected, hit.id);
-    return;
+// ─── CANVAS INTERACTION ───────────────────────────────────────────────────────
+function canvasTap(evt){
+  if(!gameState||!gameState.started||gameState.over)return;
+  if(gameState.turn!==mySlot)return; // not your turn
+  const rc=canvas.getBoundingClientRect();
+  const cx=(evt.clientX-rc.left)*canvas.width/rc.width;
+  const cy=(evt.clientY-rc.top)*canvas.height/rc.height;
+  let hit=null, bestD=Infinity;
+  nodes.forEach(n=>{const{x,y}=pt(n);const d=Math.hypot(cx-x,cy-y);if(d<STEP*.55&&d<bestD){hit=n;bestD=d;}});
+  if(!hit)return;
+  if(selected!==null&&validMoves.has(hit.id)){doMove(selected,hit.id);return;}
+  if(gameState.marbles[hit.id]===mySlot){
+    selected=hit.id;validMoves=getMoves(hit.id,gameState.marbles);draw();return;
   }
-  // Select own marble
-  if (marbles[hit.id] === turn) {
-    selected   = hit.id;
-    validMoves = getMoves(hit.id);
-    draw();
-    return;
-  }
-  // Deselect
-  selected = null; validMoves = new Set(); draw();
+  selected=null;validMoves=new Set();draw();
 }
-
-canvas.addEventListener('click', tap);
-canvas.addEventListener('touchend', e => {
+canvas.addEventListener('click',canvasTap);
+canvas.addEventListener('touchend',e=>{
   e.preventDefault();
-  const t = e.changedTouches[0];
-  tap({ clientX: t.clientX, clientY: t.clientY });
-}, { passive: false });
+  const t=e.changedTouches[0];
+  canvasTap({clientX:t.clientX,clientY:t.clientY});
+},{passive:false});
+window.addEventListener('resize',()=>{resizeCanvas();draw();});
 
-// ─── HUD ───────────────────────────────────────────────────────────────────
-const msgEl  = document.getElementById('msg');
-const chip1  = document.getElementById('chip1');
-const chip2  = document.getElementById('chip2');
-const w1El   = document.getElementById('w1');
-const w2El   = document.getElementById('w2');
-
-function updateHUD() {
-  chip1.classList.toggle('active', turn === 1 && !over);
-  chip2.classList.toggle('active', turn === 2 && !over);
-  w1El.textContent = wins[1];
-  w2El.textContent = wins[2];
-  if (over) {
-    const who = turn === 1 ? '🔴 Player 1 wins!' : `🔵 ${aiOn ? 'Computer' : 'Player 2'} wins!`;
-    msgEl.textContent = who;
-    msgEl.style.color = 'var(--accent)';
-  } else {
-    msgEl.style.color = '';
-    const lbl = turn === 1 ? '🔴 P1\'s turn' : (aiOn ? '🤖 Thinking…' : '🔵 P2\'s turn');
-    msgEl.textContent = lbl;
-  }
+// ─── SUPABASE HELPERS ────────────────────────────────────────────────────────
+async function dbRoom(){
+  return db.from('cc_rooms').select('*').eq('id',roomId).single();
+}
+async function updateState(newState){
+  await db.from('cc_rooms').update({state:newState}).eq('id',roomId);
+}
+async function sendChat(body){
+  await db.from('cc_messages').insert({room_id:roomId,slot:mySlot,name:myName,body});
 }
 
-// ─── CONTROLS ──────────────────────────────────────────────────────────────
-document.getElementById('btnNew').addEventListener('click', init);
+// ─── REALTIME SUBSCRIPTION ────────────────────────────────────────────────────
+function subscribe(){
+  if(realtimeSub)realtimeSub.unsubscribe();
+  realtimeSub=db.channel('room-'+roomId)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'cc_rooms',filter:'id=eq.'+roomId},
+      p=>{
+        gameState=p.new.state;
+        if(gameState.started) enterGameView();
+        else enterLobbyView();
+        if(gameState.over) showWin();
+      })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'cc_messages',filter:'room_id=eq.'+roomId},
+      p=>appendChat(p.new))
+    .subscribe();
+}
 
-const btnAI  = document.getElementById('btnAI');
-const p2lbl  = document.getElementById('p2lbl');
-btnAI.addEventListener('click', () => {
-  aiOn = !aiOn;
-  btnAI.textContent = `🤖 vs AI: ${aiOn ? 'On' : 'Off'}`;
-  p2lbl.textContent = aiOn ? 'Computer' : 'Player 2';
-  if (aiOn && turn === 2 && !over) setTimeout(runAI, 420);
+// ─── MOVE ─────────────────────────────────────────────────────────────────────
+async function doMove(from,to){
+  const gs=JSON.parse(JSON.stringify(gameState));
+  gs.marbles[to]=gs.marbles[from];
+  gs.marbles[from]=0;
+  selected=null;validMoves=new Set();
+  if(wonCheck(mySlot,gs.marbles)){
+    gs.over=true;gs.winner=mySlot;
+  } else {
+    const active=gs.active;
+    const idx=active.indexOf(gs.turn);
+    gs.turn=active[(idx+1)%active.length];
+  }
+  gameState=gs;
+  draw();updateTurnBar();
+  await updateState(gs);
+}
+
+// ─── ROOM CREATION ────────────────────────────────────────────────────────────
+function genCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let s='';for(let i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+
+async function createRoom(){
+  const name=document.getElementById('inp-name').value.trim();
+  if(!name){showHomeErr('Please enter your name.');return;}
+  const pc=parseInt(document.getElementById('inp-pcount').value);
+  const active=ROSTERS[pc];
+  myName=name;mySlot=active[0];hostSlot=active[0];
+  const code=genCode();
+  const state={
+    marbles:null,turn:active[0],over:false,winner:null,
+    players:{[active[0]]:{name,ready:false}},
+    playerCount:pc,started:false,active
+  };
+  const{data,error}=await db.from('cc_rooms')
+    .insert({code,player_count:pc,host_slot:active[0],state})
+    .select().single();
+  if(error){showHomeErr('Could not create room. Check your Supabase setup.');return;}
+  roomId=data.id;roomCode=code;gameState=state;
+  saveSession();
+  subscribe();
+  showScreen('play');
+  enterLobbyView();
+  loadChatHistory();
+}
+
+async function joinRoom(){
+  const name=document.getElementById('inp-name').value.trim();
+  const code=document.getElementById('inp-code').value.trim().toUpperCase();
+  if(!name){showHomeErr('Please enter your name.');return;}
+  if(code.length!==6){showHomeErr('Enter the 6-letter room code.');return;}
+  const{data:room,error}=await db.from('cc_rooms').select('*').eq('code',code).single();
+  if(error||!room){showHomeErr('Room not found. Double-check the code.');return;}
+  if(room.state.started){showHomeErr('That game has already started.');return;}
+  const gs=room.state;
+  const taken=Object.keys(gs.players).map(Number);
+  const open=gs.active.filter(s=>!taken.includes(s));
+  if(!open.length){showHomeErr('That room is full.');return;}
+  myName=name;mySlot=open[0];hostSlot=room.host_slot;
+  roomId=room.id;roomCode=code;
+  gs.players[mySlot]={name,ready:false};
+  gameState=gs;
+  saveSession();
+  await updateState(gs);
+  subscribe();
+  showScreen('play');
+  enterLobbyView();
+  loadChatHistory();
+}
+
+// ─── LOBBY ────────────────────────────────────────────────────────────────────
+function enterLobbyView(){
+  document.getElementById('lobby-area').classList.remove('hidden');
+  document.getElementById('board-area').classList.add('hidden');
+  document.getElementById('player-list-mini').classList.add('hidden');
+  renderLobby();
+}
+
+function renderLobby(){
+  if(!gameState)return;
+  const grid=document.getElementById('slot-grid');
+  grid.innerHTML='';
+  gameState.active.forEach(s=>{
+    const p=gameState.players[s];
+    const card=document.createElement('div');
+    card.className='slot-card';
+    card.innerHTML=`<div class="slot-dot" style="background:${SLOT_COLOR[s].m}"></div>`+
+      `<span class="slot-name ${p?'':'slot-empty'}">${p?escHtml(p.name):'Waiting…'}</span>`+
+      (s===mySlot?`<span style="font-size:.7rem;opacity:.5">(you)</span>`:'');
+    grid.appendChild(card);
+  });
+  const joined=Object.keys(gameState.players).length;
+  const need=gameState.playerCount;
+  const hint=document.getElementById('lobby-hint');
+  hint.textContent=joined<need?`Waiting for ${need-joined} more player${need-joined>1?'s':''}…`:`All players present! Host can start.`;
+  const btnStart=document.getElementById('btn-start');
+  btnStart.disabled=!(mySlot===hostSlot&&joined>=2);
+  updateHeaderChip();
+}
+
+document.getElementById('btn-start').addEventListener('click',async()=>{
+  if(!gameState||mySlot!==hostSlot)return;
+  const joined=Object.keys(gameState.players).map(Number);
+  const actualActive=gameState.active.filter(s=>joined.includes(s));
+  const gs=JSON.parse(JSON.stringify(gameState));
+  gs.active=actualActive;
+  gs.marbles=initMarbles(actualActive);
+  gs.started=true;
+  gs.turn=actualActive[0];
+  gameState=gs;
+  await updateState(gs);
+  // Local instant transition (others get it via realtime)
+  enterGameView();
 });
 
-// ─── BOOT ──────────────────────────────────────────────────────────────────
-window.addEventListener('resize', () => { resize(); draw(); });
-resize();
-aiOn = false;
-init();
+// ─── GAME VIEW ────────────────────────────────────────────────────────────────
+function enterGameView(){
+  document.getElementById('lobby-area').classList.add('hidden');
+  document.getElementById('board-area').classList.remove('hidden');
+  document.getElementById('player-list-mini').classList.remove('hidden');
+  selected=null;validMoves=new Set();
+  resizeCanvas();draw();
+  updateTurnBar();
+  renderPlayerListMini();
+}
+
+function updateTurnBar(){
+  if(!gameState)return;
+  const tb=document.getElementById('turn-bar');
+  if(gameState.over){tb.textContent='Game over!';return;}
+  const t=gameState.turn;
+  const pn=gameState.players[t]?.name||`Player ${t}`;
+  if(t===mySlot){tb.textContent=`Your turn — move a marble`;tb.style.borderColor='var(--accent)';}
+  else{tb.textContent=`${pn}'s turn`;tb.style.borderColor=SLOT_COLOR[t].m;}
+}
+
+function renderPlayerListMini(){
+  if(!gameState)return;
+  const el=document.getElementById('player-list-mini');
+  el.innerHTML='<p style="font-weight:600;font-size:.8rem;margin-bottom:6px">Players</p>';
+  gameState.active.forEach(s=>{
+    const p=gameState.players[s];
+    if(!p)return;
+    const row=document.createElement('div');
+    row.className='mini-player'+(s===gameState.turn?' active-turn':'');
+    row.innerHTML=`<div class="mini-dot" style="background:${SLOT_COLOR[s].m}"></div>`+
+      `<span>${escHtml(p.name)}${s===mySlot?' (you)':''}</span>`+
+      (s===gameState.turn?`<span style="margin-left:auto;font-size:.72rem;opacity:.6">▸</span>`:'');
+    el.appendChild(row);
+  });
+}
+
+function showWin(){
+  const w=gameState.winner;
+  const pn=gameState.players[w]?.name||`Player ${w}`;
+  document.getElementById('win-title').textContent=w===mySlot?'You won! 🎉':`${pn} wins!`;
+  document.getElementById('win-sub').textContent=w===mySlot?'All your marbles made it across!':'Better luck next time.';
+  document.getElementById('win-overlay').classList.remove('hidden');
+}
+
+// ─── CHAT ─────────────────────────────────────────────────────────────────────
+function appendChat(row){
+  const box=document.getElementById('chat-msgs');
+  const el=document.createElement('div');
+  if(row.slot){
+    el.className='cm';
+    const col=SLOT_COLOR[row.slot]?.m||'#fff';
+    el.innerHTML=`<span class="author" style="color:${col}">${escHtml(row.name)}</span> `+
+      `<span class="body">${escHtml(row.body)}</span>`;
+  } else {
+    el.className='sys';el.textContent=row.body;
+  }
+  box.appendChild(el);
+  box.scrollTop=box.scrollHeight;
+}
+
+async function loadChatHistory(){
+  const{data}=await db.from('cc_messages').select('*').eq('room_id',roomId).order('created_at');
+  if(data)data.forEach(appendChat);
+}
+
+function handleSend(){
+  const inp=document.getElementById('chat-inp');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  sendChat(txt);
+}
+document.getElementById('btn-send').addEventListener('click',handleSend);
+document.getElementById('chat-inp').addEventListener('keydown',e=>{if(e.key==='Enter')handleSend();});
+
+// ─── HEADER / CHIP ────────────────────────────────────────────────────────────
+function updateHeaderChip(){
+  document.getElementById('room-badge').textContent='Room: '+roomCode;
+  const cl=SLOT_COLOR[mySlot];
+  document.getElementById('my-chip').innerHTML=
+    `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cl.m};margin-right:5px;vertical-align:middle"></span>`+
+    `<span>${escHtml(myName)}</span>`;
+}
+
+// ─── SCREEN MANAGEMENT ────────────────────────────────────────────────────────
+function showScreen(id){
+  ['scr-setup','scr-home','scr-play'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden',s!=='scr-'+id);
+  });
+}
+function showHomeErr(msg){document.getElementById('home-err').textContent=msg;}
+
+// ─── SESSION PERSISTENCE ──────────────────────────────────────────────────────
+function saveSession(){
+  localStorage.setItem('cc_sess',JSON.stringify({roomId,roomCode,mySlot,myName,hostSlot}));
+}
+function clearSession(){localStorage.removeItem('cc_sess');}
+async function tryResumeSession(){
+  const raw=localStorage.getItem('cc_sess');
+  if(!raw)return false;
+  try{
+    const s=JSON.parse(raw);
+    const{data:room}=await db.from('cc_rooms').select('*').eq('id',s.roomId).single();
+    if(!room||room.state.over)return false;
+    ({roomId,roomCode,mySlot,myName,hostSlot}=s);
+    gameState=room.state;
+    subscribe();
+    showScreen('play');
+    updateHeaderChip();
+    if(gameState.started)enterGameView();
+    else enterLobbyView();
+    loadChatHistory();
+    return true;
+  }catch(e){return false;}
+}
+
+// ─── CONTROLS ─────────────────────────────────────────────────────────────────
+document.getElementById('btn-copy-code').addEventListener('click',()=>{
+  navigator.clipboard.writeText(roomCode).catch(()=>{});
+  const btn=document.getElementById('btn-copy-code');
+  btn.textContent='Copied!';setTimeout(()=>{btn.textContent='Copy Code';},1500);
+});
+
+function leaveRoom(){
+  if(realtimeSub){realtimeSub.unsubscribe();realtimeSub=null;}
+  clearSession();
+  gameState=null;selected=null;validMoves=new Set();
+  document.getElementById('win-overlay').classList.add('hidden');
+  document.getElementById('chat-msgs').innerHTML='';
+  showScreen('home');
+}
+document.getElementById('btn-leave').addEventListener('click',leaveRoom);
+document.getElementById('btn-leave-end').addEventListener('click',leaveRoom);
+document.getElementById('btn-play-again').addEventListener('click',()=>{
+  document.getElementById('win-overlay').classList.add('hidden');
+  // Host resets; others wait for realtime update
+  if(mySlot===hostSlot){
+    const gs=JSON.parse(JSON.stringify(gameState));
+    gs.marbles=initMarbles(gs.active);
+    gs.turn=gs.active[0];
+    gs.over=false;gs.winner=null;gs.started=false;
+    gameState=gs;
+    updateState(gs);
+    enterLobbyView();
+  }
+});
+
+// ─── HOME SCREEN EVENTS ───────────────────────────────────────────────────────
+document.querySelectorAll('#tabs .tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs .tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const tab=t.dataset.tab;
+    document.getElementById('panel-create').classList.toggle('hidden',tab!=='create');
+    document.getElementById('panel-join').classList.toggle('hidden',tab!=='join');
+    document.getElementById('home-err').textContent='';
+  });
+});
+document.getElementById('inp-pcount').addEventListener('input',e=>{
+  const v=parseInt(e.target.value);
+  document.getElementById('pcount-val').textContent=v;
+  document.getElementById('pcount-note').textContent=PC_NOTE[v]||'';
+});
+document.getElementById('btn-create').addEventListener('click',createRoom);
+document.getElementById('btn-join').addEventListener('click',joinRoom);
+document.getElementById('inp-code').addEventListener('input',e=>{
+  e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'');
+});
+
+// ─── SETUP SCREEN EVENTS ─────────────────────────────────────────────────────
+document.getElementById('btn-save-cfg').addEventListener('click',()=>{
+  const url=document.getElementById('cfg-url').value.trim();
+  const key=document.getElementById('cfg-key').value.trim();
+  if(!url.includes('.supabase.co')||!key.startsWith('eyJ')){
+    document.getElementById('cfg-err').textContent='That doesn\'t look right — check URL and key.';
+    return;
+  }
+  localStorage.setItem('cc_sb_url',url);
+  localStorage.setItem('cc_sb_key',key);
+  document.getElementById('cfg-err').textContent='';
+  boot();
+});
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+async function boot(){
+  if(!isConfigured()){showScreen('setup');return;}
+  try{
+    db=window.supabase.createClient(savedURL(),savedKEY());
+  }catch(e){showScreen('setup');return;}
+  if(await tryResumeSession())return;
+  showScreen('home');
+}
+
+boot();
 </script>
 </body>
 </html>
