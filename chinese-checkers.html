@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinese Checkers — Pickle Phil's</title>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c3a22;--text:#f5f7f5;--accent:#2ecc71;
+  --btnText:#0d3d24;--radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.40);
+  --glass:rgba(255,255,255,.10);--glass-border:rgba(255,255,255,.22);
+}
+body{
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(ellipse at 20% 50%,#1a5c34 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 20%,#0e4a28 0%,transparent 55%),
+    linear-gradient(135deg,#0c3a22 0%,#0a2d1a 100%);
+  min-height:100vh;color:var(--text);padding-bottom:40px;
+}
+.wrap{width:min(580px,100%);margin:0 auto;padding:22px}
+.farmhouse{font-family:'Amatic SC',cursive;font-weight:700;letter-spacing:.03em}
+h1.farmhouse{font-size:clamp(2.2rem,6vw,3.6rem);color:var(--accent);text-shadow:0 2px 20px rgba(46,204,113,.4)}
+.card{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius);padding:14px 18px;backdrop-filter:blur(12px);
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  padding:.5rem 1.2rem;border:none;border-radius:10px;
+  font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;user-select:none;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--accent);color:var(--btnText)}
+.btn-ghost{background:var(--glass);color:var(--text);border:1px solid var(--glass-border)}
+.back-link{color:var(--accent);text-decoration:none;font-size:.9rem;opacity:.8}
+.back-link:hover{opacity:1}
+#game-area{display:flex;flex-direction:column;align-items:center;gap:12px}
+#board{cursor:pointer;touch-action:manipulation;display:block;max-width:100%}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
+.pchip{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 13px;border-radius:10px;font-weight:600;font-size:.88rem;
+  background:var(--glass);border:1px solid transparent;transition:border-color .2s;
+}
+.pchip.active{border-color:var(--accent)}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.3);flex-shrink:0}
+.wins{font-size:.72rem;opacity:.6;background:rgba(255,255,255,.1);padding:1px 6px;border-radius:5px;margin-left:2px}
+#msg{
+  flex:1;text-align:center;font-weight:600;font-size:.92rem;
+  padding:6px 10px;background:var(--glass);border-radius:8px;
+  border:1px solid var(--glass-border);min-width:110px;
+}
+#controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.hint{font-size:.74rem;opacity:.45;text-align:center;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="margin-bottom:12px">
+    <a href="index.html" class="back-link">← Back to Pickle Phil's</a>
+  </header>
+  <div style="text-align:center;margin-bottom:16px">
+    <h1 class="farmhouse">Chinese Checkers</h1>
+    <p style="opacity:.6;font-size:.85rem;margin-top:3px">Race all your marbles to the opposite triangle!</p>
+  </div>
+  <div id="game-area">
+    <div class="hud">
+      <div class="pchip" id="chip1">
+        <div class="dot" style="background:#e74c3c"></div>
+        <span>Player 1</span>
+        <span class="wins" id="w1">0</span>
+      </div>
+      <div id="msg">…</div>
+      <div class="pchip" id="chip2">
+        <div class="dot" style="background:#3498db"></div>
+        <span id="p2lbl">Player 2</span>
+        <span class="wins" id="w2">0</span>
+      </div>
+    </div>
+    <canvas id="board"></canvas>
+    <div id="controls">
+      <button class="btn btn-primary" id="btnNew">New Game</button>
+      <button class="btn btn-ghost" id="btnAI">🤖 vs AI: Off</button>
+    </div>
+    <p class="hint">Select a marble, then click where to move it.<br>Chain hops are allowed — click your final destination.</p>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ─── BOARD LAYOUT ──────────────────────────────────────────────────────────
+// 17 rows; widest row (index 4 and 12) has 13 holes; total = 121 nodes.
+const ROW_CNT = [1,2,3,4,13,12,11,10,9,10,11,12,13,4,3,2,1];
+
+// Each row is centered on a 0‒12 column grid (widest row fills 0‒12).
+// Returns the left-edge absolute column for row r.
+function startCol(r){ return (13 - ROW_CNT[r]) / 2; }
+
+// Build node list
+const nodes = [];
+const nodeByPos = {}; // "r|col*2" → id (col*2 is always integer)
+
+ROW_CNT.forEach((cnt, r) => {
+  for (let c = 0; c < cnt; c++) {
+    const id   = nodes.length;
+    const absC = startCol(r) + c;
+    nodes.push({ id, r, c, absC, zone: '' });
+    nodeByPos[r + '|' + Math.round(absC * 2)] = id;
+  }
+});
+
+function findNode(r, absC) {
+  return nodeByPos[r + '|' + Math.round(absC * 2)];
+}
+
+// ─── ZONE LABELLING ────────────────────────────────────────────────────────
+// top / bottom  → player starting / goal triangles
+// top-left, top-right, bottom-left, bottom-right → unused in 2-player
+// center → neutral field
+function zoneOf(r, c) {
+  if (r <= 3)  return 'top';
+  if (r >= 13) return 'bottom';
+  if (r <= 7) {
+    const lim = 8 - r; // 4 at row 4, tapering to 1 at row 7
+    if (c < lim)                return 'top-left';
+    if (c >= ROW_CNT[r] - lim)  return 'top-right';
+  }
+  if (r >= 9) {
+    const lim = r - 8; // 1 at row 9, tapering to 4 at row 12
+    if (c < lim)                return 'bottom-left';
+    if (c >= ROW_CNT[r] - lim)  return 'bottom-right';
+  }
+  return 'center';
+}
+nodes.forEach(n => { n.zone = zoneOf(n.r, n.c); });
+
+// ─── ADJACENCY (hex lattice) ─────────────────────────────────────────────
+// Two nodes are hex-adjacent iff dist² = 1 on the lattice where
+//   x = absC, y = r * sqrt(3)/2.  Equivalent to: dc²+ dr² * ¾ = 1.
+const ADJ = nodes.map(() => []);
+for (let i = 0; i < nodes.length; i++) {
+  for (let j = i + 1; j < nodes.length; j++) {
+    const a = nodes[i], b = nodes[j];
+    const dr = a.r - b.r, dc = a.absC - b.absC;
+    if (Math.abs(dc * dc + dr * dr * 0.75 - 1) < 1e-9) {
+      ADJ[i].push(j); ADJ[j].push(i);
+    }
+  }
+}
+
+// ─── GAME STATE ────────────────────────────────────────────────────────────
+let marbles, selected, validMoves, turn, over, aiOn;
+let wins = [0, 0, 0]; // index 1 = p1, 2 = p2
+
+function init() {
+  marbles    = new Int8Array(nodes.length); // 0=empty 1=p1 2=p2
+  selected   = null;
+  validMoves = new Set();
+  turn       = 1;
+  over       = false;
+  nodes.forEach(n => {
+    if (n.zone === 'top')    marbles[n.id] = 1;
+    if (n.zone === 'bottom') marbles[n.id] = 2;
+  });
+  updateHUD(); draw();
+}
+
+// P1 starts top → goal bottom; P2 starts bottom → goal top.
+const GOAL = { 1: 'bottom', 2: 'top' };
+
+function won(p) {
+  return nodes.filter(n => n.zone === GOAL[p]).every(n => marbles[n.id] === p);
+}
+
+// ─── VALID MOVES ───────────────────────────────────────────────────────────
+function getMoves(id) {
+  const moves = new Set();
+
+  // Single step to empty adjacent cell
+  ADJ[id].forEach(nb => { if (!marbles[nb]) moves.add(nb); });
+
+  // Chain hops: BFS over hop positions
+  const seen = new Set([id]);
+  const q = [id];
+  while (q.length) {
+    const cur = q.shift();
+    ADJ[cur].forEach(nb => {
+      if (!marbles[nb]) return; // no marble to hop over
+      const nc = nodes[nb], cc = nodes[cur];
+      const lr = 2 * nc.r    - cc.r;
+      const la = 2 * nc.absC - cc.absC;
+      const land = findNode(lr, la);
+      if (land !== undefined && !marbles[land] && !seen.has(land)) {
+        seen.add(land);
+        moves.add(land);
+        q.push(land);
+      }
+    });
+  }
+  return moves;
+}
+
+// ─── APPLY MOVE ────────────────────────────────────────────────────────────
+function applyMove(from, to) {
+  marbles[to]   = marbles[from];
+  marbles[from] = 0;
+  selected   = null;
+  validMoves = new Set();
+  if (won(turn)) {
+    over = true;
+    wins[turn]++;
+    updateHUD(); draw();
+    return;
+  }
+  turn = turn === 1 ? 2 : 1;
+  updateHUD(); draw();
+  if (aiOn && turn === 2 && !over) setTimeout(runAI, 420);
+}
+
+// ─── GREEDY AI ─────────────────────────────────────────────────────────────
+// Score = advancement toward goal row.  P2 wants lower rows → score = 16 − r.
+function nodeScore(id) { return 16 - nodes[id].r; }
+
+function runAI() {
+  let best = -Infinity, from = null, to = null;
+  nodes.forEach(n => {
+    if (marbles[n.id] !== 2) return;
+    getMoves(n.id).forEach(tid => {
+      const g = nodeScore(tid) - nodeScore(n.id);
+      if (g > best || (g === best && Math.random() < 0.25)) {
+        best = g; from = n.id; to = tid;
+      }
+    });
+  });
+  // fallback: any legal move
+  if (from === null) {
+    outer: for (const n of nodes) {
+      if (marbles[n.id] !== 2) continue;
+      for (const tid of getMoves(n.id)) { from = n.id; to = tid; break outer; }
+    }
+  }
+  if (from !== null) applyMove(from, to);
+}
+
+// ─── RENDERING ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('board');
+const ctx    = canvas.getContext('2d');
+const SQ3    = Math.sqrt(3);
+const PAD    = 26;
+let   STEP   = 30, RN = 11;
+
+function resize() {
+  const mw  = Math.min(window.innerWidth - 44, 520);
+  STEP      = Math.max(20, Math.floor((mw - 2 * PAD) / 12));
+  RN        = Math.floor(STEP * 0.38);
+  canvas.width  = 12 * STEP + 2 * PAD;
+  canvas.height = Math.ceil(16 * STEP * SQ3 / 2) + 2 * PAD;
+}
+
+function pt(n) {
+  return { x: PAD + n.absC * STEP, y: PAD + n.r * STEP * SQ3 / 2 };
+}
+
+// Background tints for the six triangle zones
+const ZONE_FILL = {
+  'top':          'rgba(231, 76, 60, 0.30)',
+  'bottom':       'rgba( 52,152,219, 0.30)',
+  'top-left':     'rgba(241,196, 15, 0.18)',
+  'top-right':    'rgba(155, 89,182, 0.18)',
+  'bottom-left':  'rgba(230,126, 34, 0.18)',
+  'bottom-right': 'rgba( 26,188,156, 0.18)',
+  'center':       'rgba(255,255,255, 0.06)',
+};
+const MARBLE_CLR  = { 1: '#e74c3c', 2: '#3498db' };
+const MARBLE_GLOW = { 1: 'rgba(255,160,160,.55)', 2: 'rgba(130,200,255,.55)' };
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  nodes.forEach(n => {
+    const { x, y } = pt(n);
+    const sel  = n.id === selected;
+    const move = validMoves.has(n.id);
+    const mb   = marbles[n.id];
+
+    // Hole
+    ctx.beginPath();
+    ctx.arc(x, y, RN, 0, Math.PI * 2);
+    ctx.fillStyle = ZONE_FILL[n.zone];
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.13)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Move-target dot (empty destination)
+    if (move && !mb) {
+      ctx.beginPath();
+      ctx.arc(x, y, RN * 0.42, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(46,204,113,.75)';
+      ctx.fill();
+    }
+
+    // Marble
+    if (mb) {
+      // Drop shadow
+      ctx.beginPath();
+      ctx.arc(x + 1, y + 2, RN * 0.82, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,.28)';
+      ctx.fill();
+
+      // Shiny gradient sphere
+      const g = ctx.createRadialGradient(
+        x - RN * .28, y - RN * .28, RN * .04,
+        x, y, RN * .82
+      );
+      g.addColorStop(0,   MARBLE_GLOW[mb]);
+      g.addColorStop(0.4, MARBLE_CLR[mb]);
+      g.addColorStop(1,   'rgba(0,0,0,.45)');
+      ctx.beginPath();
+      ctx.arc(x, y, RN * 0.82, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+
+      // Selection ring
+      if (sel) {
+        ctx.beginPath();
+        ctx.arc(x, y, RN, 0, Math.PI * 2);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        // Pulse glow
+        ctx.beginPath();
+        ctx.arc(x, y, RN + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,.25)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+  });
+}
+
+// ─── CLICK / TOUCH ─────────────────────────────────────────────────────────
+function tap(evt) {
+  if (over) return;
+  if (aiOn && turn === 2) return;
+  const r   = canvas.getBoundingClientRect();
+  const sx  = canvas.width  / r.width;
+  const sy  = canvas.height / r.height;
+  const cx  = (evt.clientX - r.left) * sx;
+  const cy  = (evt.clientY - r.top)  * sy;
+
+  // Find nearest node within click radius
+  let hit = null, best = Infinity;
+  nodes.forEach(n => {
+    const { x, y } = pt(n);
+    const d = Math.hypot(cx - x, cy - y);
+    if (d < STEP * 0.55 && d < best) { hit = n; best = d; }
+  });
+  if (!hit) return;
+
+  // Land on a valid destination
+  if (selected !== null && validMoves.has(hit.id)) {
+    applyMove(selected, hit.id);
+    return;
+  }
+  // Select own marble
+  if (marbles[hit.id] === turn) {
+    selected   = hit.id;
+    validMoves = getMoves(hit.id);
+    draw();
+    return;
+  }
+  // Deselect
+  selected = null; validMoves = new Set(); draw();
+}
+
+canvas.addEventListener('click', tap);
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  tap({ clientX: t.clientX, clientY: t.clientY });
+}, { passive: false });
+
+// ─── HUD ───────────────────────────────────────────────────────────────────
+const msgEl  = document.getElementById('msg');
+const chip1  = document.getElementById('chip1');
+const chip2  = document.getElementById('chip2');
+const w1El   = document.getElementById('w1');
+const w2El   = document.getElementById('w2');
+
+function updateHUD() {
+  chip1.classList.toggle('active', turn === 1 && !over);
+  chip2.classList.toggle('active', turn === 2 && !over);
+  w1El.textContent = wins[1];
+  w2El.textContent = wins[2];
+  if (over) {
+    const who = turn === 1 ? '🔴 Player 1 wins!' : `🔵 ${aiOn ? 'Computer' : 'Player 2'} wins!`;
+    msgEl.textContent = who;
+    msgEl.style.color = 'var(--accent)';
+  } else {
+    msgEl.style.color = '';
+    const lbl = turn === 1 ? '🔴 P1\'s turn' : (aiOn ? '🤖 Thinking…' : '🔵 P2\'s turn');
+    msgEl.textContent = lbl;
+  }
+}
+
+// ─── CONTROLS ──────────────────────────────────────────────────────────────
+document.getElementById('btnNew').addEventListener('click', init);
+
+const btnAI  = document.getElementById('btnAI');
+const p2lbl  = document.getElementById('p2lbl');
+btnAI.addEventListener('click', () => {
+  aiOn = !aiOn;
+  btnAI.textContent = `🤖 vs AI: ${aiOn ? 'On' : 'Off'}`;
+  p2lbl.textContent = aiOn ? 'Computer' : 'Player 2';
+  if (aiOn && turn === 2 && !over) setTimeout(runAI, 420);
+});
+
+// ─── BOOT ──────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => { resize(); draw(); });
+resize();
+aiOn = false;
+init();
+</script>
+</body>
+</html>
