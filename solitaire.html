@@ -10,10 +10,10 @@
 :root{
   --bg:#0c3a22;--bg2:#1c8a4e;--bg3:#072a18;
   --text:#f5f7f5;--accent:#2ecc71;--btnText:#0d3d24;
-  --card-bg:#fff;--card-border:#ccc;--card-radius:8px;
   --red:#c0392b;--black:#1a1a2e;
   --empty:rgba(255,255,255,.10);--empty-border:rgba(255,255,255,.22);
-  --select:0 0 0 3px #2ecc71, 0 0 16px rgba(46,204,113,.6);
+  --select:0 0 0 3px #2ecc71,0 0 16px rgba(46,204,113,.6);
+  --card-radius:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -24,569 +24,557 @@ body{
     linear-gradient(160deg,var(--bg) 0%,var(--bg3) 100%);
   background-attachment:fixed;min-height:100vh;
 }
+
+/* ── overlays ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.overlay.hidden{display:none}
+.panel{
+  background:linear-gradient(135deg,#0f4a2c,#1a7a42);
+  border:2px solid var(--accent);border-radius:22px;
+  padding:36px 40px;text-align:center;
+  box-shadow:0 24px 64px rgba(0,0,0,.55);
+  max-width:520px;width:92vw;max-height:92vh;overflow-y:auto;
+}
+.panel h1{font-family:'Amatic SC',cursive;font-size:3rem;color:var(--accent);margin-bottom:4px}
+.panel h2{font-family:'Amatic SC',cursive;font-size:2.4rem;color:var(--accent);margin-bottom:8px}
+.panel p{font-size:.95rem;opacity:.85;margin-bottom:16px}
+
+.big-btn{
+  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  color:var(--btnText);border:none;padding:13px 32px;border-radius:13px;
+  font-weight:800;font-size:1.1rem;cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+  transition:transform .15s,box-shadow .15s;margin:6px;
+}
+.big-btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.38)}
+.big-btn:active{transform:translateY(0)}
+.ghost-btn{
+  background:transparent;border:1px solid rgba(255,255,255,.35);
+  color:var(--text);padding:10px 22px;border-radius:11px;
+  font-size:.9rem;font-weight:600;cursor:pointer;margin:6px;
+  transition:background .15s;
+}
+.ghost-btn:hover{background:rgba(255,255,255,.1)}
+
+input[type=text]{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);
+  color:#fff;padding:10px 16px;border-radius:10px;font-size:1rem;
+  width:100%;max-width:280px;outline:none;margin-bottom:14px;
+  transition:border-color .2s;
+}
+input[type=text]:focus{border-color:var(--accent)}
+input[type=text]::placeholder{opacity:.5}
+
+.draw-toggle{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
+.draw-opt{
+  cursor:pointer;padding:8px 20px;border-radius:10px;font-weight:700;font-size:.9rem;
+  border:2px solid rgba(255,255,255,.3);transition:all .15s;
+}
+.draw-opt.active{background:var(--accent);color:var(--btnText);border-color:var(--accent)}
+.draw-opt:not(.active){background:rgba(255,255,255,.08)}
+
+/* leaderboard table */
+.lb{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px}
+.lb th{color:var(--accent);padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.2);text-align:left}
+.lb td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.07)}
+.lb tr.highlight td{color:var(--accent);font-weight:700}
+.lb .rank-num{font-weight:800;color:var(--accent);width:28px}
+.lb .gold{color:#ffd700}
+.lb .silver{color:#c0c0c0}
+.lb .bronze{color:#cd7f32}
+.lb-empty{opacity:.5;font-style:italic;padding:12px 0}
+
+/* ── header ── */
 header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 20px;
-  background:rgba(0,0,0,.25);border-bottom:1px solid rgba(255,255,255,.1);
+  padding:12px 18px;background:rgba(0,0,0,.25);
+  border-bottom:1px solid rgba(255,255,255,.1);
 }
-header h1{
-  font-family:'Amatic SC',cursive;font-size:2rem;color:var(--accent);
-  text-shadow:0 2px 8px rgba(0,0,0,.4);
+header h1{font-family:'Amatic SC',cursive;font-size:1.8rem;color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctrl-btn{
+  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
+  color:var(--btnText);border:none;padding:6px 14px;border-radius:9px;
+  font-weight:700;font-size:.82rem;cursor:pointer;
+  box-shadow:0 3px 10px rgba(0,0,0,.22);transition:transform .14s,box-shadow .14s;
 }
+.ctrl-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .back-btn{
   color:var(--btnText);text-decoration:none;
   background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
-  padding:8px 16px;border-radius:10px;font-weight:700;font-size:.85rem;
-  border:1px solid rgba(255,255,255,.6);
-  box-shadow:0 4px 12px rgba(0,0,0,.25);
-  transition:transform .15s,box-shadow .15s;
+  padding:6px 14px;border-radius:9px;font-weight:700;font-size:.82rem;
+  border:none;box-shadow:0 3px 10px rgba(0,0,0,.22);
+  transition:transform .14s,box-shadow .14s;
 }
-.back-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.32)}
-
-#controls{
-  display:flex;align-items:center;gap:12px;padding:12px 20px;
-  flex-wrap:wrap;
-}
-.ctrl-btn{
-  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
-  color:var(--btnText);border:1px solid rgba(255,255,255,.5);
-  padding:7px 16px;border-radius:10px;font-weight:700;font-size:.85rem;
-  cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.22);
-  transition:transform .15s,box-shadow .15s;
-}
-.ctrl-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.3)}
-.ctrl-btn:active{transform:translateY(0)}
-#score-box{
-  margin-left:auto;font-size:.9rem;opacity:.85;
-  background:rgba(0,0,0,.25);padding:6px 14px;border-radius:10px;
-}
-#msg{
-  text-align:center;font-size:1rem;font-weight:600;
-  color:var(--accent);min-height:24px;padding:2px 0;
-}
+.back-btn:hover{transform:translateY(-1px)}
+#stat-box{font-size:.82rem;opacity:.8;background:rgba(0,0,0,.22);padding:5px 12px;border-radius:9px;white-space:nowrap}
 
 /* ── game table ── */
-#table{
-  padding:16px 10px 40px;
-  display:flex;flex-direction:column;gap:16px;
-  max-width:860px;margin:0 auto;
-  user-select:none;
-}
-
-/* top row: stock + waste + gap + 4 foundations */
-#top-row{
-  display:flex;gap:10px;align-items:flex-start;flex-wrap:nowrap;
-}
+#game-wrap{padding:14px 8px 40px;max-width:860px;margin:0 auto}
+#top-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:14px}
 .spacer{flex:1}
+#foundations{display:flex;gap:8px}
+#tableau-row{display:flex;gap:6px;align-items:flex-start}
 
-/* tableau */
-#tableau-row{
-  display:flex;gap:8px;align-items:flex-start;
-}
-.col{
-  flex:1;display:flex;flex-direction:column;
-  position:relative;min-height:130px;
-}
-
-/* card slot (empty placeholder) */
+/* card/slot base sizes */
+.col{flex:1;display:flex;flex-direction:column;min-height:130px}
 .slot{
-  width:100%;max-width:100px;aspect-ratio:5/7;
+  width:100%;max-width:108px;aspect-ratio:5/7;
   border:2px dashed var(--empty-border);border-radius:var(--card-radius);
-  background:var(--empty);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;opacity:.5;
-  cursor:pointer;flex-shrink:0;
+  background:var(--empty);display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;opacity:.45;cursor:pointer;flex-shrink:0;
+}
+.foundation{
+  width:68px;height:96px;flex-shrink:0;
+  border:2px dashed var(--empty-border);border-radius:var(--card-radius);
+  background:var(--empty);display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;opacity:.55;cursor:pointer;position:relative;
+}
+.foundation .card{position:absolute;inset:0;width:100%;height:100%;max-width:none;aspect-ratio:unset}
+
+#stock,#waste{width:68px;flex-shrink:0}
+#waste{display:flex;align-items:flex-start}
+#stock .card,#waste .card,#stock .slot,#waste .slot{
+  width:68px;height:96px;aspect-ratio:unset;max-width:none;
 }
 
-/* real card */
 .card{
-  width:100%;max-width:100px;aspect-ratio:5/7;
-  background:var(--card-bg);border:1px solid var(--card-border);
-  border-radius:var(--card-radius);
+  width:100%;max-width:108px;aspect-ratio:5/7;
+  background:#fff;border:1px solid #ccc;border-radius:var(--card-radius);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-size:1.1rem;font-weight:800;
-  cursor:pointer;position:relative;
-  box-shadow:0 3px 10px rgba(0,0,0,.30);
-  transition:box-shadow .12s,transform .12s;
-  flex-shrink:0;
+  font-size:1rem;font-weight:800;cursor:pointer;position:relative;
+  box-shadow:0 3px 10px rgba(0,0,0,.28);
+  transition:box-shadow .12s,transform .12s;flex-shrink:0;
 }
 .card.red{color:var(--red)}
 .card.black{color:var(--black)}
 .card.face-down{
-  background:repeating-linear-gradient(
-    135deg,#1c8a4e 0,#1c8a4e 4px,#0c5c32 4px,#0c5c32 8px);
+  background:repeating-linear-gradient(135deg,#1c8a4e 0,#1c8a4e 4px,#0c5c32 4px,#0c5c32 8px);
   cursor:default;color:transparent;
 }
-.card.face-down::after{
-  content:"🥒";font-size:1.4rem;color:rgba(255,255,255,.4);
-}
-.card.selected{
-  box-shadow:var(--select);transform:translateY(-4px);
-  z-index:10;
-}
-.card:hover:not(.face-down){
-  box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 2px rgba(46,204,113,.3);
-}
+.card.face-down::after{content:"🥒";font-size:1.2rem;color:rgba(255,255,255,.35)}
+.card.selected{box-shadow:var(--select);transform:translateY(-4px);z-index:10}
+.card:hover:not(.face-down){box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 2px rgba(46,204,113,.3)}
 
-/* stacked tableau cards overlap */
-.col .card, .col .slot{
-  margin-top:0;
-}
-.col .card + .card{
-  margin-top:-72%;  /* overlap — face-down */
-}
-.col .card.face-up + .card{
-  margin-top:-58%;
-}
+.pip-tl{position:absolute;top:3px;left:5px;line-height:1;font-size:.68rem}
+.pip-br{position:absolute;bottom:3px;right:5px;line-height:1;font-size:.68rem;transform:rotate(180deg)}
+.suit-center{font-size:1.2rem}
 
-/* corner pips */
-.pip-tl{position:absolute;top:4px;left:6px;line-height:1;font-size:.75rem}
-.pip-br{position:absolute;bottom:4px;right:6px;line-height:1;font-size:.75rem;transform:rotate(180deg)}
-.suit-center{font-size:1.4rem}
+/* tableau stacking */
+.col .card+.card{margin-top:-74%}
+.col .card.face-up+.card{margin-top:-60%}
 
-/* stock card */
-#stock .card, #waste .card{
-  width:70px;height:98px;aspect-ratio:unset;
-  max-width:none;
-}
-#stock .slot, #waste .slot{
-  width:70px;height:98px;aspect-ratio:unset;max-width:none;
-}
+#msg{text-align:center;font-size:.9rem;font-weight:600;color:var(--accent);min-height:22px;padding:3px 0 0}
 
-/* foundation */
-.foundation{
-  width:70px;height:98px;
-  border:2px dashed var(--empty-border);border-radius:var(--card-radius);
-  background:var(--empty);
+/* ── bouncing win cards ── */
+#bounce-layer{
+  position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden;
+}
+.bounce-card{
+  position:absolute;width:56px;height:78px;
+  background:#fff;border-radius:6px;border:1px solid #ccc;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.6rem;opacity:.6;
-  cursor:pointer;position:relative;flex-shrink:0;
+  font-size:.75rem;font-weight:800;
+  box-shadow:0 6px 18px rgba(0,0,0,.4);
 }
-.foundation .card{
-  position:absolute;inset:0;width:100%;height:100%;aspect-ratio:unset;max-width:none;
-}
+.bounce-card.red{color:var(--red)}
+.bounce-card.black{color:var(--black)}
 
-/* win overlay */
-#win-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.7);z-index:100;
-  align-items:center;justify-content:center;
-}
-#win-overlay.show{display:flex}
-#win-box{
-  background:linear-gradient(135deg,#0f4a2c,#1c8a4e);
-  border:2px solid var(--accent);border-radius:20px;
-  padding:40px 50px;text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,.5);
-}
-#win-box h2{font-family:'Amatic SC',cursive;font-size:3rem;color:var(--accent);margin-bottom:12px}
-#win-box p{margin-bottom:24px;font-size:1.1rem;opacity:.9}
-#win-box button{
-  background:linear-gradient(180deg,#fff 0%,#e6efe8 100%);
-  color:var(--btnText);border:none;padding:12px 28px;border-radius:12px;
-  font-weight:800;font-size:1rem;cursor:pointer;
-  box-shadow:0 6px 18px rgba(0,0,0,.3);
-}
-
-@media(max-width:620px){
-  .col .card + .card{margin-top:-78%}
-  .col .card.face-up + .card{margin-top:-64%}
-  #top-row{gap:6px}
-  #tableau-row{gap:4px}
+@media(max-width:600px){
+  .col .card+.card{margin-top:-80%}
+  .col .card.face-up+.card{margin-top:-66%}
+  #top-row,#tableau-row{gap:4px}
+  .foundation{width:56px;height:80px}
+  #stock,#waste{width:56px}
+  #stock .card,#waste .card,#stock .slot,#waste .slot{width:56px;height:80px}
 }
 </style>
 </head>
 <body>
 
+<!-- ── LANDING OVERLAY ── -->
+<div id="landing-overlay" class="overlay">
+  <div class="panel">
+    <h1>🥒 Pickle Solitaire</h1>
+    <p>Classic Klondike — brined in green. Enter a name to join the leaderboard!</p>
+
+    <input type="text" id="player-name-input" maxlength="20" placeholder="Your pickle name..." autocomplete="off"/>
+
+    <div class="draw-toggle">
+      <div class="draw-opt active" id="d1-opt" onclick="selectDraw(1)">Draw 1</div>
+      <div class="draw-opt" id="d3-opt" onclick="selectDraw(3)">Draw 3</div>
+    </div>
+
+    <button class="big-btn" onclick="startGame()">Deal Me In 🃏</button>
+    <br>
+    <a class="back-btn" href="/" style="display:inline-block;margin-top:10px">← Back to the Jar</a>
+
+    <h2 style="margin-top:28px;font-size:1.6rem">🏆 Top Scores</h2>
+    <div id="landing-lb-wrap"><p class="lb-empty">Loading scores...</p></div>
+  </div>
+</div>
+
+<!-- ── WIN OVERLAY ── -->
+<div id="win-overlay" class="overlay hidden">
+  <div class="panel">
+    <h2>🥒 You Dill-ivered! 🥒</h2>
+    <p id="win-summary"></p>
+    <div id="win-lb-wrap"><p class="lb-empty">Saving score...</p></div>
+    <br>
+    <button class="big-btn" onclick="playAgain()">Play Again 🃏</button>
+    <button class="ghost-btn" onclick="playAgain()">Back to Menu</button>
+  </div>
+</div>
+
+<!-- ── bounce canvas ── -->
+<div id="bounce-layer"></div>
+
+<!-- ── GAME UI ── -->
 <header>
   <h1>🥒 Pickle Solitaire</h1>
-  <a class="back-btn" href="/">← Back to the Jar</a>
+  <div class="header-right">
+    <button class="ctrl-btn" id="new-game-btn">New Game</button>
+    <button class="ctrl-btn" id="undo-btn">Undo</button>
+    <span id="stat-box">
+      <span id="player-label"></span>
+      Score: <span id="score">0</span> | Moves: <span id="moves">0</span> | <span id="timer">0:00</span>
+    </span>
+    <a class="back-btn" href="/">← Jar</a>
+  </div>
 </header>
-
-<div id="controls">
-  <button class="ctrl-btn" id="new-game-btn">New Game</button>
-  <button class="ctrl-btn" id="undo-btn">Undo</button>
-  <label style="font-size:.85rem;display:flex;align-items:center;gap:6px;cursor:pointer">
-    <input type="checkbox" id="draw3" style="cursor:pointer"> Draw 3
-  </label>
-  <span id="score-box">Score: <span id="score">0</span> | Moves: <span id="moves">0</span></span>
-</div>
 <div id="msg"></div>
-
-<div id="table">
+<div id="game-wrap">
   <div id="top-row">
     <div id="stock"></div>
     <div id="waste"></div>
     <div class="spacer"></div>
     <div id="foundations"></div>
   </div>
-  <div id="tableau-row" id="tableau"></div>
-</div>
-
-<div id="win-overlay">
-  <div id="win-box">
-    <h2>🥒 You Dill-ivered! 🥒</h2>
-    <p id="win-msg"></p>
-    <button id="play-again-btn">Play Again</button>
-  </div>
+  <div id="tableau-row"></div>
 </div>
 
 <script>
-// ── constants ──────────────────────────────────────────────────────────────
 const SUITS = ['♠','♥','♦','♣'];
 const SUIT_COLOR = {'♠':'black','♣':'black','♥':'red','♦':'red'};
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RANK_VAL = Object.fromEntries(RANKS.map((r,i)=>[r,i+1]));
+const API = 'https://solitaire-leaderboard.philliphinshaw.workers.dev';
 
-// ── state ──────────────────────────────────────────────────────────────────
-let state, history, score, moves, draw3;
+let state, history, score, moves, draw3=false, selected=null;
+let playerName='', startTime=0, timerInterval=null;
 
+// ── leaderboard fetch ──────────────────────────────────────────────────────
+async function fetchScores(){
+  try{
+    const r = await fetch(API);
+    return await r.json();
+  } catch{ return []; }
+}
+async function postScore(entry){
+  try{
+    const r = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});
+    return await r.json();
+  } catch{ return null; }
+}
+
+function renderLb(scores, highlightTs, container){
+  if(!scores.length){ container.innerHTML='<p class="lb-empty">No scores yet — be the first!</p>'; return; }
+  const medals=['🥇','🥈','🥉'];
+  let html='<table class="lb"><thead><tr><th>#</th><th>Name</th><th>Score</th><th>Moves</th><th>Time</th></tr></thead><tbody>';
+  scores.slice(0,10).forEach((s,i)=>{
+    const hl = highlightTs && s.ts===highlightTs ? ' class="highlight"' : '';
+    const medal = medals[i] || (i+1);
+    html+=`<tr${hl}><td class="rank-num">${medal}</td><td>${escHtml(s.name)}</td><td>${s.score}</td><td>${s.moves}</td><td>${fmtTime(s.time)}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  container.innerHTML=html;
+}
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtTime(s){ return Math.floor(s/60)+':'+(String(s%60).padStart(2,'0')); }
+
+// ── landing ───────────────────────────────────────────────────────────────
+let landingDraw=1;
+function selectDraw(n){
+  landingDraw=n;
+  document.getElementById('d1-opt').classList.toggle('active',n===1);
+  document.getElementById('d3-opt').classList.toggle('active',n===3);
+}
+
+window.addEventListener('DOMContentLoaded',async()=>{
+  const scores = await fetchScores();
+  renderLb(scores, null, document.getElementById('landing-lb-wrap'));
+});
+
+function startGame(){
+  const inp = document.getElementById('player-name-input');
+  playerName = inp.value.trim() || 'Anonymous Pickle';
+  draw3 = landingDraw===3;
+  document.getElementById('landing-overlay').classList.add('hidden');
+  document.getElementById('player-label').textContent = playerName+' | ';
+  initGame();
+}
+
+function playAgain(){
+  document.getElementById('win-overlay').classList.add('hidden');
+  stopBounce();
+  // refresh landing leaderboard
+  fetchScores().then(scores=>renderLb(scores,null,document.getElementById('landing-lb-wrap')));
+  document.getElementById('landing-overlay').classList.remove('hidden');
+}
+
+// ── game init ─────────────────────────────────────────────────────────────
 function newDeck(){
   const d=[];
   for(const s of SUITS) for(const r of RANKS) d.push({s,r,up:false});
   return d;
 }
 function shuffle(d){
-  for(let i=d.length-1;i>0;i--){const j=Math.random()*i|0;[d[i],d[j]]=[d[j],d[i]];}
+  for(let i=d.length-1;i>0;i--){ const j=Math.random()*i|0;[d[i],d[j]]=[d[j],d[i]]; }
   return d;
 }
-
 function initGame(){
-  const deck = shuffle(newDeck());
-  const tableau = Array.from({length:7},()=>[]);
+  const deck=shuffle(newDeck());
+  const tableau=Array.from({length:7},()=>[]);
   let idx=0;
-  for(let c=0;c<7;c++){
-    for(let r=0;r<=c;r++){
-      const card=deck[idx++];
-      card.up = r===c;
-      tableau[c].push(card);
-    }
-  }
-  const stock = deck.slice(idx).map(c=>({...c,up:false}));
-  state = {
-    tableau,
-    stock,
-    waste:[],
-    foundations:[{s:'♠',cards:[]},{s:'♥',cards:[]},{s:'♦',cards:[]},{s:'♣',cards:[]}],
-    selected:null,  // {from,fromType,fromIdx,cards}
-  };
-  history=[];score=0;moves=0;
-  render();
-  setMsg('');
+  for(let c=0;c<7;c++) for(let r=0;r<=c;r++){ const card=deck[idx++]; card.up=r===c; tableau[c].push(card); }
+  state={tableau,stock:deck.slice(idx).map(c=>({...c,up:false})),waste:[],
+    foundations:[{s:'♠',cards:[]},{s:'♥',cards:[]},{s:'♦',cards:[]},{s:'♣',cards:[]}]};
+  history=[];score=0;moves=0;selected=null;
+  startTime=Date.now();
+  clearInterval(timerInterval);
+  timerInterval=setInterval(tickTimer,1000);
+  setMsg('');render();
 }
 
-// ── snapshot for undo ──────────────────────────────────────────────────────
-function snapshot(){
-  return JSON.parse(JSON.stringify({tableau:state.tableau,stock:state.stock,waste:state.waste,foundations:state.foundations,score,moves}));
-}
-function pushHistory(){ history.push(snapshot()); if(history.length>50) history.shift(); }
-
-// ── move helpers ───────────────────────────────────────────────────────────
-function canPlaceOnFoundation(card, foundation){
-  const fc = foundation.cards;
-  if(fc.length===0) return card.r==='A' && card.s===foundation.s;
-  const top = fc[fc.length-1];
-  return card.s===foundation.s && RANK_VAL[card.r]===RANK_VAL[top.r]+1;
-}
-function canPlaceOnTableau(card, targetCol){
-  const tc = state.tableau[targetCol];
-  if(tc.length===0) return card.r==='K';
-  const top = tc.filter(c=>c.up).at(-1);
-  if(!top) return false;
-  return SUIT_COLOR[card.s]!==SUIT_COLOR[top.s] && RANK_VAL[card.r]===RANK_VAL[top.r]-1;
+function tickTimer(){
+  const secs=Math.floor((Date.now()-startTime)/1000);
+  document.getElementById('timer').textContent=fmtTime(secs);
 }
 
+// ── snapshot / undo ───────────────────────────────────────────────────────
+function snapshot(){ return JSON.parse(JSON.stringify({tableau:state.tableau,stock:state.stock,waste:state.waste,foundations:state.foundations,score,moves})); }
+function pushHistory(){ history.push(snapshot()); if(history.length>60) history.shift(); }
+
+// ── move helpers ──────────────────────────────────────────────────────────
+function canPlaceOnFoundation(card,f){
+  const fc=f.cards;
+  if(!fc.length) return card.r==='A' && card.s===f.s;
+  const top=fc[fc.length-1];
+  return card.s===f.s && RANK_VAL[card.r]===RANK_VAL[top.r]+1;
+}
+function canPlaceOnTableau(card,ci){
+  const tc=state.tableau[ci];
+  if(!tc.length) return card.r==='K';
+  const top=tc.filter(c=>c.up).at(-1);
+  return top && SUIT_COLOR[card.s]!==SUIT_COLOR[top.s] && RANK_VAL[card.r]===RANK_VAL[top.r]-1;
+}
+function isSafeAuto(card){
+  if(RANK_VAL[card.r]<=2) return true;
+  const needed=RANK_VAL[card.r]-1;
+  const opp=SUIT_COLOR[card.s]==='red'?['♠','♣']:['♥','♦'];
+  return opp.every(s=>{ const f=state.foundations.find(f=>f.s===s); return f&&f.cards.length>=needed; });
+}
 function autoFoundation(){
-  // try to auto-send face-up cards that are safe to auto-move
-  // "safe" = rank ≤ 2, or all lower-rank cards of opposite colors already on foundations
   let moved=true;
   while(moved){
     moved=false;
-    // check waste top
-    const wt = state.waste.at(-1);
-    if(wt){
-      for(const f of state.foundations){
-        if(canPlaceOnFoundation(wt,f)){
-          if(isSafeAuto(wt)){
-            pushHistory();
-            state.waste.pop();
-            f.cards.push(wt);
-            score+=10;moves++;moved=true;
-            break;
-          }
-        }
-      }
-    }
-    // check each tableau top
+    const wt=state.waste.at(-1);
+    if(wt) for(const f of state.foundations) if(canPlaceOnFoundation(wt,f)&&isSafeAuto(wt)){ pushHistory();state.waste.pop();f.cards.push(wt);score+=10;moves++;moved=true;break; }
     for(const col of state.tableau){
-      const top = col.filter(c=>c.up).at(-1);
+      const top=col.filter(c=>c.up).at(-1);
       if(!top) continue;
-      for(const f of state.foundations){
-        if(canPlaceOnFoundation(top,f)){
-          if(isSafeAuto(top)){
-            pushHistory();
-            col.splice(col.indexOf(top),1);
-            if(col.length && !col.at(-1).up) col.at(-1).up=true;
-            f.cards.push(top);
-            score+=10;moves++;moved=true;
-            break;
-          }
-        }
+      for(const f of state.foundations) if(canPlaceOnFoundation(top,f)&&isSafeAuto(top)){
+        pushHistory();col.splice(col.indexOf(top),1);if(col.length&&!col.at(-1).up)col.at(-1).up=true;
+        f.cards.push(top);score+=10;moves++;moved=true;break;
       }
       if(moved) break;
     }
   }
 }
-function isSafeAuto(card){
-  // safe to auto-move if rank<=2, or for rank>2 check both opposite-color suits have rank-1 on foundations
-  if(RANK_VAL[card.r]<=2) return true;
-  const needed = RANK_VAL[card.r]-1;
-  const oppositeColors = SUIT_COLOR[card.s]==='red' ? ['♠','♣'] : ['♥','♦'];
-  return oppositeColors.every(s=>{
-    const f = state.foundations.find(f=>f.s===s);
-    return f && f.cards.length>=needed;
-  });
-}
+function checkWin(){ return state.foundations.every(f=>f.cards.length===13); }
 
-function checkWin(){
-  return state.foundations.every(f=>f.cards.length===13);
-}
-
-// ── selection / click logic ────────────────────────────────────────────────
-let selected = null; // {from,cards,colIdx,cardIdx}
-
-function clearSel(){ selected=null; render(); }
+// ── click handlers ────────────────────────────────────────────────────────
+function clearSel(){ selected=null;render(); }
 
 function handleStockClick(){
-  if(state.stock.length===0){
-    if(state.waste.length===0) return;
-    pushHistory();
-    state.stock = state.waste.reverse().map(c=>({...c,up:false}));
-    state.waste=[];
-    moves++;
-    score = Math.max(0,score-100);
-    render();return;
+  if(!state.stock.length){
+    if(!state.waste.length) return;
+    pushHistory();state.stock=state.waste.reverse().map(c=>({...c,up:false}));state.waste=[];
+    moves++;score=Math.max(0,score-100);render();return;
   }
   pushHistory();
-  const n = draw3 ? 3 : 1;
-  for(let i=0;i<n&&state.stock.length;i++){
-    const c=state.stock.pop(); c.up=true; state.waste.push(c);
-  }
+  const n=draw3?3:1;
+  for(let i=0;i<n&&state.stock.length;i++){ const c=state.stock.pop();c.up=true;state.waste.push(c); }
   moves++;clearSel();
 }
 
 function handleWasteClick(){
   if(!state.waste.length) return;
   if(selected?.from==='waste'){ clearSel();return; }
-  selected={from:'waste',cards:[state.waste.at(-1)]};
-  render();
+  selected={from:'waste',cards:[state.waste.at(-1)]};render();
 }
 
 function handleFoundationClick(fi){
-  // try to land selected card onto a foundation
   if(!selected) return;
   const card=selected.cards[0];
-  if(selected.cards.length>1){ clearSel();return; } // can only move 1 to foundation
+  if(selected.cards.length>1){ clearSel();return; }
   const f=state.foundations[fi];
-  if(!canPlaceOnFoundation(card,f)){ setMsg('Can\'t place that there.');clearSel();return; }
+  if(!canPlaceOnFoundation(card,f)){ setMsg("Can't place that there.");clearSel();return; }
   pushHistory();
   if(selected.from==='waste') state.waste.pop();
   else if(selected.from==='tableau'){
     const col=state.tableau[selected.colIdx];
     col.splice(col.indexOf(card),1);
-    if(col.length && !col.at(-1).up) col.at(-1).up=true;
+    if(col.length&&!col.at(-1).up) col.at(-1).up=true;
   }
-  f.cards.push(card);
-  score+=10;moves++;
-  selected=null;
-  setMsg('');
+  f.cards.push(card);score+=10;moves++;selected=null;setMsg('');
   autoFoundation();
-  if(checkWin()) showWin();
-  else render();
+  if(checkWin()) triggerWin(); else render();
 }
 
-function handleTableauCardClick(colIdx, cardIdx){
-  const col=state.tableau[colIdx];
-  const card=col[cardIdx];
-  if(!card.up) return; // can't pick face-down
-
-  // if same card is selected, deselect
-  if(selected?.from==='tableau' && selected.colIdx===colIdx && selected.cardIdx===cardIdx){
-    clearSel();return;
-  }
-
-  // if we have a selection, try to move it here
+function handleTableauCardClick(ci,cardi){
+  const col=state.tableau[ci];
+  const card=col[cardi];
+  if(!card.up) return;
+  if(selected?.from==='tableau'&&selected.colIdx===ci&&selected.cardIdx===cardi){ clearSel();return; }
   if(selected){
     const cards=selected.cards;
-    if(canPlaceOnTableau(cards[0],colIdx)){
+    if(canPlaceOnTableau(cards[0],ci)){
       pushHistory();
       if(selected.from==='waste') state.waste.pop();
       else if(selected.from==='tableau'){
         const sc=state.tableau[selected.colIdx];
         sc.splice(selected.cardIdx);
-        if(sc.length && !sc.at(-1).up) sc.at(-1).up=true;
+        if(sc.length&&!sc.at(-1).up) sc.at(-1).up=true;
         score+=5;
       }
-      state.tableau[colIdx].push(...cards);
+      state.tableau[ci].push(...cards);
       moves++;selected=null;setMsg('');
       autoFoundation();
-      if(checkWin()) showWin();
-      else render();
+      if(checkWin()) triggerWin(); else render();
       return;
     }
-    // can't move there — maybe select new card
     setMsg('');
   }
-
-  // select this card and all face-up cards below it
-  const faceUpStart = col.findIndex(c=>c.up);
-  if(cardIdx<faceUpStart){ clearSel();return; }
-  selected={from:'tableau',colIdx,cardIdx,cards:col.slice(cardIdx)};
-  render();
+  const faceUpStart=col.findIndex(c=>c.up);
+  if(cardi<faceUpStart){ clearSel();return; }
+  selected={from:'tableau',colIdx:ci,cardIdx:cardi,cards:col.slice(cardi)};render();
 }
 
-function handleTableauEmptyClick(colIdx){
+function handleTableauEmptyClick(ci){
   if(!selected) return;
   const cards=selected.cards;
-  if(cards[0].r!=='K'){ setMsg('Only Kings can go there.');clearSel();return; }
+  if(cards[0].r!=='K'){ setMsg('Only Kings can start an empty column.');clearSel();return; }
   pushHistory();
   if(selected.from==='waste') state.waste.pop();
   else if(selected.from==='tableau'){
     const sc=state.tableau[selected.colIdx];
     sc.splice(selected.cardIdx);
-    if(sc.length && !sc.at(-1).up) sc.at(-1).up=true;
+    if(sc.length&&!sc.at(-1).up) sc.at(-1).up=true;
     score+=5;
   }
-  state.tableau[colIdx].push(...cards);
+  state.tableau[ci].push(...cards);
   moves++;selected=null;setMsg('');
   autoFoundation();
-  if(checkWin()) showWin();
-  else render();
+  if(checkWin()) triggerWin(); else render();
 }
 
-// quick auto-send waste/tableau top to foundation on double-click
-function handleDoubleClick(from, colIdx){
+function handleDblClick(from,ci){
   let card;
   if(from==='waste') card=state.waste.at(-1);
-  else{
-    const col=state.tableau[colIdx];
-    card=col.filter(c=>c.up).at(-1);
-  }
+  else{ const col=state.tableau[ci]; card=col.filter(c=>c.up).at(-1); }
   if(!card) return;
   for(const f of state.foundations){
     if(canPlaceOnFoundation(card,f)){
       pushHistory();
       if(from==='waste') state.waste.pop();
       else{
-        const col=state.tableau[colIdx];
+        const col=state.tableau[ci];
         col.splice(col.lastIndexOf(card),1);
-        if(col.length && !col.at(-1).up) col.at(-1).up=true;
+        if(col.length&&!col.at(-1).up) col.at(-1).up=true;
       }
-      f.cards.push(card);
-      score+=10;moves++;selected=null;setMsg('');
+      f.cards.push(card);score+=10;moves++;selected=null;setMsg('');
       autoFoundation();
-      if(checkWin()) showWin();
-      else render();
+      if(checkWin()) triggerWin(); else render();
       return;
     }
   }
-  setMsg('No foundation spot for that yet.');
 }
 
-// ── render ─────────────────────────────────────────────────────────────────
-function cardEl(card, selKey){
-  const d=document.createElement('div');
-  d.className='card'+(card.up?(' '+(SUIT_COLOR[card.s])):'  face-down');
-  if(!card.up) return d;
-  if(selKey && selected && isSelected(selKey)) d.classList.add('selected');
-  const tl=document.createElement('span'); tl.className='pip-tl'; tl.textContent=card.r+card.s;
-  const br=document.createElement('span'); br.className='pip-br'; br.textContent=card.r+card.s;
-  const ctr=document.createElement('span'); ctr.className='suit-center'; ctr.textContent=card.s;
-  d.append(tl,ctr,br);
-  return d;
-}
+// ── render ────────────────────────────────────────────────────────────────
 function isSelected(key){
   if(!selected) return false;
-  if(selected.from==='waste' && key==='waste') return true;
-  if(selected.from==='tableau' && key.startsWith('t:')){
+  if(selected.from==='waste'&&key==='waste') return true;
+  if(selected.from==='tableau'&&key.startsWith('t:')){
     const [,ci,cardi]=key.split(':').map(Number);
-    return selected.colIdx===ci && cardi>=selected.cardIdx;
+    return selected.colIdx===ci&&cardi>=selected.cardIdx;
   }
   return false;
 }
-function slotEl(){ const d=document.createElement('div'); d.className='slot'; return d; }
+
+function makeCard(card,selKey){
+  const d=document.createElement('div');
+  d.className='card'+(card.up?' '+SUIT_COLOR[card.s]:'  face-down');
+  if(!card.up) return d;
+  if(selKey&&isSelected(selKey)) d.classList.add('selected');
+  const tl=document.createElement('span'); tl.className='pip-tl'; tl.textContent=card.r+card.s;
+  const br=document.createElement('span'); br.className='pip-br'; br.textContent=card.r+card.s;
+  const c=document.createElement('span'); c.className='suit-center'; c.textContent=card.s;
+  d.append(tl,c,br); return d;
+}
+function makeSlot(){ const d=document.createElement('div'); d.className='slot'; return d; }
 
 function render(){
   // stock
-  const stockEl=document.getElementById('stock');
-  stockEl.innerHTML='';
+  const stockEl=document.getElementById('stock'); stockEl.innerHTML='';
   if(state.stock.length){
-    const c=cardEl({s:'♠',r:'A',up:false});
-    c.onclick=handleStockClick;
-    stockEl.appendChild(c);
+    const c=makeCard({s:'♠',r:'A',up:false}); c.onclick=handleStockClick; stockEl.appendChild(c);
   } else {
-    const s=slotEl(); s.textContent='↺'; s.style.fontSize='2rem'; s.style.opacity='.7';
-    s.onclick=handleStockClick; stockEl.appendChild(s);
+    const s=makeSlot(); s.textContent='↺'; s.style.fontSize='1.6rem'; s.style.opacity='.7'; s.onclick=handleStockClick; stockEl.appendChild(s);
   }
 
   // waste
-  const wasteEl=document.getElementById('waste');
-  wasteEl.innerHTML='';
+  const wasteEl=document.getElementById('waste'); wasteEl.innerHTML='';
   if(state.waste.length){
-    const show = draw3 ? state.waste.slice(-3) : [state.waste.at(-1)];
+    const show=draw3?state.waste.slice(-3):[state.waste.at(-1)];
     show.forEach((card,i,arr)=>{
       const isTop=i===arr.length-1;
-      const c=cardEl(card, isTop?'waste':null);
-      c.style.position='relative';
-      if(i>0) c.style.marginLeft=`${i*18}px`;
-      if(isTop){
-        c.onclick=()=>handleWasteClick();
-        c.ondblclick=()=>handleDoubleClick('waste');
-      }
+      const c=makeCard(card,isTop?'waste':null);
+      if(i>0) c.style.marginLeft=(i*16)+'px';
+      if(isTop){ c.onclick=()=>handleWasteClick(); c.ondblclick=()=>handleDblClick('waste'); }
       wasteEl.appendChild(c);
     });
-    wasteEl.style.display='flex';wasteEl.style.alignItems='flex-start';
   } else {
-    const s=slotEl(); wasteEl.appendChild(s);
+    wasteEl.appendChild(makeSlot());
   }
 
   // foundations
-  const foundEl=document.getElementById('foundations');
-  foundEl.innerHTML='';
-  foundEl.style.display='flex'; foundEl.style.gap='8px';
+  const foundEl=document.getElementById('foundations'); foundEl.innerHTML='';
   state.foundations.forEach((f,fi)=>{
-    const fd=document.createElement('div'); fd.className='foundation';
-    fd.textContent=f.s;
+    const fd=document.createElement('div'); fd.className='foundation'; fd.textContent=f.s;
     if(f.cards.length){
-      const top=f.cards.at(-1);
-      const c=cardEl(top);
-      c.style.position='absolute';c.style.inset='0';c.style.width='100%';c.style.height='100%';c.style.maxWidth='none';c.style.aspectRatio='unset';
-      fd.appendChild(c);
+      const top=f.cards.at(-1); const c=makeCard(top); fd.appendChild(c);
     }
-    fd.onclick=()=>handleFoundationClick(fi);
-    foundEl.appendChild(fd);
+    fd.onclick=()=>handleFoundationClick(fi); foundEl.appendChild(fd);
   });
 
   // tableau
-  const tabEl=document.getElementById('tableau-row');
-  tabEl.innerHTML='';
+  const tabEl=document.getElementById('tableau-row'); tabEl.innerHTML='';
   state.tableau.forEach((col,ci)=>{
     const colEl=document.createElement('div'); colEl.className='col';
-    if(col.length===0){
-      const s=slotEl(); s.textContent='K'; s.style.fontSize='1rem'; s.style.opacity='.45';
-      s.onclick=()=>handleTableauEmptyClick(ci);
-      colEl.appendChild(s);
+    if(!col.length){
+      const s=makeSlot(); s.textContent='K'; s.onclick=()=>handleTableauEmptyClick(ci); colEl.appendChild(s);
     } else {
       col.forEach((card,cardi)=>{
-        const key=`t:${ci}:${cardi}`;
-        const c=cardEl(card,key);
+        const key='t:'+ci+':'+cardi;
+        const c=makeCard(card,key);
         c.onclick=()=>handleTableauCardClick(ci,cardi);
-        c.ondblclick=()=>{ if(cardi===col.length-1 && card.up) handleDoubleClick('tableau',ci); };
-        // stacking margins
-        if(cardi>0){
-          const prev=col[cardi-1];
-          c.style.marginTop=prev.up ? '-58%' : '-72%';
-        }
+        c.ondblclick=()=>{ if(cardi===col.length-1&&card.up) handleDblClick('tableau',ci); };
+        if(cardi>0){ const prev=col[cardi-1]; c.style.marginTop=prev.up?'-60%':'-74%'; }
         colEl.appendChild(c);
       });
     }
@@ -599,27 +587,111 @@ function render(){
 
 function setMsg(t){ document.getElementById('msg').textContent=t; }
 
-function showWin(){
-  document.getElementById('win-msg').textContent=`Finished in ${moves} moves with a score of ${score}!`;
-  document.getElementById('win-overlay').classList.add('show');
+// ── win / bounce ──────────────────────────────────────────────────────────
+let bounceCards=[], bounceRaf=null, bounceActive=false;
+
+function stopBounce(){
+  bounceActive=false;
+  if(bounceRaf){ cancelAnimationFrame(bounceRaf); bounceRaf=null; }
+  document.getElementById('bounce-layer').innerHTML='';
+  bounceCards=[];
 }
 
-// ── init ──────────────────────────────────────────────────────────────────
-document.getElementById('new-game-btn').onclick=()=>initGame();
-document.getElementById('undo-btn').onclick=()=>{
-  if(!history.length){ setMsg('Nothing to undo.');return; }
-  const s=history.pop();
-  state.tableau=s.tableau; state.stock=s.stock; state.waste=s.waste; state.foundations=s.foundations;
-  score=s.score; moves=s.moves; selected=null; setMsg('');
-  score=Math.max(0,score-2);
+function triggerWin(){
+  clearInterval(timerInterval);
+  const elapsedSecs=Math.max(1,Math.floor((Date.now()-startTime)/1000));
+  const timeBonus=Math.max(0,Math.floor(700000/elapsedSecs));
+  const finalScore=score+timeBonus;
+  score=finalScore;
   render();
-};
-document.getElementById('draw3').onchange=e=>{ draw3=e.target.checked; initGame(); };
-document.getElementById('play-again-btn').onclick=()=>{ document.getElementById('win-overlay').classList.remove('show'); initGame(); };
+  startBounce();
+  // save + show win overlay after animation ramps up
+  setTimeout(async()=>{
+    const result = await postScore({name:playerName,score:finalScore,moves,time:elapsedSecs});
+    const scores = await fetchScores();
+    const summary=`Score: ${finalScore} (base ${finalScore-timeBonus} + time bonus ${timeBonus}) | ${moves} moves | ${fmtTime(elapsedSecs)}`;
+    document.getElementById('win-summary').textContent=summary;
+    const winLb=document.getElementById('win-lb-wrap');
+    renderLb(scores, result?.ts || null, winLb);
+    // highlight user's entry by matching name+score
+    document.getElementById('win-overlay').classList.remove('hidden');
+  }, 1800);
+}
 
-// kick off
-draw3=false;
-initGame();
+function startBounce(){
+  const layer=document.getElementById('bounce-layer');
+  layer.innerHTML='';
+  bounceCards=[];
+  bounceActive=true;
+
+  // spawn cards from foundation positions staggered
+  const foundations=document.querySelectorAll('.foundation');
+  let delay=0;
+  foundations.forEach((el,fi)=>{
+    const rect=el.getBoundingClientRect();
+    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    // spawn 13 cards per foundation = 52 total, but only top card is visible per foundation
+    // spawn the suit's full stack with stagger
+    const suit=state.foundations[fi].s;
+    state.foundations[fi].cards.forEach((card,i)=>{
+      setTimeout(()=>{
+        if(!bounceActive) return;
+        spawnBounceCard(layer,card,cx,cy);
+      }, delay);
+      delay+=35;
+    });
+  });
+
+  function loop(){
+    if(!bounceActive) return;
+    bounceCards.forEach(bc=>{
+      bc.vx *= 0.998;
+      bc.vy += 0.45; // gravity
+      bc.x += bc.vx;
+      bc.y += bc.vy;
+      const ww=window.innerWidth, wh=window.innerHeight;
+      if(bc.x<0){ bc.x=0; bc.vx=Math.abs(bc.vx)*0.75; }
+      if(bc.x>ww-56){ bc.x=ww-56; bc.vx=-Math.abs(bc.vx)*0.75; }
+      if(bc.y>wh-78){ bc.y=wh-78; bc.vy=-Math.abs(bc.vy)*0.72; bc.vx*=0.92; }
+      bc.angle+=bc.spin;
+      bc.el.style.transform='translate('+bc.x+'px,'+bc.y+'px) rotate('+bc.angle+'deg)';
+    });
+    bounceRaf=requestAnimationFrame(loop);
+  }
+  bounceRaf=requestAnimationFrame(loop);
+}
+
+function spawnBounceCard(layer,card,fromX,fromY){
+  const el=document.createElement('div');
+  el.className='bounce-card '+SUIT_COLOR[card.s];
+  el.textContent=card.r+card.s;
+  el.style.transform='translate('+fromX+'px,'+fromY+'px)';
+  layer.appendChild(el);
+  const angle=(Math.random()-0.5)*720;
+  const speed=8+Math.random()*14;
+  const dir=-Math.PI/2+(Math.random()-0.5)*Math.PI*1.2;
+  const bc={
+    el, x:fromX, y:fromY,
+    vx:Math.cos(dir)*speed,
+    vy:Math.sin(dir)*speed,
+    angle:0, spin:(Math.random()-0.5)*8,
+  };
+  bounceCards.push(bc);
+}
+
+// ── controls ──────────────────────────────────────────────────────────────
+document.getElementById('new-game-btn').onclick=()=>{
+  stopBounce();
+  clearInterval(timerInterval);
+  playAgain();
+};
+document.getElementById('undo-btn').onclick=()=>{
+  if(!history.length){ setMsg('Nothing to undo.'); return; }
+  const s=history.pop();
+  state.tableau=s.tableau;state.stock=s.stock;state.waste=s.waste;state.foundations=s.foundations;
+  score=s.score;moves=s.moves;selected=null;
+  score=Math.max(0,score-2);setMsg('');render();
+};
 </script>
 </body>
 </html>
