@@ -159,6 +159,9 @@ header h1{font-family:'Amatic SC',cursive;font-size:1.8rem;color:var(--accent)}
 .card.face-down::after{content:"🥒";font-size:1.2rem;color:rgba(255,255,255,.35)}
 .card.selected{box-shadow:var(--select);transform:translateY(-4px);z-index:10}
 .card:hover:not(.face-down){box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 2px rgba(46,204,113,.3)}
+.card[draggable=true]{cursor:grab}
+.card[draggable=true]:active{cursor:grabbing}
+.drop-target{outline:2px solid var(--accent);outline-offset:2px}
 
 .pip-tl{position:absolute;top:3px;left:5px;line-height:1;font-size:.68rem}
 .pip-br{position:absolute;bottom:3px;right:5px;line-height:1;font-size:.68rem;transform:rotate(180deg)}
@@ -264,7 +267,7 @@ const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RANK_VAL = Object.fromEntries(RANKS.map((r,i)=>[r,i+1]));
 const API = 'https://solitaire-leaderboard.philliphinshaw.workers.dev';
 
-let state, history, score, moves, draw3=false, selected=null;
+let state, history, score, moves, draw3=false, selected=null, dragData=null;
 let playerName='', startTime=0, timerInterval=null;
 
 // ── leaderboard fetch ──────────────────────────────────────────────────────
@@ -516,7 +519,40 @@ function isSelected(key){
   return false;
 }
 
-function makeCard(card,selKey){
+// ── drag helpers ──────────────────────────────────────────────────────────
+function doDropOnFoundation(fi){
+  const data=dragData; dragData=null;
+  if(!data||!data.cards.length) return;
+  if(data.cards.length>1) return;
+  const card=data.cards[0];
+  const f=state.foundations[fi];
+  if(!canPlaceOnFoundation(card,f)) return;
+  pushHistory();
+  if(data.from==='waste') state.waste.pop();
+  else{ const col=state.tableau[data.colIdx]; col.splice(col.indexOf(card),1); if(col.length&&!col.at(-1).up) col.at(-1).up=true; }
+  f.cards.push(card); score+=10; moves++; selected=null; setMsg('');
+  autoFoundation(); if(checkWin()) triggerWin(); else render();
+}
+
+function doDropOnTableau(ci){
+  const data=dragData; dragData=null;
+  if(!data||!data.cards.length) return;
+  const cards=data.cards;
+  if(!canPlaceOnTableau(cards[0],ci)) return;
+  pushHistory();
+  if(data.from==='waste') state.waste.pop();
+  else{ const sc=state.tableau[data.colIdx]; sc.splice(data.cardIdx); if(sc.length&&!sc.at(-1).up) sc.at(-1).up=true; score+=5; }
+  state.tableau[ci].push(...cards); moves++; selected=null; setMsg('');
+  autoFoundation(); if(checkWin()) triggerWin(); else render();
+}
+
+function addDropZone(el, onDrop){
+  el.ondragover=e=>{ e.preventDefault(); el.classList.add('drop-target'); };
+  el.ondragleave=()=>el.classList.remove('drop-target');
+  el.ondrop=e=>{ e.preventDefault(); e.stopPropagation(); el.classList.remove('drop-target'); onDrop(); };
+}
+
+function makeCard(card,selKey,dragCtx){
   const d=document.createElement('div');
   d.className='card'+(card.up?' '+SUIT_COLOR[card.s]:'  face-down');
   if(!card.up) return d;
@@ -524,7 +560,19 @@ function makeCard(card,selKey){
   const tl=document.createElement('span'); tl.className='pip-tl'; tl.textContent=card.r+card.s;
   const br=document.createElement('span'); br.className='pip-br'; br.textContent=card.r+card.s;
   const c=document.createElement('span'); c.className='suit-center'; c.textContent=card.s;
-  d.append(tl,c,br); return d;
+  d.append(tl,c,br);
+  if(dragCtx){
+    d.draggable=true;
+    d.ondragstart=e=>{
+      const cards=dragCtx.from==='waste'?[state.waste.at(-1)]:state.tableau[dragCtx.colIdx].slice(dragCtx.cardIdx);
+      dragData={...dragCtx,cards};
+      e.dataTransfer.effectAllowed='move';
+      // ghost image: slight delay so browser captures rendered element
+      setTimeout(()=>d.style.opacity='0.5',0);
+    };
+    d.ondragend=()=>{ d.style.opacity=''; dragData=null; };
+  }
+  return d;
 }
 function makeSlot(){ const d=document.createElement('div'); d.className='slot'; return d; }
 
@@ -543,7 +591,8 @@ function render(){
     const show=draw3?state.waste.slice(-3):[state.waste.at(-1)];
     show.forEach((card,i,arr)=>{
       const isTop=i===arr.length-1;
-      const c=makeCard(card,isTop?'waste':null);
+      const dragCtx=isTop?{from:'waste'}:null;
+      const c=makeCard(card,isTop?'waste':null,dragCtx);
       if(i>0) c.style.marginLeft=(i*16)+'px';
       if(isTop){ c.onclick=()=>handleWasteClick(); c.ondblclick=()=>handleDblClick('waste'); }
       wasteEl.appendChild(c);
@@ -559,22 +608,29 @@ function render(){
     if(f.cards.length){
       const top=f.cards.at(-1); const c=makeCard(top); fd.appendChild(c);
     }
-    fd.onclick=()=>handleFoundationClick(fi); foundEl.appendChild(fd);
+    fd.onclick=()=>handleFoundationClick(fi);
+    addDropZone(fd,()=>doDropOnFoundation(fi));
+    foundEl.appendChild(fd);
   });
 
   // tableau
   const tabEl=document.getElementById('tableau-row'); tabEl.innerHTML='';
   state.tableau.forEach((col,ci)=>{
     const colEl=document.createElement('div'); colEl.className='col';
+    // col itself is a drop zone (catches drops on empty space below cards)
+    addDropZone(colEl,()=>doDropOnTableau(ci));
     if(!col.length){
       const s=makeSlot(); s.textContent='K'; s.onclick=()=>handleTableauEmptyClick(ci); colEl.appendChild(s);
     } else {
       col.forEach((card,cardi)=>{
         const key='t:'+ci+':'+cardi;
-        const c=makeCard(card,key);
+        const dragCtx=card.up?{from:'tableau',colIdx:ci,cardIdx:cardi}:null;
+        const c=makeCard(card,key,dragCtx);
         c.onclick=()=>handleTableauCardClick(ci,cardi);
         c.ondblclick=()=>{ if(cardi===col.length-1&&card.up) handleDblClick('tableau',ci); };
         if(cardi>0){ const prev=col[cardi-1]; c.style.marginTop=prev.up?'-60%':'-74%'; }
+        // each face-up card is also a drop target
+        if(card.up) addDropZone(c,()=>doDropOnTableau(ci));
         colEl.appendChild(c);
       });
     }
