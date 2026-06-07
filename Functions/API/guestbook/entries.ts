@@ -33,7 +33,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     if (isAdmin) {
       items.push(val);
     } else {
-      const { ip: _ip, email: _email, userAgent: _ua, ...pub } = val as Record<string, unknown>;
+      const { ip: _ip, userAgent: _ua, ...pub } = val as Record<string, unknown>;
       items.push(pub);
     }
   }
@@ -49,7 +49,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     id,
     name: String(data.name || "Anonymous Pickle").slice(0, 80),
     message: String(data.message || "").slice(0, 1000),
-    email: String(data.email || "").slice(0, 200),
     ip: request.headers.get("CF-Connecting-IP") || "unknown",
     userAgent: (request.headers.get("User-Agent") || "").slice(0, 300),
     ts: Date.now(),
@@ -58,6 +57,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   await env.GUESTBOOK.put(id, JSON.stringify(entry));
 
-  const { ip: _ip, userAgent: _ua, ...publicEntry } = entry;
+  const { ip: _ip, userAgent: _ua, ...publicEntry } = entry as Record<string, unknown>;
   return json({ success: true, entry: publicEntry });
 };

@@ -34,9 +34,6 @@
         <label for="name">Name</label>
         <input id="name" name="name" placeholder="Pickle Pal" />
 
-        <label for="email">Email <span style="opacity:.6;font-size:.85em">(optional, private — only the site owner sees this)</span></label>
-        <input id="email" name="email" type="email" placeholder="you@example.com" />
-
         <label for="message">Message</label>
         <textarea id="message" name="message" placeholder="Stay crunchy!"></textarea>
 
@@ -76,13 +73,12 @@
     document.getElementById('gb-form').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
       const message = document.getElementById('message').value.trim();
       if(!message){ alert('Please write a message.'); return; }
       const r = await fetch(API, {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ name, email, message })
+        body: JSON.stringify({ name, message })
       });
       if(!r.ok){ alert('Could not save your entry.'); return; }
       e.target.reset();
