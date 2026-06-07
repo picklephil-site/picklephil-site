@@ -605,7 +605,7 @@ function showWin(){
 }
 
 // ── init ──────────────────────────────────────────────────────────────────
-document.getElementById('new-game-btn').onclick=()=>{ if(confirm('Start a new game?')) initGame(); };
+document.getElementById('new-game-btn').onclick=()=>initGame();
 document.getElementById('undo-btn').onclick=()=>{
   if(!history.length){ setMsg('Nothing to undo.');return; }
   const s=history.pop();
@@ -614,7 +614,7 @@ document.getElementById('undo-btn').onclick=()=>{
   score=Math.max(0,score-2);
   render();
 };
-document.getElementById('draw3').onchange=e=>{ draw3=e.target.checked; if(confirm('Changing draw mode will start a new game. Continue?')) initGame(); else e.target.checked=!e.target.checked; };
+document.getElementById('draw3').onchange=e=>{ draw3=e.target.checked; initGame(); };
 document.getElementById('play-again-btn').onclick=()=>{ document.getElementById('win-overlay').classList.remove('show'); initGame(); };
 
 // kick off
