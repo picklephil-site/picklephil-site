@@ -460,6 +460,7 @@
 
     // ── DAILY DILL TRIVIA ──────────────────────────────────────────────────────
     (function(){
+      // Fallback bank — used when the API is unreachable
       var QUESTIONS = [
         // General knowledge
         {q:"What is the capital of France?",c:["London","Berlin","Paris","Madrid"],a:2},
@@ -545,105 +546,141 @@
       }
       function saveState(s){ localStorage.setItem('dill_trivia', JSON.stringify(s)); }
 
-      function getDayIndex(){
-        var epoch = new Date('2024-01-01');
-        var diff = Date.now() - epoch.getTime();
-        return Math.floor(diff / 86400000);
+      function htmlDecode(str){
+        var txt = document.createElement('textarea');
+        txt.innerHTML = str;
+        return txt.value;
+      }
+
+      function shuffle(arr){
+        for(var i=arr.length-1;i>0;i--){
+          var j=Math.floor(Math.random()*(i+1));
+          var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;
+        }
+        return arr;
       }
 
       function updatePill(streak){
         var pill = document.getElementById('trivia-streak-pill');
         if(!pill) return;
-        if(streak > 0){
-          pill.textContent = '🔥 ' + streak + ' day streak';
-          pill.style.display = '';
-        } else {
-          pill.style.display = 'none';
-        }
+        if(streak > 0){ pill.textContent='🔥 '+streak+' day streak'; pill.style.display=''; }
+        else { pill.style.display='none'; }
       }
 
-      function renderTrivia(){
+      function getFallbackQ(){
+        var epoch = new Date('2024-01-01');
+        var idx = Math.floor((Date.now()-epoch.getTime())/86400000);
+        return QUESTIONS[idx % QUESTIONS.length];
+      }
+
+      function showQuestion(q){
         var widget = document.getElementById('trivia-widget');
         if(!widget) return;
-
         var state = loadState();
 
-        // Check if streak lapsed (missed a day)
-        if(state.lastAnswered && state.lastAnswered !== todayStr){
-          var last = new Date(state.lastAnswered);
-          var yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-          if(state.lastAnswered < yesterday) state.streak = 0;
-        }
-
-        updatePill(state.streak || 0);
-
-        var q = QUESTIONS[getDayIndex() % QUESTIONS.length];
+        var catLine = q.category ? '<p style="font-size:.75rem;opacity:.55;margin-bottom:10px;">📂 '+q.category+'</p>' : '';
 
         // Already answered today
         if(state.lastAnswered === todayStr){
-          var correctText = q.c[q.a];
           var gotIt = state.lastCorrect === todayStr;
           widget.innerHTML =
-            '<p class="trivia-q" style="margin-bottom:8px;">' + q.q + '</p>' +
-            '<div class="trivia-grid">' +
-              q.c.map(function(opt, i){
-                var cls = i === q.a ? 't-correct' : '';
-                return '<button class="trivia-opt ' + cls + '" disabled>' + opt + '</button>';
-              }).join('') +
-            '</div>' +
-            '<p class="trivia-fb">' +
-              (gotIt ? '🎉 You got it right! Come back tomorrow.' : '❌ The answer was <strong>' + correctText + '</strong>. Try again tomorrow!') +
-            '</p>';
+            catLine +
+            '<p class="trivia-q" style="margin-bottom:8px;">'+q.q+'</p>'+
+            '<div class="trivia-grid">'+
+              q.c.map(function(opt,i){
+                return '<button class="trivia-opt '+(i===q.a?'t-correct':'')+'" disabled>'+opt+'</button>';
+              }).join('')+
+            '</div>'+
+            '<p class="trivia-fb">'+(gotIt?'🎉 You got it right! Come back tomorrow for a new one.':'❌ The answer was <strong>'+q.c[q.a]+'</strong>. Try again tomorrow!')+'</p>';
           return;
         }
 
-        // Show question
         widget.innerHTML =
-          '<p class="trivia-q">' + q.q + '</p>' +
-          '<div class="trivia-grid" id="trivia-opts">' +
-            q.c.map(function(opt, i){
-              return '<button class="trivia-opt" data-i="' + i + '">' + opt + '</button>';
-            }).join('') +
-          '</div>' +
+          catLine+
+          '<p class="trivia-q">'+q.q+'</p>'+
+          '<div class="trivia-grid" id="trivia-opts">'+
+            q.c.map(function(opt,i){ return '<button class="trivia-opt" data-i="'+i+'">'+opt+'</button>'; }).join('')+
+          '</div>'+
           '<p class="trivia-fb" id="trivia-fb" style="display:none"></p>';
 
         widget.querySelectorAll('.trivia-opt').forEach(function(btn){
           btn.addEventListener('click', function(){
             var chosen = parseInt(btn.getAttribute('data-i'));
             var correct = chosen === q.a;
-            var state2 = loadState();
-
-            // Update streak
-            var yesterday2 = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            var s = loadState();
+            var yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0];
             if(correct){
-              state2.streak = (state2.lastCorrect === yesterday2 ? (state2.streak || 0) : 0) + 1;
-              state2.lastCorrect = todayStr;
+              s.streak = (s.lastCorrect===yesterday?(s.streak||0):0)+1;
+              s.lastCorrect = todayStr;
             } else {
-              state2.streak = 0;
+              s.streak = 0;
             }
-            state2.lastAnswered = todayStr;
-            saveState(state2);
-            updatePill(state2.streak);
-
-            // Style buttons
-            widget.querySelectorAll('.trivia-opt').forEach(function(b, i){
-              b.disabled = true;
-              if(i === q.a) b.classList.add('t-correct');
-              else if(i === chosen && !correct) b.classList.add('t-wrong');
+            s.lastAnswered = todayStr;
+            saveState(s);
+            updatePill(s.streak);
+            widget.querySelectorAll('.trivia-opt').forEach(function(b,i){
+              b.disabled=true;
+              if(i===q.a) b.classList.add('t-correct');
+              else if(i===chosen&&!correct) b.classList.add('t-wrong');
             });
-
-            var fb = document.getElementById('trivia-fb');
-            fb.style.display = '';
-            if(correct){
-              fb.innerHTML = '🎉 Correct! ' + (state2.streak > 1 ? '🔥 ' + state2.streak + ' day streak!' : 'Start a streak — come back tomorrow!');
-            } else {
-              fb.innerHTML = '❌ Nope! The answer was <strong>' + q.c[q.a] + '</strong>. Streak reset — try again tomorrow.';
-            }
+            var fb=document.getElementById('trivia-fb');
+            fb.style.display='';
+            fb.innerHTML = correct
+              ? '🎉 Correct! '+(s.streak>1?'🔥 '+s.streak+' day streak!':'Start a streak — come back tomorrow!')
+              : '❌ Nope! The answer was <strong>'+q.c[q.a]+'</strong>. Streak reset — try again tomorrow.';
           });
         });
       }
 
-      renderTrivia();
+      function initTrivia(){
+        var widget = document.getElementById('trivia-widget');
+        if(!widget) return;
+
+        var state = loadState();
+
+        // Expire streak if a day was missed
+        if(state.lastAnswered && state.lastAnswered !== todayStr){
+          var yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0];
+          if(state.lastAnswered < yesterday) state.streak = 0;
+        }
+        updatePill(state.streak||0);
+
+        // Use cached question for today if we have it
+        if(state.cachedQ && state.cachedQ.date === todayStr){
+          showQuestion(state.cachedQ);
+          return;
+        }
+
+        // Fetch a fresh question from Open Trivia DB
+        widget.innerHTML = '<p style="opacity:.5;font-size:.9rem;">Loading today\'s question…</p>';
+        fetch('https://opentdb.com/api.php?amount=1&type=multiple')
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            if(data.response_code !== 0 || !data.results.length) throw new Error('bad response');
+            var r = data.results[0];
+            var answers = [htmlDecode(r.correct_answer)].concat(r.incorrect_answers.map(htmlDecode));
+            shuffle(answers);
+            var q = {
+              date: todayStr,
+              q: htmlDecode(r.question),
+              c: answers,
+              a: answers.indexOf(htmlDecode(r.correct_answer)),
+              category: htmlDecode(r.category)
+            };
+            state.cachedQ = q;
+            saveState(state);
+            showQuestion(q);
+          })
+          .catch(function(){
+            // API failed — use fallback
+            var q = getFallbackQ();
+            state.cachedQ = Object.assign({date:todayStr}, q);
+            saveState(state);
+            showQuestion(state.cachedQ);
+          });
+      }
+
+      initTrivia();
     })();
 
     // Type "pickle" anywhere to reveal site admin
