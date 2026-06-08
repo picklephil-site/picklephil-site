@@ -692,10 +692,9 @@ function updateCollapsedLabel(){
     rawHtml = rawHtml
       .replace(/<span[^>]*class="[^"]*chapter-num[^"]*"[^>]*>[\s\S]*?<\/span>/gi,'')
       .replace(/<span[^>]*class="[^"]*note[^"]*"[^>]*>[\s\S]*?<\/span>/gi,'')
-      .replace(/<span[^>]*class="[^"]*label[^"]*"[^>]*>\s*\d+\s*<\/span>/gi,'')
       .replace(/<span[^>]*class="[^"]*heading[^"]*"[^>]*>([\s\S]*?)<\/span>/gi,'<strong>$1</strong> ')
-      .replace(/<span[^>]*data-number="(\d+)"[^>]*>/gi,'<span class="v-num">$1</span>')
-      .replace(/<span[^>]*class="[^"]*verse[^"]*"[^>]*>/gi,'<span>')
+      .replace(/<span[^>]*data-number="(\d+)"[^>]*>\d*<\/span>/gi,'<span class="v-num">$1</span>')
+      .replace(/<span(?![^>]*class="v-num")[^>]*>/gi,'').replace(/<\/span>/gi,'')
       .replace(/<\/?p[^>]*>/gi,function(m){ return m.startsWith('</') ? '</p>' : '<p>'; });
 
     passageCard.innerHTML =
