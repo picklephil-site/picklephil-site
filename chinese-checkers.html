@@ -466,15 +466,19 @@ function draw(){
 // ─── CANVAS INTERACTION ───────────────────────────────────────────────────────
 function canvasTap(evt){
   if(!gameState||!gameState.started||gameState.over)return;
-  if(gameState.turn!==mySlot)return; // not your turn
+  // Use Number() to guard against JSON type drift after Supabase round-trip
+  if(Number(gameState.turn)!==Number(mySlot)){
+    updateTurnBar(); // refresh so the "waiting for X" message is current
+    return;
+  }
   const rc=canvas.getBoundingClientRect();
   const cx=(evt.clientX-rc.left)*canvas.width/rc.width;
   const cy=(evt.clientY-rc.top)*canvas.height/rc.height;
   let hit=null, bestD=Infinity;
-  nodes.forEach(n=>{const{x,y}=pt(n);const d=Math.hypot(cx-x,cy-y);if(d<STEP*.55&&d<bestD){hit=n;bestD=d;}});
+  nodes.forEach(n=>{const{x,y}=pt(n);const d=Math.hypot(cx-x,cy-y);if(d<STEP*.6&&d<bestD){hit=n;bestD=d;}});
   if(!hit)return;
   if(selected!==null&&validMoves.has(hit.id)){doMove(selected,hit.id);return;}
-  if(gameState.marbles[hit.id]===mySlot){
+  if(Number(gameState.marbles[hit.id])===Number(mySlot)){
     selected=hit.id;validMoves=getMoves(hit.id,gameState.marbles);draw();return;
   }
   selected=null;validMoves=new Set();draw();
@@ -504,9 +508,19 @@ function subscribe(){
   realtimeSub=db.channel('room-'+roomId)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'cc_rooms',filter:'id=eq.'+roomId},
       p=>{
-        gameState=p.new.state;
-        if(gameState.started) enterGameView();
-        else enterLobbyView();
+        const raw=p.new.state;
+        const newState=typeof raw==='string'?JSON.parse(raw):raw;
+        const wasStarted=gameState?.started;
+        gameState=newState;
+        if(!wasStarted&&gameState.started){
+          // First transition into game — full enter
+          enterGameView();
+        } else if(gameState.started){
+          // Mid-game update from another player's move — just refresh display
+          draw(); updateTurnBar(); renderPlayerListMini();
+        } else {
+          enterLobbyView();
+        }
         if(gameState.over) showWin();
       })
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'cc_messages',filter:'room_id=eq.'+roomId},
@@ -523,8 +537,8 @@ async function doMove(from,to){
   if(wonCheck(mySlot,gs.marbles)){
     gs.over=true;gs.winner=mySlot;
   } else {
-    const active=gs.active;
-    const idx=active.indexOf(gs.turn);
+    const active=gs.active.map(Number);
+    const idx=active.indexOf(Number(gs.turn));
     gs.turn=active[(idx+1)%active.length];
   }
   gameState=gs;
@@ -613,7 +627,7 @@ function renderLobby(){
   const hint=document.getElementById('lobby-hint');
   hint.textContent=joined<need?`Waiting for ${need-joined} more player${need-joined>1?'s':''}…`:`All players present! Host can start.`;
   const btnStart=document.getElementById('btn-start');
-  btnStart.disabled=!(mySlot===hostSlot&&joined>=2);
+  btnStart.disabled=!(mySlot===hostSlot&&joined>=1);
   updateHeaderChip();
 }
 
@@ -646,11 +660,24 @@ function enterGameView(){
 function updateTurnBar(){
   if(!gameState)return;
   const tb=document.getElementById('turn-bar');
-  if(gameState.over){tb.textContent='Game over!';return;}
-  const t=gameState.turn;
-  const pn=gameState.players[t]?.name||`Player ${t}`;
-  if(t===mySlot){tb.textContent=`Your turn — move a marble`;tb.style.borderColor='var(--accent)';}
-  else{tb.textContent=`${pn}'s turn`;tb.style.borderColor=SLOT_COLOR[t].m;}
+  if(gameState.over){
+    tb.textContent='Game over!';
+    tb.style.background='rgba(46,204,113,.18)';
+    tb.style.borderColor='var(--accent)';
+    return;
+  }
+  const t=Number(gameState.turn);
+  const pn=gameState.players[t]?.name||gameState.players[String(t)]?.name||`Player ${t}`;
+  const cl=SLOT_COLOR[t]?.m||'#fff';
+  if(t===Number(mySlot)){
+    tb.innerHTML=`<span style="color:${cl}">●</span> <strong>Your turn!</strong> Click one of your marbles.`;
+    tb.style.background='rgba(46,204,113,.12)';
+    tb.style.borderColor='var(--accent)';
+  } else {
+    tb.innerHTML=`<span style="color:${cl}">●</span> Waiting for <strong>${escHtml(pn)}</strong>…`;
+    tb.style.background='';
+    tb.style.borderColor=cl;
+  }
 }
 
 function renderPlayerListMini(){
