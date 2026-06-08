@@ -284,8 +284,8 @@ create policy "open" on cc_messages for all using (true) with check (true);</div
 // ─── SUPABASE CONFIG ────────────────────────────────────────────────────────
 // Credentials are stored in localStorage (entered in the setup screen).
 // You can also hard-code them here instead:
-const HARDCODED_URL = '';  // e.g. 'https://xxx.supabase.co'
-const HARDCODED_KEY = '';  // e.g. 'eyJhbGciOiJIUzI1NiIs...'
+const HARDCODED_URL = 'https://mwrazdsrrvynvhqcshao.supabase.co';
+const HARDCODED_KEY = 'sb_publishable_OR8iZO5gLlGuUoytECDi2w_McN5Oisa';
 
 function savedURL(){ return localStorage.getItem('cc_sb_url') || HARDCODED_URL; }
 function savedKEY(){ return localStorage.getItem('cc_sb_key') || HARDCODED_KEY; }
