@@ -251,6 +251,17 @@
       </article>
     </section>
 
+    <!-- Daily Random Fact -->
+    <section class="grid" aria-label="Daily fact" style="margin-bottom:4px;">
+      <article class="card card--wide" style="background:linear-gradient(165deg,rgba(52,152,219,.18),rgba(8,40,24,.30));border-color:rgba(52,152,219,.4);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <h3 style="margin:0;">💡 Daily Dill Fact</h3>
+          <button id="fact-copy" class="btn" style="padding:4px 12px;font-size:.78rem;">Copy Fact</button>
+        </div>
+        <p id="fact-text" class="meta" style="font-size:1rem;line-height:1.6;">Loading today's fact…</p>
+      </article>
+    </section>
+
     <!-- Faith + Verse + Guestbook -->
     <section class="grid" aria-label="Welcome widgets">
       <article class="card card--accent card--wide">
@@ -681,6 +692,75 @@
       }
 
       initTrivia();
+    })();
+
+    // ── DAILY DILL FACT ────────────────────────────────────────────────────────
+    (function(){
+      var FALLBACK_FACTS = [
+        "Honey never spoils — archaeologists have found 3,000-year-old honey in Egyptian tombs that was still edible.",
+        "A group of flamingos is called a flamboyance.",
+        "Octopuses have three hearts, blue blood, and nine brains (one central brain plus one in each arm).",
+        "The shortest war in history lasted only 38–45 minutes — between Britain and Zanzibar in 1896.",
+        "Bananas are berries, but strawberries are not.",
+        "A day on Venus is longer than a year on Venus.",
+        "The Eiffel Tower grows about 6 inches taller in summer due to thermal expansion.",
+        "Crows can recognize human faces and hold grudges against people who have wronged them.",
+        "The human body contains enough carbon to fill about 9,000 pencils.",
+        "A bolt of lightning is five times hotter than the surface of the sun.",
+        "Wombats are the only animals that produce cube-shaped droppings.",
+        "There are more possible iterations of a chess game than atoms in the observable universe.",
+        "Cleopatra lived closer in time to the Moon landing than to the construction of the Great Pyramid.",
+        "Sharks are older than trees — sharks have existed for about 450 million years, trees for about 350 million.",
+        "The fingerprints of a koala are nearly identical to those of a human.",
+      ];
+
+      var todayStr = new Date().toISOString().split('T')[0];
+
+      function loadFactState(){
+        try{ return JSON.parse(localStorage.getItem('dill_fact')||'{}'); }catch(e){ return {}; }
+      }
+      function saveFactState(s){ localStorage.setItem('dill_fact', JSON.stringify(s)); }
+
+      function showFact(text){
+        var el = document.getElementById('fact-text');
+        if(el) el.textContent = text;
+        var btn = document.getElementById('fact-copy');
+        if(btn){
+          btn.addEventListener('click', function(){
+            navigator.clipboard.writeText(text).catch(function(){});
+            var orig = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            setTimeout(function(){ btn.textContent = orig; }, 1400);
+          });
+        }
+      }
+
+      var state = loadFactState();
+
+      if(state.cachedFact && state.cachedDate === todayStr){
+        showFact(state.cachedFact);
+        return;
+      }
+
+      fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          var text = (data.text||'').replace(/`/g,"'");
+          if(!text) throw new Error('empty');
+          state.cachedFact = text;
+          state.cachedDate = todayStr;
+          saveFactState(state);
+          showFact(text);
+        })
+        .catch(function(){
+          var epoch = new Date('2024-01-01');
+          var idx = Math.floor((Date.now()-epoch.getTime())/86400000);
+          var text = FALLBACK_FACTS[idx % FALLBACK_FACTS.length];
+          state.cachedFact = text;
+          state.cachedDate = todayStr;
+          saveFactState(state);
+          showFact(text);
+        });
     })();
 
     // Type "pickle" anywhere to reveal site admin
