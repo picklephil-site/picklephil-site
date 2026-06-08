@@ -439,10 +439,12 @@ function draw(){
     ctx.beginPath();ctx.arc(x,y,RN,0,Math.PI*2);
     ctx.fillStyle=ZONE_TINT[n.zone];ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.11)';ctx.lineWidth=1;ctx.stroke();
-    // Move dot
+    // Move dot — larger ring so it's easy to see and click
     if(isMove&&!marble){
-      ctx.beginPath();ctx.arc(x,y,RN*.42,0,Math.PI*2);
-      ctx.fillStyle='rgba(46,204,113,.72)';ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,RN*.68,0,Math.PI*2);
+      ctx.fillStyle='rgba(46,204,113,.25)';ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,RN*.68,0,Math.PI*2);
+      ctx.strokeStyle='rgba(46,204,113,.9)';ctx.lineWidth=2;ctx.stroke();
     }
     // Marble
     if(marble){
@@ -479,7 +481,13 @@ function canvasTap(evt){
   if(!hit)return;
   if(selected!==null&&validMoves.has(hit.id)){doMove(selected,hit.id);return;}
   if(Number(gameState.marbles[hit.id])===Number(mySlot)){
-    selected=hit.id;validMoves=getMoves(hit.id,gameState.marbles);draw();return;
+    selected=hit.id;
+    validMoves=getMoves(hit.id,gameState.marbles);
+    // Show hop count hint in turn bar
+    const tb=document.getElementById('turn-bar');
+    const hops=validMoves.size;
+    tb.innerHTML=`<strong style="color:var(--accent)">●</strong> ${hops} move${hops!==1?'s':''} available — click a highlighted spot`;
+    draw();return;
   }
   selected=null;validMoves=new Set();draw();
 }
