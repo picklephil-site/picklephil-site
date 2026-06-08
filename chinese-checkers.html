@@ -762,6 +762,7 @@ function showHomeErr(msg){document.getElementById('home-err').textContent=msg;}
 
 // ─── SESSION PERSISTENCE ──────────────────────────────────────────────────────
 function saveSession(){
+  localStorage.setItem('cc_player_name', myName);
   localStorage.setItem('cc_sess',JSON.stringify({roomId,roomCode,mySlot,myName,hostSlot}));
 }
 function clearSession(){localStorage.removeItem('cc_sess');}
@@ -771,17 +772,24 @@ async function tryResumeSession(){
   try{
     const s=JSON.parse(raw);
     const{data:room}=await db.from('cc_rooms').select('*').eq('id',s.roomId).single();
-    if(!room||room.state.over)return false;
+    if(!room){clearSession();return false;}
     ({roomId,roomCode,mySlot,myName,hostSlot}=s);
     gameState=room.state;
     subscribe();
     showScreen('play');
     updateHeaderChip();
-    if(gameState.started)enterGameView();
-    else enterLobbyView();
+    if(gameState.over){
+      // Game ended — show final board + win overlay so they can see the result
+      enterGameView();
+      showWin();
+    } else if(gameState.started){
+      enterGameView();
+    } else {
+      enterLobbyView();
+    }
     loadChatHistory();
     return true;
-  }catch(e){return false;}
+  }catch(e){clearSession();return false;}
 }
 
 // ─── CONTROLS ─────────────────────────────────────────────────────────────────
@@ -803,7 +811,6 @@ document.getElementById('btn-leave').addEventListener('click',leaveRoom);
 document.getElementById('btn-leave-end').addEventListener('click',leaveRoom);
 document.getElementById('btn-play-again').addEventListener('click',()=>{
   document.getElementById('win-overlay').classList.add('hidden');
-  // Host resets; others wait for realtime update
   if(mySlot===hostSlot){
     const gs=JSON.parse(JSON.stringify(gameState));
     gs.marbles=initMarbles(gs.active);
@@ -812,6 +819,10 @@ document.getElementById('btn-play-again').addEventListener('click',()=>{
     gameState=gs;
     updateState(gs);
     enterLobbyView();
+  } else {
+    // Non-host: go to lobby view and wait for host to reset via realtime
+    enterLobbyView();
+    document.getElementById('lobby-hint').textContent='Waiting for host to start a new game…';
   }
 });
 
@@ -864,6 +875,10 @@ async function boot(){
   }catch(e){showScreen('setup');return;}
   if(await tryResumeSession())return;
   showScreen('home');
+  const savedName=localStorage.getItem('cc_player_name');
+  if(savedName){
+    document.getElementById('inp-name').value=savedName;
+  }
 }
 
 boot();
