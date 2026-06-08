@@ -83,6 +83,23 @@
   footer{margin:40px 0 16px; opacity:.8}
   @media (max-width:860px){ .grid .card{grid-column:span 12} }
 
+  /* DAILY TRIVIA */
+  .trivia-q{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:14px;}
+  .trivia-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+  @media(max-width:500px){.trivia-grid{grid-template-columns:1fr;}}
+  .trivia-opt{
+    width:100%;text-align:left;padding:.55rem .9rem;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+    border-radius:10px;color:var(--text);font-family:inherit;font-size:.88rem;font-weight:500;
+    cursor:pointer;transition:background .15s,border-color .15s;
+  }
+  .trivia-opt:hover:not(:disabled){background:rgba(255,255,255,.14);border-color:rgba(46,204,113,.5);}
+  .trivia-opt:disabled{cursor:default;}
+  .trivia-opt.t-correct{background:rgba(46,204,113,.3)!important;border-color:#2ecc71!important;color:#fff;}
+  .trivia-opt.t-wrong{background:rgba(231,76,60,.25)!important;border-color:#e74c3c!important;}
+  .trivia-fb{margin-top:12px;font-weight:600;font-size:.9rem;padding:8px 12px;border-radius:9px;background:rgba(0,0,0,.18);}
+  .streak-pill{font-size:.78rem;font-weight:700;background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.4);border-radius:20px;padding:3px 10px;white-space:nowrap;}
+
   /* HERO */
   .hero{width:100%; max-width:1120px; padding:18px 22px 8px; margin:0 auto;}
   .hero-wrap{display:grid; grid-template-columns:1.05fr .95fr; gap:20px; align-items:center;}
@@ -223,6 +240,17 @@
   </section>
 
   <div class="wrap">
+    <!-- Daily Dill Trivia -->
+    <section class="grid" aria-label="Daily trivia" style="margin-bottom:4px;">
+      <article class="card card--wide card--accent" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30));border-color:rgba(46,204,113,.4);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <h3 style="margin:0;">🧠 Daily Dill Trivia</h3>
+          <span class="streak-pill" id="trivia-streak-pill" style="display:none"></span>
+        </div>
+        <div id="trivia-widget">Loading…</div>
+      </article>
+    </section>
+
     <!-- Faith + Verse + Guestbook -->
     <section class="grid" aria-label="Welcome widgets">
       <article class="card card--accent card--wide">
@@ -428,6 +456,194 @@
           setTimeout(function(){ secret.style.display = 'none'; }, 400);
         }
       });
+    })();
+
+    // ── DAILY DILL TRIVIA ──────────────────────────────────────────────────────
+    (function(){
+      var QUESTIONS = [
+        // General knowledge
+        {q:"What is the capital of France?",c:["London","Berlin","Paris","Madrid"],a:2},
+        {q:"How many sides does a hexagon have?",c:["5","6","7","8"],a:1},
+        {q:"What planet is known as the Red Planet?",c:["Venus","Jupiter","Mars","Saturn"],a:2},
+        {q:"Who painted the Mona Lisa?",c:["Michelangelo","Raphael","Leonardo da Vinci","Donatello"],a:2},
+        {q:"What is the largest ocean on Earth?",c:["Atlantic","Indian","Arctic","Pacific"],a:3},
+        {q:"How many bones does an adult human body have?",c:["196","206","216","226"],a:1},
+        {q:"What gas do plants absorb from the atmosphere?",c:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],a:2},
+        {q:"What is the fastest land animal?",c:["Lion","Cheetah","Horse","Greyhound"],a:1},
+        {q:"How many players are on a basketball team on the court?",c:["4","5","6","7"],a:1},
+        {q:"What is the hardest natural substance on Earth?",c:["Gold","Iron","Diamond","Titanium"],a:2},
+        {q:"How many teeth does an adult human have?",c:["28","30","32","34"],a:2},
+        {q:"Who was the first person to walk on the moon?",c:["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],a:2},
+        {q:"What is the tallest mountain in the world?",c:["K2","Kilimanjaro","Everest","Denali"],a:2},
+        {q:"What is the most spoken language in the world?",c:["English","Spanish","Hindi","Mandarin Chinese"],a:3},
+        {q:"How many stripes are on the US flag?",c:["11","12","13","14"],a:2},
+        {q:"What is the longest river in the world?",c:["Amazon","Mississippi","Congo","Nile"],a:3},
+        {q:"What is the smallest country in the world?",c:["Monaco","San Marino","Vatican City","Liechtenstein"],a:2},
+        {q:"Which country has the most natural lakes?",c:["United States","Russia","Brazil","Canada"],a:3},
+        {q:"What is the square root of 144?",c:["11","12","13","14"],a:1},
+        {q:"What is the largest desert in the world?",c:["Sahara","Gobi","Arabian","Antarctic"],a:3},
+        {q:"Which planet has the most moons?",c:["Jupiter","Saturn","Uranus","Neptune"],a:1},
+        {q:"What is the national animal of Australia?",c:["Koala","Kangaroo","Wombat","Platypus"],a:1},
+        {q:"What is the longest bone in the human body?",c:["Spine","Femur","Tibia","Humerus"],a:1},
+        {q:"What is the most common blood type?",c:["A+","B+","AB+","O+"],a:3},
+        {q:"How many zeros are in one million?",c:["4","5","6","7"],a:2},
+        {q:"What color is the 'black box' in an airplane?",c:["Black","Red","Orange","Yellow"],a:2},
+        {q:"What year did World War II end?",c:["1943","1944","1945","1946"],a:2},
+        {q:"What is the powerhouse of the cell?",c:["Nucleus","Ribosome","Mitochondria","Golgi body"],a:2},
+        {q:"Which animal cannot jump?",c:["Cat","Elephant","Rabbit","Kangaroo"],a:1},
+        {q:"How many letters are in the English alphabet?",c:["24","25","26","27"],a:2},
+        // Bible / Faith
+        {q:"How many books are in the Bible?",c:["60","66","72","78"],a:1},
+        {q:"Who built the ark in the Bible?",c:["Moses","Abraham","Noah","David"],a:2},
+        {q:"What is the first book of the Bible?",c:["Exodus","Genesis","Leviticus","Numbers"],a:1},
+        {q:"How many disciples did Jesus have?",c:["10","11","12","13"],a:2},
+        {q:"What city was Jesus born in?",c:["Jerusalem","Nazareth","Bethlehem","Jericho"],a:2},
+        {q:"What was the garden where Adam and Eve lived?",c:["Garden of Gethsemane","Garden of Eden","Garden of Nazareth","Garden of Peace"],a:1},
+        {q:"Who wrote most of the Psalms?",c:["Solomon","Moses","David","Paul"],a:2},
+        {q:"What river was Jesus baptized in?",c:["Nile","Euphrates","Jordan","Tigris"],a:2},
+        {q:"How many days did it rain during Noah's flood?",c:["20","30","40","50"],a:2},
+        {q:"What were the walls of what city destroyed when Joshua's army marched around them?",c:["Jerusalem","Babylon","Jericho","Nazareth"],a:2},
+        // Pickle / Food
+        {q:"What vegetable is a pickle made from?",c:["Zucchini","Cucumber","Celery","Cabbage"],a:1},
+        {q:"What gives pickles their sour taste?",c:["Lemon juice","Vinegar","Salt","Sugar"],a:1},
+        {q:"What is the process of preserving food in brine called?",c:["Curing","Fermenting","Pickling","Brining"],a:2},
+        {q:"What country is credited with inventing the hamburger?",c:["France","Germany","United States","Canada"],a:2},
+        {q:"What is the most popular pizza topping in the US?",c:["Sausage","Pepperoni","Mushrooms","Extra Cheese"],a:1},
+        {q:"How many calories are in a typical dill pickle spear?",c:["5","25","50","100"],a:0},
+        // Disc Golf
+        {q:"What is the term for one stroke under par in disc golf?",c:["Eagle","Birdie","Bogey","Ace"],a:1},
+        {q:"What is it called when you get a hole-in-one in disc golf?",c:["Eagle","Albatross","Ace","Birdie"],a:2},
+        {q:"What does 'OB' stand for in disc golf?",c:["Out of Bounds","Over Balance","Open Basket","Out Back"],a:0},
+        {q:"How many strokes over par is a 'bogey'?",c:["1","2","3","4"],a:0},
+        {q:"What type of disc is designed to fly straight and is easiest for beginners?",c:["Distance driver","Fairway driver","Mid-range","Putter"],a:2},
+        // Science
+        {q:"What is H2O?",c:["Hydrogen peroxide","Water","Salt water","Oxygen"],a:1},
+        {q:"How many colors are in a rainbow?",c:["5","6","7","8"],a:2},
+        {q:"What is the closest star to Earth?",c:["Sirius","Proxima Centauri","Betelgeuse","The Sun"],a:3},
+        {q:"What is the chemical symbol for gold?",c:["Go","Gd","Au","Ag"],a:2},
+        {q:"How long does light take to travel from the Sun to Earth?",c:["About 8 minutes","About 8 hours","About 8 seconds","About 8 days"],a:0},
+        // Pop culture
+        {q:"What year was the first iPhone released?",c:["2005","2006","2007","2008"],a:2},
+        {q:"Who voices Woody in the Toy Story movies?",c:["Tom Hanks","Tom Cruise","Bill Murray","Robin Williams"],a:0},
+        {q:"What is the best-selling video game of all time?",c:["Tetris","Minecraft","GTA V","Mario Bros"],a:1},
+        {q:"Which social media platform is known for short videos up to 60 seconds?",c:["Instagram","Snapchat","TikTok","Twitter"],a:2},
+        {q:"What musician is known as the 'King of Pop'?",c:["Elvis Presley","Michael Jackson","Prince","David Bowie"],a:1},
+        {q:"What streaming service produced 'Stranger Things'?",c:["Hulu","Disney+","Netflix","Amazon Prime"],a:2},
+        {q:"In what sport would you perform a slam dunk?",c:["Volleyball","Tennis","Basketball","Baseball"],a:2},
+        {q:"What sport is played at Wimbledon?",c:["Cricket","Golf","Tennis","Badminton"],a:2},
+        {q:"Which country is known as the Land of the Rising Sun?",c:["China","South Korea","Japan","Thailand"],a:2},
+        {q:"What is the currency of Japan?",c:["Yuan","Won","Yen","Baht"],a:2},
+        {q:"What does 'URL' stand for?",c:["Universal Resource Locator","Uniform Resource Locator","United Resource Link","Universal Resource Link"],a:1},
+        {q:"What is the largest organ in the human body?",c:["Liver","Brain","Lungs","Skin"],a:3},
+        {q:"Which element has the symbol 'O'?",c:["Osmium","Oxygen","Oganesson","Ozone"],a:1},
+      ];
+
+      var todayStr = new Date().toISOString().split('T')[0];
+
+      function loadState(){
+        try{ return JSON.parse(localStorage.getItem('dill_trivia')||'{}'); }catch(e){ return {}; }
+      }
+      function saveState(s){ localStorage.setItem('dill_trivia', JSON.stringify(s)); }
+
+      function getDayIndex(){
+        var epoch = new Date('2024-01-01');
+        var diff = Date.now() - epoch.getTime();
+        return Math.floor(diff / 86400000);
+      }
+
+      function updatePill(streak){
+        var pill = document.getElementById('trivia-streak-pill');
+        if(!pill) return;
+        if(streak > 0){
+          pill.textContent = '🔥 ' + streak + ' day streak';
+          pill.style.display = '';
+        } else {
+          pill.style.display = 'none';
+        }
+      }
+
+      function renderTrivia(){
+        var widget = document.getElementById('trivia-widget');
+        if(!widget) return;
+
+        var state = loadState();
+
+        // Check if streak lapsed (missed a day)
+        if(state.lastAnswered && state.lastAnswered !== todayStr){
+          var last = new Date(state.lastAnswered);
+          var yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+          if(state.lastAnswered < yesterday) state.streak = 0;
+        }
+
+        updatePill(state.streak || 0);
+
+        var q = QUESTIONS[getDayIndex() % QUESTIONS.length];
+
+        // Already answered today
+        if(state.lastAnswered === todayStr){
+          var correctText = q.c[q.a];
+          var gotIt = state.lastCorrect === todayStr;
+          widget.innerHTML =
+            '<p class="trivia-q" style="margin-bottom:8px;">' + q.q + '</p>' +
+            '<div class="trivia-grid">' +
+              q.c.map(function(opt, i){
+                var cls = i === q.a ? 't-correct' : '';
+                return '<button class="trivia-opt ' + cls + '" disabled>' + opt + '</button>';
+              }).join('') +
+            '</div>' +
+            '<p class="trivia-fb">' +
+              (gotIt ? '🎉 You got it right! Come back tomorrow.' : '❌ The answer was <strong>' + correctText + '</strong>. Try again tomorrow!') +
+            '</p>';
+          return;
+        }
+
+        // Show question
+        widget.innerHTML =
+          '<p class="trivia-q">' + q.q + '</p>' +
+          '<div class="trivia-grid" id="trivia-opts">' +
+            q.c.map(function(opt, i){
+              return '<button class="trivia-opt" data-i="' + i + '">' + opt + '</button>';
+            }).join('') +
+          '</div>' +
+          '<p class="trivia-fb" id="trivia-fb" style="display:none"></p>';
+
+        widget.querySelectorAll('.trivia-opt').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var chosen = parseInt(btn.getAttribute('data-i'));
+            var correct = chosen === q.a;
+            var state2 = loadState();
+
+            // Update streak
+            var yesterday2 = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            if(correct){
+              state2.streak = (state2.lastCorrect === yesterday2 ? (state2.streak || 0) : 0) + 1;
+              state2.lastCorrect = todayStr;
+            } else {
+              state2.streak = 0;
+            }
+            state2.lastAnswered = todayStr;
+            saveState(state2);
+            updatePill(state2.streak);
+
+            // Style buttons
+            widget.querySelectorAll('.trivia-opt').forEach(function(b, i){
+              b.disabled = true;
+              if(i === q.a) b.classList.add('t-correct');
+              else if(i === chosen && !correct) b.classList.add('t-wrong');
+            });
+
+            var fb = document.getElementById('trivia-fb');
+            fb.style.display = '';
+            if(correct){
+              fb.innerHTML = '🎉 Correct! ' + (state2.streak > 1 ? '🔥 ' + state2.streak + ' day streak!' : 'Start a streak — come back tomorrow!');
+            } else {
+              fb.innerHTML = '❌ Nope! The answer was <strong>' + q.c[q.a] + '</strong>. Streak reset — try again tomorrow.';
+            }
+          });
+        });
+      }
+
+      renderTrivia();
     })();
 
     // Type "pickle" anywhere to reveal site admin
