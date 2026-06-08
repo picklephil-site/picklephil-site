@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <!-- Supabase client (real-time multiplayer) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -576,7 +576,7 @@ async function createRoom(){
   const{data,error}=await db.from('cc_rooms')
     .insert({code,player_count:pc,host_slot:active[0],state})
     .select().single();
-  if(error){showHomeErr('Could not create room. Check your Supabase setup.');return;}
+  if(error){showHomeErr('DB error: '+error.message);console.error(error);return;}
   roomId=data.id;roomCode=code;gameState=state;
   saveSession();
   subscribe();
