@@ -18,6 +18,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
     );
   }
 
+  const topics = [
+    "procrastination","bad cooking","overthinking","online shopping","napping",
+    "terrible dancing","being late","group chats","gym excuses","fantasy sports",
+    "parking skills","karaoke","road trips","binge watching","bad texting habits",
+    "coffee dependency","morning routines","snack choices","fashion sense","DIY projects",
+  ];
+  const seed = topics[Math.floor(Math.random() * topics.length)];
+
   try {
     const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
       messages: [
@@ -30,7 +38,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
             "Add one pickle or food emoji somewhere in the text. " +
             "Output only the roast itself — no intro, no quotes, no labels.",
         },
-        { role: "user", content: "Give me a fresh roast." },
+        { role: "user", content: `Give me a fresh roast. Angle it toward: ${seed}.` },
       ],
       max_tokens: 120,
       temperature: 0.95,
