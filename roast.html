@@ -142,7 +142,7 @@ async function roast(){
 
   let text;
   try {
-    const res = await fetch('/api/roast');
+    const res = await fetch('/api/roast?_=' + Date.now());
     const data = await res.json();
     if (data.roast) text = data.roast;
     else if (data.error) console.warn('Roast API:', data.error);
