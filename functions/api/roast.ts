@@ -4,7 +4,7 @@ export interface Env {
 
 // Generates a fresh AI roast in Pickle Phil's voice.
 // Usage: GET /api/roast
-export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
+export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const headers = {
     "Content-Type": "application/json",
     "Cache-Control": "no-store",
@@ -18,14 +18,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
     );
   }
 
-  const topics = [
-    "procrastination","bad cooking","overthinking","online shopping","napping",
-    "terrible dancing","being late","group chats","gym excuses","fantasy sports",
-    "parking skills","karaoke","road trips","binge watching","bad texting habits",
-    "coffee dependency","morning routines","snack choices","fashion sense","DIY projects",
-  ];
-  const seed  = topics[Math.floor(Math.random() * topics.length)];
-  const nonce = Math.floor(Math.random() * 999983);
+  const url   = new URL(request.url);
+  const seed  = url.searchParams.get("seed") || "procrastination";
+  const nonce = url.searchParams.get("_")    || String(Date.now());
 
   try {
     const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
