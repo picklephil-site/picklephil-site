@@ -285,6 +285,60 @@ body {
 .act-btn.primary:hover { filter: brightness(1.06); }
 .act-btn.primary:active { transform: translateY(3px); box-shadow: 0 0 0 #8B7400; }
 
+/* ── IMAGE PREVIEW ────────────────────────────────────────────────────── */
+.img-section { margin-bottom: 18px; }
+.img-generate-btn {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0,109,183,.25), rgba(0,109,183,.1));
+  border: 1px dashed rgba(0,109,183,.55);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: .93rem; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .18s, border-color .18s;
+}
+.img-generate-btn:hover {
+  background: linear-gradient(135deg, rgba(0,109,183,.38), rgba(0,109,183,.18));
+  border-color: rgba(0,109,183,.8);
+}
+.img-generate-btn:disabled { opacity: .55; cursor: wait; }
+.img-loading {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 28px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: rgba(0,109,183,.08);
+}
+.img-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(0,109,183,.25);
+  border-top-color: var(--lego-blue);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.img-loading-text { font-size: .85rem; opacity: .62; }
+.img-result { border-radius: 14px; overflow: hidden; position: relative; }
+.img-result img {
+  width: 100%; display: block; border-radius: 14px;
+  border: 1px solid var(--glass-border);
+}
+.img-result-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 8px; gap: 8px;
+}
+.img-note { font-size: .72rem; opacity: .42; flex: 1; }
+.img-retry-btn {
+  background: none; border: 1px solid var(--glass-border);
+  color: var(--text-dim); border-radius: 8px;
+  padding: 5px 11px; font-size: .75rem; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+.img-retry-btn:hover { background: var(--glass); }
+
 /* ── EMPTY STATE ──────────────────────────────────────────────────────── */
 .empty-state {
   text-align: center; padding: 52px 20px;
@@ -843,6 +897,11 @@ function renderBigCard(b, animate) {
       '</div>' +
     '</div>' +
     '<p class="build-desc">' + esc(b.desc) + '</p>' +
+    '<div class="img-section" id="img-section-' + b.id + '">' +
+      '<button class="img-generate-btn" onclick="generateImage(' + b.id + ')">' +
+        '🖼️ See What It Could Look Like (AI Example)' +
+      '</button>' +
+    '</div>' +
     '<div class="section-label">Step by Step</div>' +
     '<ul class="steps-list">' + steps + '</ul>' +
     '<div class="section-label">Build Tips</div>' +
@@ -990,6 +1049,47 @@ function copyIdea() {
       setTimeout(function() { if (btn) btn.innerHTML = orig; }, 1600);
     })
     .catch(function() { alert(text); });
+}
+
+// ── IMAGE GENERATION ────────────────────────────────────────────────────────
+
+function generateImage(id) {
+  var b = BUILDS.find(function(x) { return x.id === id; });
+  if (!b) return;
+  var sec = document.getElementById('img-section-' + id);
+  if (!sec) return;
+
+  // Show loading state
+  sec.innerHTML =
+    '<div class="img-loading">' +
+      '<div class="img-spinner"></div>' +
+      '<div class="img-loading-text">Building your AI example... this takes about 10 seconds 🧱</div>' +
+    '</div>';
+
+  var url = '/api/lego-image?name=' + encodeURIComponent(b.name) +
+            '&cat=' + encodeURIComponent(b.cat);
+
+  var img = new Image();
+  img.onload = function() {
+    sec.innerHTML =
+      '<div class="img-result">' +
+        '<img src="' + url + '" alt="AI-generated LEGO example of ' + esc(b.name) + '" />' +
+        '<div class="img-result-footer">' +
+          '<span class="img-note">AI-generated example — your real build will look different!</span>' +
+          '<button class="img-retry-btn" onclick="generateImage(' + id + ')">🔄 New Example</button>' +
+        '</div>' +
+      '</div>';
+  };
+  img.onerror = function() {
+    sec.innerHTML =
+      '<div class="img-loading" style="border-color:rgba(208,16,18,.35)">' +
+        '<span style="font-size:2rem">⚠️</span>' +
+        '<div class="img-loading-text">Could not generate image. Make sure the AI binding is enabled in Cloudflare.</div>' +
+        '<button class="img-retry-btn" onclick="generateImage(' + id + ')">Try Again</button>' +
+      '</div>';
+  };
+  // Append a cache-buster only for "New Example" clicks (retry), otherwise use cache
+  img.src = url;
 }
 
 // ── INIT ────────────────────────────────────────────────────────────────────
