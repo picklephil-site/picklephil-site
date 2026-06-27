@@ -145,7 +145,8 @@ async function roast(){
     const res = await fetch('/api/roast');
     const data = await res.json();
     if (data.roast) text = data.roast;
-  } catch(_) {}
+    else if (data.error) console.warn('Roast API:', data.error);
+  } catch(e) { console.warn('Roast fetch failed:', e?.message); }
 
   if (!text) {
     if (deck.length === 0) reshuffle();

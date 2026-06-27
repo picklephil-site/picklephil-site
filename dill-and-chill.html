@@ -707,10 +707,10 @@ async function askPhil() {
   try {
     const res  = await fetch(`/api/vibe?q=${encodeURIComponent(q)}&type=${philType}`);
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    if (data.error) { setError('phil-results', 'API error: ' + data.error); btn.disabled = false; return; }
     renderPhilRecs(data.recommendations || [], data.raw || '');
   } catch(e) {
-    setError('phil-results', 'Phil dropped the pickle — try again in a moment.');
+    setError('phil-results', 'Phil dropped the pickle — ' + (e?.message || 'unknown error'));
   }
   btn.disabled = false;
 }
