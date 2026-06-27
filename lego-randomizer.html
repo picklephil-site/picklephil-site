@@ -243,6 +243,18 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-top: 1px;
 }
+.steps-list { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+.steps-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .93rem; line-height: 1.48; opacity: .9;
+}
+.step-num {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--lego-blue); color: #fff;
+  font-size: .72rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
 .swatch-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .swatch {
   display: flex; align-items: center; gap: 6px;
@@ -409,285 +421,340 @@ var BUILDS = [
   { id:1, name:"Puppy Dog", icon:"🐶", cat:"animals", diff:"easy", pcs:"15–25",
     desc:"Build a cute sitting puppy with floppy ears, a wagging tail, and a big round nose. Give it a happy look ready to fetch!",
     tips:["Two 1×2 flat plates angled outward on the head = floppy ears","A round or cylinder brick makes a perfect snout","Angle a single brick off the back for a wagging tail"],
+    steps:["Build a flat 3×4 rectangle of bricks, 2 layers tall — that is the body.", "Stack a 2×2 block at one end of the body for the head.", "Attach two 1×2 flat plates angled outward from the sides of the head for floppy ears.", "Add a round 1×1 brick on the face for the nose, and two tiny studs above it for eyes.", "Angle a single 1×1 brick off the back of the body — that is the wagging tail!"],
     colors:["#A0522D","#D2691E","#F5DEB3"] },
 
   { id:2, name:"Friendly Cat", icon:"🐱", cat:"animals", diff:"easy", pcs:"12–20",
     desc:"Build a cat sitting tall and proud with pointy ears and a long swishing tail. Add tiny whiskers if you have small flat pieces!",
     tips:["Triangle or sloped bricks make perfect pointy ears","Stack round bricks for a curved, pudgy body shape","A 1×1 tile peeking out each side of the face = whiskers"],
+    steps:["Build a 2×3 rectangle of bricks, 3 layers tall, for the body.", "Stack a 2×2 block on top for the head.", "Push two sloped or triangle bricks up from the top corners of the head for the pointy ears.", "Add tiny 1×1 tiles sticking out from each side of the face for the whiskers.", "Build a long curving line of 1×1 round bricks stretching from the back of the body for the tail."],
     colors:["#808080","#FFA500","#000000"] },
 
   { id:3, name:"Quacking Duck", icon:"🦆", cat:"animals", diff:"easy", pcs:"10–18",
     desc:"Build an adorable yellow duck with a flat body, a round head, and a bright orange bill. Quack quack!",
     tips:["Slope bricks on the body give it that round duck silhouette","A yellow 2×2 round plate or dome = the head","An orange 1×2 plate angled outward = the perfect beak"] ,
+    steps:["Build a flat 2×4 base of yellow bricks, 2 layers high, for the body.", "Add a dome or round 2×2 brick on top near the front for the round head.", "Stick an orange 1×2 plate out from the front of the head — that is the beak.", "Use slope bricks on the back of the body to give it that round duck tail shape.", "Add two tiny blue or black 1×1 round tiles to the head for the eyes. Quack!"],
     colors:["#F2C500","#FF8C00","#FFFFFF"] },
 
   { id:4, name:"T-Rex Dinosaur", icon:"🦕", cat:"animals", diff:"medium", pcs:"45–70",
     desc:"Build a mighty T-Rex with tiny arms, massive back legs, a huge toothy jaw, and a long tail for balance. Rawr!",
     tips:["Build the legs extra thick and wide so the whole thing can actually stand up","Offset bricks in the jaw area with white 1×1 plates as teeth","The arms should be tiny — T-Rex is famous for those little noodle arms!"],
+    steps:["Build two chunky, wide columns of bricks for the back legs — at least 5 bricks tall and 2×2 wide each.", "Connect the tops of both legs with a flat plate bridging across — this is the hip area.", "Build the torso up from the hips: thick and tall in front, tapering as it goes back.", "Add a long tail stretching backward from the torso, getting thinner toward the tip — use smaller bricks at the end.", "Build a wide jaw with white 1×1 plates as teeth, then stack it at an angle on the front of the head.", "Add two tiny 1-brick arms near the top of the torso — T-Rex is famous for those puny little arms!"],
     colors:["#228B22","#006400","#8B4513"] },
 
   { id:5, name:"Elephant", icon:"🐘", cat:"animals", diff:"medium", pcs:"35–55",
     desc:"Build a big friendly elephant with huge flat ears, four thick sturdy legs, and a long curved trunk. Add two white tusk bricks pointing forward!",
     tips:["Wide flat plates on both sides of the head = enormous elephant ears","Four separate 2×2 brick stacks = the sturdy legs","A curved slope brick at the end of the trunk makes it curl down naturally"],
+    steps:["Build a thick rectangular body, about 4×6 bricks wide and 3 bricks tall.", "Stack four separate 2×2 columns of bricks underneath the body for the sturdy legs.", "Attach a 2×4 wide flat plate to each side of the head for the enormous flat ears.", "Build the trunk down from the front of the face using connected bricks, ending with a curved slope piece so it curls downward.", "Add two white bricks pointing forward from below the trunk for the tusks."],
     colors:["#808080","#A9A9A9","#FFFFFF"] },
 
   { id:6, name:"Colorful Butterfly", icon:"🦋", cat:"animals", diff:"easy", pcs:"18–28",
     desc:"Build a butterfly with two big beautiful wings and a long body. Go crazy with colors — the brighter the wings, the better!",
     tips:["Build both wings flat using plates, keeping them symmetrical on both sides","Different colored 1×1 plates create an amazing wing pattern — try spots or stripes","Stack a few round bricks in a line for the segmented body in the middle"],
+    steps:["Build the body: stack 4–5 round 1×1 bricks in a vertical line for the segmented body.", "Build the top wings flat: two identical large plate shapes, one on each side of the body.", "Build the bottom wings flat: two smaller shapes below the top wings, mirroring each other.", "Decorate the wings with colorful 1×1 plates in a pattern — spots, stripes, or swirls.", "Add two thin 1×1 cylinder bricks on top of the head for the antennae."],
     colors:["#FF6B35","#9B59B6","#F1C40F"] },
 
   { id:7, name:"Penguin", icon:"🐧", cat:"animals", diff:"easy", pcs:"14–22",
     desc:"Build a chubby penguin standing up straight — black back, white belly, and orange feet. Make it look like it's waddling!",
     tips:["Build with black bricks on the outside and white on the front belly","Orange 1×1 bricks make the beak, and flat orange pieces make the feet","Round or wide bricks give it that satisfyingly round penguin shape"],
+    steps:["Build a rounded base of black bricks, 2×3, about 4 layers tall for the chubby body.", "Add a white section on the front of the body using white bricks — that is the white belly patch.", "Stack a 2×2 black block on top of the body for the round head.", "Attach orange 1×1 bricks out from the front of the face for the beak, and flat orange pieces at the base for the feet.", "Add two small white 1×1 round tiles to the head for the eyes."],
     colors:["#000000","#FFFFFF","#FF8C00"] },
 
   { id:8, name:"Colorful Fish", icon:"🐟", cat:"animals", diff:"easy", pcs:"10–16",
     desc:"Build a bright tropical fish with fins, a fan tail, and a big googly eye. Imagine it swimming through a coral reef!",
     tips:["Use slope bricks to taper the body toward the tail — wider up front","A 1×2 plate sticking up from the top = the dorsal fin","Add a 1×1 round tile as the big fishy eye"],
+    steps:["Build a 2×4 body using bright orange or blue bricks, 2 layers tall.", "Taper the back end using slope bricks, getting narrower toward the tail.", "Attach a 1×2 plate sticking upward from the top of the body for the dorsal fin.", "Add a flat plate spread wide at the very back for the fan tail.", "Place a 1×1 round tile on the front-side of the body for the big fishy eye."],
     colors:["#FF6B35","#0066CC","#FFFF00"] },
 
   { id:9, name:"Cuddly Panda", icon:"🐼", cat:"animals", diff:"easy", pcs:"18–28",
     desc:"Build an adorable panda with a round white body, black eye patches, black ears, and black arms. It can be sitting or standing!",
     tips:["Keep the body mostly white — pandas are mostly white with black markings","Two black 1×1 round pieces above the eyes = the signature eye patches","Black pieces on the arms, legs, and ears to finish the panda look"],
+    steps:["Build a round-ish white body: a 3×4 rectangle of white bricks, 3 layers tall.", "Attach black bricks to both arms and legs — use black 1×2 bricks on each side and at the bottom.", "Build a white 2×3 head block and attach it on top of the body.", "Place two black 1×1 round pieces above center on the face for the classic panda eye patches.", "Add two small black pieces at the top corners of the head for the ears."],
     colors:["#FFFFFF","#000000","#808080"] },
 
   { id:10, name:"Sneaky Shark", icon:"🦈", cat:"animals", diff:"medium", pcs:"30–50",
     desc:"Build a great white shark bursting through the water! Give it a pointed nose, a tall dorsal fin on top, and rows of sharp white teeth.",
     tips:["Use a sharp slope brick at the front for that classic shark snout","A tall 1×4 plate sticking straight up from the back = the dorsal fin","White 1×1 plates sticking out from the jaw = the teeth — the more the scarier!"],
+    steps:["Build a long torpedo-shaped body using gray bricks, widest in the middle and tapering at both ends.", "Add a sharp slope brick at the very front for the pointed nose.", "Build a tall fin using a 1×4 plate standing straight up from the middle of the back.", "Add white 1×1 plates along the underside of the front opening for the teeth — pack in as many as you can.", "Build two smaller side fins: flat plates angled out from both sides near the middle.", "Add a large flat plate at the back, split into two halves for the tail fin."],
     colors:["#808080","#FFFFFF","#0066CC"] },
 
   // ─── VEHICLES ─────────────────────────────────────────────────────────────
   { id:11, name:"Race Car", icon:"🏎️", cat:"vehicles", diff:"easy", pcs:"20–35",
     desc:"Build a super-sleek race car low to the ground with a pointed front, a spoiler in the back, and big wide wheels. Pick your racing colors!",
     tips:["Keep it low — use 1-brick-high layers to make it look fast and aerodynamic","Slope bricks on the front give it that pointed race car nose","A 1×2 or 1×4 flat plate sticking off the back = the spoiler"],
+    steps:["Build a very flat base using a 2×8 flat plate or row of bricks — keep it only 1 brick tall.", "Add slope bricks at the front angled to a point for the aerodynamic nose.", "Build up a cockpit area in the middle: just 2 bricks tall with a small opening for the driver.", "Attach wheels at all four corners — the lower the car, the faster it looks.", "Add a flat 1×4 plate sticking off the very back for the rear spoiler."],
     colors:["#D01012","#FFFFFF","#F2C500"] },
 
   { id:12, name:"Fire Truck", icon:"🚒", cat:"vehicles", diff:"medium", pcs:"35–55",
     desc:"Build a big red fire truck with a cab up front, a long equipment bed, and a ladder on top ready for any emergency!",
     tips:["Build the cab section and the equipment bed as separate sections, then attach them","Stack 1×1 bricks in a crisscross pattern to make a sturdy ladder","Yellow 1×1 flat tiles on top = the flashing warning lights"],
+    steps:["Build the cab: a 4×4 block, 4 bricks tall, with window gaps on each side.", "Build the long equipment bed: a flat 4×8 platform directly behind the cab.", "Add red bricks to the sides of the bed to create the side walls.", "Build the ladder on top: lay two long flat plates parallel with tiny 1×1 bricks as rungs between them.", "Add yellow 1×1 round tiles on the roof for the flashing warning lights.", "Attach large wheels at all four positions — fire trucks have big, heavy-duty tires."],
     colors:["#D01012","#FFFFFF","#F2C500"] },
 
   { id:13, name:"City Bus", icon:"🚌", cat:"vehicles", diff:"easy", pcs:"25–40",
     desc:"Build a big city bus with rows of windows, double doors in the middle, and a destination sign on the front. Route 42 — All Aboard!",
     tips:["City buses are basically long rectangles — build it long and boxy","Leave regular gaps in the side walls for the rows of windows","Use a different color brick on the front for the scrolling destination board"],
+    steps:["Build a long rectangular base using a 4×16 plate or several plates connected together.", "Stack walls all the way around: about 4 bricks tall on each side and the back.", "Leave regular 1×2 or 2×2 gaps in the side walls for the rows of passenger windows.", "Add a different-colored brick section on the very front for the destination display board.", "Leave a 2×2 gap in one side near the front for the doors, and add a small step below it.", "Attach large flat wheels at all four corners and you are ready to roll!"],
     colors:["#F2C500","#000000","#FFFFFF"] },
 
   { id:14, name:"Cool Bicycle", icon:"🚲", cat:"vehicles", diff:"hard", pcs:"25–40",
     desc:"Engineer your own bicycle! Two round wheels, a triangle frame, handlebars, and a seat — it's a real building challenge!",
     tips:["Use large round plates or 2×2 round bricks for the two wheels","The frame is the hard part — try connecting small bricks at angles to form the triangle","A 1×3 or 1×4 plate rotated sideways at the top = the handlebars"],
+    steps:["Find two large round pieces for the wheels — 2×2 round bricks or large round plates.", "Connect the two wheels with a flat base piece for the frame — this is the trickiest part.", "Use small angled bricks or plates between the wheels to suggest the triangular frame.", "Add a small vertical piece at the front connecting to the front wheel for the fork.", "Lay a 1×4 plate sideways at the very top for the handlebars.", "Add a small 1×1 or 1×2 piece raised up behind the middle for the seat."],
     colors:["#D01012","#808080","#000000"] },
 
   { id:15, name:"Monster Truck", icon:"🛻", cat:"vehicles", diff:"medium", pcs:"40–60",
     desc:"Build an ENORMOUS monster truck with giant wheels, a super tall suspension, and a tough-looking cab up top. Make it huge!",
     tips:["The key is making the wheels as big as possible — use your biggest round pieces","Build the body way up high above the wheels on tall brick 'axles'","Add extra detail to the cab — windows, exhaust pipes, a cool grill"],
+    steps:["Find your four biggest round pieces for the enormous wheels — bigger is always better.", "Build a strong wide chassis using flat plates: make it wider than normal so those big wheels fit.", "Build the truck body high up above the wheels: add several layers of bricks on top of the chassis.", "Build the cab section on the body: wide, square, with window gaps and a tough front grill.", "Connect the four big wheels far out from the sides of the chassis using axle-style bricks.", "Add fun details: exhaust pipes, roll bars, or a fierce grill design at the front."],
     colors:["#D01012","#F2C500","#000000"] },
 
   { id:16, name:"Speedboat", icon:"🚤", cat:"vehicles", diff:"medium", pcs:"30–50",
     desc:"Build a sleek speedboat cutting through the waves! Pointed bow up front, a windshield, a powerful outboard motor in the back.",
     tips:["Slope bricks at the front form the sharp bow that cuts through water","A clear or transparent piece at an angle = the windshield","A small cylinder brick at the back = the outboard motor"],
+    steps:["Build a pointed prow using slope bricks that angle together to a point at the front.", "Lay flat plates stretching back from the prow for the main deck — keep it flat and sleek.", "Build up small side walls along the edges of the deck for the hull sides.", "Place a transparent or angled piece near the middle for the windshield.", "Add a small engine block of stacked bricks at the very back.", "Attach a round cylinder piece sticking out from the back for the outboard motor."],
     colors:["#FFFFFF","#D01012","#0066CC"] },
 
   // ─── BUILDINGS ────────────────────────────────────────────────────────────
   { id:17, name:"Cozy Cottage", icon:"🏡", cat:"buildings", diff:"easy", pcs:"30–50",
     desc:"Build a small cozy house with a sloped roof, a front door, two windows, and a chimney puffing smoke. Home sweet home!",
     tips:["Use inverted slope bricks at the top to form both sides of a pointed roof","Leave a 2×1 gap in the front wall for the door, and 1×2 gaps for windows","Stack a thin vertical column of bricks on one corner = the chimney"],
+    steps:["Build a 6×8 flat base and stack walls 4 bricks tall all the way around, leaving gaps for a door and two windows.", "Add the roof: use inverted slope bricks on each end wall going up to a ridge, then connect them with a flat plate along the top.", "Stack a small column of bricks on one corner of the roof for the chimney.", "Decorate the outside: add a colorful doorstep or flower bricks beside the front door.", "Add a tiny 1×2 plate over each window opening for the window lintel."],
     colors:["#8B4513","#D01012","#F5DEB3"] },
 
   { id:18, name:"Castle Tower", icon:"🏰", cat:"buildings", diff:"medium", pcs:"50–80",
     desc:"Build a tall medieval castle tower with battlements on top, narrow arrow-slit windows, and a heavy wooden gate at the bottom!",
     tips:["The bumpy crenellations at the top = alternating 1×2 bricks and gaps","Very narrow vertical gaps in the wall = arrow-slit windows the archers fired through","Build the walls at least 2 bricks thick so the tower stands strong"],
+    steps:["Build a 6×6 square wall, 2 bricks thick, and stack it 8–10 bricks tall.", "Leave very narrow 1-stud-wide gaps in the walls for arrow-slit windows.", "At the very top, alternate placing 1×2 bricks and leaving 1×2 gaps all the way around for the crenellations.", "Add an arched doorway at the bottom by removing a 2×2 section and bridging it with a curved piece.", "Add interior detail: a small floor platform halfway up, or a tiny spiral staircase of angled bricks."],
     colors:["#808080","#A9A9A9","#8B4513"] },
 
   { id:19, name:"Treehouse", icon:"🌳", cat:"buildings", diff:"medium", pcs:"55–85",
     desc:"Build a treehouse nestled up in the branches! A thick trunk, spreading leafy top, and a cozy little house platform up in the canopy.",
     tips:["Taper the trunk — wider at the bottom, narrower as it goes up","Use brown bricks for the trunk and green slope/plate bricks for the leafy canopy","Lay a flat plate on top of the trunk as the treehouse floor, then build the walls up"],
+    steps:["Build a thick tree trunk: a 4×4 column of brown bricks, about 8 bricks tall, slightly wider at the base.", "Add spreading branches using flat plates jutting outward from the top of the trunk in four directions.", "Pile green slope bricks and dome bricks over the branches to create the leafy canopy.", "Lay a flat plate platform on top of the trunk as the treehouse floor.", "Build short walls around the platform with a gap for the door, then add a small sloped roof on top."],
     colors:["#228B22","#006400","#8B4513"] },
 
   { id:20, name:"Lighthouse", icon:"🔦", cat:"buildings", diff:"medium", pcs:"45–70",
     desc:"Build a striped lighthouse standing tall on a rocky cliff to guide ships home safely. Put a bright light at the very top!",
     tips:["Alternate two colors as you build upward for the classic lighthouse stripe pattern","The light room at the top: a transparent yellow or white round piece works perfectly","Taper the tower very slightly inward as it goes up for a realistic look"],
+    steps:["Start with a wide circular base: place bricks in a rough circle about 6 studs across.", "Build upward, alternating two colors every 2–3 layers for the classic lighthouse stripe pattern.", "Slightly reduce the diameter by 1 stud every 4–5 layers so the tower tapers inward.", "Near the top, build a small circular platform sticking out all around for the gallery deck.", "Place a transparent yellow or clear round piece at the very top for the light."],
     colors:["#FFFFFF","#D01012","#F2C500"] },
 
   { id:21, name:"Skyscraper", icon:"🏙️", cat:"buildings", diff:"hard", pcs:"80–150",
     desc:"Build the tallest building you possibly can! Rows and rows of windows, a pointed antenna on top, and a fancy lobby at the bottom.",
     tips:["Build hollow — leave the inside completely empty to save a ton of pieces","Create window rows by leaving regular rectangular gaps in the outer walls","Add a pointed antenna or flagpole stack of 1×1 round bricks at the very top"],
+    steps:["Build a wide rectangular base about 8×6 bricks — this is the street-level lobby.", "Start building the main tower upward: only build the four outer walls, keeping the inside hollow to save pieces.", "Leave regular rectangular window-shaped gaps in the outer walls as you build up each floor.", "Keep stacking! Aim for 20 or more floors — as high as your bricks allow.", "Near the very top, step the walls inward 1 stud on each side to give it a tapered crown.", "Finish with a thin stack of 1×1 round bricks shooting straight up from the center as the antenna."],
     colors:["#808080","#0066CC","#FFFFFF"] },
 
   { id:22, name:"Bridge", icon:"🌉", cat:"buildings", diff:"medium", pcs:"35–60",
     desc:"Build a bridge spanning a gap! Try an arch bridge or a suspension bridge with tall towers and diagonal 'cables' running down.",
     tips:["Arch bridge: build the supports on each side, then use curved/inverted slopes to connect across the gap","Suspension bridge: two tall towers with diagonal 1×1 plate chains running from tower to road","Make the road deck wide and flat enough for a LEGO car to roll across"],
+    steps:["Build two identical strong support towers, one on each side of the gap you are bridging.", "For an arch bridge: use curved or inverted slope bricks from each tower meeting in the middle underneath.", "For a suspension bridge: run long flat plates diagonally from the top of each tower down to the road level.", "Build the flat road deck connecting the two towers — make it wide enough for a toy car.", "Add guardrails on each side of the road using thin plates or 1×1 bricks along the edges."],
     colors:["#808080","#D4A017","#8B4513"] },
 
   { id:23, name:"Windmill", icon:"🌬️", cat:"buildings", diff:"medium", pcs:"40–65",
     desc:"Build a traditional Dutch windmill with a round stone tower and four long spinning sails catching the breeze!",
     tips:["Stack round or octagonal bricks to build the cylindrical tower shape","Four flat plates at 45° angles spread out from the center hub = the sails","Add a small arched doorway near the bottom and a window or two"],
+    steps:["Build the tower: stack round, octagonal, or square bricks in a column, 10–12 bricks tall.", "Leave a small arched doorway opening at the very bottom of the tower.", "Add a window opening partway up using a 1×2 gap in the wall.", "At the top, add a platform piece or cap and place a central connection point in the middle.", "Build four long flat blade arms and attach them spreading outward at 45-degree angles."],
     colors:["#F5DEB3","#FFFFFF","#8B4513"] },
 
   // ─── ROBOTS & MACHINES ────────────────────────────────────────────────────
   { id:24, name:"Helper Robot", icon:"🤖", cat:"robots", diff:"easy", pcs:"20–35",
     desc:"Build a friendly helper robot with a square head, an antenna, big glowing eyes, and arms ready to lend a hand. Give your robot a name!",
     tips:["A 2×4 or 2×2 square brick makes the perfect blocky robot head","Stick a thin 1×1 cylinder brick on top of the head = the robot's antenna","Use transparent colored pieces for the robot's glowing eye panels"],
+    steps:["Build a square body: a 4×4 stack of gray bricks, 4 layers tall.", "Add a 2×4 square head block on top of the body with a slight offset for a natural look.", "Stick a thin 1×1 cylinder brick straight up from the top of the head for the antenna.", "Place two transparent colored round pieces on the face for the glowing eyes.", "Attach 1×4 brick arms out from each side of the body, angled slightly downward.", "Add a single 1×2 brick at each end of the arms pointing forward for the hands."],
     colors:["#808080","#0066CC","#F2C500"] },
 
   { id:25, name:"Battle Mech", icon:"🦾", cat:"robots", diff:"hard", pcs:"70–110",
     desc:"Build a towering battle mech — a giant robot suit that a pilot rides inside! Huge legs, massive arms with weapons, and an armored cockpit chest.",
     tips:["Build the torso (chest) first as your main anchor, then attach the four limbs","The legs need to be extra wide and heavy at the base so the whole thing won't tip over","Cylinders or small bricks sticking out of the arms = missiles or cannons"],
+    steps:["Build the torso first: a 4×6 wide block, 4 bricks tall, with armor detail on the front.", "Attach massive leg columns below the torso: each leg should be 2×3 wide and 6+ bricks tall.", "Build feet at the bottom of each leg: flare them out wider than the legs for stability.", "Build wide arm sections from each side of the torso — make them thick and powerful.", "Add weapons to the end of each arm: cylinder bricks for cannons, or flat plates for blades.", "Top it off with a small cockpit dome on top of the torso where the pilot sits."],
     colors:["#808080","#D01012","#000000"] },
 
   { id:26, name:"Robot Dog", icon:"🐾", cat:"robots", diff:"medium", pcs:"35–55",
     desc:"Build a robotic dog — like a real dog but made of shiny metal! Four mechanical legs, a square head with sensor eyes, and a wagging antenna tail.",
     tips:["The legs: connect two-brick segments at right angles for that mechanical joint look","A square head with two small transparent round pieces stuck on = sensor eyes","A thin antenna piece or small flag brick sticking up from the back = the tail"],
+    steps:["Build four mechanical legs: each leg is two short brick sections connected at an angle like a knee joint.", "Connect all four legs to a flat plate base acting as the robot"s belly.", "Stack a 3×3 square block on top of the belly for the main body.", "Build a square 2×2 head and attach it at the front of the body on a small neck piece.", "Place two transparent round pieces on the front of the head for the sensor eyes.", "Attach a thin antenna piece at the back of the body sticking upward for the tail."],
     colors:["#808080","#0066CC","#FFFFFF"] },
 
   { id:27, name:"Construction Crane", icon:"🏗️", cat:"robots", diff:"hard", pcs:"65–100",
     desc:"Build a massive construction crane — a tall tower with a long horizontal arm stretching out and a hook hanging down. Engineering challenge!",
     tips:["The base needs to be very wide and heavy so the whole crane doesn't tip over","Build the horizontal arm using flat plates laid out sideways — long and thin","Hang a 'chain' of 1×1 round bricks or a string down from the tip = the crane cable"],
+    steps:["Build a very wide, heavy base: at least 8×8 bricks, 3 layers thick — the heavier the better so it does not tip.", "Stack the tall vertical tower from the center of the base: aim for 15–20 bricks tall.", "Build the horizontal boom arm: use flat plates laid out sideways from the top of the tower, extending far out.", "Add a counterweight arm going the opposite direction with heavy bricks at the end to balance.", "Hang a vertical chain of 1×1 round bricks down from the tip of the boom arm.", "Add a small hook piece or brick at the very bottom of the chain."],
     colors:["#F2C500","#000000","#808080"] },
 
   { id:28, name:"Submarine Drone", icon:"🔬", cat:"robots", diff:"medium", pcs:"30–50",
     desc:"Build an underwater robot drone that explores the ocean! Propellers on the sides, camera pods on the front, and floodlights all around.",
     tips:["A flat, wide body shape works best for an underwater exploration drone","Small round pieces on the front = camera sensor pods looking ahead","Attach flat pieces at different angles on the sides = the propeller blades"],
+    steps:["Build a wide, flat oval-shaped body using bricks arranged in an elongated shape.", "Add a slightly raised section in the middle of the top for the main housing.", "Attach small round pieces to the very front, pointing forward, for the camera sensor pods.", "Place flat pieces angled out from each side for the propeller blades.", "Add tiny transparent pieces around the front edges for the floodlights.", "Attach a small antenna or sensor arm on top of the main housing."],
     colors:["#F2C500","#FFFFFF","#0066CC"] },
 
   // ─── NATURE ───────────────────────────────────────────────────────────────
   { id:29, name:"Flower Garden", icon:"🌸", cat:"nature", diff:"easy", pcs:"15–30",
     desc:"Build a cheerful little garden bursting with colorful flowers! Use round pieces on green stems for blooms. Plant as many as you can fit!",
     tips:["Round 2×2 plates or flower-shaped pieces on top of green 1×1 cylinder bricks = flowers","Vary the height of each flower so your garden looks natural and lush","Build a small flat base plate as the garden bed to hold everything together"],
+    steps:["Build a flat rectangular base of green bricks or plates — this is your garden bed.", "Build the first flower: a green 1×1 cylinder brick as the stem with a round plate on top.", "Make at least 5 more flowers using different colors — red, pink, orange, purple, yellow.", "Vary the heights of the stems: some short (2 bricks), some tall (5 bricks).", "Fill any gaps in the base with flat green pieces representing leaves or grass."],
     colors:["#FF69B4","#F2C500","#228B22"] },
 
   { id:30, name:"Erupting Volcano", icon:"🌋", cat:"nature", diff:"medium", pcs:"45–70",
     desc:"Build a massive volcano getting ready to blow! Make the cone shape wider at the bottom, with a hollow crater at the top filled with glowing lava.",
     tips:["Add 1–2 studs of width to each layer as you build downward for the classic cone shape","Keep the inside hollow so you can fill the crater at the top with lava bricks","Translucent orange and red pieces = absolutely incredible molten lava effect!"],
+    steps:["Build a wide circular base at least 10 studs across — the bottom of the volcano.", "Start building upward, reducing the size by 1 stud on each side every 2 bricks to create the cone shape.", "Keep the inside hollow as you build, leaving the center empty all the way to the top.", "Stop when you have a wide opening at the top — that is the crater.", "Fill the crater with translucent orange and red pieces piled up for the lava!"],
     colors:["#808080","#8B4513","#FF4500"] },
 
   { id:31, name:"Waterfall Scene", icon:"💧", cat:"nature", diff:"medium", pcs:"50–80",
     desc:"Build a beautiful waterfall flowing down rocky cliffs into a shimmering pool at the bottom. Use blue and white pieces for the rushing water!",
     tips:["Step the rocky cliffs down in offset layers to create a natural, jagged cliff face","Translucent blue flat plates laid on the bottom = the shimmering pool","Mix in white pieces with the blue at the waterfall itself = splashing, churning water"],
+    steps:["Build the backdrop: stack dark gray bricks for the cliff face on one side of your build.", "Create a second, lower cliff on the opposite side — the waterfall flows from the high cliff to the low one.", "Step the cliff face outward in uneven layers to give it a jagged, natural look.", "Build the waterfall: stack blue bricks from the top of the tall cliff to the bottom, mixing in white pieces for foam and spray.", "Lay translucent blue flat plates at the bottom for the shimmering pool.", "Add green pieces around the base for moss and plants growing near the water."],
     colors:["#0066CC","#FFFFFF","#808080"] },
 
   { id:32, name:"Camping Scene", icon:"⛺", cat:"nature", diff:"medium", pcs:"45–70",
     desc:"Build a cozy campsite! A tent, a crackling campfire, a log to sit on, and tall pine trees all around. Roast some s'mores!",
     tips:["Tent: two slope bricks leaning toward each other meeting at the top = the tent shape","Campfire: orange and red 1×1 bricks sticking upward from a small stack of brown bricks","Pine trees: stack increasingly smaller green plates or slope bricks as you go up"],
+    steps:["Build two slope bricks leaning toward each other so they meet at the top — that forms the tent shape.", "Add a short wall of bricks at the back of the tent and a small gap at the front for the opening.", "Build the campfire: a stack of two brown bricks, then stick orange and red 1×1 bricks upward from it for the flames.", "Build a log seat: a horizontal 1×4 brown brick on a short 1×1 base beside the fire.", "Build 2–3 pine trees by stacking decreasing-size green plates upward from a narrow brown trunk."],
     colors:["#228B22","#8B4513","#FF4500"] },
 
   // ─── SPACE ────────────────────────────────────────────────────────────────
   { id:33, name:"Spaceship", icon:"🚀", cat:"space", diff:"medium", pcs:"45–70",
     desc:"Build a sleek spaceship ready for warp speed! Engines blazing in the back, swept wings on the sides, and a cockpit dome up front.",
     tips:["Slope bricks front and back give it that aerodynamic futuristic shape","Attach wings by building them sideways using bracket pieces if you have them","A transparent blue or clear dome piece on top = the pilot's cockpit"],
+    steps:["Build the nose: use slope bricks angling down to a point at the front.", "Build the main fuselage body from the nose backward: 3–4 bricks wide and 6–8 bricks long.", "Attach swept-back wing shapes to each side of the fuselage using flat plates.", "Build the engine section at the back: a wider block with round cylinder bricks as exhaust nozzles.", "Place a transparent dome or clear piece on top near the front for the pilot"s cockpit canopy."],
     colors:["#FFFFFF","#0066CC","#808080"] },
 
   { id:34, name:"Space Rover", icon:"🛸", cat:"space", diff:"medium", pcs:"40–60",
     desc:"Build a Mars explorer rover with big chunky wheels, a tall sensor mast, a camera, and a robotic arm for collecting rock samples!",
     tips:["Make the wheels as big and chunky as you can — Mars terrain is very rocky","A tall thin vertical brick or stack as the sensor mast reaching above the body","A small arm made of connected bricks poking forward = the sample-collecting arm"],
+    steps:["Build a flat rectangular chassis about 4×6 bricks as the rover"s frame.", "Attach six large wheels, three on each side, to the outside of the chassis.", "Build the body on top of the chassis: a 3×5 box for equipment and a battery pack.", "Stack a tall thin vertical piece from the body as the antenna mast.", "Attach a small camera piece at the top of the mast pointing forward.", "Add a small articulated arm of connected bricks poking forward from the front of the chassis."],
     colors:["#C0C0C0","#FFD700","#8B4513"] },
 
   { id:35, name:"Space Station", icon:"🛸", cat:"space", diff:"hard", pcs:"80–130",
     desc:"Build a massive space station orbiting a distant planet! Solar panel wings, multiple docking ports, lab modules, and a command center.",
     tips:["Build the central hub (the main body) first, then attach modules on all sides","Long flat plate 'wings' extending out on both sides = the giant solar panels","Round or circular openings in the modules = docking ports for visiting spaceships"],
+    steps:["Build the central hub: a 6×6 square block, 4 bricks tall, as the main living module.", "Add docking ports on each side: round or rectangular openings in each wall.", "Build two long flat plate solar panel wings extending out from opposite sides.", "Attach additional smaller lab modules to the front and back of the central hub.", "Build a small command dome on top of the hub with transparent pieces for windows.", "Add detail struts and antenna spikes all around for that realistic space station look."],
     colors:["#C0C0C0","#F2C500","#0066CC"] },
 
   { id:36, name:"Alien Base", icon:"👽", cat:"space", diff:"hard", pcs:"75–120",
     desc:"Build a mysterious alien outpost on a distant planet! Weird dome buildings, glowing green crystals, strange alien technology, and a landing pad.",
     tips:["Round bricks and dome pieces make buildings that feel totally alien and unusual","Translucent green pieces sticking out of the ground = eerie alien energy crystals","Build organic and irregular shapes — aliens probably don't use right angles!"],
+    steps:["Build an irregular landing pad using dark gray bricks in a rough circle or blob shape.", "Stack dome bricks or round bricks into alien-looking buildings — avoid right angles if you can!", "Add a second smaller dome building beside the first, connected by a narrow corridor.", "Poke translucent green pieces upward from the ground in clusters for the glowing alien crystals.", "Build a weird antenna tower in the center using oddly-angled connected pieces.", "Add a small landing area with yellow or orange bricks on one side."],
     colors:["#9B59B6","#00FF00","#808080"] },
 
   { id:37, name:"Planet with Moon", icon:"🌍", cat:"space", diff:"medium", pcs:"30–50",
     desc:"Build a planet — try to make it as round as possible! Then build a smaller moon and put it on a stand orbiting nearby.",
     tips:["Stack round bricks and plates of varying sizes to approximate a sphere shape","Blue and green plates on the surface = oceans and continents","Thin vertical piece as a stand holds the moon up beside the planet"],
+    steps:["Build the planet: start with a 4×4 circle of plates, then add a 6×6 layer, then 8×8, then back down — stacking to create a sphere shape.", "Cover the surface with blue and green plates to represent oceans and continents.", "Build a thin vertical stand piece next to the planet.", "At the top of the stand, build a smaller sphere using the same layering trick but smaller.", "Cover the moon"s surface with white and gray pieces."],
     colors:["#0066CC","#228B22","#D3D3D3"] },
 
   // ─── FOOD ─────────────────────────────────────────────────────────────────
   { id:38, name:"Birthday Cake", icon:"🎂", cat:"food", diff:"easy", pcs:"18–28",
     desc:"Build a gorgeous multi-layer birthday cake with frosting dripping down the sides, colorful decorations, and tons of birthday candles on top!",
     tips:["Build in circular layers, each one very slightly smaller as you go up","Thin cylinder bricks standing upright on the very top = the birthday candles","White or light-colored bricks on the outside layer = the dripping frosting"],
+    steps:["Build the bottom layer: a wide circle or square of pink or white bricks, about 3 bricks tall.", "Build the middle layer on top: slightly smaller in diameter, 3 bricks tall.", "Build the top layer smallest of all: just 2–3 bricks tall.", "Use white or light-colored bricks on the outside of each layer to look like dripping frosting.", "Add colorful 1×1 round pieces all around the outside as decorations.", "Stick thin cylinder bricks straight up from the top layer for the birthday candles."],
     colors:["#FFB6C1","#FFFFFF","#F2C500"] },
 
   { id:39, name:"Giant Pizza Slice", icon:"🍕", cat:"food", diff:"easy", pcs:"15–25",
     desc:"Build a humongous pizza slice wider than your hand! Puffy crust edge, red tomato sauce, and all your favorite toppings piled high.",
     tips:["Build mostly flat (1–2 layers thick) shaped like a triangle — wider at the crust end","Red 1×1 round tiles on the flat surface = spots of tomato sauce","Different colored 1×1 round pieces = pepperoni, mushrooms, green pepper, cheese"],
+    steps:["Build the crust end first: a wide 1×6 base of tan or brown bricks, 2 layers tall.", "Build inward and narrowing: each new row forward is 1 stud shorter on each side, forming a triangle.", "Add a top layer of red 1×1 round tiles spread across the surface for tomato sauce.", "Add toppings using different-colored 1×1 pieces: dark round = pepperoni, white = cheese, green = peppers.", "Raise the crust end slightly using an extra brick layer to show the puffy crust."],
     colors:["#D4A017","#D01012","#F5DEB3"] },
 
   { id:40, name:"Ice Cream Tower", icon:"🍦", cat:"food", diff:"easy", pcs:"12–20",
     desc:"Build the most over-the-top ice cream cone imaginable! Stack as many scoops as you can, add sprinkles everywhere, and a cherry on top!",
     tips:["An inverted triangle or wedge shape of brown bricks = the waffle cone","Stack round bricks of different colors going up = the scoops of ice cream","Tiny 1×1 round pieces on the top scoop = the sprinkles (and a red one = the cherry!)"],
+    steps:["Build the cone: an upside-down triangle shape using tan or brown slope bricks.", "Place the first scoop on top: a cluster of 2×2 round bricks in one ice cream color.", "Stack a second scoop on top in a different flavor color.", "Add a third scoop in yet another color — or keep going as high as you dare!", "Scatter tiny 1×1 round pieces of many colors on the top scoop for sprinkles.", "Place a single red round piece right at the very top for the cherry."],
     colors:["#D4A017","#FFB6C1","#98FB98"] },
 
   { id:41, name:"Pickle in a Jar", icon:"🥒", cat:"food", diff:"easy", pcs:"20–35",
     desc:"Build Pickle Phil's signature pickle jar! Round glass jar, a big round metal lid, and little green pickles peeking out from inside. Crunchy!",
     tips:["Stack round bricks of decreasing size at the neck = the classic jar silhouette","A wide flat plate on the very top = the metal screw-top lid","Small green cylinder or 1×1 bricks inside the jar = the pickles soaking in brine"],
+    steps:["Build the bottom of the jar: a wide 4×4 base of clear or pale green bricks.", "Stack walls up around the base in a round shape — the jar is widest in the middle.", "Narrow the walls slightly as you reach the top to form the jar neck.", "Add a small green 1×1 cylinder brick inside the jar for a pickle peeking out.", "Place a wide flat plate on top for the metal lid.", "Add a thin ring of gray or silver bricks around the rim between the lid and the jar body."],
     colors:["#90EE90","#228B22","#C0C0C0"] },
 
   { id:42, name:"Hamburger", icon:"🍔", cat:"food", diff:"easy", pcs:"18–28",
     desc:"Build the most delicious LEGO burger! Sesame seed bun on top, layers of lettuce, tomato, cheese, and a big juicy patty.",
     tips:["Build in distinct layers just like a real burger — each ingredient is a new layer of bricks","Light tan or yellow for the bun, brown for the patty, green for lettuce, red for tomato","Add a tiny sesame seed layer (white 1×1 tiles) on the very top of the bun"],
+    steps:["Build the bottom bun: a 4×4 circle or square of tan bricks, 2 layers tall.", "Add the patty layer: a flat 4×4 square of dark brown bricks, 1–2 layers thick.", "Add the lettuce: ragged-edged green pieces spread across the patty.", "Add the tomato: a layer of red 1×2 or 1×1 bricks on top of the lettuce.", "Add the cheese: a yellow flat plate slightly larger than the patty, hanging over the edges.", "Top it all with the top bun: tan bricks rounded on top, with tiny white 1×1 tiles as sesame seeds."],
     colors:["#D4A017","#8B4513","#228B22"] },
 
   // ─── FANTASY ──────────────────────────────────────────────────────────────
   { id:43, name:"Fire Dragon", icon:"🐉", cat:"fantasy", diff:"hard", pcs:"80–120",
     desc:"Build an EPIC fire-breathing dragon with massive wings, razor-sharp claws, fearsome horns, and a long spiked tail. Your masterpiece build!",
     tips:["Build in sections: head, neck, torso, tail — connect them at the end","Use angled slope bricks along the spine for the row of dorsal spines","Large flat plates spread out on each side = the enormous wings","Translucent orange/yellow pieces coming from the mouth = the fire breath!"],
+    steps:["Build the torso: a wide 4×6 brick block, 4 layers tall, as the dragon"s chest.", "Build the neck: a column of 2×2 bricks at an angle from the front-top of the torso, curving upward.", "Build the head at the top of the neck: a wide jaw piece with white 1×1 bricks as teeth, topped by a 2×4 skull block.", "Build the tail from the back of the torso: start wide with 2×3 bricks, getting thinner each few bricks, ending in a pointed slope tip.", "Attach four short, thick legs below the torso with claw-like pieces at each foot.", "Build two large wings: the biggest flat plates you have, spread wide on each side of the upper torso."],
     colors:["#228B22","#006400","#FF4500"] },
 
   { id:44, name:"Unicorn", icon:"🦄", cat:"fantasy", diff:"medium", pcs:"40–60",
     desc:"Build a beautiful magical unicorn with a flowing rainbow mane, a spiraling horn, and four graceful legs. The more colorful, the more magical!",
     tips:["Stack a cone or cylinder brick in the center of the forehead = the iconic unicorn horn","Layer different colored plates along the neck area = the flowing, colorful mane","Make the legs long and slender — use angled connections if you can"],
+    steps:["Build four long, slender legs: each leg is a 1×1 column of white bricks, 5–6 bricks tall.", "Connect all four legs with a flat plate belly piece.", "Build the body on top of the belly: a 2×4 white block, 3 bricks tall.", "Build a 2×2 white head and attach it at the front on a short neck.", "Stack a cone brick or a column of 1×1 round bricks from the center of the forehead for the spiral horn.", "Add layers of different-colored plates along the neck for the flowing rainbow mane."],
     colors:["#FFFFFF","#FFB6C1","#9B59B6"] },
 
   { id:45, name:"Pirate Ship", icon:"🏴‍☠️", cat:"fantasy", diff:"hard", pcs:"80–130",
     desc:"Sail the seven seas with your very own LEGO pirate ship! Hull, masts, billowing sails, a captain's cabin, cannons, and a skull flag!",
     tips:["Use curved slope bricks along the bottom edges to give the hull its rounded shape","Tall vertical stacks of bricks = the masts; flat plates attached sideways = the sails","Add round cylinder bricks sticking out the sides near the bottom = the cannons"],
+    steps:["Build the hull bottom: a long oval shape using curved or slope bricks along the sides, 2 bricks tall.", "Continue the hull walls upward: 4 more bricks tall on each side, slightly wider than the bottom.", "Build the deck floor as a flat plate covering the top of the hull.", "Add the mast: a tall vertical stack of 1×1 round bricks going up from the center of the deck.", "Attach flat plates sideways to the mast at two different heights for the sails.", "Add cannons (cylinder bricks through the hull sides), a cabin at the back, and a skull flag at the top."],
     colors:["#8B4513","#FFFFFF","#000000"] },
 
   { id:46, name:"Wizard's Tower", icon:"🧙", cat:"fantasy", diff:"medium", pcs:"55–85",
     desc:"Build a mysterious wizard's tower full of arcane magic! Tall and narrow, a pointed roof, glowing purple windows, magical symbols carved in the walls.",
     tips:["Build tall and narrow — the more it tapers as it goes up, the more dramatic it looks","A cone brick or slope bricks meeting at a point = the classic wizard tower spire","Translucent purple pieces set into the walls = the magical glowing window portals"],
+    steps:["Build a narrow base: a 4×4 column of dark stone-colored bricks.", "Stack upward, keeping the walls 1 brick thick, building tall and thin.", "Leave small 1×1 openings as you go up for the narrow magical windows.", "Place a translucent purple or blue piece in each window opening for the glowing effect.", "Near the top, use slope bricks angling inward on all four sides to form the pointed spire.", "Cap the very tip of the spire with a single 1×1 round piece or a star-shaped piece."],
     colors:["#2C3E50","#9B59B6","#F2C500"] },
 
   { id:47, name:"Treasure Chest", icon:"💰", cat:"fantasy", diff:"easy", pcs:"20–32",
     desc:"Build a treasure chest overflowing with gold coins and glittering gems! Make the lid removable so you can see all the loot inside!",
     tips:["Build the rectangular box base first, then construct the lid separately so it can open","Fill the inside with yellow 1×1 round tiles = gold coins spilling out","Translucent colored pieces (red, blue, green) = the sparkling gems"],
+    steps:["Build the base box: a 4×6 rectangle of brown bricks, 3 layers tall, open at the top.", "Fill the inside with yellow 1×1 round tiles as gold coins, and translucent colored pieces as jewels.", "Build the chest lid as a separate piece: a 4×6 rectangle with slope bricks for the curved rounded top.", "Balance the lid on the box loosely so it can be lifted off to reveal the treasure inside.", "Add a small gold-colored latch piece at the front center of the chest."],
     colors:["#8B4513","#F2C500","#FFFFFF"] },
 
   // ─── PEOPLE & CHARACTERS ──────────────────────────────────────────────────
   { id:48, name:"Superhero", icon:"🦸", cat:"people", diff:"medium", pcs:"30–50",
     desc:"Build your very own superhero character! Wide shoulders, a bold chest symbol, a flowing cape, and a heroic action pose ready to save the day!",
     tips:["Build wider at the shoulders and narrower at the waist for that superhero body shape","A flat plate attached to the back, spread out wide = the dramatic flowing cape","Use a contrasting colored piece on the chest for the superhero's iconic symbol"],
+    steps:["Build a wide, broad-shouldered upper body: at least 4 bricks wide at the top, tapering to 3 wide at the waist.", "Add a contrasting-colored piece to the chest area for the superhero symbol.", "Build the lower body and legs below the waist: 2×2 leg columns, 4 bricks tall each.", "Attach arms from the shoulders: 1×3 bricks angled outward and down.", "Attach a large flat plate to the back of the upper body, spread wide, for the flowing cape.", "Angle one arm forward like your hero is flying — strike a heroic pose!"],
     colors:["#0066CC","#D01012","#F2C500"] },
 
   { id:49, name:"Ninja Warrior", icon:"🥷", cat:"people", diff:"medium", pcs:"25–45",
     desc:"Build a stealthy ninja in a cool action pose! Dark outfit, a katana sword, a face wrap with only the eyes showing, and throwing stars!",
     tips:["Use almost entirely black and dark gray bricks for the authentic ninja look","A long thin flat plate piece = the katana sword (attach it to the hand area)","Tiny 4-pointed star made from 1×1 round pieces with corners = the throwing star"],
+    steps:["Build the body in all black: a 2×3 base, 4 bricks tall — no other colors on the body!", "Add a gray or black head piece with only a narrow slit of transparent bricks for the eyes.", "Attach arms from the sides: 1×2 bricks with flat pieces at the end as hands.", "Hold a long thin flat plate in one hand position as the katana sword.", "Add small 4-pointed star shapes from 1×1 bricks with corner pieces as throwing stars.", "Pose the legs slightly bent for a crouching, ready-to-fight stance."],
     colors:["#000000","#808080","#D01012"] },
 
   { id:50, name:"Astronaut", icon:"👨‍🚀", cat:"people", diff:"easy", pcs:"18–30",
     desc:"Build an astronaut in a full space suit ready to walk on the Moon! Big round helmet, a bulky pressurized suit, a life-support pack, and a flag to plant!",
     tips:["A round or dome brick = the astronaut's fishbowl helmet","Build the suit extra thick and bulky — space suits are huge and puffy!","A 1×1 brick with a tiny flag plate on top = the national flag to plant in the lunar soil"],
+    steps:["Build the bulky pressurized suit body: a 4×4 block of white bricks, 5 bricks tall — make it puffed-out and thick.", "Stack a dome brick or round 2×2 piece on top of the body for the helmet.", "Add a transparent visor piece or clear flat plate on the front of the helmet.", "Attach thick arm pieces from the sides — make them extra puffy like inflated space suit arms.", "Build a life-support backpack: a 2×3 flat block attached to the back of the suit.", "Hold a tiny flag piece in one hand for planting on the lunar surface."],
     colors:["#FFFFFF","#808080","#F2C500"] },
 
   // ─── ABSTRACT & ART ───────────────────────────────────────────────────────
   { id:51, name:"Rainbow Mosaic", icon:"🌈", cat:"abstract", diff:"easy", pcs:"30–60",
     desc:"Build a flat colorful mosaic or pattern using 1×1 plates! Stripes, a rainbow arc, a checkerboard, a pixel art face — sky's the limit!",
     tips:["Start with a big flat base plate as your canvas","Cover it with 1×1 tiles in a repeating pattern — stripes, zig-zags, or a gradient","Try the rainbow in order: red, orange, yellow, green, blue, indigo, violet across the top"],
+    steps:["Start with a large flat plate as your canvas base — the bigger the better.", "Plan your design: stripes, a rainbow arc, a checkerboard, or a pixel art image.", "Start filling from one edge with red 1×1 plates, covering the first row completely.", "Continue with orange, yellow, green, blue, and purple rows across the canvas.", "Make sure each row is complete before starting the next to keep the lines crisp and clean."],
     colors:["#D01012","#F47920","#F2C500"] },
 
   { id:52, name:"Spiral Tower", icon:"🌀", cat:"abstract", diff:"medium", pcs:"40–70",
     desc:"Build a tower that spirals and twists upward! Rotate each new layer of bricks slightly as you go — it creates a mesmerizing, hypnotic twisting shape.",
     tips:["Offset each new layer by exactly 1 stud clockwise as you build upward","Use a different color for each layer to make the spiral effect pop visually","Keep each layer only 1 brick high for the smoothest, most dramatic spiral"],
+    steps:["Build the first layer: place a square ring of bricks, 4×4 on the outside.", "Build the second layer: rotate it exactly 1 stud clockwise before placing it on top.", "Build the third layer: rotate 1 more stud clockwise on top of that.", "Keep repeating — rotate 1 stud clockwise each new layer as you go up.", "Use a different color every 1–2 layers to make the spiral effect really pop visually."],
     colors:["#D01012","#F2C500","#0066CC"] },
 
   { id:53, name:"Your Name in Bricks", icon:"🔤", cat:"abstract", diff:"easy", pcs:"15–40",
     desc:"Build the first letter of your name — or your whole name — in giant LEGO bricks! Make it 3D and bold enough to stand on your shelf.",
     tips:["Sketch out your letter on graph paper first — each square = one LEGO stud","Build it flat on a baseplate first using plates, then make it 2–3 bricks thick","For a standing letter, build a small base of bricks behind it so it doesn't tip over"],
+    steps:["Pick the first letter of your name (or spell your whole name if you have enough bricks).", "Sketch the letter on graph paper first: each square equals one LEGO stud wide.", "Build the letter flat on a base plate, one layer of plates at a time.", "Once the flat letter looks right, go back and add 2–3 more brick layers on top for thickness.", "Build a small support base at the back of the letter so it can stand up on a shelf."],
     colors:["#D01012","#F2C500","#0066CC"] },
 
   { id:54, name:"Pixel Art Face", icon:"😄", cat:"abstract", diff:"easy", pcs:"25–50",
     desc:"Build a big smiley face — or any face you can imagine — using 1×1 tiles on a flat base. Go for a classic yellow smiley or get creative!",
     tips:["Use a large flat plate as the base canvas — the bigger, the more detail you can add","Yellow 1×1 plates across the whole base = the face; black for eyes, red for the mouth","Try making a funny face, a sad face, or even a LEGO minifigure face!"],
+    steps:["Lay a large flat plate down as your canvas.", "Fill the whole surface with yellow 1×1 plates for the face background.", "Add two black 1×1 round plates for the eyes.", "Build a curved smile using red 1×1 plates arranged in an arc across the bottom half.", "Add rosy cheek circles using pink 2×2 round plates on each side below the eyes."],
     colors:["#F2C500","#000000","#D01012"] },
 
   { id:55, name:"Impossible Staircase", icon:"🪜", cat:"abstract", diff:"medium", pcs:"35–65",
     desc:"Build an optical illusion staircase that goes up and up and up — but somehow ends up right back where it started! The Penrose stairs in LEGO form!",
     tips:["Build a square loop and add one step going up on each corner of the square","When you get all four corners with one step each, it looks like it's always going up!","Use the same color throughout — this makes the illusion work much better"],
+    steps:["Build the first side of the loop: a platform 4 bricks wide and 4 bricks long, 2 layers tall.", "Turn the corner: add one step going up at the corner, then continue a platform at the new height.", "Turn the next corner: go up one more level, then continue the platform again.", "Turn the third corner: go up one more level and continue the platform.", "Complete the loop: bring the fourth side back and connect it to the first — it looks like each step goes endlessly upward even though you went in a complete square!"],
     colors:["#808080","#A9A9A9","#FFFFFF"] }
 
 ];
@@ -746,6 +813,10 @@ function getFiltered() {
 // ── RENDER ───────────────────────────────────────────────────────────────────
 
 function renderBigCard(b, animate) {
+  var steps = (b.steps||[]).map(function(s, i) {
+    return '<li><span class="step-num">' + (i+1) + '</span>' + esc(s) + '</li>';
+  }).join('');
+
   var tips = b.tips.map(function(t, i) {
     return '<li><span class="tip-num">' + (i+1) + '</span>' + esc(t) + '</li>';
   }).join('');
@@ -772,6 +843,8 @@ function renderBigCard(b, animate) {
       '</div>' +
     '</div>' +
     '<p class="build-desc">' + esc(b.desc) + '</p>' +
+    '<div class="section-label">Step by Step</div>' +
+    '<ul class="steps-list">' + steps + '</ul>' +
     '<div class="section-label">Build Tips</div>' +
     '<ul class="tips-list">' + tips + '</ul>' +
     '<div class="section-label">Suggested LEGO Colors</div>' +
