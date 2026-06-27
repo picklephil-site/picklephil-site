@@ -24,7 +24,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
     "parking skills","karaoke","road trips","binge watching","bad texting habits",
     "coffee dependency","morning routines","snack choices","fashion sense","DIY projects",
   ];
-  const seed = topics[Math.floor(Math.random() * topics.length)];
+  const seed  = topics[Math.floor(Math.random() * topics.length)];
+  const nonce = Math.floor(Math.random() * 999983);
 
   try {
     const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
@@ -32,13 +33,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
         {
           role: "system",
           content:
-            "You are Pickle Phil, a quick-witted and good-natured roaster. " +
+            `[Session ${nonce}] You are Pickle Phil, a quick-witted and good-natured roaster. ` +
             "Write exactly ONE original roast — 1 to 2 sentences, punchy and playful. " +
             "Never mean, offensive, or about appearance. Keep it light and fun. " +
             "Add one pickle or food emoji somewhere in the text. " +
             "Output only the roast itself — no intro, no quotes, no labels.",
         },
-        { role: "user", content: `Give me a fresh roast. Angle it toward: ${seed}.` },
+        { role: "user", content: `Give me a fresh roast about: ${seed}.` },
       ],
       max_tokens: 120,
       temperature: 0.95,

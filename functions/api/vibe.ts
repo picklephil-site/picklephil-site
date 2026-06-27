@@ -31,10 +31,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const systemPrompt =
     `You are Pickle Phil, a chill entertainment buddy with big pickle energy and a playful sense of humor. ` +
-    `Give exactly 3 ${typeLabel} recommendations based on what the user describes. ` +
-    `Be specific — use real titles that actually exist. ` +
-    `Reply with ONLY a valid JSON array — no text before or after it. Use this exact format:\n` +
-    `[{"title":"...","year":"...","type":"movie|tv|music","why":"one sentence in Pickle Phil's voice explaining why it fits"}]`;
+    `Give exactly 3 specific ${typeLabel} recommendations based on what the user describes. ` +
+    `Use real titles that actually exist. ` +
+    `Format your response EXACTLY like this — nothing before or after:\n` +
+    `1. Title (Year) — One sentence in Pickle Phil's fun voice explaining why it fits.\n` +
+    `2. Title (Year) — One sentence.\n` +
+    `3. Title (Year) — One sentence.`;
 
   try {
     const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
@@ -42,30 +44,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         { role: "system", content: systemPrompt },
         { role: "user",   content: q },
       ],
-      max_tokens: 500,
-      temperature: 0.75,
+      max_tokens: 400,
+      temperature: 0.8,
     });
 
     const text = (result?.response ?? "").trim();
-
-    // Strip markdown code fences before parsing
-    const stripped = text.replace(/```[a-z]*\n?/gi, "").trim();
-
-    let recommendations: unknown[] = [];
-    // Try direct parse first
-    try { recommendations = JSON.parse(stripped); } catch { /* fall through */ }
-    // Greedy regex to pull out the array
-    if (!recommendations.length) {
-      const match = stripped.match(/\[[\s\S]*\]/);
-      if (match) { try { recommendations = JSON.parse(match[0]); } catch { /* fall through */ } }
-    }
-    // Last resort: single object
-    if (!recommendations.length) {
-      const objMatch = stripped.match(/\{[\s\S]*\}/);
-      if (objMatch) { try { recommendations = [JSON.parse(objMatch[0])]; } catch { /* fall through */ } }
-    }
-
-    return new Response(JSON.stringify({ recommendations, raw: text }), { headers });
+    return new Response(JSON.stringify({ text }), { headers });
   } catch (err: any) {
     return new Response(
       JSON.stringify({ error: err?.message ?? "Generation failed" }),

@@ -708,39 +708,41 @@ async function askPhil() {
     const res  = await fetch(`/api/vibe?q=${encodeURIComponent(q)}&type=${philType}`);
     const data = await res.json();
     if (data.error) { setError('phil-results', 'API error: ' + data.error); btn.disabled = false; return; }
-    renderPhilRecs(data.recommendations || [], data.raw || '');
+    renderPhilRecs(data.text || '');
   } catch(e) {
     setError('phil-results', 'Phil dropped the pickle — ' + (e?.message || 'unknown error'));
   }
   btn.disabled = false;
 }
 
-function renderPhilRecs(recs, raw) {
+function renderPhilRecs(text) {
   const el = document.getElementById('phil-results');
-  if (!recs.length) {
-    const rawMsg = raw ? `<details style="margin-top:10px;font-size:.8rem;opacity:.6;text-align:left"><summary>Raw model output</summary><pre style="white-space:pre-wrap;word-break:break-word">${esc(raw)}</pre></details>` : '';
-    el.innerHTML = `<div class="error-msg">Phil scratched his head on that one — try rephrasing!${rawMsg}</div>`;
+  if (!text.trim()) {
+    el.innerHTML = `<div class="error-msg">Phil scratched his head on that one — try rephrasing!</div>`;
     return;
   }
-  const typeEmoji = { movie:'🎬', tv:'📺', music:'🎵' };
-  const typeLabel = { movie:'Movie', tv:'TV Show', music:'Music' };
+  // Parse numbered list: "1. Title (Year) — reason"
+  const lines = text.split('\n').map(l => l.trim()).filter(l => /^\d+\./.test(l));
+  let html;
+  if (lines.length) {
+    html = lines.map(line => {
+      const m = line.match(/^\d+\.\s+(.+?)\s+\((\d{4})\)\s+[—–-]+\s+(.+)/);
+      if (m) {
+        return `<div class="phil-rec">
+          <div class="phil-rec-header"><span class="phil-rec-title">${esc(m[1])}</span><span class="phil-rec-year">${esc(m[2])}</span></div>
+          <p class="phil-rec-why">${esc(m[3])}</p>
+        </div>`;
+      }
+      return `<div class="phil-rec"><p class="phil-rec-why">${esc(line.replace(/^\d+\.\s*/,''))}</p></div>`;
+    }).join('');
+  } else {
+    // Fallback: show raw text in a single card
+    html = `<div class="phil-rec"><p class="phil-rec-why" style="white-space:pre-line">${esc(text)}</p></div>`;
+  }
   el.innerHTML = `
     <div class="results-section">
-      <div class="results-header">
-        <span class="results-title">🥒 Phil's picks for you</span>
-      </div>
-      <div class="phil-rec-list">
-        ${recs.map(r => `
-          <div class="phil-rec">
-            <div class="phil-rec-header">
-              <span class="phil-rec-title">${esc(r.title || 'Unknown')}</span>
-              ${r.year ? `<span class="phil-rec-year">${esc(r.year)}</span>` : ''}
-              ${r.type ? `<span class="phil-type-badge">${typeEmoji[r.type] || '🎲'} ${typeLabel[r.type] || r.type}</span>` : ''}
-            </div>
-            <p class="phil-rec-why">${esc(r.why || '')}</p>
-          </div>
-        `).join('')}
-      </div>
+      <div class="results-header"><span class="results-title">🥒 Phil's picks for you</span></div>
+      <div class="phil-rec-list">${html}</div>
     </div>`;
 }
 </script>
