@@ -29,10 +29,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `studio lighting, sharp focus, vibrant LEGO primary colors, toy store display photo`;
 
   try {
-    // @cf/bytedance/stable-diffusion-xl-lightning is fast (4 steps) and free on Workers AI
+    // stable-diffusion-xl-lightning: fast 4-step model, free on Workers AI
     const imageBytes = await (env.AI as any).run(
       "@cf/bytedance/stable-diffusion-xl-lightning",
-      { prompt, num_steps: 4, guidance: 1 }
+      { prompt, num_steps: 4 }
     );
 
     return new Response(imageBytes, {
