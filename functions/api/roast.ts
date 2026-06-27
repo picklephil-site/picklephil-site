@@ -19,7 +19,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   }
 
   try {
-    const result = await (env.AI as any).run("@cf/meta/llama-3.1-8b-instruct", {
+    const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
       messages: [
         {
           role: "system",

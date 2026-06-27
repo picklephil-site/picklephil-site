@@ -37,7 +37,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `[{"title":"...","year":"...","type":"movie|tv|music","why":"one sentence in Pickle Phil's voice explaining why it fits"}]`;
 
   try {
-    const result = await (env.AI as any).run("@cf/meta/llama-3.1-8b-instruct", {
+    const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user",   content: q },
