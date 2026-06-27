@@ -131,14 +131,33 @@ let count = 0;
 const roastEl=document.getElementById('roast'), spiceEl=document.getElementById('spice'),
       countEl=document.getElementById('count'), pickle=document.getElementById('pickle');
 
-function roast(){
-  if(deck.length===0) reshuffle();
-  const text = deck.pop();
+async function roast(){
+  const btn = document.getElementById('roastBtn');
+  btn.disabled = true;
+  btn.textContent = '🥒 Brining…';
+  pickle.classList.remove('shake'); void pickle.offsetWidth; pickle.classList.add('shake');
+  roastEl.textContent = 'Pickle Phil is cooking something up…';
+  roastEl.classList.remove('fade'); void roastEl.offsetWidth; roastEl.classList.add('fade');
+  spiceEl.textContent = '';
+
+  let text;
+  try {
+    const res = await fetch('/api/roast');
+    const data = await res.json();
+    if (data.roast) text = data.roast;
+  } catch(_) {}
+
+  if (!text) {
+    if (deck.length === 0) reshuffle();
+    text = deck.pop();
+  }
+
   roastEl.textContent = text;
   roastEl.classList.remove('fade'); void roastEl.offsetWidth; roastEl.classList.add('fade');
   spiceEl.textContent = SPICE[Math.floor(Math.random()*SPICE.length)];
-  pickle.classList.remove('shake'); void pickle.offsetWidth; pickle.classList.add('shake');
   count++; countEl.textContent = count;
+  btn.disabled = false;
+  btn.textContent = '🔥 Roast Me!';
 }
 document.getElementById('roastBtn').addEventListener('click', roast);
 document.getElementById('copyBtn').addEventListener('click', async ()=>{

@@ -254,6 +254,46 @@ body{
   transition:background .2s;font-family:inherit;
 }
 .modal-close:hover{background:rgba(255,255,255,.28)}
+
+/* ── Ask Phil panel ── */
+.phil-textarea{
+  width:100%;background:rgba(0,0,0,.4);color:var(--text);
+  border:1px solid var(--glass-border);border-radius:12px;
+  padding:14px;font-size:1rem;font-family:inherit;
+  resize:vertical;min-height:80px;transition:border-color .2s;
+}
+.phil-textarea:focus{outline:none;border-color:rgba(46,204,113,.55)}
+.phil-textarea::placeholder{opacity:.45}
+.phil-type-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.phil-type-label{font-size:.8rem;font-weight:700;opacity:.65;letter-spacing:.5px;text-transform:uppercase;margin-right:4px}
+.phil-type-btn{
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);font-size:.85rem;font-weight:700;
+  padding:6px 16px;border-radius:30px;cursor:pointer;
+  transition:all .2s;font-family:inherit;
+}
+.phil-type-btn:hover{background:rgba(46,204,113,.2)}
+.phil-type-btn.active{
+  background:linear-gradient(135deg,rgba(46,204,113,.4),rgba(46,204,113,.18));
+  border-color:rgba(46,204,113,.65);
+}
+.phil-rec-list{display:flex;flex-direction:column;gap:14px}
+.phil-rec{
+  background:linear-gradient(165deg,var(--glass),var(--panel-b));
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--glass-border);border-radius:14px;
+  padding:18px 20px;box-shadow:0 8px 22px rgba(0,0,0,.3);
+  animation:fadeUp .35s ease;
+}
+.phil-rec-header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.phil-rec-title{font-size:1.08rem;font-weight:800}
+.phil-rec-year{font-size:.82rem;opacity:.5}
+.phil-type-badge{
+  font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+  background:rgba(46,204,113,.18);border:1px solid rgba(46,204,113,.35);
+  margin-left:auto;white-space:nowrap;
+}
+.phil-rec-why{font-size:.92rem;opacity:.85;line-height:1.55}
 </style>
 </head>
 <body>
@@ -270,6 +310,7 @@ body{
     <button class="tab-btn active" role="tab" aria-selected="true"  onclick="switchTab('music',this)">🎵 Tunes</button>
     <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('movies',this)">🎬 Movies</button>
     <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('tv',this)">📺 TV Shows</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('phil',this)">🥒 Ask Phil</button>
   </div>
 
   <!-- ── MUSIC PANEL ── -->
@@ -388,6 +429,23 @@ body{
       </div>
     </div>
     <div id="tv-results"></div>
+  </div>
+
+  <!-- ── ASK PHIL PANEL ── -->
+  <div id="panel-phil" class="panel" role="tabpanel">
+    <div class="control-card">
+      <label style="display:block;font-size:.8rem;font-weight:700;opacity:.7;margin-bottom:8px;letter-spacing:.6px;text-transform:uppercase">What are you in the mood for?</label>
+      <textarea id="phil-query" class="phil-textarea" placeholder="e.g. something creepy but funny for a Friday night, or a sad slow song to cry to…" rows="3"></textarea>
+      <div class="phil-type-row">
+        <span class="phil-type-label">Type:</span>
+        <button class="phil-type-btn active" data-type="any"   onclick="setPhilType(this)">🎲 Anything</button>
+        <button class="phil-type-btn"        data-type="movie" onclick="setPhilType(this)">🎬 Movies</button>
+        <button class="phil-type-btn"        data-type="tv"    onclick="setPhilType(this)">📺 TV Shows</button>
+        <button class="phil-type-btn"        data-type="music" onclick="setPhilType(this)">🎵 Music</button>
+        <button class="find-btn" id="phil-btn" style="margin-left:auto" onclick="askPhil()">🥒 Ask Phil</button>
+      </div>
+    </div>
+    <div id="phil-results"></div>
   </div>
 </div>
 
@@ -625,6 +683,65 @@ function closeTrailer() {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTrailer(); });
+
+/* ── Ask Phil ── */
+let philType = 'any';
+function setPhilType(btn) {
+  document.querySelectorAll('.phil-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  philType = btn.dataset.type;
+}
+
+document.getElementById('phil-query').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askPhil(); }
+});
+
+async function askPhil() {
+  const q   = document.getElementById('phil-query').value.trim();
+  const btn = document.getElementById('phil-btn');
+  if (!q) { document.getElementById('phil-query').focus(); return; }
+
+  btn.disabled = true;
+  setLoading('phil-results');
+
+  try {
+    const res  = await fetch(`/api/vibe?q=${encodeURIComponent(q)}&type=${philType}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    renderPhilRecs(data.recommendations || [], data.raw || '');
+  } catch(e) {
+    setError('phil-results', 'Phil dropped the pickle — try again in a moment.');
+  }
+  btn.disabled = false;
+}
+
+function renderPhilRecs(recs, raw) {
+  const el = document.getElementById('phil-results');
+  if (!recs.length) {
+    el.innerHTML = `<div class="error-msg">Phil scratched his head on that one — try rephrasing!</div>`;
+    return;
+  }
+  const typeEmoji = { movie:'🎬', tv:'📺', music:'🎵' };
+  const typeLabel = { movie:'Movie', tv:'TV Show', music:'Music' };
+  el.innerHTML = `
+    <div class="results-section">
+      <div class="results-header">
+        <span class="results-title">🥒 Phil's picks for you</span>
+      </div>
+      <div class="phil-rec-list">
+        ${recs.map(r => `
+          <div class="phil-rec">
+            <div class="phil-rec-header">
+              <span class="phil-rec-title">${esc(r.title || 'Unknown')}</span>
+              ${r.year ? `<span class="phil-rec-year">${esc(r.year)}</span>` : ''}
+              ${r.type ? `<span class="phil-type-badge">${typeEmoji[r.type] || '🎲'} ${typeLabel[r.type] || r.type}</span>` : ''}
+            </div>
+            <p class="phil-rec-why">${esc(r.why || '')}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
 </script>
 </body>
 </html>
