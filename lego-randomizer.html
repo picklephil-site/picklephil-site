@@ -1081,14 +1081,26 @@ function generateImage(id) {
       '</div>';
   };
   img.onerror = function() {
-    sec.innerHTML =
-      '<div class="img-loading" style="border-color:rgba(208,16,18,.35)">' +
-        '<span style="font-size:2rem">⚠️</span>' +
-        '<div class="img-loading-text">Could not generate image. Make sure the AI binding is enabled in Cloudflare.</div>' +
-        '<button class="img-retry-btn" onclick="generateImage(' + id + ')">Try Again</button>' +
-      '</div>';
+    // Fetch the actual error message from the API response
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        sec.innerHTML =
+          '<div class="img-loading" style="border-color:rgba(208,16,18,.35)">' +
+            '<span style="font-size:2rem">⚠️</span>' +
+            '<div class="img-loading-text">' + esc(data.error || 'Unknown error') + '</div>' +
+            '<button class="img-retry-btn" onclick="generateImage(' + id + ')">Try Again</button>' +
+          '</div>';
+      })
+      .catch(function() {
+        sec.innerHTML =
+          '<div class="img-loading" style="border-color:rgba(208,16,18,.35)">' +
+            '<span style="font-size:2rem">⚠️</span>' +
+            '<div class="img-loading-text">Could not reach the image API. Check Cloudflare binding.</div>' +
+            '<button class="img-retry-btn" onclick="generateImage(' + id + ')">Try Again</button>' +
+          '</div>';
+      });
   };
-  // Append a cache-buster only for "New Example" clicks (retry), otherwise use cache
   img.src = url;
 }
 

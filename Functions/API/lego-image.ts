@@ -9,6 +9,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const name = url.searchParams.get("name") || "LEGO sculpture";
   const cat  = url.searchParams.get("cat")  || "";
 
+  // Debug: check binding exists
+  if (!env.AI) {
+    return new Response(
+      JSON.stringify({ error: "AI binding not found — check Cloudflare Pages Settings > Bindings" }),
+      { status: 500, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
+    );
+  }
+
   const categoryHint: Record<string, string> = {
     animals:   "animal creature",
     vehicles:  "vehicle machine",
@@ -29,7 +37,6 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `studio lighting, sharp focus, vibrant LEGO primary colors, toy store display photo`;
 
   try {
-    // stable-diffusion-xl-lightning: fast 4-step model, free on Workers AI
     const imageBytes = await (env.AI as any).run(
       "@cf/bytedance/stable-diffusion-xl-lightning",
       { prompt, num_steps: 4 }
@@ -38,15 +45,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(imageBytes, {
       headers: {
         "Content-Type": "image/png",
-        // Cache on CF edge for 24 h — same build name always gets same URL
         "Cache-Control": "public, max-age=86400, s-maxage=86400",
         "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (err: any) {
+    const msg = err?.message ?? String(err) ?? "generation failed";
     return new Response(
-      JSON.stringify({ error: err?.message ?? "generation failed" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ error: msg }),
+      { status: 500, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
     );
   }
 };
