@@ -40,8 +40,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       temperature: 0.95,
     });
 
-    const roast = (result?.response ?? "").trim() ||
-      "You're so forgettable, even your pickle jar forgot your name. 🥒";
+    const roast = (
+      result?.response ??
+      result?.choices?.[0]?.message?.content ??
+      ""
+    ).trim() || "You're so forgettable, even your pickle jar forgot your name. 🥒";
 
     return new Response(JSON.stringify({ roast }), { headers });
   } catch (err: any) {

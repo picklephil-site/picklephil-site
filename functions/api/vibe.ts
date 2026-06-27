@@ -48,7 +48,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       temperature: 0.8,
     });
 
-    const text = (result?.response ?? "").trim();
+    const text = (
+      result?.response ??
+      result?.choices?.[0]?.message?.content ??
+      ""
+    ).trim();
     return new Response(JSON.stringify({ text }), { headers });
   } catch (err: any) {
     return new Response(
