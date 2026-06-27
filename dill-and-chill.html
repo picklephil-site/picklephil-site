@@ -718,7 +718,8 @@ async function askPhil() {
 function renderPhilRecs(recs, raw) {
   const el = document.getElementById('phil-results');
   if (!recs.length) {
-    el.innerHTML = `<div class="error-msg">Phil scratched his head on that one — try rephrasing!</div>`;
+    const rawMsg = raw ? `<details style="margin-top:10px;font-size:.8rem;opacity:.6;text-align:left"><summary>Raw model output</summary><pre style="white-space:pre-wrap;word-break:break-word">${esc(raw)}</pre></details>` : '';
+    el.innerHTML = `<div class="error-msg">Phil scratched his head on that one — try rephrasing!${rawMsg}</div>`;
     return;
   }
   const typeEmoji = { movie:'🎬', tv:'📺', music:'🎵' };

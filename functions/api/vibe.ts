@@ -49,9 +49,17 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     const text = (result?.response ?? "").trim();
 
     let recommendations: unknown[] = [];
-    const match = text.match(/\[[\s\S]*?\]/);
+    // Greedy match — grab from first [ to last ] to handle multi-object arrays
+    const match = text.match(/\[[\s\S]*\]/);
     if (match) {
-      try { recommendations = JSON.parse(match[0]); } catch { /* fall through to empty */ }
+      try { recommendations = JSON.parse(match[0]); } catch { /* fall through */ }
+    }
+    // Fallback: maybe model returned a single object instead of an array
+    if (!recommendations.length) {
+      const objMatch = text.match(/\{[\s\S]*\}/);
+      if (objMatch) {
+        try { recommendations = [JSON.parse(objMatch[0])]; } catch { /* fall through */ }
+      }
     }
 
     return new Response(JSON.stringify({ recommendations, raw: text }), { headers });
