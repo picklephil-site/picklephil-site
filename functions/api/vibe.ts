@@ -44,15 +44,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         { role: "system", content: systemPrompt },
         { role: "user",   content: q },
       ],
-      max_tokens: 400,
+      max_tokens: 800,
       temperature: 0.8,
     });
 
-    const text = (
-      result?.response ??
-      result?.choices?.[0]?.message?.content ??
-      ""
-    ).trim();
+    const raw = result?.choices?.[0]?.message?.content || result?.response || "";
+    // Take only the last paragraph to skip any model reasoning preamble
+    const parts = raw.trim().split(/\n{2,}/);
+    const text = parts[parts.length - 1].trim();
     return new Response(JSON.stringify({ text }), { headers });
   } catch (err: any) {
     return new Response(

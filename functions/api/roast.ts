@@ -27,26 +27,21 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       messages: [
         {
           role: "system",
-          content:
-            `[Session ${nonce}] You are Pickle Phil, a quick-witted and good-natured roaster. ` +
-            "Write exactly ONE original roast — 1 to 2 sentences, punchy and playful. " +
-            "Never mean, offensive, or about appearance. Keep it light and fun. " +
-            "Add one pickle or food emoji somewhere in the text. " +
-            "Output only the roast itself — no intro, no quotes, no labels.",
+          content: `You are Pickle Phil. Respond with only a single short roast joke (1-2 sentences). Include a pickle emoji. No thinking, no analysis, no preamble. Just the joke. Session: ${nonce}.`,
         },
-        { role: "user", content: `Give me a fresh roast about: ${seed}.` },
+        { role: "user", content: `Roast me about ${seed}.` },
       ],
-      max_tokens: 120,
+      max_tokens: 600,
       temperature: 0.95,
     });
 
-    const roast = (
-      result?.response ??
-      result?.choices?.[0]?.message?.content ??
-      ""
-    ).trim() || "You're so forgettable, even your pickle jar forgot your name. 🥒";
+    const raw = result?.choices?.[0]?.message?.content || result?.response || "";
+    // Strip any leading reasoning/analysis — take only the last non-empty paragraph
+    const parts = raw.trim().split(/\n{2,}/);
+    const roast = parts[parts.length - 1].trim() ||
+      "You're so forgettable, even your pickle jar forgot your name. 🥒";
 
-    return new Response(JSON.stringify({ roast, seed, _debug: JSON.stringify(result) }), { headers });
+    return new Response(JSON.stringify({ roast, seed, _debug: raw.slice(0, 200) }), { headers });
   } catch (err: any) {
     return new Response(
       JSON.stringify({ error: err?.message ?? "Generation failed" }),
