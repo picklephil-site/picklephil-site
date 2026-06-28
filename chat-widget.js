@@ -118,6 +118,22 @@
   let history = [];
   let isOpen  = false;
 
+  function getPageContext() {
+    const title = document.title || '';
+    const path  = window.location.pathname;
+    const meta  = (document.querySelector('meta[name="description"]') || {}).content || '';
+    const headings = Array.from(document.querySelectorAll('h1, h2'))
+      .filter(el => !el.closest('.pkl-panel'))
+      .map(el => (el.innerText || el.textContent || '').trim())
+      .filter(Boolean).slice(0, 4).join('; ');
+    const bodyText = Array.from(document.querySelectorAll('p, li'))
+      .filter(el => !el.closest('.pkl-panel'))
+      .map(el => (el.innerText || el.textContent || '').trim())
+      .filter(t => t.length > 15)
+      .slice(0, 8).join(' ').slice(0, 450);
+    return { title, path, meta, headings, bodyText };
+  }
+
   function open() {
     isOpen = true;
     panel.classList.remove('pkl-hidden');
@@ -154,7 +170,7 @@
       const res  = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ messages: history, pageContext: getPageContext() }),
       });
       const data = await res.json();
       const reply = data.reply || "Dropped the pickle on that one — try again!";

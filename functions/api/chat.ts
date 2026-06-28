@@ -2,6 +2,14 @@ export interface Env {
   AI: Ai;
 }
 
+interface PageContext {
+  title?: string;
+  path?: string;
+  meta?: string;
+  headings?: string;
+  bodyText?: string;
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const headers = {
     "Content-Type": "application/json",
@@ -13,7 +21,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(JSON.stringify({ error: "AI binding not found" }), { status: 500, headers });
   }
 
-  let body: { messages?: Array<{ role: string; content: string }> };
+  let body: { messages?: Array<{ role: string; content: string }>; pageContext?: PageContext };
   try {
     body = await request.json();
   } catch {
@@ -22,11 +30,23 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const userMessages = (body.messages || []).slice(-10);
   const lastUserMsg = userMessages[userMessages.length - 1]?.content || '';
+  const ctx = body.pageContext || {};
 
-  // Detect image requests from the user's message — don't rely on AI to tag them
-  const isImgRequest =
-    /\b(image|photo|picture|pic|draw|drawing|paint|painting|sketch|illustration)\b/i.test(lastUserMsg) ||
-    /\b(generate|create|make|show me|give me|render)\b.{0,40}\b(image|photo|picture|pic|drawing|illustration)\b/i.test(lastUserMsg);
+  // Only generate an image on explicit requests ("draw me", "generate a photo of", etc.)
+  const isExplicitImgRequest =
+    /\b(generate|create|draw|make|paint|sketch|render|produce)\b.{0,60}\b(image|photo|picture|pic|drawing|illustration)\b/i.test(lastUserMsg) ||
+    /\b(show|give)\s+me\b.{0,30}\b(image|photo|picture|pic|drawing|illustration)\b/i.test(lastUserMsg) ||
+    /^(draw|paint|sketch|generate|create|make|render)\s+/i.test(lastUserMsg.trim());
+
+  // Build page context block for the system prompt
+  const pageLines: string[] = [];
+  if (ctx.title) pageLines.push(`Page: "${ctx.title}" (${ctx.path || ''})`);
+  if (ctx.meta)  pageLines.push(`Description: ${ctx.meta}`);
+  if (ctx.headings) pageLines.push(`Headings: ${ctx.headings}`);
+  if (ctx.bodyText) pageLines.push(`Content: ${ctx.bodyText}`);
+  const pageBlock = pageLines.length
+    ? '\n\nContext about the page the user is on:\n' + pageLines.join('\n')
+    : '';
 
   const messages = [
     {
@@ -35,7 +55,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         "/no_think You are Pickle Phil, a friendly and helpful assistant on a personal website. " +
         "Be conversational, warm, and occasionally playful. " +
         "Keep responses concise — 1 to 3 sentences max. " +
-        "You can answer questions, have casual conversations, or just chat.",
+        "Use the page context below to answer questions about what the user is currently looking at." +
+        pageBlock,
     },
     ...userMessages,
   ];
@@ -52,15 +73,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       result?.response ||
       "Got a little pickled there — try again!";
 
-    // Strip any [IMG:] tag the model might still produce
+    // Strip any stray [IMG:] tag the model might produce
     const imgTagMatch = rawReply.match(/\[IMG:\s*([^\]]+)\]/i);
     const reply = rawReply.replace(/\[IMG:[^\]]*\]/gi, '').trim();
 
-    // Build image prompt: use AI's description if it provided one, else clean up user message
+    // Build image prompt only on explicit requests
     let imagePrompt: string | null = null;
     if (imgTagMatch) {
       imagePrompt = imgTagMatch[1].trim();
-    } else if (isImgRequest) {
+    } else if (isExplicitImgRequest) {
       imagePrompt = lastUserMsg
         .replace(/\b(please|can you|could you|would you)\s*/gi, '')
         .replace(/\b(generate|create|draw|make|show me|give me|display|render|paint|sketch)\s+/gi, '')
