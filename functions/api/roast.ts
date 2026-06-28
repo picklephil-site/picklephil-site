@@ -46,7 +46,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       ""
     ).trim() || "You're so forgettable, even your pickle jar forgot your name. 🥒";
 
-    return new Response(JSON.stringify({ roast }), { headers });
+    return new Response(JSON.stringify({ roast, seed, _debug: JSON.stringify(result) }), { headers });
   } catch (err: any) {
     return new Response(
       JSON.stringify({ error: err?.message ?? "Generation failed" }),

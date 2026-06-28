@@ -148,8 +148,9 @@ async function roast(){
     const seed = topics[Math.floor(Math.random() * topics.length)];
     const res = await fetch(`/api/roast?seed=${encodeURIComponent(seed)}&_=${Date.now()}`);
     const data = await res.json();
+    console.log('Roast API response:', JSON.stringify(data));
     if (data.roast) text = data.roast;
-    else if (data.error) console.warn('Roast API:', data.error);
+    else if (data.error) console.warn('Roast API error:', data.error);
   } catch(e) { console.warn('Roast fetch failed:', e?.message); }
 
   if (!text) {
