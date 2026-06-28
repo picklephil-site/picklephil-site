@@ -195,6 +195,7 @@ create policy "open" on cc_messages for all using (true) with check (true);</div
       <div class="tabs" id="tabs">
         <div class="tab active" data-tab="create">Create Room</div>
         <div class="tab" data-tab="join">Join Room</div>
+        <div class="tab" data-tab="cpu">vs Computer</div>
       </div>
       <div id="panel-create" style="margin-top:14px">
         <label>Number of players</label>
@@ -211,6 +212,10 @@ create policy "open" on cc_messages for all using (true) with check (true);</div
         <input class="inp" id="inp-code" placeholder="6-letter code (e.g. PICKLE)" maxlength="6"
           autocomplete="off" style="text-transform:uppercase;letter-spacing:.1em">
         <button class="btn btn-g" id="btn-join" style="width:100%;margin-top:12px">Join Room</button>
+      </div>
+      <div id="panel-cpu" class="hidden" style="margin-top:14px">
+        <p style="font-size:.83rem;opacity:.7;margin-bottom:12px;line-height:1.5">Play a solo game against the computer. No room code needed — starts instantly!</p>
+        <button class="btn btn-g" id="btn-cpu" style="width:100%">🤖 Play vs Computer</button>
       </div>
       <p id="home-err" class="err" style="margin-top:6px"></p>
       <p style="font-size:.73rem;opacity:.4;margin-top:12px;text-align:center">
@@ -411,6 +416,7 @@ let myName='', mySlot=0, roomId='', roomCode='', hostSlot=1;
 let gameState=null; // {marbles,turn,over,winner,players,playerCount,started,active}
 let selected=null, validMoves=new Set();
 let realtimeSub=null;
+let isVsComputer=false, aiThinking=false;
 
 // ─── CANVAS / RENDER ─────────────────────────────────────────────────────────
 const canvas=document.getElementById('board');
@@ -468,6 +474,7 @@ function draw(){
 // ─── CANVAS INTERACTION ───────────────────────────────────────────────────────
 function canvasTap(evt){
   if(!gameState||!gameState.started||gameState.over)return;
+  if(aiThinking)return;
   // Use Number() to guard against JSON type drift after Supabase round-trip
   if(Number(gameState.turn)!==Number(mySlot)){
     updateTurnBar(); // refresh so the "waiting for X" message is current
@@ -538,6 +545,7 @@ function subscribe(){
 
 // ─── MOVE ─────────────────────────────────────────────────────────────────────
 async function doMove(from,to){
+  if(isVsComputer){doMoveLocal(from,to);return;}
   const gs=JSON.parse(JSON.stringify(gameState));
   gs.marbles[to]=gs.marbles[from];
   gs.marbles[from]=0;
@@ -552,6 +560,94 @@ async function doMove(from,to){
   gameState=gs;
   draw();updateTurnBar();
   await updateState(gs);
+}
+
+// ─── VS COMPUTER ──────────────────────────────────────────────────────────────
+const HUMAN_SLOT=1, AI_SLOT=4;
+
+function doMoveLocal(from,to){
+  const gs=JSON.parse(JSON.stringify(gameState));
+  const movingSlot=Number(gs.marbles[from]);
+  gs.marbles[to]=gs.marbles[from];
+  gs.marbles[from]=0;
+  selected=null;validMoves=new Set();
+  if(wonCheck(movingSlot,gs.marbles)){
+    gs.over=true;gs.winner=movingSlot;
+  } else {
+    const active=gs.active.map(Number);
+    const idx=active.indexOf(Number(gs.turn));
+    gs.turn=active[(idx+1)%active.length];
+  }
+  gameState=gs;
+  draw();updateTurnBar();renderPlayerListMini();
+  if(gs.over){showWin();return;}
+  if(Number(gs.turn)===AI_SLOT){
+    aiThinking=true;
+    setTimeout(()=>{aiThinking=false;aiMove();},700);
+  }
+}
+
+function nodeDistToGoal(nodeId,slot){
+  const goalZone=SLOT_GOAL[slot];
+  const gn=nodes.filter(n=>n.zone===goalZone);
+  const avgR=gn.reduce((s,n)=>s+n.r,0)/gn.length;
+  const avgC=gn.reduce((s,n)=>s+n.absC,0)/gn.length;
+  const n=nodes[nodeId];
+  return Math.hypot(n.r-avgR,(n.absC-avgC)*.5);
+}
+
+function aiMove(){
+  if(!gameState||gameState.over||Number(gameState.turn)!==AI_SLOT)return;
+  const mb=gameState.marbles;
+  let bestFrom=-1,bestTo=-1,bestScore=-Infinity;
+  nodes.forEach(n=>{
+    if(Number(mb[n.id])!==AI_SLOT)return;
+    const curDist=nodeDistToGoal(n.id,AI_SLOT);
+    const inGoalNow=nodes[n.id].zone===SLOT_GOAL[AI_SLOT];
+    const moves=getMoves(n.id,mb);
+    moves.forEach(destId=>{
+      const newDist=nodeDistToGoal(destId,AI_SLOT);
+      const score=curDist-newDist;
+      const bonus=nodes[destId].zone===SLOT_GOAL[AI_SLOT]?1.5:0;
+      const penalty=inGoalNow&&nodes[destId].zone!==SLOT_GOAL[AI_SLOT]?-4:0;
+      const total=score+bonus+penalty;
+      if(total>bestScore){bestScore=total;bestFrom=n.id;bestTo=destId;}
+    });
+  });
+  // Fallback: any available move
+  if(bestFrom===-1){
+    for(const n of nodes){
+      if(Number(mb[n.id])!==AI_SLOT)continue;
+      const moves=getMoves(n.id,mb);
+      if(moves.size>0){bestFrom=n.id;bestTo=[...moves][0];break;}
+    }
+  }
+  if(bestFrom===-1)return;
+  selected=bestFrom;validMoves=getMoves(bestFrom,mb);
+  draw();
+  setTimeout(()=>{selected=null;validMoves=new Set();doMoveLocal(bestFrom,bestTo);},450);
+}
+
+function startVsComputer(){
+  const name=document.getElementById('inp-name').value.trim();
+  if(!name){showHomeErr('Please enter your name.');return;}
+  myName=name;mySlot=HUMAN_SLOT;isVsComputer=true;aiThinking=false;
+  const active=[HUMAN_SLOT,AI_SLOT];
+  gameState={
+    marbles:initMarbles(active),turn:HUMAN_SLOT,over:false,winner:null,
+    players:{[HUMAN_SLOT]:{name},[AI_SLOT]:{name:'🤖 Computer'}},
+    playerCount:2,started:true,active
+  };
+  roomCode='';
+  showScreen('play');
+  document.getElementById('room-badge').textContent='vs Computer';
+  const cl=SLOT_COLOR[HUMAN_SLOT];
+  document.getElementById('my-chip').innerHTML=
+    `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cl.m};margin-right:5px;vertical-align:middle"></span>`+
+    `<span>${escHtml(myName)}</span>`;
+  document.getElementById('btn-copy-code').classList.add('hidden');
+  document.getElementById('chat-box').classList.add('hidden');
+  enterGameView();
 }
 
 // ─── ROOM CREATION ────────────────────────────────────────────────────────────
@@ -801,16 +897,28 @@ document.getElementById('btn-copy-code').addEventListener('click',()=>{
 
 function leaveRoom(){
   if(realtimeSub){realtimeSub.unsubscribe();realtimeSub=null;}
-  clearSession();
+  if(!isVsComputer)clearSession();
+  isVsComputer=false;aiThinking=false;
   gameState=null;selected=null;validMoves=new Set();
   document.getElementById('win-overlay').classList.add('hidden');
   document.getElementById('chat-msgs').innerHTML='';
+  document.getElementById('btn-copy-code').classList.remove('hidden');
+  document.getElementById('chat-box').classList.remove('hidden');
   showScreen('home');
 }
 document.getElementById('btn-leave').addEventListener('click',leaveRoom);
 document.getElementById('btn-leave-end').addEventListener('click',leaveRoom);
 document.getElementById('btn-play-again').addEventListener('click',()=>{
   document.getElementById('win-overlay').classList.add('hidden');
+  if(isVsComputer){
+    aiThinking=false;
+    const active=[HUMAN_SLOT,AI_SLOT];
+    gameState.marbles=initMarbles(active);
+    gameState.turn=HUMAN_SLOT;
+    gameState.over=false;gameState.winner=null;
+    enterGameView();
+    return;
+  }
   if(mySlot===hostSlot){
     const gs=JSON.parse(JSON.stringify(gameState));
     gs.marbles=initMarbles(gs.active);
@@ -834,6 +942,7 @@ document.querySelectorAll('#tabs .tab').forEach(t=>{
     const tab=t.dataset.tab;
     document.getElementById('panel-create').classList.toggle('hidden',tab!=='create');
     document.getElementById('panel-join').classList.toggle('hidden',tab!=='join');
+    document.getElementById('panel-cpu').classList.toggle('hidden',tab!=='cpu');
     document.getElementById('home-err').textContent='';
   });
 });
@@ -844,6 +953,7 @@ document.getElementById('inp-pcount').addEventListener('input',e=>{
 });
 document.getElementById('btn-create').addEventListener('click',createRoom);
 document.getElementById('btn-join').addEventListener('click',joinRoom);
+document.getElementById('btn-cpu').addEventListener('click',startVsComputer);
 document.getElementById('inp-code').addEventListener('input',e=>{
   e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'');
 });
