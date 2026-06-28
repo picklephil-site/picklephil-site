@@ -23,25 +23,23 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const nonce = url.searchParams.get("_")    || String(Date.now());
 
   try {
-    const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
+    const result = await (env.AI as any).run("@cf/qwen/qwen3-30b-a3b-fp8", {
       messages: [
         {
           role: "system",
-          content: `You are Pickle Phil. Respond with only a single short roast joke (1-2 sentences). Include a pickle emoji. No thinking, no analysis, no preamble. Just the joke. Session: ${nonce}.`,
+          content: `/no_think You are Pickle Phil, a funny and good-natured roaster. Write ONE short roast (1-2 sentences) about ${seed}. Include a pickle or food emoji. Output only the roast — no intro, no labels, no quotes.`,
         },
-        { role: "user", content: `Roast me about ${seed}.` },
+        { role: "user", content: `Roast me. Session ${nonce}.` },
       ],
-      max_tokens: 600,
-      temperature: 0.95,
+      max_tokens: 150,
+      temperature: 0.9,
     });
 
     const raw = result?.choices?.[0]?.message?.content || result?.response || "";
-    // Strip any leading reasoning/analysis — take only the last non-empty paragraph
-    const parts = raw.trim().split(/\n{2,}/);
-    const roast = parts[parts.length - 1].trim() ||
+    const roast = raw.trim() ||
       "You're so forgettable, even your pickle jar forgot your name. 🥒";
 
-    return new Response(JSON.stringify({ roast, seed, _debug: raw.slice(0, 200) }), { headers });
+    return new Response(JSON.stringify({ roast, seed }), { headers });
   } catch (err: any) {
     return new Response(
       JSON.stringify({ error: err?.message ?? "Generation failed" }),

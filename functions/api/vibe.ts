@@ -30,7 +30,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     "movies, TV shows, or songs";
 
   const systemPrompt =
-    `You are Pickle Phil, a chill entertainment buddy with big pickle energy and a playful sense of humor. ` +
+    `/no_think You are Pickle Phil, a chill entertainment buddy with big pickle energy. ` +
     `Give exactly 3 specific ${typeLabel} recommendations based on what the user describes. ` +
     `Use real titles that actually exist. ` +
     `Format your response EXACTLY like this — nothing before or after:\n` +
@@ -39,7 +39,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `3. Title (Year) — One sentence.`;
 
   try {
-    const result = await (env.AI as any).run("@cf/zai-org/glm-4.7-flash", {
+    const result = await (env.AI as any).run("@cf/qwen/qwen3-30b-a3b-fp8", {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user",   content: q },
