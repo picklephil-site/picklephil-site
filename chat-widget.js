@@ -157,18 +157,15 @@
         body: JSON.stringify({ messages: history }),
       });
       const data = await res.json();
-      const rawReply = data.reply || "Dropped the pickle on that one — try again!";
-
-      // Extract [IMG: ...] tag if present
-      const imgMatch  = rawReply.match(/\[IMG:\s*([^\]]+)\]/i);
-      const cleanReply = rawReply.replace(/\[IMG:[^\]]*\]/gi, '').trim();
+      const reply = data.reply || "Dropped the pickle on that one — try again!";
+      const imagePrompt = data.imagePrompt || null;
 
       typing.remove();
-      const msgEl = addMsg('pkl-a', cleanReply);
-      history.push({ role: 'assistant', content: cleanReply });
+      const msgEl = addMsg('pkl-a', reply);
+      history.push({ role: 'assistant', content: reply });
 
-      if (imgMatch) {
-        const imgPrompt = imgMatch[1].trim();
+      if (imagePrompt) {
+        const imgPrompt = imagePrompt;
         const wrap = document.createElement('div');
         wrap.className = 'pkl-img-wrap';
         wrap.innerHTML = '<div class="pkl-img-loading">🎨 Generating image…</div>';
