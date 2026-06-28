@@ -53,6 +53,15 @@
     border-bottom-left-radius: 4px;
   }
   .pkl-msg.pkl-dots { opacity: .55; font-style: italic; }
+  .pkl-img-wrap { margin-top: 8px; }
+  .pkl-img-loading {
+    background: rgba(255,255,255,.08); border-radius: 10px;
+    padding: 18px; text-align: center; font-size: .82rem; opacity: .7;
+  }
+  .pkl-gen-img {
+    max-width: 100%; border-radius: 10px; display: block; margin-top: 8px;
+    cursor: pointer;
+  }
   .pkl-foot {
     padding: 10px 12px; border-top: 1px solid rgba(255,255,255,.1);
     display: flex; gap: 8px; flex-shrink: 0;
@@ -148,10 +157,31 @@
         body: JSON.stringify({ messages: history }),
       });
       const data = await res.json();
-      const reply = data.reply || "Dropped the pickle on that one — try again!";
+      const rawReply = data.reply || "Dropped the pickle on that one — try again!";
+
+      // Extract [IMG: ...] tag if present
+      const imgMatch  = rawReply.match(/\[IMG:\s*([^\]]+)\]/i);
+      const cleanReply = rawReply.replace(/\[IMG:[^\]]*\]/gi, '').trim();
+
       typing.remove();
-      addMsg('pkl-a', reply);
-      history.push({ role: 'assistant', content: reply });
+      const msgEl = addMsg('pkl-a', cleanReply);
+      history.push({ role: 'assistant', content: cleanReply });
+
+      if (imgMatch) {
+        const imgPrompt = imgMatch[1].trim();
+        const wrap = document.createElement('div');
+        wrap.className = 'pkl-img-wrap';
+        wrap.innerHTML = '<div class="pkl-img-loading">🎨 Generating image…</div>';
+        msgEl.appendChild(wrap);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        const imgEl = new Image();
+        imgEl.className = 'pkl-gen-img';
+        imgEl.title = imgPrompt;
+        imgEl.onload = () => { wrap.innerHTML = ''; wrap.appendChild(imgEl); msgs.scrollTop = msgs.scrollHeight; };
+        imgEl.onerror = () => { wrap.innerHTML = '<div class="pkl-img-loading">Couldn\'t generate that one 😅</div>'; };
+        imgEl.src = '/api/imagine?prompt=' + encodeURIComponent(imgPrompt);
+      }
     } catch (_) {
       typing.remove();
       addMsg('pkl-a', "Phil's in the brine right now — try again in a sec!");
