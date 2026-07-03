@@ -131,14 +131,39 @@ let count = 0;
 const roastEl=document.getElementById('roast'), spiceEl=document.getElementById('spice'),
       countEl=document.getElementById('count'), pickle=document.getElementById('pickle');
 
-function roast(){
-  if(deck.length===0) reshuffle();
-  const text = deck.pop();
+async function roast(){
+  const btn = document.getElementById('roastBtn');
+  btn.disabled = true;
+  btn.textContent = '🥒 Brining…';
+  pickle.classList.remove('shake'); void pickle.offsetWidth; pickle.classList.add('shake');
+  roastEl.textContent = 'Pickle Phil is cooking something up…';
+  roastEl.classList.remove('fade'); void roastEl.offsetWidth; roastEl.classList.add('fade');
+  spiceEl.textContent = '';
+
+  let text;
+  try {
+    const topics = ['procrastination','bad cooking','overthinking','being late','karaoke',
+      'gym excuses','group chats','binge watching','bad parking','snack choices',
+      'fashion sense','napping','fantasy sports','DIY projects','coffee dependency'];
+    const seed = topics[Math.floor(Math.random() * topics.length)];
+    const res = await fetch(`/api/roast?seed=${encodeURIComponent(seed)}&_=${Date.now()}`);
+    const data = await res.json();
+    console.log('Roast API response:', JSON.stringify(data));
+    if (data.roast) text = data.roast;
+    else if (data.error) console.warn('Roast API error:', data.error);
+  } catch(e) { console.warn('Roast fetch failed:', e?.message); }
+
+  if (!text) {
+    if (deck.length === 0) reshuffle();
+    text = deck.pop();
+  }
+
   roastEl.textContent = text;
   roastEl.classList.remove('fade'); void roastEl.offsetWidth; roastEl.classList.add('fade');
   spiceEl.textContent = SPICE[Math.floor(Math.random()*SPICE.length)];
-  pickle.classList.remove('shake'); void pickle.offsetWidth; pickle.classList.add('shake');
   count++; countEl.textContent = count;
+  btn.disabled = false;
+  btn.textContent = '🔥 Roast Me!';
 }
 document.getElementById('roastBtn').addEventListener('click', roast);
 document.getElementById('copyBtn').addEventListener('click', async ()=>{
@@ -147,5 +172,6 @@ document.getElementById('copyBtn').addEventListener('click', async ()=>{
   catch{ alert(t); }
 });
 </script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>
