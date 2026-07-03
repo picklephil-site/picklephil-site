@@ -52,10 +52,10 @@
 
   .desktop-icons{
     position:absolute; top:14px; left:10px; bottom:52px; right:10px;
-    display:flex; flex-direction:column; flex-wrap:wrap; align-content:flex-start;
-    gap:2px; overflow:hidden;
+    overflow:hidden;
   }
   .dicon{
+    position:absolute; touch-action:none;
     width:82px; height:84px; padding:6px 4px; display:flex; flex-direction:column; align-items:center;
     justify-content:flex-start; gap:4px; border:1px dashed transparent; border-radius:3px; cursor:pointer;
     background:none;
@@ -208,10 +208,39 @@
 
   /* Radio */
   .radio-face{padding:16px; text-align:center;}
-  .radio-screen{background:#08210f; color:#33ff66; font-family:"Press Start 2P",monospace; font-size:10px; padding:10px; margin-bottom:14px; overflow:hidden; white-space:nowrap;}
+  .radio-screen{background:#08210f; color:#33ff66; font-family:"Press Start 2P",monospace; font-size:10px; padding:10px; margin-bottom:10px; overflow:hidden; white-space:nowrap;}
   .radio-marquee{display:inline-block; padding-left:100%; animation:marquee 9s linear infinite;}
   @keyframes marquee{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
   .radio-btn{font-size:20px; width:42px; height:36px; margin:0 3px;}
+  #radio-viz{background:#08210f; border:1px solid #000; margin-bottom:14px; display:block; margin-left:auto; margin-right:auto;}
+
+  /* Disk Defragmenter */
+  .defrag-toolbar{display:flex; align-items:center; gap:8px; padding:8px; background:var(--face); border-bottom:2px solid var(--bevel-dark); flex-wrap:wrap;}
+  .defrag-grid{display:grid; gap:1px; padding:8px; background:#000; justify-content:center;}
+  .defrag-cell{width:13px; height:13px;}
+  .defrag-cell.d-free{background:#000;}
+  .defrag-cell.d-used{background:#1e90ff;}
+  .defrag-cell.d-fragmented{background:#e74c3c;}
+  .defrag-cell.d-optimized{background:#2ecc71;}
+  .defrag-cell.d-system{background:#c0c0c0;}
+  .defrag-cell.d-scan{outline:2px solid #fff; outline-offset:-1px;}
+  .defrag-legend{display:flex; gap:12px; flex-wrap:wrap; padding:0 10px 10px; font-size:11px;}
+  .defrag-legend span{display:inline-flex; align-items:center; gap:4px;}
+  .defrag-swatch{width:11px; height:11px; display:inline-block; border:1px solid #000;}
+  .defrag-progress-wrap{flex:1; min-width:120px; background:#000; border:1px solid #333; height:16px; position:relative;}
+  .defrag-progress-bar{height:100%; background:linear-gradient(90deg,#2ecc71,#1e90ff); width:0%; transition:width .1s linear;}
+
+  /* Desktop buddy */
+  #pickle-buddy{
+    position:absolute; bottom:52px; left:-60px; font-size:34px; z-index:60; cursor:pointer;
+    transition-property:left; transition-timing-function:linear;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));
+  }
+  #pickle-buddy .buddy-bubble{
+    position:absolute; bottom:105%; left:50%; transform:translateX(-50%);
+    background:#fff; color:#111; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:700;
+    white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.35);
+  }
 
   /* Minesweeper */
   .mine-head{display:flex; align-items:center; justify-content:space-between; background:var(--face); padding:6px; border-bottom:2px solid var(--bevel-dark);}
@@ -775,9 +804,9 @@
         else if(cmd==='pickle'){ print("      .-\"\"-.\n    .'      '.\n   /   o  o   \\\n  :     ..     :\n   \\  '----'  /\n    '.______.'\n\n   one (1) pickle, delivered."); }
         else if(cmd.indexOf('open ')===0){
           var target = cmd.slice(5).trim();
-          var map = {paint:'paint', notepad:'notepad', solitaire:'solitaire', roast:'roast', playground:'playground', guestbook:'guestbook', radio:'radio', 'my computer':'mycomputer', mycomputer:'mycomputer', minesweeper:'minesweeper', sweeper:'minesweeper', snake:'snake', tv:'tv', browser:'browser'};
+          var map = {paint:'paint', notepad:'notepad', solitaire:'solitaire', roast:'roast', playground:'playground', guestbook:'guestbook', radio:'radio', 'my computer':'mycomputer', mycomputer:'mycomputer', minesweeper:'minesweeper', sweeper:'minesweeper', snake:'snake', tv:'tv', browser:'browser', defrag:'defrag'};
           if(map[target]){ print('Launching '+target+'...'); openApp(map[target]); }
-          else print("'"+target+"' is not recognized. Try: paint, solitaire, roast, playground, guestbook, radio, minesweeper, snake, tv, browser");
+          else print("'"+target+"' is not recognized. Try: paint, solitaire, roast, playground, guestbook, radio, minesweeper, snake, tv, browser, defrag");
         }
         else if(cmd==='sudo make me a sandwich'){ print("Okay. 🥪\n(Kernel panic: sandwich.exe not found. Please insert bread and try again.)"); }
         else if(cmd==='format c:'){ print("Formatting C:\\PICKLES...\n10%... 46%... 89%..."); setTimeout(function(){ showBSOD(); }, 900); return; }
@@ -790,10 +819,11 @@
   };
 
   APPS.radio = {
-    title:'Brine FM', icon:'📻', width:320, height:260, pad:false,
+    title:'Brine FM', icon:'📻', width:320, height:300, pad:false,
     html:
       '<div class="radio-face">'+
         '<div class="radio-screen"><span class="radio-marquee">*** NOW PLAYING: Pickle Jams Vol. 1 — Track 3 "Brine Time" *** requests: none, this is a fake radio *** </span></div>'+
+        '<canvas id="radio-viz" width="240" height="50"></canvas>'+
         '<div>'+
           '<button class="win-btn2 radio-btn" id="radio-play">▶</button>'+
           '<button class="win-btn2 radio-btn" id="radio-stop">⏹</button>'+
@@ -804,16 +834,121 @@
     afterMount: function(body){
       var seq = [392,440,494,523,587,659,698,784];
       var idx = 0, playing = false, timer=null;
+      var canvas = body.querySelector('#radio-viz'), vctx = canvas.getContext('2d');
+      var BARS = 16, heights = new Array(BARS).fill(0), targets = new Array(BARS).fill(0);
+      var vizRAF = null, vizAlive = true;
+      function updateTargets(){
+        for(var i=0;i<BARS;i++) targets[i] = playing ? (0.2 + Math.random()*0.8) : 0;
+      }
+      function vizFrame(){
+        if(!vizAlive) return;
+        var w = canvas.width, h = canvas.height, bw = w / BARS;
+        vctx.clearRect(0,0,w,h);
+        for(var i=0;i<BARS;i++){
+          heights[i] += (targets[i]-heights[i]) * 0.22;
+          var bh = Math.max(1, heights[i]*h);
+          vctx.fillStyle = i%3===0 ? '#f1c40f' : '#2ecc71';
+          vctx.fillRect(i*bw+1.5, h-bh, bw-3, bh);
+        }
+        vizRAF = requestAnimationFrame(vizFrame);
+      }
+      vizFrame();
       function playNote(){
         blip(seq[idx % seq.length], .35, 'triangle');
         idx++;
+        updateTargets();
       }
       body.querySelector('#radio-play').addEventListener('click', function(){
         if(playing) return; playing = true;
         timer = setInterval(playNote, 380);
+        updateTargets();
       });
-      body.querySelector('#radio-stop').addEventListener('click', function(){ playing=false; clearInterval(timer); });
-      body.querySelector('#radio-next').addEventListener('click', function(){ idx += 3; blip(880,.08); });
+      body.querySelector('#radio-stop').addEventListener('click', function(){ playing=false; clearInterval(timer); updateTargets(); });
+      body.querySelector('#radio-next').addEventListener('click', function(){ idx += 3; blip(880,.08); if(playing) updateTargets(); });
+      var winEl = body.closest('.win');
+      if(winEl){
+        var obs = new MutationObserver(function(){
+          if(!document.body.contains(winEl)){ vizAlive=false; cancelAnimationFrame(vizRAF); obs.disconnect(); }
+        });
+        obs.observe(document.getElementById('windows-layer'), {childList:true});
+      }
+    }
+  };
+
+  // ---- Disk Defragmenter (pure nostalgia, does nothing real) ----
+  APPS.defrag = {
+    title:'Pickle Disk Defragmenter', icon:'🧩', width:420, height:420, resizable:false,
+    html:
+      '<div class="defrag-toolbar">'+
+        '<button class="win-btn2" id="defrag-analyze">Analyze</button>'+
+        '<button class="win-btn2" id="defrag-start">Defragment Now</button>'+
+        '<button class="win-btn2" id="defrag-stop">Stop</button>'+
+        '<div class="defrag-progress-wrap"><div class="defrag-progress-bar" id="defrag-bar"></div></div>'+
+      '</div>'+
+      '<div class="defrag-grid" id="defrag-grid" style="grid-template-columns:repeat(22,13px);"></div>'+
+      '<div class="defrag-legend">'+
+        '<span><i class="defrag-swatch" style="background:#1e90ff;"></i>Used</span>'+
+        '<span><i class="defrag-swatch" style="background:#e74c3c;"></i>Fragmented</span>'+
+        '<span><i class="defrag-swatch" style="background:#2ecc71;"></i>Optimized</span>'+
+        '<span><i class="defrag-swatch" style="background:#c0c0c0;"></i>System (fixed)</span>'+
+        '<span><i class="defrag-swatch" style="background:#000;"></i>Free</span>'+
+      '</div>'+
+      '<p class="app-p" style="padding:0 10px 10px;opacity:.7;font-size:11px;">100% cosmetic. Your brine was never actually fragmented.</p>',
+    afterMount: function(body){
+      var COLS=22, ROWS=12, TOTAL=COLS*ROWS;
+      var cells, running=false, scanIdx=0, scanTimer=null;
+      var gridEl = body.querySelector('#defrag-grid');
+      var bar = body.querySelector('#defrag-bar');
+
+      function randomBoard(){
+        cells = [];
+        for(var i=0;i<TOTAL;i++){
+          var r = Math.random();
+          var type = r<0.04 ? 'system' : r<0.28 ? 'free' : r<0.62 ? 'fragmented' : 'used';
+          cells.push(type);
+        }
+      }
+      function render(){
+        gridEl.innerHTML = '';
+        for(var i=0;i<TOTAL;i++){
+          var d = document.createElement('div');
+          d.className = 'defrag-cell d-'+cells[i] + (running && i===scanIdx ? ' d-scan' : '');
+          gridEl.appendChild(d);
+        }
+      }
+      function stop(){
+        running = false;
+        clearInterval(scanTimer);
+      }
+      function startDefrag(){
+        if(running) return;
+        running = true; scanIdx = 0;
+        sndClick();
+        scanTimer = setInterval(function(){
+          if(scanIdx >= TOTAL){
+            stop(); bar.style.width='100%'; render();
+            blip(880,.08); setTimeout(function(){blip(1100,.12);},90);
+            return;
+          }
+          for(var k=0;k<3 && scanIdx+k<TOTAL;k++){
+            var ci = scanIdx+k;
+            if(cells[ci]==='fragmented' || cells[ci]==='used') cells[ci]='optimized';
+          }
+          bar.style.width = Math.round((scanIdx/TOTAL)*100)+'%';
+          if(scanIdx % 11 === 0) blip(300+((scanIdx*7)%400), .02);
+          scanIdx += 3;
+          render();
+        }, 16);
+      }
+      body.querySelector('#defrag-analyze').addEventListener('click', function(){
+        sndClick();
+        var frag = cells.filter(function(c){return c==='fragmented';}).length;
+        showDialog({title:'Analysis Complete', emoji:'🧩', msg:'Analysis complete: '+Math.round(frag/TOTAL*100)+'% of this jar is fragmented. Recommend defragmenting now (or just eating a pickle instead).', buttons:['OK']});
+      });
+      body.querySelector('#defrag-start').addEventListener('click', startDefrag);
+      body.querySelector('#defrag-stop').addEventListener('click', function(){ sndClick(); stop(); });
+
+      randomBoard(); render();
     }
   };
 
@@ -1178,12 +1313,12 @@
       '<div style="text-align:right;margin-top:14px;"><button class="win-btn2" id="run-go">OK</button> <button class="win-btn2" id="run-cancel">Cancel</button></div>',
     afterMount: function(body, id){
       var input = body.querySelector('#run-input');
-      var map = {paint:'paint', notepad:'notepad', solitaire:'solitaire', roast:'roast', playground:'playground', guestbook:'guestbook', radio:'radio', mycomputer:'mycomputer', 'my computer':'mycomputer', terminal:'terminal', cmd:'terminal', trivia:'trivia', bible:'bible', rickroll:'rick', rick:'rick', minesweeper:'minesweeper', sweeper:'minesweeper', snake:'snake', tv:'tv', browser:'browser', iexplore:'browser'};
+      var map = {paint:'paint', notepad:'notepad', solitaire:'solitaire', roast:'roast', playground:'playground', guestbook:'guestbook', radio:'radio', mycomputer:'mycomputer', 'my computer':'mycomputer', terminal:'terminal', cmd:'terminal', trivia:'trivia', bible:'bible', rickroll:'rick', rick:'rick', minesweeper:'minesweeper', sweeper:'minesweeper', snake:'snake', tv:'tv', browser:'browser', iexplore:'browser', defrag:'defrag', defragmenter:'defrag'};
       function go(){
         var v = input.value.trim().toLowerCase();
         if(v==='format c:'){ closeWin(id); showBSOD(); return; }
         if(map[v]){ closeWin(id); openApp(map[v]); }
-        else showDialog({title:'Run', emoji:'❌', msg:'PickleOS cannot find "'+(input.value||'(nothing)')+'". Make sure the name is typed correctly, then try again. (Try: paint, solitaire, roast, playground, guestbook, radio, terminal, trivia, bible, minesweeper, snake, tv, browser)'});
+        else showDialog({title:'Run', emoji:'❌', msg:'PickleOS cannot find "'+(input.value||'(nothing)')+'". Make sure the name is typed correctly, then try again. (Try: paint, solitaire, roast, playground, guestbook, radio, terminal, trivia, bible, minesweeper, snake, tv, browser, defrag)'});
       }
       body.querySelector('#run-go').addEventListener('click', go);
       body.querySelector('#run-cancel').addEventListener('click', function(){ closeWin(id); });
@@ -1306,7 +1441,7 @@
   document.addEventListener('pointerdown', function(e){ if(!e.target.closest('.ctx-menu')) closeCtxMenu(); });
 
   function arrangeIcons(){
-    for(var i=DESKTOP_ICONS.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=DESKTOP_ICONS[i]; DESKTOP_ICONS[i]=DESKTOP_ICONS[j]; DESKTOP_ICONS[j]=t; }
+    saveIconPositions({});
     buildDesktopIcons();
     sndClick();
   }
@@ -1317,7 +1452,8 @@
     sndClick();
   }
   function newTextDoc(){
-    DESKTOP_ICONS.push({app:null, emoji:'📄', label:'New Text Document.txt', customText:''});
+    DESKTOP_ICONS.push({id:'custom-'+Math.random().toString(36).slice(2,9), app:null, emoji:'📄', label:'New Text Document.txt', customText:''});
+    saveDesktopIcons();
     buildDesktopIcons();
     sndOpen();
   }
@@ -1394,25 +1530,92 @@
   });
 
   /* ============================================================
+     DESKTOP BUDDY — a roaming pickle companion, windows93-style
+  ============================================================ */
+  var PICKLE_TIPS = [
+    "Did you know? Ctrl+Alt+Del does nothing here. On purpose.",
+    "Tip: try typing 'format c:' in the terminal. I dare you.",
+    "Have you tried turning yourself off and on again?",
+    "Fun fact: this whole OS runs on vibes and localStorage.",
+    "You've been idle. I get bored too, you know.",
+    "Tip: right-click the desktop. There's more menu there.",
+    "I'd help more, but I'm just a pickle with legs.",
+    "Remember to save your work! (there is no work) (there is no save)",
+    "Psst. Try dragging me. I dare you.",
+    "This message will not self-destruct. Neither will I.",
+    "Loading personality... done. This is it. This is the personality."
+  ];
+  var buddyEl = null, buddyTimer = null;
+  function scheduleBuddy(){
+    clearTimeout(buddyTimer);
+    buddyTimer = setTimeout(function(){ walkBuddy(); scheduleBuddy(); }, 100000 + Math.random()*80000);
+  }
+  function walkBuddy(){
+    if(buddyEl) return;
+    if(document.getElementById('screensaver').style.display === 'block') return;
+    if(document.getElementById('bsod-screen').style.display === 'flex') return;
+    var desktop = document.getElementById('desktop');
+    var dw = desktop.clientWidth;
+    var el = document.createElement('div');
+    el.id = 'pickle-buddy';
+    el.innerHTML = '🥒<div class="buddy-bubble">'+PICKLE_TIPS[Math.floor(Math.random()*PICKLE_TIPS.length)]+'</div>';
+    el.style.left = '-60px';
+    desktop.appendChild(el);
+    buddyEl = el;
+    var dur = 9 + Math.random()*5;
+    el.style.transitionDuration = dur+'s';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ if(buddyEl===el) el.style.left = (dw+60)+'px'; });
+    });
+    function done(){ if(buddyEl===el){ el.remove(); buddyEl=null; } }
+    el.addEventListener('click', function(){ blip(880,.1); done(); });
+    setTimeout(done, dur*1000 + 300);
+  }
+
+  /* ============================================================
      DESKTOP ICONS + START MENU CONTENT
   ============================================================ */
-  var DESKTOP_ICONS = [
-    {app:'about', emoji:'🥒', label:'About Phil'},
-    {app:'mycomputer', emoji:'🖥️', label:'My Computer'},
-    {app:'recyclebin', emoji:'🗑️', label:'Recycle Bin'},
-    {app:'paint', emoji:'🎨', label:'Pickle Paint'},
-    {app:'terminal', emoji:'⌨️', label:'MS-Pickle Prompt'},
-    {app:'radio', emoji:'📻', label:'Brine FM'},
-    {app:'minesweeper', emoji:'🥒', label:'Pickle Sweeper'},
-    {app:'snake', emoji:'🐍', label:'Brine Snake'},
-    {app:'tv', emoji:'📺', label:'Pickle Vision TV'},
-    {app:'browser', emoji:'🌐', label:'Pickle Explorer 93'},
-    {app:'solitaire', emoji:'🃏', label:'Solitaire'},
-    {app:'roast', emoji:'🔥', label:'Roast Gen'},
-    {app:'guestbook', emoji:'📖', label:'Guestbook'},
-    {app:'playground', emoji:'🎡', label:'Playground'},
-    {app:'bsod-trigger', emoji:'💀', label:"Don't Click This.exe"}
+  var DEFAULT_DESKTOP_ICONS = [
+    {id:'about', app:'about', emoji:'🥒', label:'About Phil'},
+    {id:'mycomputer', app:'mycomputer', emoji:'🖥️', label:'My Computer'},
+    {id:'recyclebin', app:'recyclebin', emoji:'🗑️', label:'Recycle Bin'},
+    {id:'paint', app:'paint', emoji:'🎨', label:'Pickle Paint'},
+    {id:'terminal', app:'terminal', emoji:'⌨️', label:'MS-Pickle Prompt'},
+    {id:'radio', app:'radio', emoji:'📻', label:'Brine FM'},
+    {id:'minesweeper', app:'minesweeper', emoji:'🥒', label:'Pickle Sweeper'},
+    {id:'snake', app:'snake', emoji:'🐍', label:'Brine Snake'},
+    {id:'tv', app:'tv', emoji:'📺', label:'Pickle Vision TV'},
+    {id:'browser', app:'browser', emoji:'🌐', label:'Pickle Explorer 93'},
+    {id:'defrag', app:'defrag', emoji:'🧩', label:'Disk Defragmenter'},
+    {id:'solitaire', app:'solitaire', emoji:'🃏', label:'Solitaire'},
+    {id:'roast', app:'roast', emoji:'🔥', label:'Roast Gen'},
+    {id:'guestbook', app:'guestbook', emoji:'📖', label:'Guestbook'},
+    {id:'playground', app:'playground', emoji:'🎡', label:'Playground'},
+    {id:'bsod-trigger', app:'bsod-trigger', emoji:'💀', label:"Don't Click This.exe"}
   ];
+
+  function loadDesktopIcons(){
+    try{
+      var saved = JSON.parse(localStorage.getItem('pos_desktop_icons')||'null');
+      if(Array.isArray(saved) && saved.length) return saved;
+    }catch(e){}
+    return DEFAULT_DESKTOP_ICONS.map(function(ic){ return Object.assign({}, ic); });
+  }
+  function saveDesktopIcons(){
+    try{ localStorage.setItem('pos_desktop_icons', JSON.stringify(DESKTOP_ICONS)); }catch(e){}
+  }
+  var DESKTOP_ICONS = loadDesktopIcons();
+
+  function loadIconPositions(){
+    try{ return JSON.parse(localStorage.getItem('pos_icon_positions')||'{}'); }catch(e){ return {}; }
+  }
+  function saveIconPositions(pos){
+    try{ localStorage.setItem('pos_icon_positions', JSON.stringify(pos)); }catch(e){}
+  }
+  function defaultIconPos(index){
+    var col = Math.floor(index/8), row = index%8;
+    return { x: 14 + col*90, y: 14 + row*86 };
+  }
 
   var START_PROGRAMS = [
     {app:'trivia', emoji:'🧠', label:'Dill Trivia'},
@@ -1428,11 +1631,50 @@
   function buildDesktopIcons(){
     var wrap = document.getElementById('desktop-icons');
     wrap.innerHTML = '';
+    var positions = loadIconPositions();
+    var wrapW = wrap.clientWidth, wrapH = wrap.clientHeight;
+
     DESKTOP_ICONS.forEach(function(ic, idx){
       var d = document.createElement('div');
       d.className = 'dicon'; d.dataset.idx = idx;
       d.innerHTML = '<div class="di-emoji">'+ic.emoji+'</div><div class="di-label">'+ic.label+'</div>';
+
+      var pos = positions[ic.id] || defaultIconPos(idx);
+      var iconW = 82, iconH = 84;
+      var x = Math.max(0, Math.min(pos.x, Math.max(0, wrapW - iconW)));
+      var y = Math.max(0, Math.min(pos.y, Math.max(0, wrapH - iconH)));
+      d.style.left = x+'px'; d.style.top = y+'px';
+
+      // Drag-anywhere, with a movement threshold so it doesn't eat real clicks
+      var drag = null;
+      d.addEventListener('pointerdown', function(e){
+        drag = { moved:false, sx:e.clientX, sy:e.clientY, ox:parseFloat(d.style.left)||0, oy:parseFloat(d.style.top)||0 };
+        d.setPointerCapture(e.pointerId);
+      });
+      d.addEventListener('pointermove', function(e){
+        if(!drag) return;
+        var dx = e.clientX-drag.sx, dy = e.clientY-drag.sy;
+        if(!drag.moved && Math.hypot(dx,dy) < 6) return;
+        drag.moved = true;
+        var ww = wrap.clientWidth, wh = wrap.clientHeight;
+        var nx = Math.max(0, Math.min(ww-iconW, drag.ox+dx));
+        var ny = Math.max(0, Math.min(wh-iconH, drag.oy+dy));
+        d.style.left = nx+'px'; d.style.top = ny+'px';
+      });
+      function endDrag(){
+        if(drag && drag.moved){
+          var p = loadIconPositions();
+          p[ic.id] = { x: parseFloat(d.style.left), y: parseFloat(d.style.top) };
+          saveIconPositions(p);
+          d.dataset.justDragged = '1';
+        }
+        drag = null;
+      }
+      d.addEventListener('pointerup', endDrag);
+      d.addEventListener('pointercancel', endDrag);
+
       d.addEventListener('click', function(){
+        if(d.dataset.justDragged === '1'){ d.dataset.justDragged=''; return; }
         sndClick();
         if(ic.customText !== undefined) openApp('notepad', {title:ic.label, htmlOverride:ic.customText});
         else if(ic.app === 'bsod-trigger'){
@@ -1447,11 +1689,11 @@
           {emoji:'📂', label:'Open', onClick:function(){ d.click(); }},
           {emoji:'✏️', label:'Rename', onClick:function(){
             var nv = prompt('Rename to:', DESKTOP_ICONS[idx].label);
-            if(nv){ DESKTOP_ICONS[idx].label = nv; buildDesktopIcons(); }
+            if(nv){ DESKTOP_ICONS[idx].label = nv; saveDesktopIcons(); buildDesktopIcons(); }
           }},
           {emoji:'🗑️', label:'Delete', onClick:function(){
             showDialog({title:'Confirm Delete', emoji:'🗑️', msg:'Delete "'+DESKTOP_ICONS[idx].label+'"? This cannot be un-pickled.', buttons:['Yes','No'],
-              onButton:function(i){ if(i===0){ DESKTOP_ICONS.splice(idx,1); buildDesktopIcons(); sndClose(); } }});
+              onButton:function(i){ if(i===0){ DESKTOP_ICONS.splice(idx,1); saveDesktopIcons(); buildDesktopIcons(); sndClose(); } }});
           }}
         ], e.clientX, e.clientY);
       });
@@ -1614,6 +1856,9 @@
 
     // Ambient popup ad gag
     scheduleAds();
+
+    // Roaming desktop buddy
+    scheduleBuddy();
 
     document.getElementById('start-btn').addEventListener('click', toggleStart);
     document.addEventListener('pointerdown', function(e){
