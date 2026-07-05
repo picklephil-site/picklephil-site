@@ -142,6 +142,21 @@
   }
   .mini-btn:hover{background:rgba(255,255,255,.18)}
 
+  /* PERFORMANCE MODE — while a game is running, kill every effect that
+     forces full-page compositing (blur, fixed gradients, glows) so the
+     emulator canvas gets the GPU to itself */
+  body.playing{
+    background:#07160d !important;
+    background-attachment:scroll !important;
+  }
+  body.playing .cab{
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+    background:rgba(8,40,24,.72); box-shadow:none;
+  }
+  body.playing .crt{box-shadow:0 0 0 3px #0a2c1a}
+  body.playing .arcade-title{animation:none; text-shadow:0 4px 0 #073a1f; filter:none}
+  body.playing #power-btn{animation:none}
+
   .legal{font-size:.85rem; opacity:.8; line-height:1.6}
   .legal a, .cab a{color:var(--neon); text-decoration:underline}
   ul.tips{margin:8px 0 0; padding-left:20px; line-height:1.7}
@@ -239,7 +254,7 @@
       <div class="crt"><div id="game"></div></div>
       <div class="stage-bar">
         <button class="mini-btn" onclick="location.reload()">⏏ Swap Game</button>
-        <span class="hint" style="align-self:center">💾 Save/load states &amp; controller setup are in the emulator's menu bar. On phones you get touch controls automatically.</span>
+        <span class="hint" style="align-self:center">💾 Save/load states &amp; controller setup are in the emulator's menu bar. Feeling laggy? Hit ⛶ Fullscreen in that bar — it usually fixes it instantly.</span>
       </div>
     </section>
 
@@ -326,6 +341,7 @@
         document.getElementById('picker').style.display = 'none';
         document.getElementById('shelf').style.display = 'none';
         document.getElementById('stage').style.display = 'block';
+        document.body.classList.add('playing');
 
         window.EJS_player = '#game';
         window.EJS_core = core;
