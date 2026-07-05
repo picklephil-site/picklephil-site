@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pickle Arcade — The Real Dill Phil's Jar</title>
+<meta name="description" content="Pickle Arcade — play SNES, Sega Genesis, NES, and Game Boy games right in your browser." />
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+    --text:#f5f7f5; --accent:#2ecc71; --btnText:#0d3d24;
+    --radius:18px; --shadow:0 18px 45px rgba(0,0,0,.40);
+    --glass: rgba(255,255,255,.10);
+    --glass-border: rgba(255,255,255,.22);
+    --panel-b: rgba(8,40,24,.28);
+    --neon:#39ff88;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+    background:
+      radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
+      radial-gradient(1100px 800px at 12% 0%, var(--bg2) 0%, transparent 55%),
+      radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
+    background-attachment:fixed;
+    min-height:100vh; text-align:center;
+  }
+  .wrap{width:min(980px,100%); margin:0 auto; padding:18px}
+  .btn{
+    color:var(--btnText); text-decoration:none;
+    background:linear-gradient(180deg,#ffffff 0%, #e6efe8 100%);
+    padding:12px 20px; border-radius:12px; font-weight:700; margin:6px;
+    display:inline-block; border:1px solid rgba(255,255,255,.6);
+    box-shadow:0 8px 20px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.9);
+    cursor:pointer; transition:transform .18s ease, box-shadow .18s ease;
+    font-family:inherit; font-size:1rem;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.38), 0 0 0 2px rgba(46,204,113,.35); }
+  .btn, .btn:visited{ color:var(--btnText) !important; }
+
+  .arcade-title{
+    font-family:"Press Start 2P", monospace;
+    font-size:clamp(20px, 5.2vw, 42px);
+    margin:18px 0 6px; line-height:1.4;
+    color:var(--neon);
+    text-shadow:0 0 8px rgba(57,255,136,.9), 0 0 26px rgba(57,255,136,.45), 0 4px 0 #073a1f;
+    animation:flicker 4s linear infinite;
+  }
+  @keyframes flicker{
+    0%,93%,95%,100%{opacity:1} 94%{opacity:.75} 97%{opacity:.9}
+  }
+  .tagline{opacity:.9; margin:0 0 20px; font-size:1.05rem}
+
+  .cab{
+    background:linear-gradient(165deg, var(--glass), var(--panel-b));
+    -webkit-backdrop-filter:blur(14px) saturate(120%);
+    backdrop-filter:blur(14px) saturate(120%);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius); padding:20px;
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.18);
+    margin-bottom:18px; text-align:left;
+  }
+  .cab h2{margin:0 0 10px; font-size:1.15rem}
+  .cab h2 .step{
+    font-family:"Press Start 2P", monospace; font-size:.7rem; color:var(--neon);
+    margin-right:8px; vertical-align:middle;
+  }
+
+  /* console picker */
+  .consoles{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-top:8px}
+  .console-btn{
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18);
+    border-radius:12px; color:var(--text); padding:12px 8px; cursor:pointer;
+    font-family:inherit; font-size:.9rem; font-weight:600; text-align:center;
+    transition:background .15s, border-color .15s, transform .15s;
+  }
+  .console-btn .ico{display:block; font-size:1.5rem; margin-bottom:6px}
+  .console-btn:hover{background:rgba(255,255,255,.13); transform:translateY(-2px)}
+  .console-btn.sel{background:rgba(46,204,113,.28); border-color:var(--neon); box-shadow:0 0 14px rgba(57,255,136,.35)}
+
+  /* drop zone */
+  .dropzone{
+    margin-top:8px; border:2px dashed rgba(57,255,136,.5); border-radius:14px;
+    padding:34px 16px; text-align:center; cursor:pointer;
+    transition:background .15s, border-color .15s;
+  }
+  .dropzone:hover, .dropzone.drag{background:rgba(46,204,113,.12); border-color:var(--neon)}
+  .dropzone p{margin:6px 0}
+  .dropzone .big{font-size:2rem; margin:0}
+  .file-name{font-weight:700; color:var(--neon); word-break:break-all}
+  .hint{font-size:.85rem; opacity:.75}
+
+  #power-row{display:none; text-align:center; margin-top:14px}
+  #power-btn{
+    font-family:"Press Start 2P", monospace; font-size:.85rem;
+    background:linear-gradient(180deg,#39ff88,#1c8a4e); color:#06290f;
+    border:none; border-radius:12px; padding:16px 26px; cursor:pointer;
+    box-shadow:0 0 20px rgba(57,255,136,.5), 0 8px 20px rgba(0,0,0,.35);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+  /* game stage w/ CRT vibes */
+  #stage{display:none}
+  .crt{
+    position:relative; background:#000; border-radius:14px; overflow:hidden;
+    border:3px solid #123c26; box-shadow:0 0 0 3px #0a2c1a, 0 0 34px rgba(57,255,136,.25), var(--shadow);
+  }
+  #game{width:100%; aspect-ratio:4/3;}
+  .stage-bar{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px}
+  .mini-btn{
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25);
+    color:var(--text); border-radius:10px; padding:8px 14px; cursor:pointer;
+    font-family:inherit; font-size:.85rem; font-weight:600;
+  }
+  .mini-btn:hover{background:rgba(255,255,255,.18)}
+
+  .legal{font-size:.85rem; opacity:.8; line-height:1.6}
+  .legal a, .cab a{color:var(--neon); text-decoration:underline}
+  ul.tips{margin:8px 0 0; padding-left:20px; line-height:1.7}
+  footer{margin:34px 0 16px; opacity:.8}
+  a.home{color:var(--text); text-decoration:none}
+  @media (max-width:600px){
+    .cab{padding:16px}
+    .consoles{grid-template-columns:repeat(3,1fr)}
+    .console-btn{font-size:.78rem; padding:10px 4px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p style="text-align:left; margin:4px 0 0;"><a class="home" href="/">← Back to the Jar</a></p>
+    <h1 class="arcade-title">🕹️ PICKLE ARCADE 🕹️</h1>
+    <p class="tagline">Real console emulators, right in your browser. Blow on the cartridge and let's go.</p>
+
+    <!-- STEP 1: pick console -->
+    <section class="cab" id="picker">
+      <h2><span class="step">STEP 1</span>Pick your console</h2>
+      <p class="hint" style="margin:0">Optional — I'll auto-detect it from your game file. Tap one to override.</p>
+      <div class="consoles" id="console-grid">
+        <button class="console-btn" data-core="snes"><span class="ico">🎮</span>SNES</button>
+        <button class="console-btn" data-core="segaMD"><span class="ico">🌀</span>Genesis</button>
+        <button class="console-btn" data-core="nes"><span class="ico">🕹️</span>NES</button>
+        <button class="console-btn" data-core="gb"><span class="ico">🧱</span>Game Boy</button>
+        <button class="console-btn" data-core="gba"><span class="ico">📟</span>GBA</button>
+        <button class="console-btn" data-core="n64"><span class="ico">🎲</span>N64</button>
+      </div>
+
+      <h2 style="margin-top:22px"><span class="step">STEP 2</span>Load your game</h2>
+      <div class="dropzone" id="dropzone">
+        <p class="big">📼</p>
+        <p><strong>Drop a ROM file here</strong> or tap to browse</p>
+        <p class="hint">.sfc .smc .md .gen .bin .nes .gb .gbc .gba .n64 .z64 .zip</p>
+        <p id="picked" class="file-name"></p>
+      </div>
+      <input type="file" id="rom-input" style="display:none"
+        accept=".sfc,.smc,.fig,.md,.gen,.smd,.bin,.sms,.gg,.nes,.fds,.gb,.gbc,.gba,.n64,.z64,.v64,.pce,.zip,.7z">
+
+      <div id="power-row">
+        <button id="power-btn">▶ POWER ON</button>
+      </div>
+    </section>
+
+    <!-- THE GAME -->
+    <section id="stage">
+      <div class="crt"><div id="game"></div></div>
+      <div class="stage-bar">
+        <button class="mini-btn" onclick="location.reload()">⏏ Swap Game</button>
+        <span class="hint" style="align-self:center">💾 Save/load states &amp; controller setup are in the emulator's menu bar. On phones you get touch controls automatically.</span>
+      </div>
+    </section>
+
+    <!-- Where to get games -->
+    <section class="cab">
+      <h2>🧠 Where do the games come from?</h2>
+      <p class="legal">
+        This page doesn't host any commercial ROMs — you load game files from <em>your own device</em> and they
+        run locally in your browser (nothing is uploaded anywhere). Backups of cartridges you own are your business;
+        and there's a whole world of <strong>free, legal homebrew games</strong> made by modern devs for these consoles:
+      </p>
+      <ul class="tips legal">
+        <li><a href="https://itch.io/games/tag-nes" target="_blank" rel="noopener">itch.io</a> — tons of free NES / SNES / Game Boy homebrew (search "NES rom" or "Game Boy rom")</li>
+        <li><a href="https://pdroms.de" target="_blank" rel="noopener">PDRoms</a> — a classic archive of legal homebrew &amp; public-domain ROMs for basically every console</li>
+        <li><a href="https://hh.gbdev.io" target="_blank" rel="noopener">Homebrew Hub</a> — hundreds of community-made Game Boy games</li>
+      </ul>
+      <ul class="tips">
+        <li>🎮 Plug in a USB / Bluetooth controller — it just works (press a button so the browser sees it).</li>
+        <li>💾 Your save states live in this browser, per game.</li>
+        <li>📱 On a phone, rotate to landscape for the full arcade feel.</li>
+      </ul>
+    </section>
+
+    <footer>© <span id="year"></span> Pickle Phil · Insert coin to continue 🥒</footer>
+  </div>
+
+  <script>
+    (function(){ var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); })();
+
+    (function(){
+      var CORE_BY_EXT = {
+        sfc:'snes', smc:'snes', fig:'snes',
+        md:'segaMD', gen:'segaMD', smd:'segaMD', bin:'segaMD',
+        sms:'segaMS', gg:'segaGG',
+        nes:'nes', fds:'nes',
+        gb:'gb', gbc:'gb', gba:'gba',
+        n64:'n64', z64:'n64', v64:'n64',
+        pce:'pce'
+      };
+      var chosenCore = null;   // manual override from console buttons
+      var file = null;
+
+      var grid = document.getElementById('console-grid');
+      var dz = document.getElementById('dropzone');
+      var input = document.getElementById('rom-input');
+      var picked = document.getElementById('picked');
+      var powerRow = document.getElementById('power-row');
+
+      grid.addEventListener('click', function(e){
+        var b = e.target.closest('.console-btn'); if(!b) return;
+        var was = b.classList.contains('sel');
+        grid.querySelectorAll('.console-btn').forEach(function(x){ x.classList.remove('sel'); });
+        chosenCore = null;
+        if(!was){ b.classList.add('sel'); chosenCore = b.dataset.core; }
+      });
+
+      dz.addEventListener('click', function(){ input.click(); });
+      dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag'); });
+      dz.addEventListener('dragleave', function(){ dz.classList.remove('drag'); });
+      dz.addEventListener('drop', function(e){
+        e.preventDefault(); dz.classList.remove('drag');
+        if(e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+      });
+      input.addEventListener('change', function(){ if(input.files.length) setFile(input.files[0]); });
+
+      function guessCore(name){
+        var ext = (name.split('.').pop()||'').toLowerCase();
+        return CORE_BY_EXT[ext] || null;
+      }
+
+      function setFile(f){
+        file = f;
+        picked.textContent = '📼 ' + f.name;
+        var guess = guessCore(f.name);
+        if(guess && !chosenCore){
+          grid.querySelectorAll('.console-btn').forEach(function(x){
+            x.classList.toggle('sel', x.dataset.core === guess);
+          });
+        }
+        powerRow.style.display = 'block';
+      }
+
+      document.getElementById('power-btn').addEventListener('click', function(){
+        if(!file) return;
+        var core = chosenCore || guessCore(file.name);
+        if(!core){
+          alert("Hmm, I can't tell what console that game is for (zips hide the file type). Tap a console above, then hit POWER ON again.");
+          return;
+        }
+        document.getElementById('picker').style.display = 'none';
+        document.getElementById('stage').style.display = 'block';
+
+        window.EJS_player = '#game';
+        window.EJS_core = core;
+        window.EJS_gameName = file.name.replace(/\.[^.]+$/, '');
+        window.EJS_gameUrl = URL.createObjectURL(file);
+        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+        window.EJS_color = '#2ecc71';
+        window.EJS_startOnLoaded = true;
+        window.EJS_backgroundColor = '#000000';
+
+        var s = document.createElement('script');
+        s.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+        document.body.appendChild(s);
+      });
+    })();
+  </script>
+<script src="/chat-widget.js"></script>
+</body>
+</html>

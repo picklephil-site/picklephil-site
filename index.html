@@ -81,7 +81,19 @@
   .card h3{margin:2px 0 8px; font-size:1.2rem; font-weight:800; letter-spacing:.2px}
   .meta{opacity:.92; line-height:1.5}
   footer{margin:40px 0 16px; opacity:.8}
-  @media (max-width:860px){ .grid .card{grid-column:span 12} }
+  @media (max-width:860px){
+    .grid{gap:12px}
+    .grid .card{grid-column:span 12; padding:16px}
+    .section-title{margin:26px 0 10px; font-size:1.45rem}
+    /* Games & portals become a compact 2-across app-tile grid on phones */
+    #groups{gap:10px}
+    #groups .card{
+      grid-column:span 6; padding:14px 8px; min-height:84px;
+      display:flex; align-items:center; justify-content:center; text-align:center;
+    }
+    #groups .card .meta, #groups .card p{display:none}
+    #groups .card h3{margin:0; font-size:.95rem; line-height:1.35}
+  }
 
   /* DAILY TRIVIA */
   .trivia-q{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:14px;}
@@ -177,6 +189,12 @@
   @media (max-width:720px){
     .speech-bubble{ top:-8px; left:6px; max-width:220px; font-size:.95rem; }
     .speech-bubble::after{ left:18px; }
+    .hero{padding:12px 18px 0}
+    .hero-wrap{grid-template-columns:1fr; gap:6px}
+    .hero p.lead{font-size:1rem; margin-bottom:12px}
+    .jar-frame{width:min(280px,72vw)}
+    .nod-gif{max-width:200px !important}
+    .qr-img{max-width:170px !important}
   }
 
   a, a:hover, a:active, a:visited { color: var(--text); text-decoration:none; }
@@ -249,20 +267,17 @@
       </article>
     </section>
 
-    <!-- Daily Dill Trivia -->
-    <section class="grid" aria-label="Daily trivia" style="margin-bottom:4px;">
-      <article class="card card--wide card--accent" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30));border-color:rgba(46,204,113,.4);">
+    <!-- Daily Dill Trivia + Daily Fact (side by side on desktop) -->
+    <section class="grid" aria-label="Daily trivia and fact" style="margin-bottom:4px;">
+      <article class="card card--accent" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30));border-color:rgba(46,204,113,.4);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
           <h3 style="margin:0;">🧠 Daily Dill Trivia</h3>
           <span class="streak-pill" id="trivia-streak-pill" style="display:none"></span>
         </div>
         <div id="trivia-widget">Loading…</div>
       </article>
-    </section>
 
-    <!-- Daily Random Fact -->
-    <section class="grid" aria-label="Daily fact" style="margin-bottom:4px;">
-      <article class="card card--wide" style="background:linear-gradient(165deg,rgba(52,152,219,.18),rgba(8,40,24,.30));border-color:rgba(52,152,219,.4);">
+      <article class="card" style="background:linear-gradient(165deg,rgba(52,152,219,.18),rgba(8,40,24,.30));border-color:rgba(52,152,219,.4);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
           <h3 style="margin:0;">💡 Daily Dill Fact</h3>
           <button id="fact-copy" class="btn" style="padding:4px 12px;font-size:.78rem;">Copy Fact</button>
@@ -282,13 +297,13 @@
         <p><button id="copy-votd" class="btn">📋 Copy Verse</button></p>
       </article>
 
-      <article class="card card--wide" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30)); border-color:rgba(46,204,113,.35);">
+      <article class="card" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30)); border-color:rgba(46,204,113,.35);">
         <h3 style="font-size:1.35rem;">📖 God's Word</h3>
         <p class="meta">Read the Bible — KJV, WEB, and LSV. Pick up wherever you left off.</p>
         <p><a class="btn" href="/bible.html">Open Bible Reader</a></p>
       </article>
 
-      <article class="card card--wide">
+      <article class="card">
         <h3>📝 Brine &amp; Sign</h3>
         <p class="meta">Leave your crunchy mark in the jar — sign the guestbook!</p>
         <p><a class="btn" href="/guestbook.html">✍️ Sign the Jar</a></p>
@@ -296,7 +311,7 @@
     </section>
 
     <div style="text-align:center; margin:10px 0 6px;">
-      <img src="/img/nodding.gif" alt="Nodding pickle vibe" style="max-width:360px;width:90%;height:auto;">
+      <img src="/img/nodding.gif" alt="Nodding pickle vibe" class="nod-gif" style="max-width:360px;width:90%;height:auto;">
     </div>
 
     <p style="margin-top:8px;">🥒 This site’s still brining up some fresh content — check back soon for a dill-ightful update! 🥒</p>
@@ -341,6 +356,12 @@
       </article>
 
       <article class="card">
+        <h3>🕹️ Pickle Arcade</h3>
+        <p class="meta">Real SNES, Sega Genesis, NES &amp; Game Boy emulators — right in your browser. Load a ROM and party like it's 1994.</p>
+        <p><a class="btn" href="/arcade.html">Insert Coin 🕹️</a></p>
+      </article>
+
+      <article class="card">
         <h3>⭐ Chinese Checkers</h3>
         <p class="meta">Race all 10 of your marbles to the opposite triangle. Pass-and-play or take on the AI!</p>
         <p><a class="btn" href="/chinese-checkers.html">Play Chinese Checkers ⭐</a></p>
@@ -372,7 +393,7 @@
     <article class="card card--wide" style="text-align:center;">
       <p class="meta" style="font-size:1.1rem;">If you want to be part of the making of the Jar — click or scan the QR code 👇</p>
       <a href="/rick" target="_blank" rel="noopener">
-        <img src="/img/rickroll-qr.png" alt="QR code to the Rick Roll page" style="max-width:260px;width:80%;height:auto;">
+        <img src="/img/rickroll-qr.png" alt="QR code to the Rick Roll page" class="qr-img" style="max-width:260px;width:80%;height:auto;">
       </a>
     </article>
 
@@ -770,6 +791,19 @@
           saveFactState(state);
           showFact(text);
         });
+    })();
+
+    // Whole game/portal card is tappable (mobile tiles hide the buttons)
+    (function(){
+      document.querySelectorAll('#groups .card').forEach(function(card){
+        var link = card.querySelector('a.btn');
+        if(!link) return;
+        card.addEventListener('click', function(e){
+          if(e.target.closest('a')) return; // let the real button work normally
+          window.location.href = link.getAttribute('href');
+        });
+        card.style.cursor = 'pointer';
+      });
     })();
 
     // Type "pickle" anywhere to reveal site admin
