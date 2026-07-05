@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pickle TV — The Real Dill Phil's Jar</title>
+<meta name="description" content="Pickle TV — free classic movies and cartoons streaming 24/7. Perfect background watching." />
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c3a22; --bg2:#1c8a4e; --bg3:#072a18;
+    --text:#f5f7f5; --accent:#2ecc71; --btnText:#0d3d24;
+    --radius:18px; --shadow:0 18px 45px rgba(0,0,0,.40);
+    --glass: rgba(255,255,255,.10);
+    --glass-border: rgba(255,255,255,.22);
+    --panel-b: rgba(8,40,24,.28);
+    --neon:#39ff88;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
+    background:
+      radial-gradient(900px 600px at 78% 8%, rgba(46,204,113,.28), transparent 60%),
+      radial-gradient(circle at 50% 120%, #0f4a2c 0%, var(--bg3) 70%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg3) 100%);
+    min-height:100vh; text-align:center;
+  }
+  .wrap{width:min(1050px,100%); margin:0 auto; padding:18px}
+  a.home{color:var(--text); text-decoration:none}
+
+  .tv-title{
+    font-family:"Press Start 2P", monospace;
+    font-size:clamp(19px, 4.8vw, 38px);
+    margin:16px 0 6px; line-height:1.4; color:var(--neon);
+    text-shadow:0 0 8px rgba(57,255,136,.9), 0 0 26px rgba(57,255,136,.45), 0 4px 0 #073a1f;
+  }
+  .tagline{opacity:.9; margin:0 0 18px; font-size:1.02rem}
+
+  /* the TV set */
+  .tv-set{
+    background:linear-gradient(180deg,#10371f,#0a2415);
+    border:1px solid var(--glass-border);
+    border-radius:22px; padding:16px 16px 12px;
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .screen{
+    background:#000; border-radius:12px; overflow:hidden;
+    border:3px solid #123c26; box-shadow:0 0 0 3px #0a2c1a;
+    aspect-ratio:16/10;
+  }
+  .screen iframe{width:100%; height:100%; border:0; display:block}
+  .screen .static{
+    width:100%; height:100%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px; color:#9fd8b4;
+  }
+  .now-playing{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    flex-wrap:wrap; margin-top:10px; text-align:left;
+  }
+  .now-playing .np-title{font-weight:800; font-size:1.05rem}
+  .now-playing .np-meta{font-size:.85rem; opacity:.8}
+  .on-air{
+    font-family:"Press Start 2P", monospace; font-size:.55rem; color:#ff5d5d;
+    border:1px solid rgba(255,93,93,.55); border-radius:8px; padding:6px 10px;
+    animation:blinkair 2.2s steps(1) infinite; white-space:nowrap;
+  }
+  @keyframes blinkair{0%,60%{opacity:1}61%,100%{opacity:.35}}
+
+  .surf-btn{
+    font-family:"Press Start 2P", monospace; font-size:.62rem;
+    background:linear-gradient(180deg,#39ff88,#1c8a4e); color:#06290f;
+    border:none; border-radius:10px; padding:12px 16px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
+  }
+  .surf-btn:hover{filter:brightness(1.08)}
+
+  /* channel guide */
+  .guide{
+    margin-top:18px; text-align:left;
+    background:linear-gradient(165deg, var(--glass), var(--panel-b));
+    border:1px solid var(--glass-border); border-radius:var(--radius); padding:18px;
+  }
+  .guide h2{margin:0 0 4px; font-size:1.1rem}
+  .guide .hint{font-size:.85rem; opacity:.75; margin:0 0 12px}
+  .chan-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px}
+  .chan{
+    display:flex; gap:10px; align-items:center; text-align:left;
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16);
+    border-radius:12px; padding:10px 12px; cursor:pointer; color:var(--text);
+    font-family:inherit; transition:background .15s, border-color .15s, transform .15s;
+  }
+  .chan:hover{background:rgba(255,255,255,.13); transform:translateY(-2px)}
+  .chan.on{background:rgba(46,204,113,.25); border-color:var(--neon); box-shadow:0 0 12px rgba(57,255,136,.3)}
+  .chan .num{
+    font-family:"Press Start 2P", monospace; font-size:.6rem; color:var(--neon); white-space:nowrap;
+  }
+  .chan .info{flex:1; min-width:0}
+  .chan .t{font-weight:700; font-size:.92rem; line-height:1.25}
+  .chan .g{font-size:.75rem; opacity:.7}
+  footer{margin:30px 0 16px; opacity:.8}
+  .legal{font-size:.82rem; opacity:.75; line-height:1.6; margin-top:12px; text-align:left}
+  .legal a{color:var(--neon)}
+  @media (max-width:600px){ .tv-set{padding:10px 10px 8px} .chan-grid{grid-template-columns:1fr 1fr} .chan{flex-direction:column; text-align:center; gap:4px} .chan .info{width:100%} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p style="text-align:left; margin:4px 0 0;"><a class="home" href="/">← Back to the Jar</a></p>
+    <h1 class="tv-title">📺 PICKLE TV</h1>
+    <p class="tagline">Free classic movies &amp; cartoons, streaming 24/7. Stick it in a background tab and get to work.</p>
+
+    <div class="tv-set">
+      <div class="screen" id="screen">
+        <div class="static">
+          <div style="font-family:'Press Start 2P',monospace; font-size:.7rem;">NO SIGNAL</div>
+          <div style="font-size:.9rem; opacity:.8">Pick a channel below to start the show 👇</div>
+        </div>
+      </div>
+      <div class="now-playing">
+        <div style="min-width:0">
+          <div class="np-title" id="np-title">Pickle TV</div>
+          <div class="np-meta" id="np-meta">14 channels of certified classics</div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center">
+          <span class="on-air" id="on-air" style="display:none">● ON AIR</span>
+          <button class="surf-btn" id="surf">🎲 SURF</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide">
+      <h2>📋 Channel Guide</h2>
+      <p class="hint">Movies play right here on the page — no account, no sign-up, nothing to install.</p>
+      <div class="chan-grid" id="chan-grid"></div>
+      <p class="legal">
+        All titles are public-domain classics streamed straight from the
+        <a href="https://archive.org" target="_blank" rel="noopener">Internet Archive</a>,
+        a non-profit digital library — free and legal to watch and share.
+      </p>
+    </div>
+
+    <footer>© <span id="year"></span> Pickle Phil · We now return to your regularly scheduled brine 🥒</footer>
+  </div>
+
+  <script>
+    (function(){ var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear(); })();
+
+    (function(){
+      var CHANNELS = [
+        {id:"his_girl_friday", t:"His Girl Friday", y:1940, g:"Comedy · Cary Grant"},
+        {id:"Charade_1953", t:"Charade", y:1963, g:"Caper · Grant & Hepburn"},
+        {id:"TheGeneralBusterKeaton1926", t:"The General", y:1926, g:"Silent comedy · Buster Keaton"},
+        {id:"ScarletStreet", t:"Scarlet Street", y:1945, g:"Film noir · Fritz Lang"},
+        {id:"detour_1945", t:"Detour", y:1945, g:"Film noir cult classic"},
+        {id:"house_on_haunted_hill", t:"House on Haunted Hill", y:1959, g:"Horror · Vincent Price"},
+        {id:"CarnivalofSouls", t:"Carnival of Souls", y:1962, g:"Eerie horror gem"},
+        {id:"Little_ShopOf_Horrors.avi", t:"The Little Shop of Horrors", y:1960, g:"Horror comedy · young Jack Nicholson"},
+        {id:"Nosferatu_most_complete_version_93_mins.", t:"Nosferatu", y:1922, g:"The original vampire film"},
+        {id:"plan-9-from-outer-space_202009", t:"Plan 9 from Outer Space", y:1957, g:"'Best worst movie ever made'"},
+        {id:"JungleBook1942_201701", t:"Jungle Book", y:1942, g:"Family adventure · in color!"},
+        {id:"superman_the_mad_scientist", t:"Superman: The Mad Scientist", y:1941, g:"Cartoon · the classic Fleischer Superman"},
+        {id:"Popeye_forPresident", t:"Popeye for President", y:1956, g:"Cartoon · Popeye"},
+        {id:"bb_snow_white", t:"Betty Boop: Snow-White", y:1933, g:"Cartoon · surreal classic"}
+      ];
+
+      var grid = document.getElementById('chan-grid');
+      var screen = document.getElementById('screen');
+      var current = -1;
+
+      CHANNELS.forEach(function(c, i){
+        var b = document.createElement('button');
+        b.className = 'chan';
+        b.innerHTML = '<span class="num">CH ' + String(i+1).padStart(2,'0') + '</span>' +
+          '<span class="info"><span class="t">' + c.t + ' (' + c.y + ')</span><br><span class="g">' + c.g + '</span></span>';
+        b.addEventListener('click', function(){ tune(i); });
+        grid.appendChild(b);
+      });
+
+      function tune(i){
+        if(i === current) return;
+        current = i;
+        var c = CHANNELS[i];
+        screen.innerHTML = '<iframe src="https://archive.org/embed/' + encodeURIComponent(c.id) + '" ' +
+          'allowfullscreen allow="fullscreen; autoplay" title="' + c.t + '"></iframe>';
+        document.getElementById('np-title').textContent = 'CH ' + String(i+1).padStart(2,'0') + ' — ' + c.t + ' (' + c.y + ')';
+        document.getElementById('np-meta').textContent = c.g + ' · streaming free from the Internet Archive';
+        document.getElementById('on-air').style.display = '';
+        document.querySelectorAll('.chan').forEach(function(el, j){ el.classList.toggle('on', j===i); });
+      }
+
+      document.getElementById('surf').addEventListener('click', function(){
+        var i;
+        do { i = Math.floor(Math.random()*CHANNELS.length); } while(i === current && CHANNELS.length > 1);
+        tune(i);
+        document.querySelector('.tv-set').scrollIntoView({behavior:'smooth'});
+      });
+    })();
+  </script>
+<script src="/chat-widget.js"></script>
+</body>
+</html>
