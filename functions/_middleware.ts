@@ -1,9 +1,11 @@
 // Serves alternate "homepages" for special subdomains (win93 → PickleOS,
 // testsite → the demo business site), while leaving every other host/path
 // on this same Pages deployment untouched.
+// Extensionless paths: Pages 308-redirects "*.html" to the clean URL,
+// which would leak the path into the visitor's address bar.
 const HOST_HOMEPAGES: Record<string, string> = {
-  "win93.philliphinshaw.com": "/pickleos.html",
-  "testsite.philliphinshaw.com": "/testsite.html",
+  "win93.philliphinshaw.com": "/pickleos",
+  "testsite.philliphinshaw.com": "/testsite",
 };
 
 export const onRequest: PagesFunction = async (context) => {
