@@ -81,6 +81,30 @@
   .console-btn:hover{background:rgba(255,255,255,.13); transform:translateY(-2px)}
   .console-btn.sel{background:rgba(46,204,113,.28); border-color:var(--neon); box-shadow:0 0 14px rgba(57,255,136,.35)}
 
+  /* free game shelf */
+  .shelf-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-top:12px}
+  .shelf-card{
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18);
+    border-radius:14px; padding:14px; text-align:left; display:flex; flex-direction:column; gap:6px;
+    transition:transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .shelf-card:hover{transform:translateY(-3px); border-color:var(--neon); box-shadow:0 0 16px rgba(57,255,136,.25)}
+  .shelf-card .sys{
+    font-family:"Press Start 2P", monospace; font-size:.55rem; color:var(--neon);
+    letter-spacing:.5px;
+  }
+  .shelf-card h3{margin:0; font-size:1.02rem}
+  .shelf-card p{margin:0; font-size:.85rem; opacity:.85; line-height:1.45; flex:1}
+  .shelf-card .play{
+    align-self:flex-start; margin-top:6px;
+    font-family:"Press Start 2P", monospace; font-size:.6rem;
+    background:linear-gradient(180deg,#39ff88,#1c8a4e); color:#06290f;
+    border:none; border-radius:9px; padding:10px 14px; cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+  }
+  .shelf-card .play:hover{filter:brightness(1.08)}
+  .credits{font-size:.78rem; opacity:.7; margin:12px 0 0; line-height:1.6}
+
   /* drop zone */
   .dropzone{
     margin-top:8px; border:2px dashed rgba(57,255,136,.5); border-radius:14px;
@@ -135,6 +159,52 @@
     <p style="text-align:left; margin:4px 0 0;"><a class="home" href="/">← Back to the Jar</a></p>
     <h1 class="arcade-title">🕹️ PICKLE ARCADE 🕹️</h1>
     <p class="tagline">Real console emulators, right in your browser. Blow on the cartridge and let's go.</p>
+
+    <!-- FREE GAME SHELF -->
+    <section class="cab" id="shelf">
+      <h2>🎁 Free Game Shelf — tap &amp; play instantly</h2>
+      <p class="hint" style="margin:0">Real homebrew games by modern devs, hosted here 100% legally (open licenses — credits below). No files needed.</p>
+      <div class="shelf-grid">
+        <div class="shelf-card">
+          <span class="sys">NES</span>
+          <h3>🐿️ Nova the Squirrel</h3>
+          <p>A full-length platformer starring a squirrel with serious moves — grab blocks, toss enemies, save the day.</p>
+          <button class="play" data-core="nes" data-url="/roms/nova.nes" data-name="Nova the Squirrel">▶ PLAY</button>
+        </div>
+        <div class="shelf-card">
+          <span class="sys">GENESIS</span>
+          <h3>🐉 Dragon's Castle</h3>
+          <p>Castlevania-style action — young witch Merlina storms the castle to take down the dragon.</p>
+          <button class="play" data-core="segaMD" data-url="/roms/dragons-castle.bin" data-name="Dragon's Castle">▶ PLAY</button>
+        </div>
+        <div class="shelf-card">
+          <span class="sys">GENESIS</span>
+          <h3>🪐 Miniplanets</h3>
+          <p>Hop between tiny spinning planets and snag all the fruit before the clock runs out. Fast &amp; addictive.</p>
+          <button class="play" data-core="segaMD" data-url="/roms/miniplanets.bin" data-name="Miniplanets">▶ PLAY</button>
+        </div>
+        <div class="shelf-card">
+          <span class="sys">GAME BOY</span>
+          <h3>🎲 Libbet &amp; the Magic Floor</h3>
+          <p>Roll across the magic floor and light every tile — a brainy little puzzler with real charm.</p>
+          <button class="play" data-core="gb" data-url="/roms/libbet.gb" data-name="Libbet and the Magic Floor">▶ PLAY</button>
+        </div>
+        <div class="shelf-card">
+          <span class="sys">GB COLOR</span>
+          <h3>🏙️ µCity</h3>
+          <p>A whole SimCity in your pocket — zone, build, balance the budget, and watch your city grow.</p>
+          <button class="play" data-core="gb" data-url="/roms/ucity.gbc" data-name="uCity">▶ PLAY</button>
+        </div>
+      </div>
+      <p class="credits">
+        Games by their awesome creators, shared under open licenses:
+        <a href="https://github.com/NovaSquirrel/NovaTheSquirrel" target="_blank" rel="noopener">Nova the Squirrel</a> (NovaSquirrel, GPLv3) ·
+        <a href="https://github.com/sikthehedgehog/dragon" target="_blank" rel="noopener">Dragon's Castle</a> &amp;
+        <a href="https://github.com/sikthehedgehog/miniplanets" target="_blank" rel="noopener">Miniplanets</a> (Sik, zlib) ·
+        <a href="https://github.com/pinobatch/libbet" target="_blank" rel="noopener">Libbet</a> (Pino, zlib) ·
+        <a href="https://github.com/AntonioND/ucity" target="_blank" rel="noopener">µCity</a> (AntonioND, GPLv3)
+      </p>
+    </section>
 
     <!-- STEP 1: pick console -->
     <section class="cab" id="picker">
@@ -252,20 +322,15 @@
         powerRow.style.display = 'block';
       }
 
-      document.getElementById('power-btn').addEventListener('click', function(){
-        if(!file) return;
-        var core = chosenCore || guessCore(file.name);
-        if(!core){
-          alert("Hmm, I can't tell what console that game is for (zips hide the file type). Tap a console above, then hit POWER ON again.");
-          return;
-        }
+      function bootGame(core, url, name){
         document.getElementById('picker').style.display = 'none';
+        document.getElementById('shelf').style.display = 'none';
         document.getElementById('stage').style.display = 'block';
 
         window.EJS_player = '#game';
         window.EJS_core = core;
-        window.EJS_gameName = file.name.replace(/\.[^.]+$/, '');
-        window.EJS_gameUrl = URL.createObjectURL(file);
+        window.EJS_gameName = name;
+        window.EJS_gameUrl = url;
         window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
         window.EJS_color = '#2ecc71';
         window.EJS_startOnLoaded = true;
@@ -274,6 +339,24 @@
         var s = document.createElement('script');
         s.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
         document.body.appendChild(s);
+      }
+
+      // Free Game Shelf — hosted, one-tap play
+      document.querySelectorAll('.shelf-card .play').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          bootGame(btn.dataset.core, btn.dataset.url, btn.dataset.name);
+          window.scrollTo({top:0, behavior:'smooth'});
+        });
+      });
+
+      document.getElementById('power-btn').addEventListener('click', function(){
+        if(!file) return;
+        var core = chosenCore || guessCore(file.name);
+        if(!core){
+          alert("Hmm, I can't tell what console that game is for (zips hide the file type). Tap a console above, then hit POWER ON again.");
+          return;
+        }
+        bootGame(core, URL.createObjectURL(file), file.name.replace(/\.[^.]+$/, ''));
       });
     })();
   </script>
