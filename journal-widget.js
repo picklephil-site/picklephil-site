@@ -1,16 +1,17 @@
 /**
  * Hidden Journal Widget
  * ---------------------
- * Double-clicking the page footer opens a lock screen overlay; nothing on the
- * page hints that the journal exists until then. First open sets up a PIN,
- * after that it's lock/unlock. Backend lives at /api/journal (Pages Function),
- * same origin as the site.
+ * Double-clicking the page footer opens the journal; nothing on the page
+ * hints that it exists until then. Auth is Cloudflare Access: if you're not
+ * signed in, the widget bounces through /api/journal/auth (which Access
+ * intercepts with its login page) and returns here with #jw-open set so the
+ * journal reopens by itself. Backend is the Pages Function at /api/journal.
  */
 (function () {
   const API_BASE = '';
   const TRIGGER_SELECTOR = 'footer';
+  const REOPEN_HASH = '#jw-open';
 
-  let pin = null;
   let overlay = null;
 
   function css() {
@@ -21,15 +22,13 @@
       .jw-card { background: #1c1c1c; border: 1px solid #2e2e2e; border-radius: 16px;
         padding: 28px 24px; width: 92%; max-width: 340px; color: #EDEAE3; }
       .jw-title { font-size: 20px; margin: 0 0 6px; }
-      .jw-sub { font-size: 13px; color: #8a8a8a; margin: 0 0 16px; }
       .jw-input { width: 100%; box-sizing: border-box; background: #141414; border: 1px solid #333;
-        border-radius: 10px; color: #EDEAE3; padding: 12px 14px; font-size: 18px; text-align:center;
-        letter-spacing: 0.4em; margin-bottom: 10px; font-family: 'Courier New', monospace; }
+        border-radius: 10px; color: #EDEAE3; padding: 12px 14px; font-size: 14px;
+        margin-bottom: 10px; font-family: 'Courier New', monospace; }
       .jw-btn { width: 100%; background: #F2C94C; border: none; border-radius: 10px; color: #141414;
         font-weight: 700; font-size: 14px; padding: 11px 0; cursor: pointer; font-family: 'Courier New', monospace; }
       .jw-close { position: absolute; top: 14px; right: 18px; background: none; border: none;
         color: #8a8a8a; font-size: 20px; cursor: pointer; }
-      .jw-error { color: #E67E6E; font-size: 12px; margin-bottom: 8px; font-family: 'Courier New', monospace; }
       .jw-journal { position: relative; max-width: 480px; width: 92%; max-height: 82vh; overflow-y: auto; }
       .jw-entry { background: #1a1a1a; border: 1px solid #272727; border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
       .jw-entry img { width: 100%; border-radius: 8px; margin-top: 8px; }
@@ -55,104 +54,34 @@
     overlay = null;
   }
 
-  function showLockScreen() {
-    overlay = document.createElement('div');
-    overlay.className = 'jw-overlay';
-    overlay.innerHTML = `
-      <div class="jw-card" style="position:relative;text-align:center;">
-        <button class="jw-close">&times;</button>
-        <h2 class="jw-title">Journal's locked</h2>
-        <p class="jw-sub">Enter your code.</p>
-        <input class="jw-input" type="password" inputmode="numeric" maxlength="8" />
-        <div class="jw-error" style="display:none;"></div>
-        <button class="jw-btn">Unlock</button>
-      </div>`;
-    document.body.appendChild(overlay);
-    const input = overlay.querySelector('.jw-input');
-    const errBox = overlay.querySelector('.jw-error');
-    input.focus();
-    overlay.querySelector('.jw-close').onclick = closeOverlay;
-
-    function showError(msg) {
-      errBox.style.display = 'block';
-      errBox.textContent = msg;
-      input.value = '';
-    }
-
-    async function attempt() {
-      let res;
-      try {
-        res = await fetch(`${API_BASE}/api/journal/unlock`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin: input.value }),
-        });
-      } catch {
-        showError('Network hiccup. Try again.');
-        return;
-      }
-      const data = await res.json();
-      if (data.needsSetup) {
-        closeOverlay();
-        showSetupScreen();
-        return;
-      }
-      if (data.ok) {
-        pin = input.value;
-        closeOverlay();
-        showJournal();
-      } else if (res.status === 429) {
-        showError('Too many tries. Come back in a bit.');
-      } else {
-        showError('Wrong code.');
-      }
-    }
-    overlay.querySelector('.jw-btn').onclick = attempt;
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+  function goLogin() {
+    const back = location.pathname + location.search;
+    location.href = `${API_BASE}/api/journal/auth?back=${encodeURIComponent(back)}`;
   }
 
-  function showSetupScreen() {
-    overlay = document.createElement('div');
-    overlay.className = 'jw-overlay';
-    overlay.innerHTML = `
-      <div class="jw-card" style="position:relative;text-align:center;">
-        <button class="jw-close">&times;</button>
-        <h2 class="jw-title">Set up your code</h2>
-        <p class="jw-sub">4+ digits. This is the only way in.</p>
-        <input class="jw-input" type="password" inputmode="numeric" maxlength="8" placeholder="New code" />
-        <input class="jw-input jw-confirm" type="password" inputmode="numeric" maxlength="8" placeholder="Confirm" />
-        <div class="jw-error" style="display:none;"></div>
-        <button class="jw-btn">Lock it in</button>
-      </div>`;
-    document.body.appendChild(overlay);
-    const input = overlay.querySelector('.jw-input');
-    const confirm = overlay.querySelector('.jw-confirm');
-    const errBox = overlay.querySelector('.jw-error');
-    overlay.querySelector('.jw-close').onclick = closeOverlay;
-
-    overlay.querySelector('.jw-btn').onclick = async () => {
-      if (input.value.length < 4 || input.value !== confirm.value) {
-        errBox.style.display = 'block';
-        errBox.textContent = input.value !== confirm.value ? "Codes don't match." : 'Use 4+ digits.';
-        return;
-      }
-      const res = await fetch(`${API_BASE}/api/journal/setup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: input.value }),
-      });
-      if (!res.ok) {
-        errBox.style.display = 'block';
-        errBox.textContent = "Couldn't set the code. It may already be set.";
-        return;
-      }
-      pin = input.value;
-      closeOverlay();
-      showJournal();
-    };
+  // Access answers unauthenticated API calls with a redirect to its login
+  // page; with redirect:'manual' that surfaces as an opaqueredirect. A 401
+  // means Access let us through but the function rejected the token (e.g.
+  // the *.pages.dev copy of the site) — the login bounce fixes that too on
+  // the real domain.
+  async function apiFetch(path, opts = {}) {
+    const res = await fetch(`${API_BASE}/api/journal${path}`, { redirect: 'manual', ...opts });
+    if (res.type === 'opaqueredirect' || res.status === 401 || res.status === 403) return null;
+    return res;
   }
 
-  async function showJournal() {
+  async function openJournal() {
+    const res = await apiFetch('/entries');
+    if (!res) {
+      goLogin();
+      return;
+    }
+    const entries = res.ok ? await res.json() : [];
+    showJournal(entries);
+  }
+
+  function showJournal(entries) {
+    closeOverlay();
     overlay = document.createElement('div');
     overlay.className = 'jw-overlay';
     const wrap = document.createElement('div');
@@ -168,8 +97,6 @@
     overlay.querySelector('.jw-newbtn').onclick = showComposer;
 
     const list = overlay.querySelector('.jw-list');
-    const res = await fetch(`${API_BASE}/api/journal/entries`, { headers: { 'X-Pin': pin } });
-    const entries = res.ok ? await res.json() : [];
     if (entries.length === 0) {
       list.innerHTML = `<p style="color:#6a6a6a;font-family:'Courier New',monospace;font-size:13px;">No entries yet.</p>`;
     }
@@ -185,10 +112,8 @@
       `;
       card.querySelector('.jw-del').onclick = async () => {
         if (!window.confirm('Delete this entry?')) return;
-        await fetch(`${API_BASE}/api/journal/entries/${e.id}`, {
-          method: 'DELETE',
-          headers: { 'X-Pin': pin },
-        });
+        const res = await apiFetch(`/entries/${e.id}`, { method: 'DELETE' });
+        if (!res) { goLogin(); return; }
         card.remove();
       };
       list.appendChild(card);
@@ -223,12 +148,12 @@
         ${MOODS.map(m => `<button data-label="${m.label}" data-emoji="${m.emoji}" style="font-size:18px;width:36px;height:36px;background:#262626;border:1px solid #333;border-radius:999px;cursor:pointer;">${m.emoji}</button>`).join('')}
       </div>
       <textarea class="jw-textarea" rows="4" placeholder="What's going on today?"></textarea>
-      <input class="jw-input" style="text-align:left;letter-spacing:normal;font-size:14px;" placeholder="Image/GIF link (optional)" />
+      <input class="jw-input" placeholder="Image/GIF link (optional)" />
       <button class="jw-btn">Save entry</button>
     `;
     overlay.appendChild(wrap);
     document.body.appendChild(overlay);
-    overlay.querySelector('.jw-close').onclick = () => { closeOverlay(); showJournal(); };
+    overlay.querySelector('.jw-close').onclick = () => { closeOverlay(); openJournal(); };
     wrap.querySelectorAll('.jw-moods button').forEach(btn => {
       btn.onclick = () => {
         wrap.querySelectorAll('.jw-moods button').forEach(b => b.style.border = '1px solid #333');
@@ -239,13 +164,14 @@
     wrap.querySelector('.jw-btn').onclick = async () => {
       const text = wrap.querySelector('.jw-textarea').value;
       const media = wrap.querySelector('.jw-input').value;
-      await fetch(`${API_BASE}/api/journal/entries`, {
+      const res = await apiFetch('/entries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Pin': pin },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, mood: selectedMood, media }),
       });
+      if (!res) { goLogin(); return; }
       closeOverlay();
-      showJournal();
+      openJournal();
     };
   }
 
@@ -261,9 +187,15 @@
       } else if (clickCount === 2) {
         clearTimeout(clickTimer);
         clickCount = 0;
-        showLockScreen();
+        openJournal();
       }
     });
+
+    // Coming back from the Access login flow.
+    if (location.hash === REOPEN_HASH) {
+      history.replaceState(null, '', location.pathname + location.search);
+      openJournal();
+    }
   }
 
   if (document.readyState === 'loading') {

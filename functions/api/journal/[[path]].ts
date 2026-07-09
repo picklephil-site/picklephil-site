@@ -1,26 +1,31 @@
-// Hidden journal API. No links point here; the client is journal-widget.js,
-// which opens on a double-click of the site footer.
+// Hidden journal API, locked with Cloudflare Access. No links point here; the
+// client is journal-widget.js, which opens on a double-click of the site
+// footer and bounces through /api/journal/auth to log in.
 //
 // Routes (all under /api/journal):
-//   POST   /setup        { pin }  -> create PIN, only works while none exists
-//   POST   /unlock       { pin }  -> { ok: true } | { needsSetup: true } | 401/429
-//   GET    /entries      (X-Pin)  -> [entries]
-//   POST   /entries      (X-Pin) { text, mood, media } -> saved entry
-//   DELETE /entries/:id  (X-Pin)  -> { ok: true }
+//   GET    /auth?back=/page  -> 302 back to the page after Access login
+//   GET    /entries          -> [entries]
+//   POST   /entries          { text, mood, media } -> saved entry
+//   DELETE /entries/:id      -> { ok: true }
 //
-// Requires a KV namespace bound to this Pages project as JOURNAL_KV.
+// Setup this function depends on:
+//   - KV namespace bound as JOURNAL_KV
+//   - A Cloudflare Access application covering <site>/api/journal, with a
+//     policy allowing only Phil's email
+//   - Env vars: ACCESS_TEAM_DOMAIN (e.g. "myteam.cloudflareaccess.com") and
+//     ACCESS_AUD (the Access application's Audience tag)
 //
-// This is a lightweight personal lock, not bank-grade auth: the PIN is stored
-// as a SHA-256 hash and wrong guesses are rate-limited per IP (5 misses ->
-// 15-minute lockout), which keeps out snoopers and brute-force scripts but
-// wouldn't stop a determined attacker with many IPs.
+// Every request must carry a valid Access JWT (Cf-Access-Jwt-Assertion),
+// which the edge injects after login. We verify it here rather than trusting
+// the edge alone so the unprotected *.pages.dev copy of the site can't be
+// used to reach the data — without Access there's no token, and requests
+// fail closed.
 
 export interface Env {
   JOURNAL_KV: KVNamespace;
+  ACCESS_TEAM_DOMAIN: string;
+  ACCESS_AUD: string;
 }
-
-const MAX_FAILS = 5;
-const LOCKOUT_SECONDS = 15 * 60;
 
 const headers = {
   "Content-Type": "application/json",
@@ -31,111 +36,135 @@ function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-async function sha256(text: string) {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+function b64urlToBytes(s: string): Uint8Array {
+  const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
+  const bin = atob(b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), "="));
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 }
 
-function failKey(request: Request) {
-  return "fails:" + (request.headers.get("CF-Connecting-IP") || "unknown");
+function decodeJson(b64url: string): Record<string, any> {
+  return JSON.parse(new TextDecoder().decode(b64urlToBytes(b64url)));
 }
 
-async function isLockedOut(request: Request, env: Env) {
-  const fails = Number((await env.JOURNAL_KV.get(failKey(request))) || 0);
-  return fails >= MAX_FAILS;
-}
+// Access rotates its signing keys, so cache imported keys per kid but refetch
+// the cert set when an unknown kid shows up.
+let keyCache: Map<string, CryptoKey> | null = null;
 
-async function recordFail(request: Request, env: Env) {
-  const key = failKey(request);
-  const fails = Number((await env.JOURNAL_KV.get(key)) || 0) + 1;
-  await env.JOURNAL_KV.put(key, String(fails), { expirationTtl: LOCKOUT_SECONDS });
-}
-
-async function clearFails(request: Request, env: Env) {
-  await env.JOURNAL_KV.delete(failKey(request));
-}
-
-// Verifies the pin, tracking misses for lockout. Returns an error Response
-// to send back, or null when the pin is good.
-async function verifyPin(pin: string, request: Request, env: Env): Promise<Response | null> {
-  if (await isLockedOut(request, env)) {
-    return json({ error: "Too many attempts. Try again later." }, 429);
+async function fetchKeys(teamDomain: string): Promise<Map<string, CryptoKey>> {
+  const res = await fetch(`https://${teamDomain}/cdn-cgi/access/certs`);
+  if (!res.ok) throw new Error(`certs fetch failed: ${res.status}`);
+  const { keys } = (await res.json()) as { keys: Array<JsonWebKey & { kid: string }> };
+  const map = new Map<string, CryptoKey>();
+  for (const jwk of keys || []) {
+    map.set(
+      jwk.kid,
+      await crypto.subtle.importKey(
+        "jwk",
+        jwk,
+        { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+        false,
+        ["verify"]
+      )
+    );
   }
-  const stored = await env.JOURNAL_KV.get("pin_hash");
-  if (!stored || (await sha256(pin)) !== stored) {
-    await recordFail(request, env);
-    return json({ error: "unauthorized" }, 401);
-  }
-  await clearFails(request, env);
-  return null;
+  return map;
 }
 
-async function readJson(request: Request): Promise<Record<string, unknown>> {
+async function signingKey(kid: string, teamDomain: string): Promise<CryptoKey | null> {
+  if (!keyCache || !keyCache.has(kid)) keyCache = await fetchKeys(teamDomain);
+  return keyCache.get(kid) || null;
+}
+
+async function verifyAccessJwt(request: Request, env: Env): Promise<boolean> {
+  const token = request.headers.get("Cf-Access-Jwt-Assertion");
+  if (!token) return false;
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+
+  let header: Record<string, any>, payload: Record<string, any>;
   try {
-    return await request.json();
+    header = decodeJson(parts[0]);
+    payload = decodeJson(parts[1]);
   } catch {
-    return {};
+    return false;
   }
+
+  const now = Math.floor(Date.now() / 1000);
+  const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+  if (
+    header.alg !== "RS256" ||
+    !aud.includes(env.ACCESS_AUD) ||
+    payload.iss !== `https://${env.ACCESS_TEAM_DOMAIN}` ||
+    typeof payload.exp !== "number" ||
+    payload.exp <= now ||
+    (typeof payload.nbf === "number" && payload.nbf > now)
+  ) {
+    return false;
+  }
+
+  const key = await signingKey(header.kid, env.ACCESS_TEAM_DOMAIN);
+  if (!key) return false;
+  return crypto.subtle.verify(
+    "RSASSA-PKCS1-v1_5",
+    key,
+    b64urlToBytes(parts[2]),
+    new TextEncoder().encode(`${parts[0]}.${parts[1]}`)
+  );
 }
 
 export const onRequest: PagesFunction<Env> = async ({ request, env, params }) => {
-  if (!env.JOURNAL_KV) {
-    return json({ error: "JOURNAL_KV binding not found" }, 500);
+  if (!env.JOURNAL_KV) return json({ error: "JOURNAL_KV binding not found" }, 500);
+  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD) {
+    return json({ error: "Access not configured (set ACCESS_TEAM_DOMAIN and ACCESS_AUD)" }, 500);
+  }
+
+  if (!(await verifyAccessJwt(request, env))) {
+    return json({ error: "unauthorized" }, 401);
   }
 
   const path = Array.isArray(params.path) ? params.path : [params.path || ""];
   const route = path.join("/");
 
-  if (route === "setup" && request.method === "POST") {
-    if (await env.JOURNAL_KV.get("pin_hash")) return json({ error: "PIN already set" }, 400);
-    const pin = String((await readJson(request)).pin || "");
-    if (pin.length < 4) return json({ error: "PIN too short" }, 400);
-    await env.JOURNAL_KV.put("pin_hash", await sha256(pin));
-    return json({ ok: true });
+  // Landed here after the Access login flow; send the browser back to the
+  // page it came from, with a hash the widget uses to reopen itself.
+  if (route === "auth" && request.method === "GET") {
+    let back = new URL(request.url).searchParams.get("back") || "/";
+    if (!back.startsWith("/") || back.startsWith("//")) back = "/";
+    return Response.redirect(new URL(back + "#jw-open", request.url).toString(), 302);
   }
 
-  if (route === "unlock" && request.method === "POST") {
-    if (!(await env.JOURNAL_KV.get("pin_hash"))) return json({ needsSetup: true });
-    const pin = String((await readJson(request)).pin || "");
-    const denied = await verifyPin(pin, request, env);
-    if (denied) return denied;
-    return json({ ok: true });
+  if (route === "entries" && request.method === "GET") {
+    const raw = await env.JOURNAL_KV.get("entries");
+    return json(raw ? JSON.parse(raw) : []);
   }
 
-  if (route === "entries" || route.startsWith("entries/")) {
-    const denied = await verifyPin(request.headers.get("X-Pin") || "", request, env);
-    if (denied) return denied;
-
-    if (route === "entries" && request.method === "GET") {
-      const raw = await env.JOURNAL_KV.get("entries");
-      return json(raw ? JSON.parse(raw) : []);
+  if (route === "entries" && request.method === "POST") {
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return json({ error: "Invalid JSON" }, 400);
     }
+    const raw = await env.JOURNAL_KV.get("entries");
+    const entries = raw ? JSON.parse(raw) : [];
+    const entry = {
+      id: Date.now().toString(),
+      text: String(body.text || "").trim(),
+      mood: body.mood || null,
+      media: String(body.media || "").trim() || null,
+      date: new Date().toISOString(),
+    };
+    entries.unshift(entry);
+    await env.JOURNAL_KV.put("entries", JSON.stringify(entries));
+    return json(entry);
+  }
 
-    if (route === "entries" && request.method === "POST") {
-      const body = await readJson(request);
-      const raw = await env.JOURNAL_KV.get("entries");
-      const entries = raw ? JSON.parse(raw) : [];
-      const entry = {
-        id: Date.now().toString(),
-        text: String(body.text || "").trim(),
-        mood: body.mood || null,
-        media: String(body.media || "").trim() || null,
-        date: new Date().toISOString(),
-      };
-      entries.unshift(entry);
-      await env.JOURNAL_KV.put("entries", JSON.stringify(entries));
-      return json(entry);
-    }
-
-    if (route.startsWith("entries/") && request.method === "DELETE") {
-      const id = route.slice("entries/".length);
-      const raw = await env.JOURNAL_KV.get("entries");
-      const entries: Array<{ id: string }> = raw ? JSON.parse(raw) : [];
-      await env.JOURNAL_KV.put("entries", JSON.stringify(entries.filter((e) => e.id !== id)));
-      return json({ ok: true });
-    }
+  if (route.startsWith("entries/") && request.method === "DELETE") {
+    const id = route.slice("entries/".length);
+    const raw = await env.JOURNAL_KV.get("entries");
+    const entries: Array<{ id: string }> = raw ? JSON.parse(raw) : [];
+    await env.JOURNAL_KV.put("entries", JSON.stringify(entries.filter((e) => e.id !== id)));
+    return json({ ok: true });
   }
 
   return json({ error: "not found" }, 404);
