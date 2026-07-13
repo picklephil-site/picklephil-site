@@ -133,18 +133,36 @@ export async function onRequest({ request, env }) {
     });
   }
 
-  // --- Song search (iTunes proxy — keyless) ---
+  // --- Song search (Deezer primary, iTunes fallback — both keyless) ---
   if (path === '/api/journal/song-search' && request.method === 'GET') {
     if (!(await checkPin(request, env))) return json({ error: 'unauthorized' }, 401);
     const q = (url.searchParams.get('q') || '').trim();
     if (!q) return json({ songs: [] });
-    const r = await fetch(
-      `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=6`
+    try {
+      const r = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=6`);
+      if (r.ok) {
+        const data = await r.json();
+        if (data.data && data.data.length) {
+          return json({
+            songs: data.data.map(s => ({
+              title: s.title,
+              artist: s.artist ? s.artist.name : '',
+              artwork: s.album ? s.album.cover_medium : null,
+              preview: s.preview || null,
+              url: s.link || null,
+            })),
+          });
+        }
+      }
+    } catch (e) { /* fall through to iTunes */ }
+    const r2 = await fetch(
+      `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=6`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (journal widget)' } }
     );
-    if (!r.ok) return json({ error: 'itunes error' }, 502);
-    const data = await r.json();
+    if (!r2.ok) return json({ error: 'song search unavailable' }, 502);
+    const data2 = await r2.json();
     return json({
-      songs: (data.results || []).map(s => ({
+      songs: (data2.results || []).map(s => ({
         title: s.trackName,
         artist: s.artistName,
         artwork: s.artworkUrl100 || null,
