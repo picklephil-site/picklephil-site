@@ -5,6 +5,11 @@
  * so API_BASE stays empty. Double-clicking the footer (#site-footer)
  * opens a lock screen overlay. Nothing about the journal is visible
  * or hinted at until that double-click.
+ *
+ * Entries support: text (#hashtags become clickable tags), mood,
+ * a Bible verse (fetched from bible-api.com), a song (iTunes search,
+ * 30s preview), and an image/GIF (Giphy search via the API proxy,
+ * or a pasted URL).
  */
 (function () {
   const API_BASE = ''; // same-origin Pages Function
@@ -12,6 +17,7 @@
 
   let pin = null;
   let overlay = null;
+  let allEntries = [];
 
   function css() {
     return `
@@ -25,19 +31,58 @@
       .jw-input { width: 100%; box-sizing: border-box; background: #141414; border: 1px solid #333;
         border-radius: 10px; color: #EDEAE3; padding: 12px 14px; font-size: 18px; text-align:center;
         letter-spacing: 0.4em; margin-bottom: 10px; font-family: 'Courier New', monospace; }
+      .jw-field { width: 100%; box-sizing: border-box; background: #141414; border: 1px solid #333;
+        border-radius: 10px; color: #EDEAE3; padding: 10px 12px; font-size: 14px;
+        margin-bottom: 8px; font-family: 'Courier New', monospace; }
       .jw-btn { width: 100%; background: #F2C94C; border: none; border-radius: 10px; color: #141414;
         font-weight: 700; font-size: 14px; padding: 11px 0; cursor: pointer; font-family: 'Courier New', monospace; }
+      .jw-minibtn { background: #262626; border: 1px solid #3a3a3a; border-radius: 8px; color: #EDEAE3;
+        font-size: 12px; padding: 8px 10px; cursor: pointer; font-family: 'Courier New', monospace; white-space: nowrap; }
       .jw-close { position: absolute; top: 14px; right: 18px; background: none; border: none;
         color: #8a8a8a; font-size: 20px; cursor: pointer; }
       .jw-error { color: #E67E6E; font-size: 12px; margin-bottom: 8px; font-family: 'Courier New', monospace; }
-      .jw-journal { position: relative; max-width: 480px; width: 92%; max-height: 82vh; overflow-y: auto; }
-      .jw-entry { background: #1a1a1a; border: 1px solid #272727; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-      .jw-entry img { width: 100%; border-radius: 8px; margin-top: 8px; }
+      .jw-journal { position: relative; max-width: 520px; width: 92%; max-height: 85vh; overflow-y: auto; }
+      .jw-entry { background: #1a1a1a; border: 1px solid #272727; border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
+      .jw-entry img.jw-media { width: 100%; border-radius: 8px; margin-top: 8px; }
       .jw-date { font-size: 11px; color: #8a8a8a; font-family: 'Courier New', monospace; text-transform: uppercase; }
+      .jw-del { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #5a5a5a;
+        font-size: 14px; cursor: pointer; }
+      .jw-del:hover { color: #E67E6E; }
+      .jw-ghead { font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 0.15em;
+        text-transform: uppercase; color: #F2C94C; margin: 18px 0 10px; border-bottom: 1px solid #2a2a2a; padding-bottom: 4px; }
+      .jw-tag { display: inline-block; background: #262626; border: 1px solid #3a3a3a; border-radius: 999px;
+        color: #F2C94C; font-family: 'Courier New', monospace; font-size: 11px; padding: 3px 10px;
+        margin: 0 6px 6px 0; cursor: pointer; }
+      .jw-tag-inline { color: #F2C94C; cursor: pointer; }
+      .jw-verse { border-left: 3px solid #F2C94C; background: #181815; border-radius: 0 8px 8px 0;
+        padding: 8px 12px; margin: 8px 0; font-style: italic; font-size: 14px; color: #d9d4c7; }
+      .jw-verse a { color: #F2C94C; text-decoration: none; font-family: 'Courier New', monospace;
+        font-size: 11px; font-style: normal; }
+      .jw-song { display: flex; align-items: center; gap: 10px; background: #181818; border: 1px solid #272727;
+        border-radius: 10px; padding: 8px; margin-top: 8px; }
+      .jw-song img { width: 48px; height: 48px; border-radius: 6px; flex-shrink: 0; }
+      .jw-song .t { font-size: 13px; color: #EDEAE3; }
+      .jw-song .a { font-size: 11px; color: #8a8a8a; font-family: 'Courier New', monospace; }
+      .jw-song audio { width: 100%; height: 28px; margin-top: 4px; }
       .jw-textarea { width: 100%; box-sizing: border-box; background:#141414; border:1px solid #2e2e2e;
         border-radius: 10px; color:#EDEAE3; padding:10px; font-family: Georgia, serif; margin-bottom:8px; }
       .jw-newbtn { background:#F2C94C; color:#141414; border:none; border-radius:8px; padding:10px 16px;
         font-family:'Courier New',monospace; font-weight:700; cursor:pointer; margin-bottom:14px; }
+      .jw-results { max-height: 180px; overflow-y: auto; margin-bottom: 8px; }
+      .jw-gifgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .jw-gifgrid img { width: 100%; height: 72px; object-fit: cover; border-radius: 6px; cursor: pointer;
+        border: 2px solid transparent; }
+      .jw-gifgrid img.sel { border-color: #F2C94C; }
+      .jw-songrow { display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 8px; cursor: pointer; }
+      .jw-songrow:hover, .jw-songrow.sel { background: #262626; }
+      .jw-songrow img { width: 36px; height: 36px; border-radius: 5px; }
+      .jw-songrow .t { font-size: 12px; color: #EDEAE3; }
+      .jw-songrow .a { font-size: 10px; color: #8a8a8a; font-family: 'Courier New', monospace; }
+      .jw-hint { font-size: 11px; color: #6a6a6a; font-family: 'Courier New', monospace; margin: 0 0 8px; }
+      .jw-row { display: flex; gap: 6px; margin-bottom: 8px; }
+      .jw-row .jw-field { margin-bottom: 0; flex: 1; }
+      .jw-seclabel { font-family: 'Courier New', monospace; font-size: 11px; color: #8a8a8a;
+        text-transform: uppercase; letter-spacing: 0.1em; margin: 12px 0 6px; }
     `;
   }
 
@@ -50,6 +95,12 @@
   function closeOverlay() {
     if (overlay) overlay.remove();
     overlay = null;
+  }
+
+  function api(pathname, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ 'X-Pin': pin }, opts.headers || {});
+    return fetch(`${API_BASE}${pathname}`, opts);
   }
 
   function showLockScreen() {
@@ -132,6 +183,65 @@
     };
   }
 
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function extractTags(text) {
+    const out = [];
+    (text || '').replace(/#([A-Za-z0-9_]+)/g, (m, t) => { out.push(t.toLowerCase()); return m; });
+    return out;
+  }
+
+  function entryHaystack(e) {
+    return [
+      e.text,
+      e.mood && e.mood.label,
+      e.verse && e.verse.ref,
+      e.verse && e.verse.text,
+      e.song && e.song.title,
+      e.song && e.song.artist,
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function matches(e, q) {
+    q = q.trim().toLowerCase();
+    if (!q) return true;
+    if (q.startsWith('#')) return extractTags(e.text).includes(q.slice(1));
+    return entryHaystack(e).includes(q);
+  }
+
+  function monthLabel(iso) {
+    return new Date(iso).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  function entryCard(e) {
+    const card = document.createElement('div');
+    card.className = 'jw-entry';
+    const safeText = escapeHtml(e.text).replace(/#([A-Za-z0-9_]+)/g,
+      '<span class="jw-tag-inline" data-tag="$1">#$1</span>');
+    card.innerHTML = `
+      <button class="jw-del" title="Delete entry" data-id="${e.id}">🗑</button>
+      <div class="jw-date">${new Date(e.date).toLocaleString()}</div>
+      ${e.mood ? `<div style="color:#F2C94C;font-size:13px;margin:6px 0;">${escapeHtml(e.mood.emoji)} ${escapeHtml(e.mood.label)}</div>` : ''}
+      ${e.verse ? `<div class="jw-verse">${e.verse.text ? `“${escapeHtml(e.verse.text)}”<br>` : ''}<a href="/bible.html?ref=${encodeURIComponent(e.verse.ref)}" target="_blank" rel="noopener">📖 ${escapeHtml(e.verse.ref)}</a></div>` : ''}
+      <div style="color:#EDEAE3;white-space:pre-wrap;">${safeText}</div>
+      ${e.media ? `<img class="jw-media" src="${escapeHtml(e.media)}" onerror="this.style.display='none'" />` : ''}
+      ${e.song ? `
+        <div class="jw-song">
+          ${e.song.artwork ? `<img src="${escapeHtml(e.song.artwork)}" alt="" />` : ''}
+          <div style="flex:1;min-width:0;">
+            <div class="t">${e.song.url ? `<a href="${escapeHtml(e.song.url)}" target="_blank" rel="noopener" style="color:#EDEAE3;text-decoration:none;">🎵 ${escapeHtml(e.song.title)}</a>` : `🎵 ${escapeHtml(e.song.title)}`}</div>
+            <div class="a">${escapeHtml(e.song.artist)}</div>
+            ${e.song.preview ? `<audio controls preload="none" src="${escapeHtml(e.song.preview)}"></audio>` : ''}
+          </div>
+        </div>` : ''}
+    `;
+    return card;
+  }
+
   async function showJournal() {
     overlay = document.createElement('div');
     overlay.className = 'jw-overlay';
@@ -140,6 +250,8 @@
     wrap.innerHTML = `
       <button class="jw-close" style="position:fixed;">&times;</button>
       <button class="jw-newbtn">+ New entry</button>
+      <input class="jw-field jw-search" placeholder="Search entries… (or #tag)" />
+      <div class="jw-tagbar"></div>
       <div class="jw-list"></div>
     `;
     overlay.appendChild(wrap);
@@ -148,28 +260,66 @@
     overlay.querySelector('.jw-newbtn').onclick = showComposer;
 
     const list = overlay.querySelector('.jw-list');
-    const res = await fetch(`${API_BASE}/api/journal/entries`, { headers: { 'X-Pin': pin } });
-    const entries = res.ok ? await res.json() : [];
-    if (entries.length === 0) {
-      list.innerHTML = `<p style="color:#6a6a6a;font-family:'Courier New',monospace;font-size:13px;">No entries yet.</p>`;
-    }
-    entries.forEach(e => {
-      const card = document.createElement('div');
-      card.className = 'jw-entry';
-      card.innerHTML = `
-        <div class="jw-date">${new Date(e.date).toLocaleString()}</div>
-        ${e.mood ? `<div style="color:#F2C94C;font-size:13px;margin:6px 0;">${e.mood.emoji} ${e.mood.label}</div>` : ''}
-        <div style="color:#EDEAE3;white-space:pre-wrap;">${escapeHtml(e.text)}</div>
-        ${e.media ? `<img src="${e.media}" onerror="this.style.display='none'" />` : ''}
-      `;
-      list.appendChild(card);
-    });
-  }
+    const tagbar = overlay.querySelector('.jw-tagbar');
+    const search = overlay.querySelector('.jw-search');
 
-  function escapeHtml(str) {
-    const d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
+    list.innerHTML = `<p class="jw-hint">Loading…</p>`;
+    const res = await api('/api/journal/entries');
+    allEntries = res.ok ? await res.json() : [];
+
+    function render() {
+      const q = search.value || '';
+      const shown = allEntries.filter(e => matches(e, q));
+      list.innerHTML = '';
+      if (allEntries.length === 0) {
+        list.innerHTML = `<p class="jw-hint">No entries yet. Tip: #hashtags in your text become searchable tags.</p>`;
+        return;
+      }
+      if (shown.length === 0) {
+        list.innerHTML = `<p class="jw-hint">Nothing matches "${escapeHtml(q)}".</p>`;
+        return;
+      }
+      let lastMonth = null;
+      shown.forEach(e => {
+        const m = monthLabel(e.date);
+        if (m !== lastMonth) {
+          lastMonth = m;
+          const h = document.createElement('div');
+          h.className = 'jw-ghead';
+          h.textContent = m;
+          list.appendChild(h);
+        }
+        list.appendChild(entryCard(e));
+      });
+    }
+
+    function renderTagbar() {
+      const counts = {};
+      allEntries.forEach(e => extractTags(e.text).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+      const tags = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 12);
+      tagbar.innerHTML = tags.map(t => `<span class="jw-tag" data-tag="${t}">#${t} (${counts[t]})</span>`).join('');
+    }
+
+    search.addEventListener('input', render);
+    wrap.addEventListener('click', async e => {
+      const tagEl = e.target.closest('[data-tag]');
+      if (tagEl) {
+        search.value = '#' + tagEl.dataset.tag;
+        render();
+        return;
+      }
+      const del = e.target.closest('.jw-del');
+      if (del) {
+        if (!window.confirm('Delete this entry for good?')) return;
+        await api(`/api/journal/entries/${del.dataset.id}`, { method: 'DELETE' });
+        allEntries = allEntries.filter(x => x.id !== del.dataset.id);
+        renderTagbar();
+        render();
+      }
+    });
+
+    renderTagbar();
+    render();
   }
 
   const MOODS = [
@@ -184,22 +334,56 @@
     overlay = document.createElement('div');
     overlay.className = 'jw-overlay';
     let selectedMood = null;
+    let selectedSong = null;
+    let selectedGif = null;
+
     const wrap = document.createElement('div');
     wrap.className = 'jw-card';
-    wrap.style.maxWidth = '380px';
+    wrap.style.maxWidth = '420px';
+    wrap.style.maxHeight = '85vh';
+    wrap.style.overflowY = 'auto';
+    wrap.style.position = 'relative';
+
+    const votdRef = (document.getElementById('votd-ref') || {}).textContent || '';
+
     wrap.innerHTML = `
       <button class="jw-close">&times;</button>
       <h2 class="jw-title">New entry</h2>
       <div class="jw-moods" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
         ${MOODS.map(m => `<button data-label="${m.label}" data-emoji="${m.emoji}" style="font-size:18px;width:36px;height:36px;background:#262626;border:1px solid #333;border-radius:999px;cursor:pointer;">${m.emoji}</button>`).join('')}
       </div>
-      <textarea class="jw-textarea" rows="4" placeholder="What's going on today?"></textarea>
-      <input class="jw-input" style="text-align:left;letter-spacing:normal;font-size:14px;" placeholder="Image/GIF link (optional)" />
+      <textarea class="jw-textarea" rows="4" placeholder="What's going on today? (#hashtags become searchable)"></textarea>
+
+      <div class="jw-seclabel">📖 Verse (optional)</div>
+      <div class="jw-row">
+        <input class="jw-field jw-verse-in" placeholder="e.g. John 3:16" />
+        ${votdRef ? `<button class="jw-minibtn jw-votd">Today's verse</button>` : ''}
+      </div>
+      <div class="jw-hint jw-verse-preview" style="display:none;"></div>
+
+      <div class="jw-seclabel">🎵 Song (optional)</div>
+      <div class="jw-row">
+        <input class="jw-field jw-song-in" placeholder="Search a song…" />
+        <button class="jw-minibtn jw-song-go">Search</button>
+      </div>
+      <div class="jw-results jw-song-results" style="display:none;"></div>
+      <div class="jw-hint jw-song-sel" style="display:none;"></div>
+
+      <div class="jw-seclabel">🖼 GIF / image (optional)</div>
+      <div class="jw-row">
+        <input class="jw-field jw-gif-in" placeholder="Search GIFs…" />
+        <button class="jw-minibtn jw-gif-go">Search</button>
+      </div>
+      <div class="jw-results jw-gif-results" style="display:none;"></div>
+      <input class="jw-field jw-media-in" placeholder="…or paste an image/GIF link" />
+
+      <div class="jw-error jw-c-err" style="display:none;"></div>
       <button class="jw-btn">Save entry</button>
     `;
     overlay.appendChild(wrap);
     document.body.appendChild(overlay);
     overlay.querySelector('.jw-close').onclick = () => { closeOverlay(); showJournal(); };
+
     wrap.querySelectorAll('.jw-moods button').forEach(btn => {
       btn.onclick = () => {
         wrap.querySelectorAll('.jw-moods button').forEach(b => b.style.border = '1px solid #333');
@@ -207,13 +391,130 @@
         selectedMood = { emoji: btn.dataset.emoji, label: btn.dataset.label };
       };
     });
+
+    // --- Verse ---
+    const verseIn = wrap.querySelector('.jw-verse-in');
+    const versePreview = wrap.querySelector('.jw-verse-preview');
+    const votdBtn = wrap.querySelector('.jw-votd');
+    if (votdBtn) votdBtn.onclick = () => { verseIn.value = votdRef; verseIn.dispatchEvent(new Event('change')); };
+    let verseData = null;
+    verseIn.addEventListener('change', async () => {
+      const ref = verseIn.value.trim();
+      verseData = null;
+      versePreview.style.display = 'none';
+      if (!ref) return;
+      versePreview.style.display = 'block';
+      versePreview.textContent = 'Looking up…';
+      try {
+        const r = await fetch(`https://bible-api.com/${encodeURIComponent(ref)}`);
+        const d = await r.json();
+        if (d.text) {
+          verseData = { ref: d.reference || ref, text: d.text.trim().replace(/\s+/g, ' ') };
+          versePreview.textContent = `“${verseData.text.slice(0, 140)}${verseData.text.length > 140 ? '…' : ''}” — ${verseData.ref}`;
+        } else {
+          verseData = { ref: ref, text: null };
+          versePreview.textContent = `Couldn't look that up — saving the reference "${ref}" anyway.`;
+        }
+      } catch (e) {
+        verseData = { ref: ref, text: null };
+        versePreview.textContent = `Couldn't look that up — saving the reference "${ref}" anyway.`;
+      }
+    });
+
+    // --- Song search ---
+    const songIn = wrap.querySelector('.jw-song-in');
+    const songResults = wrap.querySelector('.jw-song-results');
+    const songSel = wrap.querySelector('.jw-song-sel');
+    async function songSearch() {
+      const q = songIn.value.trim();
+      if (!q) return;
+      songResults.style.display = 'block';
+      songResults.innerHTML = `<p class="jw-hint">Searching…</p>`;
+      const r = await api(`/api/journal/song-search?q=${encodeURIComponent(q)}`);
+      const d = r.ok ? await r.json() : { songs: [] };
+      if (!d.songs || d.songs.length === 0) {
+        songResults.innerHTML = `<p class="jw-hint">No songs found.</p>`;
+        return;
+      }
+      songResults.innerHTML = '';
+      d.songs.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'jw-songrow';
+        row.innerHTML = `${s.artwork ? `<img src="${escapeHtml(s.artwork)}" />` : ''}<div><div class="t">${escapeHtml(s.title)}</div><div class="a">${escapeHtml(s.artist)}</div></div>`;
+        row.onclick = () => {
+          selectedSong = s;
+          songResults.querySelectorAll('.jw-songrow').forEach(x => x.classList.remove('sel'));
+          row.classList.add('sel');
+          songSel.style.display = 'block';
+          songSel.textContent = `Attached: ${s.title} — ${s.artist}`;
+        };
+        songResults.appendChild(row);
+      });
+    }
+    wrap.querySelector('.jw-song-go').onclick = songSearch;
+    songIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); songSearch(); } });
+
+    // --- GIF search ---
+    const gifIn = wrap.querySelector('.jw-gif-in');
+    const gifResults = wrap.querySelector('.jw-gif-results');
+    const mediaIn = wrap.querySelector('.jw-media-in');
+    async function gifSearch() {
+      const q = gifIn.value.trim();
+      if (!q) return;
+      gifResults.style.display = 'block';
+      gifResults.innerHTML = `<p class="jw-hint">Searching…</p>`;
+      const r = await api(`/api/journal/gifs?q=${encodeURIComponent(q)}`);
+      const d = r.ok ? await r.json() : { gifs: [] };
+      if (d.needsKey) {
+        gifResults.innerHTML = `<p class="jw-hint">GIF search isn't set up yet (needs a free Giphy key). You can still paste a GIF link below.</p>`;
+        return;
+      }
+      if (!d.gifs || d.gifs.length === 0) {
+        gifResults.innerHTML = `<p class="jw-hint">No GIFs found.</p>`;
+        return;
+      }
+      const grid = document.createElement('div');
+      grid.className = 'jw-gifgrid';
+      d.gifs.forEach(g => {
+        const img = document.createElement('img');
+        img.src = g.preview;
+        img.onclick = () => {
+          selectedGif = g.url;
+          grid.querySelectorAll('img').forEach(x => x.classList.remove('sel'));
+          img.classList.add('sel');
+          mediaIn.value = '';
+        };
+        grid.appendChild(img);
+      });
+      gifResults.innerHTML = '';
+      gifResults.appendChild(grid);
+    }
+    wrap.querySelector('.jw-gif-go').onclick = gifSearch;
+    gifIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); gifSearch(); } });
+
+    // --- Save ---
     wrap.querySelector('.jw-btn').onclick = async () => {
       const text = wrap.querySelector('.jw-textarea').value;
-      const media = wrap.querySelector('.jw-input').value;
-      await fetch(`${API_BASE}/api/journal/entries`, {
+      const err = wrap.querySelector('.jw-c-err');
+      if (!text.trim() && !selectedGif && !mediaIn.value.trim() && !selectedSong && !verseData) {
+        err.style.display = 'block';
+        err.textContent = 'Write something first.';
+        return;
+      }
+      // If a verse was typed but never blurred, resolve it now
+      if (verseIn.value.trim() && !verseData) {
+        verseData = { ref: verseIn.value.trim(), text: null };
+      }
+      await api('/api/journal/entries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Pin': pin },
-        body: JSON.stringify({ text, mood: selectedMood, media }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          mood: selectedMood,
+          media: selectedGif || mediaIn.value.trim() || null,
+          verse: verseData,
+          song: selectedSong,
+        }),
       });
       closeOverlay();
       showJournal();
