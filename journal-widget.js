@@ -48,6 +48,9 @@
       .jw-del { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #5a5a5a;
         font-size: 14px; cursor: pointer; }
       .jw-del:hover { color: #E67E6E; }
+      .jw-edit { position: absolute; top: 10px; right: 38px; background: none; border: none; color: #5a5a5a;
+        font-size: 14px; cursor: pointer; }
+      .jw-edit:hover { color: #F2C94C; }
       .jw-ghead { font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 0.15em;
         text-transform: uppercase; color: #F2C94C; margin: 18px 0 10px; border-bottom: 1px solid #2a2a2a; padding-bottom: 4px; }
       .jw-tag { display: inline-block; background: #262626; border: 1px solid #3a3a3a; border-radius: 999px;
@@ -103,6 +106,89 @@
     return fetch(`${API_BASE}${pathname}`, opts);
   }
 
+  // ── Biometric unlock (WebAuthn PRF) ──────────────────────────────────
+  // The code is AES-encrypted with a key derived from the passkey's PRF
+  // output, which the platform only releases after fingerprint/face/PIN
+  // verification. localStorage holds only ciphertext. Per-device.
+  const BIO_KEY = 'jw_bio';
+  const PRF_SALT = new TextEncoder().encode('pickle-journal-prf-v1');
+  const b64 = bytes => btoa(String.fromCharCode.apply(null, Array.from(bytes)));
+  const unb64 = s => new Uint8Array(Array.from(atob(s), c => c.charCodeAt(0)));
+
+  function bioEnrolled() {
+    try { return !!(window.PublicKeyCredential && localStorage.getItem(BIO_KEY)); }
+    catch (e) { return false; }
+  }
+
+  async function bioDeriveKey(rawId) {
+    const assertion = await navigator.credentials.get({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials: [{ type: 'public-key', id: rawId }],
+      userVerification: 'required',
+      extensions: { prf: { eval: { first: PRF_SALT } } },
+    }});
+    const res = assertion.getClientExtensionResults();
+    const secret = res.prf && res.prf.results && res.prf.results.first;
+    if (!secret) return null;
+    return crypto.subtle.importKey('raw', secret, 'AES-GCM', false, ['encrypt', 'decrypt']);
+  }
+
+  async function bioEnroll() {
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rp: { name: 'Pickle Journal', id: location.hostname },
+      user: {
+        id: new TextEncoder().encode('phil-journal'),
+        name: 'journal',
+        displayName: 'Pickle Journal',
+      },
+      pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+      authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' },
+      extensions: { prf: {} },
+    }});
+    const ext = cred.getClientExtensionResults();
+    if (!(ext.prf && ext.prf.enabled)) throw new Error('prf unsupported');
+    const rawId = new Uint8Array(cred.rawId);
+    const key = await bioDeriveKey(rawId); // second prompt: derives the encryption key
+    if (!key) throw new Error('prf eval failed');
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv }, key, new TextEncoder().encode(pin)
+    ));
+    localStorage.setItem(BIO_KEY, JSON.stringify({ credId: b64(rawId), iv: b64(iv), ct: b64(ct) }));
+  }
+
+  async function bioUnlock(errBox) {
+    try {
+      const rec = JSON.parse(localStorage.getItem(BIO_KEY));
+      const key = await bioDeriveKey(unb64(rec.credId));
+      if (!key) throw new Error('no prf');
+      const pt = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: unb64(rec.iv) }, key, unb64(rec.ct)
+      );
+      const candidate = new TextDecoder().decode(pt);
+      const res = await fetch(`${API_BASE}/api/journal/unlock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: candidate }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        pin = candidate;
+        closeOverlay();
+        showJournal();
+        return;
+      }
+      // Stored code no longer valid (code was reset) — drop enrollment.
+      localStorage.removeItem(BIO_KEY);
+      errBox.style.display = 'block';
+      errBox.textContent = data.locked ? 'Locked — try again later.' : 'Code changed. Enter it manually.';
+    } catch (e) {
+      errBox.style.display = 'block';
+      errBox.textContent = 'Fingerprint unlock failed. Enter your code.';
+    }
+  }
+
   function showLockScreen() {
     overlay = document.createElement('div');
     overlay.className = 'jw-overlay';
@@ -111,6 +197,7 @@
         <button class="jw-close">&times;</button>
         <h2 class="jw-title">Journal's locked</h2>
         <p class="jw-sub">Enter your code.</p>
+        ${bioEnrolled() ? '<button class="jw-minibtn jw-bio" style="width:100%;margin-bottom:10px;padding:11px 0;">👆 Unlock with fingerprint</button>' : ''}
         <input class="jw-input" type="password" maxlength="64" />
         <div class="jw-error" style="display:none;"></div>
         <button class="jw-btn">Unlock</button>
@@ -120,6 +207,8 @@
     const errBox = overlay.querySelector('.jw-error');
     input.focus();
     overlay.querySelector('.jw-close').onclick = closeOverlay;
+    const bioBtn = overlay.querySelector('.jw-bio');
+    if (bioBtn) bioBtn.onclick = () => bioUnlock(errBox);
 
     async function attempt() {
       const res = await fetch(`${API_BASE}/api/journal/unlock`, {
@@ -230,8 +319,9 @@
     const safeText = escapeHtml(e.text).replace(/#([A-Za-z0-9_]+)/g,
       '<span class="jw-tag-inline" data-tag="$1">#$1</span>');
     card.innerHTML = `
+      <button class="jw-edit" title="Edit entry" data-id="${e.id}">✏️</button>
       <button class="jw-del" title="Delete entry" data-id="${e.id}">🗑</button>
-      <div class="jw-date">${new Date(e.date).toLocaleString()}</div>
+      <div class="jw-date">${new Date(e.date).toLocaleString()}${e.edited ? ' · edited' : ''}</div>
       ${e.mood ? `<div style="color:#F2C94C;font-size:13px;margin:6px 0;">${escapeHtml(e.mood.emoji)} ${escapeHtml(e.mood.label)}</div>` : ''}
       ${e.verse ? `<div class="jw-verse">${e.verse.text ? `“${escapeHtml(e.verse.text)}”<br>` : ''}<a href="/bible.html?ref=${encodeURIComponent(e.verse.ref)}" target="_blank" rel="noopener">📖 ${escapeHtml(e.verse.ref)}</a></div>` : ''}
       <div style="color:#EDEAE3;white-space:pre-wrap;">${safeText}</div>
@@ -256,7 +346,10 @@
     wrap.className = 'jw-journal';
     wrap.innerHTML = `
       <button class="jw-close" style="position:fixed;">&times;</button>
-      <button class="jw-newbtn">+ New entry</button>
+      <div class="jw-row" style="align-items:center;">
+        <button class="jw-newbtn" style="margin-bottom:0;">+ New entry</button>
+        <button class="jw-minibtn jw-bio-enroll" style="display:none;">👆 Fingerprint unlock</button>
+      </div>
       <input class="jw-field jw-search" placeholder="Search entries… (or #tag)" />
       <div class="jw-tagbar"></div>
       <div class="jw-list"></div>
@@ -264,7 +357,27 @@
     overlay.appendChild(wrap);
     document.body.appendChild(overlay);
     overlay.querySelector('.jw-close').onclick = closeOverlay;
-    overlay.querySelector('.jw-newbtn').onclick = showComposer;
+    overlay.querySelector('.jw-newbtn').onclick = () => showComposer();
+
+    // Offer fingerprint enrollment on capable devices that haven't set it up
+    const enrollBtn = overlay.querySelector('.jw-bio-enroll');
+    if (window.PublicKeyCredential && !bioEnrolled()) {
+      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok => {
+        if (ok && enrollBtn) enrollBtn.style.display = '';
+      }).catch(() => {});
+    }
+    if (enrollBtn) enrollBtn.onclick = async () => {
+      enrollBtn.disabled = true;
+      enrollBtn.textContent = '👆 Follow the prompt…';
+      try {
+        await bioEnroll();
+        enrollBtn.textContent = '✓ Fingerprint unlock is on';
+      } catch (e) {
+        enrollBtn.disabled = false;
+        enrollBtn.textContent = '👆 Not supported here';
+        setTimeout(() => { enrollBtn.textContent = '👆 Fingerprint unlock'; }, 2500);
+      }
+    };
 
     const list = overlay.querySelector('.jw-list');
     const tagbar = overlay.querySelector('.jw-tagbar');
@@ -315,6 +428,12 @@
         render();
         return;
       }
+      const ed = e.target.closest('.jw-edit');
+      if (ed) {
+        const entry = allEntries.find(x => x.id === ed.dataset.id);
+        if (entry) showComposer(entry);
+        return;
+      }
       const del = e.target.closest('.jw-del');
       if (del) {
         if (!window.confirm('Delete this entry for good?')) return;
@@ -336,12 +455,12 @@
     { emoji: '❤️', label: 'Grateful' }, { emoji: '😅', label: 'Meh' },
   ];
 
-  function showComposer() {
+  function showComposer(existing) {
     closeOverlay();
     overlay = document.createElement('div');
     overlay.className = 'jw-overlay';
-    let selectedMood = null;
-    let selectedSong = null;
+    let selectedMood = existing ? existing.mood : null;
+    let selectedSong = existing ? existing.song : null;
     let selectedGif = null;
 
     const wrap = document.createElement('div');
@@ -355,7 +474,7 @@
 
     wrap.innerHTML = `
       <button class="jw-close">&times;</button>
-      <h2 class="jw-title">New entry</h2>
+      <h2 class="jw-title">${existing ? 'Edit entry' : 'New entry'}</h2>
       <div class="jw-moods" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
         ${MOODS.map(m => `<button data-label="${m.label}" data-emoji="${m.emoji}" style="font-size:18px;width:36px;height:36px;background:#262626;border:1px solid #333;border-radius:999px;cursor:pointer;">${m.emoji}</button>`).join('')}
       </div>
@@ -385,7 +504,7 @@
       <input class="jw-field jw-media-in" placeholder="…or paste an image/GIF link" />
 
       <div class="jw-error jw-c-err" style="display:none;"></div>
-      <button class="jw-btn">Save entry</button>
+      <button class="jw-btn">${existing ? 'Save changes' : 'Save entry'}</button>
     `;
     overlay.appendChild(wrap);
     document.body.appendChild(overlay);
@@ -397,6 +516,9 @@
         btn.style.border = '1px solid #F2C94C';
         selectedMood = { emoji: btn.dataset.emoji, label: btn.dataset.label };
       };
+      if (existing && existing.mood && btn.dataset.emoji === existing.mood.emoji) {
+        btn.style.border = '1px solid #F2C94C';
+      }
     });
 
     // --- Verse ---
@@ -404,7 +526,14 @@
     const versePreview = wrap.querySelector('.jw-verse-preview');
     const votdBtn = wrap.querySelector('.jw-votd');
     if (votdBtn) votdBtn.onclick = () => { verseIn.value = votdRef; verseIn.dispatchEvent(new Event('change')); };
-    let verseData = null;
+    let verseData = existing ? existing.verse : null;
+    if (verseData) {
+      verseIn.value = verseData.ref;
+      versePreview.style.display = 'block';
+      versePreview.textContent = verseData.text
+        ? `“${verseData.text.slice(0, 140)}${verseData.text.length > 140 ? '…' : ''}” — ${verseData.ref}`
+        : verseData.ref;
+    }
     verseIn.addEventListener('change', async () => {
       const ref = verseIn.value.trim();
       verseData = null;
@@ -432,6 +561,10 @@
     const songIn = wrap.querySelector('.jw-song-in');
     const songResults = wrap.querySelector('.jw-song-results');
     const songSel = wrap.querySelector('.jw-song-sel');
+    if (selectedSong) {
+      songSel.style.display = 'block';
+      songSel.textContent = `Attached: ${selectedSong.title} — ${selectedSong.artist}`;
+    }
     async function songSearch() {
       const q = songIn.value.trim();
       if (!q) return;
@@ -499,6 +632,12 @@
     wrap.querySelector('.jw-gif-go').onclick = gifSearch;
     gifIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); gifSearch(); } });
 
+    // --- Prefill when editing ---
+    if (existing) {
+      wrap.querySelector('.jw-textarea').value = existing.text || '';
+      if (existing.media) mediaIn.value = existing.media;
+    }
+
     // --- Save ---
     wrap.querySelector('.jw-btn').onclick = async () => {
       const text = wrap.querySelector('.jw-textarea').value;
@@ -512,8 +651,9 @@
       if (verseIn.value.trim() && !verseData) {
         verseData = { ref: verseIn.value.trim(), text: null };
       }
-      await api('/api/journal/entries', {
-        method: 'POST',
+      if (!verseIn.value.trim()) verseData = null; // cleared while editing
+      await api(existing ? `/api/journal/entries/${existing.id}` : '/api/journal/entries', {
+        method: existing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: text,

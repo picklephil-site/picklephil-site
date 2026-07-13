@@ -150,6 +150,41 @@ export async function onRequest({ request, env }) {
     return json(entry);
   }
 
+  // --- Entries: edit ---
+  if (path.startsWith('/api/journal/entries/') && request.method === 'PUT') {
+    if (!(await checkPin(request, env))) return json({ error: 'unauthorized' }, 401);
+    const id = path.split('/').pop();
+    const body = await request.json();
+    const raw = await env.JOURNAL_KV.get('entries');
+    const entries = raw ? JSON.parse(raw) : [];
+    const idx = entries.findIndex(e => e.id === id);
+    if (idx === -1) return json({ error: 'not found' }, 404);
+    const cur = entries[idx];
+    entries[idx] = {
+      ...cur,
+      text: str(body.text, 20000).trim(),
+      mood: body.mood && body.mood.emoji
+        ? { emoji: str(body.mood.emoji, 8), label: str(body.mood.label, 40) }
+        : null,
+      media: str(body.media, 500).trim() || null,
+      verse: body.verse && body.verse.ref
+        ? { ref: str(body.verse.ref, 80), text: str(body.verse.text, 1500) || null }
+        : null,
+      song: body.song && body.song.title
+        ? {
+            title: str(body.song.title, 150),
+            artist: str(body.song.artist, 150),
+            artwork: str(body.song.artwork, 400) || null,
+            preview: str(body.song.preview, 400) || null,
+            url: str(body.song.url, 400) || null,
+          }
+        : null,
+      edited: new Date().toISOString(),
+    };
+    await env.JOURNAL_KV.put('entries', JSON.stringify(entries));
+    return json(entries[idx]);
+  }
+
   // --- Entries: delete ---
   if (path.startsWith('/api/journal/entries/') && request.method === 'DELETE') {
     if (!(await checkPin(request, env))) return json({ error: 'unauthorized' }, 401);
