@@ -111,7 +111,7 @@
         <button class="jw-close">&times;</button>
         <h2 class="jw-title">Journal's locked</h2>
         <p class="jw-sub">Enter your code.</p>
-        <input class="jw-input" type="password" inputmode="numeric" maxlength="8" />
+        <input class="jw-input" type="password" maxlength="64" />
         <div class="jw-error" style="display:none;"></div>
         <button class="jw-btn">Unlock</button>
       </div>`;
@@ -131,6 +131,13 @@
       if (data.needsSetup) {
         closeOverlay();
         showSetupScreen();
+        return;
+      }
+      if (data.locked) {
+        const mins = Math.max(1, Math.ceil((data.until - Date.now()) / 60000));
+        errBox.style.display = 'block';
+        errBox.textContent = `Too many tries. Locked for ~${mins} min.`;
+        input.value = '';
         return;
       }
       if (data.ok) {
@@ -154,9 +161,9 @@
       <div class="jw-card" style="position:relative;text-align:center;">
         <button class="jw-close">&times;</button>
         <h2 class="jw-title">Set up your code</h2>
-        <p class="jw-sub">4+ digits. This is the only way in.</p>
-        <input class="jw-input" type="password" inputmode="numeric" maxlength="8" placeholder="New code" />
-        <input class="jw-input jw-confirm" type="password" inputmode="numeric" maxlength="8" placeholder="Confirm" />
+        <p class="jw-sub">4+ characters. A word or phrase beats digits. This is the only way in.</p>
+        <input class="jw-input" type="password" maxlength="64" placeholder="New code" />
+        <input class="jw-input jw-confirm" type="password" maxlength="64" placeholder="Confirm" />
         <div class="jw-error" style="display:none;"></div>
         <button class="jw-btn">Lock it in</button>
       </div>`;
@@ -169,7 +176,7 @@
     overlay.querySelector('.jw-btn').onclick = async () => {
       if (input.value.length < 4 || input.value !== confirm.value) {
         errBox.style.display = 'block';
-        errBox.textContent = input.value !== confirm.value ? "Codes don't match." : 'Use 4+ digits.';
+        errBox.textContent = input.value !== confirm.value ? "Codes don't match." : 'Use 4+ characters.';
         return;
       }
       await fetch(`${API_BASE}/api/journal/setup`, {

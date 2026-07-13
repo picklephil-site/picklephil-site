@@ -5,22 +5,39 @@
  *
  * Routes:
  *   POST   /api/journal/setup        { pin }             -> creates PIN (only if none exists)
- *   POST   /api/journal/unlock       { pin }             -> { ok: true } or 401
+ *   POST   /api/journal/unlock       { pin }             -> { ok: true } or 401 / 429 (locked)
  *   GET    /api/journal/entries      (header X-Pin)      -> [entries]
  *   POST   /api/journal/entries      (header X-Pin)      -> saves { text, mood, media, verse, song }
  *   DELETE /api/journal/entries/:id  (header X-Pin)      -> deletes entry
  *   GET    /api/journal/gifs?q=      (header X-Pin)      -> Giphy search proxy (needs GIPHY_API_KEY env var)
- *   GET    /api/journal/song-search?q= (header X-Pin)    -> iTunes song search proxy (keyless)
+ *   GET    /api/journal/song-search?q= (header X-Pin)    -> Deezer/iTunes song search proxy (keyless)
  *
  * Storage: KV binding JOURNAL_KV (namespace journal-db).
- * Security note: lightweight personal lock (SHA-256 PIN hash checked
- * per-request), not bank-grade auth.
+ *
+ * Security:
+ *  - PIN stored as salted PBKDF2-SHA256 (100k iterations), never plaintext.
+ *  - Every failed PIN check (any route) increments a fail counter; 5 fails
+ *    locks all PIN checks for 15 minutes. Failures also sleep 400ms.
+ *    (KV is eventually consistent, so the lock is best-effort — it slows a
+ *    brute force from minutes to months, it isn't bank-grade auth.)
  */
 
-async function sha256(text) {
-  const data = new TextEncoder().encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+const PBKDF2_ITER = 100000;
+const MAX_FAILS = 5;
+const LOCK_MS = 15 * 60 * 1000;
+
+const toHex = bytes => Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+const fromHex = hex => new Uint8Array((hex.match(/.{2}/g) || []).map(h => parseInt(h, 16)));
+
+async function hashPin(pin, saltHex, iterations) {
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: fromHex(saltHex), iterations },
+    key, 256
+  );
+  return toHex(new Uint8Array(bits));
 }
 
 function json(data, status = 200) {
@@ -30,12 +47,39 @@ function json(data, status = 200) {
   });
 }
 
-async function checkPin(request, env) {
-  const pin = request.headers.get('X-Pin') || '';
+/**
+ * Verify a PIN with lockout. Returns:
+ *   { ok: true } | { needsSetup: true } | { locked: true, until } | { ok: false }
+ */
+async function verifyPin(pin, env) {
+  const lockUntil = parseInt(await env.JOURNAL_KV.get('lock_until') || '0', 10);
+  if (Date.now() < lockUntil) return { locked: true, until: lockUntil };
+
   const stored = await env.JOURNAL_KV.get('pin_hash');
-  if (!stored) return false;
-  const hash = await sha256(pin);
-  return hash === stored;
+  if (!stored) return { needsSetup: true };
+  const rec = JSON.parse(stored);
+  const hash = await hashPin(pin || '', rec.salt, rec.iter);
+
+  if (hash === rec.hash) {
+    if (parseInt(await env.JOURNAL_KV.get('fails') || '0', 10) > 0) {
+      await env.JOURNAL_KV.put('fails', '0');
+    }
+    return { ok: true };
+  }
+
+  const fails = parseInt(await env.JOURNAL_KV.get('fails') || '0', 10) + 1;
+  await env.JOURNAL_KV.put('fails', String(fails));
+  if (fails >= MAX_FAILS) {
+    await env.JOURNAL_KV.put('lock_until', String(Date.now() + LOCK_MS));
+    await env.JOURNAL_KV.put('fails', '0');
+  }
+  await new Promise(r => setTimeout(r, 400));
+  return { ok: false };
+}
+
+async function checkPin(request, env) {
+  const v = await verifyPin(request.headers.get('X-Pin') || '', env);
+  return v.ok === true;
 }
 
 const str = (v, max) => (typeof v === 'string' ? v.slice(0, max) : '');
@@ -50,17 +94,20 @@ export async function onRequest({ request, env }) {
     if (existing) return json({ error: 'PIN already set' }, 400);
     const { pin } = await request.json();
     if (!pin || pin.length < 4) return json({ error: 'PIN too short' }, 400);
-    await env.JOURNAL_KV.put('pin_hash', await sha256(pin));
+    if (pin.length > 64) return json({ error: 'PIN too long' }, 400);
+    const salt = toHex(crypto.getRandomValues(new Uint8Array(16)));
+    const hash = await hashPin(pin, salt, PBKDF2_ITER);
+    await env.JOURNAL_KV.put('pin_hash', JSON.stringify({ v: 2, salt, iter: PBKDF2_ITER, hash }));
     return json({ ok: true });
   }
 
   // --- Unlock: verify PIN ---
   if (path === '/api/journal/unlock' && request.method === 'POST') {
     const { pin } = await request.json();
-    const stored = await env.JOURNAL_KV.get('pin_hash');
-    if (!stored) return json({ needsSetup: true });
-    const hash = await sha256(pin || '');
-    if (hash !== stored) return json({ ok: false }, 401);
+    const v = await verifyPin(pin, env);
+    if (v.needsSetup) return json({ needsSetup: true });
+    if (v.locked) return json({ locked: true, until: v.until }, 429);
+    if (!v.ok) return json({ ok: false }, 401);
     return json({ ok: true });
   }
 
