@@ -455,6 +455,53 @@
     { emoji: '❤️', label: 'Grateful' }, { emoji: '😅', label: 'Meh' },
   ];
 
+  // ── In-journal Bible browser ─────────────────────────────────────────
+  // Embeds the site's full reader (/bible.html — book/chapter picker,
+  // translations, keyword search, tap-to-highlight). Same-origin, so we
+  // read the highlighted selection straight out of the iframe.
+  function openBibleBrowser(onPick) {
+    const bo = document.createElement('div');
+    bo.className = 'jw-overlay';
+    bo.style.zIndex = '1000000';
+    bo.innerHTML = `
+      <div style="width:96%;max-width:640px;height:88vh;display:flex;flex-direction:column;background:#141414;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden;">
+        <iframe src="/bible.html" style="flex:1;width:100%;border:none;"></iframe>
+        <div style="display:flex;gap:8px;padding:10px;background:#1c1c1c;">
+          <button class="jw-btn jw-bible-use" style="flex:1;">✓ Use highlighted verse</button>
+          <button class="jw-minibtn jw-bible-cancel">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(bo);
+    const useBtn = bo.querySelector('.jw-bible-use');
+    bo.querySelector('.jw-bible-cancel').onclick = () => bo.remove();
+    useBtn.onclick = () => {
+      try {
+        const doc = bo.querySelector('iframe').contentDocument;
+        const refEl = doc.getElementById('copyBarRef');
+        const refRaw = refEl ? refEl.textContent.trim() : '';
+        const sel = Array.from(doc.querySelectorAll('.verse-block.selected'));
+        if (!refRaw || !sel.length) {
+          useBtn.textContent = 'Tap verses in the reader to highlight them first';
+          setTimeout(() => { useBtn.textContent = '✓ Use highlighted verse'; }, 2200);
+          return;
+        }
+        const ref = refRaw.split('·')[0].trim();
+        sel.sort((a, b) => (+a.dataset.verse) - (+b.dataset.verse));
+        const text = sel.map(p => {
+          const v = p.querySelector('.v-num');
+          let t = p.textContent;
+          if (v) t = t.replace(v.textContent, '');
+          return t.replace(/\s+/g, ' ').trim();
+        }).join(' ');
+        bo.remove();
+        onPick(ref, text);
+      } catch (e) {
+        useBtn.textContent = 'Could not read the reader — try again';
+        setTimeout(() => { useBtn.textContent = '✓ Use highlighted verse'; }, 2200);
+      }
+    };
+  }
+
   function showComposer(existing) {
     closeOverlay();
     overlay = document.createElement('div');
@@ -483,7 +530,8 @@
       <div class="jw-seclabel">📖 Verse (optional)</div>
       <div class="jw-row">
         <input class="jw-field jw-verse-in" placeholder="e.g. John 3:16" />
-        ${votdRef ? `<button class="jw-minibtn jw-votd">Today's verse</button>` : ''}
+        <button class="jw-minibtn jw-browse">📖 Browse</button>
+        ${votdRef ? `<button class="jw-minibtn jw-votd">Today's</button>` : ''}
       </div>
       <div class="jw-hint jw-verse-preview" style="display:none;"></div>
 
@@ -526,6 +574,14 @@
     const versePreview = wrap.querySelector('.jw-verse-preview');
     const votdBtn = wrap.querySelector('.jw-votd');
     if (votdBtn) votdBtn.onclick = () => { verseIn.value = votdRef; verseIn.dispatchEvent(new Event('change')); };
+    wrap.querySelector('.jw-browse').onclick = () => openBibleBrowser((ref, text) => {
+      verseData = { ref: ref, text: (text || '').slice(0, 1500) || null };
+      verseIn.value = ref;
+      versePreview.style.display = 'block';
+      versePreview.textContent = verseData.text
+        ? `“${verseData.text.slice(0, 140)}${verseData.text.length > 140 ? '…' : ''}” — ${ref}`
+        : ref;
+    });
     let verseData = existing ? existing.verse : null;
     if (verseData) {
       verseIn.value = verseData.ref;
