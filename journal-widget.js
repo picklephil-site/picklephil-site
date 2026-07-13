@@ -530,20 +530,40 @@
 
   function init() {
     injectStyles();
-    let clickCount = 0;
-    let clickTimer = null;
-    document.addEventListener('click', e => {
-      const trigger = document.querySelector(TRIGGER_SELECTOR);
-      if (!trigger || !trigger.contains(e.target)) return;
-      clickCount++;
-      if (clickCount === 1) {
-        clickTimer = setTimeout(() => { clickCount = 0; }, 400);
-      } else if (clickCount === 2) {
-        clearTimeout(clickTimer);
-        clickCount = 0;
-        showLockScreen();
+
+    // Mobile: double-tap on text normally triggers selection / zoom, which
+    // swallows the second click. Neutralize both on the trigger element and
+    // count raw touchends ourselves (preventDefault also stops the synthetic
+    // click, so taps aren't double-counted).
+    const trigger = document.querySelector(TRIGGER_SELECTOR);
+    if (trigger) {
+      trigger.style.touchAction = 'manipulation';
+      trigger.style.webkitUserSelect = 'none';
+      trigger.style.userSelect = 'none';
+    }
+
+    let tapCount = 0;
+    let tapTimer = null;
+    function tap() {
+      tapCount++;
+      if (tapCount === 1) {
+        tapTimer = setTimeout(() => { tapCount = 0; }, 500);
+      } else if (tapCount >= 2) {
+        clearTimeout(tapTimer);
+        tapCount = 0;
+        if (!overlay) showLockScreen();
       }
-    });
+    }
+    function onTrigger(e) {
+      const t = document.querySelector(TRIGGER_SELECTOR);
+      return t && t.contains(e.target);
+    }
+    document.addEventListener('click', e => { if (onTrigger(e)) tap(); });
+    document.addEventListener('touchend', e => {
+      if (!onTrigger(e)) return;
+      e.preventDefault();
+      tap();
+    }, { passive: false });
   }
 
   if (document.readyState === 'loading') {
