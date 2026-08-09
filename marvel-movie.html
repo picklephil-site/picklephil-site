@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Marvel Universe</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/marvel-style.css">
+</head>
+<body>
+
+<div class="topnav">
+  <a class="brand" href="/marvel">MARVEL&nbsp;UNIVERSE</a>
+  <nav>
+    <a class="back-link" href="/marvel#timeline">&larr; Back to Timeline</a>
+  </nav>
+  <a class="home-link" href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a>
+</div>
+
+<div class="detail-hero" id="detail-hero">
+  <div class="detail-hero-inner">
+    <span class="type-badge comic-font" id="dh-badge">MOVIE</span>
+    <h1 id="dh-title">Loading...</h1>
+    <div class="yr comic-font" id="dh-year"></div>
+  </div>
+</div>
+
+<section>
+  <div class="facts-grid" id="facts-grid"></div>
+
+  <div class="panel blurb-panel">
+    <p id="dh-blurb"></p>
+  </div>
+
+  <h2 class="section-title" id="cast-title" style="display:none;">Cast</h2>
+  <div class="cast-grid" id="cast-grid"></div>
+
+  <h2 class="section-title" id="gallery-title" style="display:none;">Gallery</h2>
+  <div class="gallery-grid" id="gallery-grid"></div>
+</section>
+
+<footer>
+  <p>Built by Pickle Phil &mdash; a fan project, not affiliated with or endorsed by Marvel or Disney.</p>
+  <p>Posters, photos, and facts via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p><a href="/marvel">&larr; back to the Marvel Universe</a></p>
+</footer>
+
+<div class="lightbox" id="lightbox"><img id="lightbox-img" src="" alt=""></div>
+
+<script src="/marvel-timeline-data.js"></script>
+<script>
+const IMG_BASE_ORIG = "https://image.tmdb.org/t/p/original";
+const IMG_BASE_W780 = "https://image.tmdb.org/t/p/w780";
+const IMG_BASE_PROFILE = "https://image.tmdb.org/t/p/w300";
+
+async function tmdb(path, params){
+  const usp = new URLSearchParams(params || {});
+  usp.set("path", path);
+  const res = await fetch("/api/marvel-data?" + usp.toString());
+  if(!res.ok) throw new Error("tmdb fetch failed: " + res.status);
+  return res.json();
+}
+
+const params = new URLSearchParams(window.location.search);
+const idx = parseInt(params.get("i"), 10);
+const entry = (typeof MCU_TIMELINE !== "undefined" && !isNaN(idx)) ? MCU_TIMELINE[idx] : null;
+
+function money(n){
+  if(!n) return null;
+  return "$" + n.toLocaleString("en-US");
+}
+
+async function loadDetail(){
+  if(!entry){
+    document.getElementById("dh-title").textContent = "Not found";
+    document.getElementById("dh-blurb").textContent = "Couldn't find that entry — head back to the timeline and try again.";
+    return;
+  }
+
+  document.title = entry.title + " — Marvel Universe";
+  document.getElementById("page-title").textContent = entry.title + " — Marvel Universe";
+  document.getElementById("dh-badge").textContent = entry.type === "series" ? "SERIES" : "MOVIE";
+  document.getElementById("dh-title").textContent = entry.title;
+  document.getElementById("dh-year").textContent = entry.year + (entry.upcoming ? " · Announced" : "") + " · " + entry.era;
+  document.getElementById("dh-blurb").textContent = entry.blurb;
+
+  const isSeries = entry.type === "series";
+  const searchPath = isSeries ? "/search/tv" : "/search/movie";
+  const searchParams = isSeries
+    ? {query:entry.title, first_air_date_year:entry.year}
+    : {query:entry.title, year:entry.year};
+
+  let hit;
+  try{
+    const searchData = await tmdb(searchPath, searchParams);
+    hit = (searchData.results || [])[0];
+  }catch(e){ hit = null; }
+
+  if(!hit){
+    document.getElementById("facts-grid").innerHTML = `<div class="fact-box"><div class="label">Heads up</div><div class="value">Full details aren't available for this one yet.</div></div>`;
+    return;
+  }
+
+  const detailPath = (isSeries ? "/tv/" : "/movie/") + hit.id;
+  let detail;
+  try{
+    detail = await tmdb(detailPath, {append_to_response:"credits,images", include_image_language:"en,null"});
+  }catch(e){ detail = null; }
+  if(!detail){ return; }
+
+  if(detail.backdrop_path){
+    document.getElementById("detail-hero").style.backgroundImage = `url(${IMG_BASE_ORIG + detail.backdrop_path})`;
+  } else if(detail.poster_path){
+    document.getElementById("detail-hero").style.backgroundImage = `url(${IMG_BASE_ORIG + detail.poster_path})`;
+  }
+
+  const facts = [];
+  if(isSeries){
+    if(detail.first_air_date) facts.push(["First Aired", detail.first_air_date]);
+    if(detail.last_air_date) facts.push(["Last Aired", detail.last_air_date]);
+    if(detail.number_of_seasons) facts.push(["Seasons", detail.number_of_seasons]);
+    if(detail.number_of_episodes) facts.push(["Episodes", detail.number_of_episodes]);
+  } else {
+    if(detail.release_date) facts.push(["Release Date", detail.release_date]);
+    if(detail.runtime) facts.push(["Runtime", detail.runtime + " min"]);
+    if(detail.budget) facts.push(["Budget", money(detail.budget)]);
+    if(detail.revenue) facts.push(["Box Office", money(detail.revenue)]);
+  }
+  if(detail.genres && detail.genres.length) facts.push(["Genres", detail.genres.map(g=>g.name).join(", ")]);
+  if(detail.vote_average) facts.push(["TMDB Rating", detail.vote_average.toFixed(1) + " / 10"]);
+  const directors = (detail.credits && detail.credits.crew || []).filter(p => p.job === "Director").map(p => p.name);
+  if(directors.length) facts.push([isSeries ? "Creator" : "Director", directors.join(", ")]);
+
+  document.getElementById("facts-grid").innerHTML = facts.map(([label,value]) => `
+    <div class="fact-box"><div class="label comic-font">${label}</div><div class="value">${value}</div></div>
+  `).join("");
+
+  const cast = (detail.credits && detail.credits.cast || []).slice(0, 10);
+  if(cast.length){
+    document.getElementById("cast-title").style.display = "";
+    document.getElementById("cast-grid").innerHTML = cast.map(p => `
+      <div class="cast-card">
+        <div class="photo-frame">
+          ${p.profile_path
+            ? `<img loading="lazy" src="${IMG_BASE_PROFILE + p.profile_path}" alt="${p.name}">`
+            : `<span class="placeholder-init comic-font">${p.name.split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase()}</span>`}
+        </div>
+        <h4>${p.name}</h4>
+        <div class="role">${p.character || ""}</div>
+      </div>
+    `).join("");
+  }
+
+  const backdrops = (detail.images && detail.images.backdrops || []).slice(0, 9);
+  if(backdrops.length){
+    document.getElementById("gallery-title").style.display = "";
+    const grid = document.getElementById("gallery-grid");
+    grid.innerHTML = backdrops.map(img => `<img loading="lazy" src="${IMG_BASE_W780 + img.file_path}" data-full="${IMG_BASE_ORIG + img.file_path}" alt="${entry.title} still">`).join("");
+    grid.querySelectorAll("img").forEach(img => {
+      img.addEventListener("click", () => {
+        document.getElementById("lightbox-img").src = img.dataset.full;
+        document.getElementById("lightbox").classList.add("open");
+      });
+    });
+  }
+}
+
+document.getElementById("lightbox").addEventListener("click", () => {
+  document.getElementById("lightbox").classList.remove("open");
+});
+
+loadDetail();
+</script>
+</body>
+</html>

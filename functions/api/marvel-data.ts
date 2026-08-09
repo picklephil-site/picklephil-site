@@ -4,7 +4,7 @@ export interface Env {
 
 // Proxies a small whitelist of read-only TMDB endpoints so the API key
 // never reaches the browser. Usage: GET /api/marvel-data?path=/search/movie&query=Iron+Man&year=2008
-const ALLOWED_PATH = /^\/(discover\/movie|movie\/\d+(\/(credits|images))?|person\/\d+(\/(images|movie_credits))?|search\/(movie|person))$/;
+const ALLOWED_PATH = /^\/(discover\/movie|movie\/\d+(\/(credits|images))?|tv\/\d+(\/(credits|images))?|person\/\d+(\/(images|movie_credits))?|search\/(movie|person|tv))$/;
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const headers = {
