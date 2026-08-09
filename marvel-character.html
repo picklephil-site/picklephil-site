@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Marvel Universe</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/marvel-style.css">
+<style>
+  .fact-list{list-style:none; margin:0 0 40px; padding:0; display:flex; flex-direction:column; gap:14px;}
+  .fact-list li{
+    background:var(--panel); border:3px solid var(--outline); box-shadow:6px 6px 0 #000;
+    padding:14px 18px; display:flex; gap:12px; align-items:flex-start;
+  }
+  .fact-list .bolt{font-size:1.3rem; flex:none;}
+  .creator-panel{
+    background:var(--panel-2); border:4px solid var(--outline); box-shadow:8px 8px 0 #000;
+    padding:22px 24px; margin-bottom:40px;
+  }
+  .creator-panel h2{margin:0 0 4px; color:var(--gold); font-size:1.6rem; -webkit-text-stroke:0; text-shadow:none;}
+  .creator-panel .who{color:var(--text-dim); font-size:.9rem; margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <a class="brand" href="/marvel">MARVEL&nbsp;UNIVERSE</a>
+  <nav>
+    <a class="back-link" href="/marvel#characters">&larr; Back to Characters</a>
+  </nav>
+  <a class="home-link" href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a>
+</div>
+
+<div class="detail-hero" id="detail-hero">
+  <div class="detail-hero-inner">
+    <span class="type-badge comic-font" id="dh-badge">CHARACTER</span>
+    <h1 id="dh-title">Loading...</h1>
+    <div class="yr comic-font" id="dh-subtitle"></div>
+  </div>
+</div>
+
+<section>
+  <div class="facts-grid" id="facts-grid"></div>
+
+  <div class="panel blurb-panel">
+    <p id="dh-blurb"></p>
+  </div>
+
+  <div class="creator-panel">
+    <h2 class="comic-font">What The Creators Were Going For</h2>
+    <div class="who" id="creator-who"></div>
+    <p id="creator-intent"></p>
+  </div>
+
+  <h2 class="section-title" style="font-size:2rem;">Fun Facts</h2>
+  <ul class="fact-list" id="fun-facts"></ul>
+</section>
+
+<footer>
+  <p>Built by Pickle Phil &mdash; a fan project, not affiliated with or endorsed by Marvel or Disney.</p>
+  <p>Character art via <a href="https://comicvine.gamespot.com/" target="_blank" rel="noopener">Comic Vine</a>. Actor photos via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p><a href="/marvel">&larr; back to the Marvel Universe</a></p>
+</footer>
+
+<script src="/marvel-timeline-data.js"></script>
+<script>
+const IMG_BASE_PROFILE = "https://image.tmdb.org/t/p/w300";
+
+async function tmdb(path, params){
+  const usp = new URLSearchParams(params || {});
+  usp.set("path", path);
+  const res = await fetch("/api/marvel-data?" + usp.toString());
+  if(!res.ok) throw new Error("tmdb fetch failed: " + res.status);
+  return res.json();
+}
+
+async function comicVine(path, params){
+  const usp = new URLSearchParams(params || {});
+  usp.set("path", path);
+  const res = await fetch("/api/comicvine-data?" + usp.toString());
+  if(!res.ok) throw new Error("comicvine fetch failed: " + res.status);
+  return res.json();
+}
+
+const params = new URLSearchParams(window.location.search);
+const idx = parseInt(params.get("c"), 10);
+const c = (typeof CHARACTERS !== "undefined" && !isNaN(idx)) ? CHARACTERS[idx] : null;
+
+async function loadCharacterArtUrl(name){
+  try{
+    const data = await comicVine("/search/", {query:name, resources:"character", field_list:"name,image", limit:1});
+    const hit = (data.results || [])[0];
+    return hit && hit.image ? (hit.image.original_url || hit.image.medium_url) : null;
+  }catch(e){ return null; }
+}
+
+async function loadPersonPhotoUrl(name){
+  try{
+    const data = await tmdb("/search/person", {query:name});
+    const hit = (data.results || [])[0];
+    return hit && hit.profile_path ? IMG_BASE_PROFILE + hit.profile_path : null;
+  }catch(e){ return null; }
+}
+
+async function loadDetail(){
+  if(!c){
+    document.getElementById("dh-title").textContent = "Not found";
+    document.getElementById("dh-blurb").textContent = "Couldn't find that character — head back and try again.";
+    return;
+  }
+
+  document.title = c.alt + " — Marvel Universe";
+  document.getElementById("page-title").textContent = c.alt + " — Marvel Universe";
+  document.getElementById("dh-title").textContent = c.alt;
+  document.getElementById("dh-subtitle").textContent = c.name + " · played by " + c.actor;
+  document.getElementById("dh-blurb").textContent = c.blurb;
+
+  document.getElementById("facts-grid").innerHTML = `
+    <div class="fact-box"><div class="label comic-font">Real Name</div><div class="value">${c.name}</div></div>
+    <div class="fact-box"><div class="label comic-font">First Appearance</div><div class="value">${c.firstAppearance}</div></div>
+    <div class="fact-box"><div class="label comic-font">Created By</div><div class="value">${c.creators}</div></div>
+    <div class="fact-box"><div class="label comic-font">Portrayed By</div><div class="value">${c.actor}</div></div>
+  `;
+
+  document.getElementById("creator-who").textContent = c.creators;
+  document.getElementById("creator-intent").textContent = c.intent;
+
+  document.getElementById("fun-facts").innerHTML = (c.funFacts || []).map(f => `
+    <li><span class="bolt">💥</span><span>${f}</span></li>
+  `).join("");
+
+  const artUrl = await loadCharacterArtUrl(c.alt);
+  const heroUrl = artUrl || await loadPersonPhotoUrl(c.actor);
+  if(heroUrl){
+    document.getElementById("detail-hero").style.backgroundImage = `url(${heroUrl})`;
+  }
+}
+
+loadDetail();
+</script>
+</body>
+</html>

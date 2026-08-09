@@ -287,9 +287,10 @@ function renderCharacters(){
   const root = document.getElementById("char-root");
   wireShelfNav(root.closest(".shelf"));
   const jobs = [];
-  CHARACTERS.forEach(c => {
-    const card = document.createElement("div");
+  CHARACTERS.forEach((c, cIdx) => {
+    const card = document.createElement("a");
     card.className = "char-card";
+    card.href = `marvel-character.html?c=${cIdx}`;
     card.innerHTML = `
       <div class="photo-frame">
         <span class="placeholder-init comic-font">${initials(c.alt)}</span>
