@@ -342,36 +342,36 @@ footer a{color:var(--gold);}
   .burst{display:none;}
 }
 
-/* ---------- flying Iron Man ---------- */
+/* ---------- flying 8-bit Iron Man ---------- */
 .flying-ironman{
   position:fixed; top:0; left:0;
-  width:72px; height:72px;
+  width:54px; height:72px;
   z-index:400;
   pointer-events:none;
   will-change:transform;
-  animation:fim-bob 1.6s ease-in-out infinite;
+  animation:fim-bob 0.9s steps(2) infinite;
 }
-.fim-img{
-  width:100%; height:100%; object-fit:cover; border-radius:50%;
-  border:3px solid var(--outline);
-  box-shadow:4px 4px 0 #000, 0 0 24px rgba(255,80,20,.55);
-  background:var(--ink);
+.fim-sprite{
+  width:100%; height:100%;
+  filter:drop-shadow(3px 3px 0 #000);
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
 }
 .fim-glow{
-  position:absolute; left:50%; bottom:-6px; width:22px; height:14px;
+  position:absolute; left:50%; bottom:2px; width:16px; height:12px;
   transform:translateX(-50%);
   background:radial-gradient(circle, rgba(255,190,60,.9), rgba(255,90,20,.4) 60%, transparent 75%);
-  filter:blur(2px);
-  animation:fim-thrust .35s ease-in-out infinite alternate;
+  filter:blur(1.5px);
+  animation:fim-thrust .2s steps(2) infinite alternate;
 }
 @keyframes fim-bob{
   0%, 100%{ margin-top:0; }
-  50%{ margin-top:-8px; }
+  50%{ margin-top:-6px; }
 }
 @keyframes fim-thrust{
-  0%{ opacity:.6; transform:translateX(-50%) scaleY(.8); }
-  100%{ opacity:1; transform:translateX(-50%) scaleY(1.3); }
+  0%{ opacity:.7; transform:translateX(-50%) scaleY(.8); }
+  100%{ opacity:1; transform:translateX(-50%) scaleY(1.25); }
 }
 @media (max-width:600px){
-  .flying-ironman{width:52px; height:52px;}
+  .flying-ironman{width:42px; height:56px;}
 }

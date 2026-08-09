@@ -1,50 +1,74 @@
-// A little Iron Man that flies around the page, purely for fun. Fetches his
-// art from the same ComicVine proxy used elsewhere, then tweens to random
-// points on screen using CSS transitions (cheap, smooth, no rAF loop needed).
+// A little 8-bit-style Iron Man that flies around the page, purely for fun.
+// The sprite is drawn from scratch as a pixel grid (original artwork, not a
+// copy of any game/comic asset) and rendered as crisp SVG rects so it stays
+// sharp at any size. Movement tweens to random points via CSS transitions.
 (function(){
-  const el = document.createElement("div");
-  el.className = "flying-ironman";
-  el.innerHTML = `<div class="fim-glow"></div><img class="fim-img" alt="Iron Man flying around the page">`;
-  document.body.appendChild(el);
+  const SPRITE = [
+    "..KKKKKKKK..",
+    ".KRRRRRRRRK.",
+    ".KRRGGGGRRK.",
+    ".KRCRRRRCRK.",
+    ".KRRGGGGRRK.",
+    "..KRRRRRRK..",
+    ".KKRRRRRRKK.",
+    "KRRRRRRRRRRK",
+    "KRRRGCCGRRRK",
+    "KRRRRGGRRRRK",
+    ".KRRRRRRRRK.",
+    "..KRRRRRRK..",
+    "..KRRRRRRK..",
+    "..KRRRRRRK..",
+    "..KGGGGGGK..",
+    "..KKKKKKKK..",
+  ];
+  const PALETTE = {
+    K: "#170f06", // outline
+    R: "#d3211f", // armor red
+    G: "#ffcf3f", // gold trim / boots
+    C: "#7fe9ff", // eye / arc-reactor glow
+  };
 
-  const img = el.querySelector(".fim-img");
-
-  async function loadArt(){
-    try{
-      const usp = new URLSearchParams({path:"/search/", query:"Iron Man", resources:"character", field_list:"name,image", limit:1});
-      const res = await fetch("/api/comicvine-data?" + usp.toString());
-      const data = await res.json();
-      const hit = (data.results || [])[0];
-      if(hit && hit.image){
-        img.src = hit.image.small_url || hit.image.medium_url;
+  function buildSpriteSvg(){
+    const rows = SPRITE.length;
+    const cols = SPRITE[0].length;
+    let rects = "";
+    SPRITE.forEach((row, y) => {
+      for(let x = 0; x < row.length; x++){
+        const ch = row[x];
+        if(ch === ".") continue;
+        rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${PALETTE[ch]}"/>`;
       }
-    }catch(e){}
+    });
+    return `<svg class="fim-sprite" viewBox="0 0 ${cols} ${rows}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${rects}</svg>`;
   }
 
+  const el = document.createElement("div");
+  el.className = "flying-ironman";
+  el.innerHTML = buildSpriteSvg() + `<div class="fim-glow"></div>`;
+  document.body.appendChild(el);
+
   let x = window.innerWidth * 0.15, y = window.innerHeight * 0.25;
-  function place(){ el.style.transform = `translate(${x}px, ${y}px) rotate(0deg)`; }
+  let facing = 1;
+  function place(){ el.style.transform = `translate(${x}px, ${y}px) scaleX(${facing})`; }
   place();
 
   function flyToRandom(){
-    const size = el.offsetWidth || 72;
+    const size = el.offsetWidth || 54;
     const margin = size;
     const nx = margin + Math.random() * Math.max(1, window.innerWidth - margin * 2);
     const ny = margin + Math.random() * Math.max(1, window.innerHeight - margin * 2);
-    const dx = nx - x, dy = ny - y;
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 45; // +45 so "up" in the art points along travel
+    facing = nx < x ? -1 : 1;
     const duration = 1.8 + Math.random() * 1.6;
-    el.style.transition = `transform ${duration}s cubic-bezier(.45,.05,.55,.95)`;
-    el.style.transform = `translate(${nx}px, ${ny}px) rotate(${angle}deg)`;
+    el.style.transition = `transform ${duration}s steps(12)`;
+    el.style.transform = `translate(${nx}px, ${ny}px) scaleX(${facing})`;
     x = nx; y = ny;
   }
 
-  loadArt();
-  place();
   setTimeout(flyToRandom, 1200);
   setInterval(flyToRandom, 3400);
 
   window.addEventListener("resize", () => {
-    x = Math.min(x, window.innerWidth - 80);
-    y = Math.min(y, window.innerHeight - 80);
+    x = Math.min(x, window.innerWidth - 60);
+    y = Math.min(y, window.innerHeight - 60);
   });
 })();
