@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marvel Universe — MCU Timeline &amp; Comics History</title>
+<meta name="description" content="A comic-book-styled tour of the Marvel Cinematic Universe timeline and Marvel Comics history, built by Pickle Phil.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bungee&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --marvel-red:#ed1d24;
+    --marvel-red-dark:#a10f14;
+    --ink:#111;
+    --paper:#f4eee0;
+    --gold:#f2b90c;
+    --blue:#1c5cb8;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+    font-size:18px;
+    line-height:1.5;
+    background-image:
+      radial-gradient(circle, rgba(17,17,17,.08) 1.4px, transparent 1.4px);
+    background-size:14px 14px;
+  }
+  h1,h2,h3,.comic-font{
+    font-family:'Bangers', cursive;
+    letter-spacing:1px;
+    text-shadow:2px 2px 0 var(--ink);
+  }
+  a{color:var(--blue);}
+  img{max-width:100%;display:block;}
+
+  /* ---------- top nav ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; flex-wrap:wrap;
+    padding:10px 20px;
+    background:var(--ink);
+    border-bottom:6px solid var(--marvel-red);
+  }
+  .topnav .brand{
+    font-family:'Bangers', cursive;
+    color:var(--marvel-red);
+    font-size:1.6rem;
+    text-shadow:2px 2px 0 #fff;
+    text-decoration:none;
+  }
+  .topnav nav{display:flex; gap:16px; flex-wrap:wrap;}
+  .topnav nav a{
+    color:var(--paper);
+    text-decoration:none;
+    font-family:'Bangers', cursive;
+    font-size:1.05rem;
+    letter-spacing:.5px;
+  }
+  .topnav nav a:hover{color:var(--gold);}
+  .topnav .home-link{
+    color:#bbb; font-size:.85rem; text-decoration:none;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:70px 20px 60px;
+    text-align:center;
+    background:
+      repeating-linear-gradient(115deg, rgba(237,29,36,.12) 0 40px, transparent 40px 80px),
+      var(--ink);
+    color:var(--paper);
+    overflow:hidden;
+    border-bottom:8px solid var(--marvel-red);
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 8vw, 5.5rem);
+    color:var(--marvel-red);
+    -webkit-text-stroke:2px #fff;
+    text-shadow:6px 6px 0 #000;
+    margin:0 0 6px;
+  }
+  .hero p.tagline{
+    font-family:'Bungee', cursive;
+    font-size:clamp(1rem,3vw,1.4rem);
+    color:var(--gold);
+    margin:0;
+  }
+  .burst{
+    position:absolute;
+    width:160px; height:160px;
+    background:var(--gold);
+    clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    color:var(--ink);
+    font-family:'Bangers', cursive;
+    line-height:1;
+    transform:rotate(-12deg);
+  }
+  .burst.left{top:10px; left:-30px; width:130px; height:130px; font-size:.9rem;}
+  .burst.right{bottom:0; right:-20px; width:150px; height:150px; font-size:1rem; transform:rotate(14deg);}
+
+  section{
+    max-width:1100px;
+    margin:0 auto;
+    padding:60px 20px;
+  }
+  .section-title{
+    text-align:center;
+    font-size:clamp(2rem,5vw,3rem);
+    color:var(--marvel-red);
+    -webkit-text-stroke:1.5px #fff;
+    text-shadow:4px 4px 0 var(--ink);
+    margin-bottom:8px;
+  }
+  .section-sub{
+    text-align:center;
+    max-width:640px;
+    margin:0 auto 40px;
+    color:#333;
+  }
+
+  /* ---------- comic panel base ---------- */
+  .panel{
+    background:#fff;
+    border:4px solid var(--ink);
+    box-shadow:8px 8px 0 var(--ink);
+    padding:20px;
+  }
+
+  /* ---------- history section ---------- */
+  .history-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+    gap:26px;
+  }
+  .history-card h3{
+    color:var(--marvel-red-dark);
+    font-size:1.5rem;
+    margin:0 0 8px;
+  }
+  .history-card .year-badge{
+    display:inline-block;
+    background:var(--marvel-red);
+    color:#fff;
+    font-family:'Bangers', cursive;
+    padding:3px 12px;
+    border-radius:3px;
+    transform:rotate(-3deg);
+    margin-bottom:10px;
+  }
+  .stan-lee-block{
+    display:flex; gap:24px; align-items:center; flex-wrap:wrap;
+    margin-top:36px;
+  }
+  .stan-lee-block .photo-frame{
+    width:170px; flex:none;
+  }
+  .stan-lee-block .text{flex:1; min-width:260px;}
+  .speech-bubble{
+    position:relative;
+    background:#fff;
+    border:3px solid var(--ink);
+    border-radius:16px;
+    padding:14px 18px;
+    font-style:italic;
+    margin-top:14px;
+  }
+  .speech-bubble:after{
+    content:"";
+    position:absolute;
+    left:34px; bottom:-16px;
+    border-width:16px 10px 0 0;
+    border-style:solid;
+    border-color:var(--ink) transparent transparent transparent;
+  }
+  .speech-bubble:before{
+    content:"";
+    position:absolute;
+    left:37px; bottom:-11px;
+    border-width:12px 7px 0 0;
+    border-style:solid;
+    border-color:#fff transparent transparent transparent;
+    z-index:1;
+  }
+
+  /* ---------- photo frame w/ TMDB image ---------- */
+  .photo-frame{
+    border:4px solid var(--ink);
+    box-shadow:5px 5px 0 var(--ink);
+    aspect-ratio:2/3;
+    background:linear-gradient(135deg, var(--gold), var(--marvel-red));
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    position:relative;
+  }
+  .photo-frame img{width:100%; height:100%; object-fit:cover;}
+  .photo-frame .placeholder-init{
+    font-family:'Bangers', cursive;
+    font-size:2.2rem;
+    color:#fff;
+    text-shadow:2px 2px 0 var(--ink);
+    padding:8px;
+    text-align:center;
+  }
+
+  /* ---------- timeline ---------- */
+  .phase-block{margin-bottom:56px;}
+  .phase-header{
+    display:flex; align-items:center; gap:14px;
+    margin-bottom:22px;
+  }
+  .phase-header .num{
+    background:var(--ink);
+    color:var(--gold);
+    font-family:'Bangers', cursive;
+    font-size:1.6rem;
+    padding:6px 16px;
+    transform:skew(-8deg);
+    border:3px solid var(--marvel-red);
+  }
+  .phase-header h2{
+    margin:0;
+    color:var(--ink);
+    font-size:1.8rem;
+    -webkit-text-stroke:0;
+    text-shadow:3px 3px 0 var(--marvel-red);
+  }
+  .movie-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:24px;
+  }
+  .movie-card{
+    background:#fff;
+    border:3px solid var(--ink);
+    box-shadow:6px 6px 0 var(--ink);
+    cursor:pointer;
+    transition:transform .15s ease;
+    display:flex; flex-direction:column;
+  }
+  .movie-card:hover{transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--ink);}
+  .movie-card .poster{aspect-ratio:2/3; background:#ddd; position:relative; overflow:hidden; border-bottom:3px solid var(--ink);}
+  .movie-card .poster img{width:100%; height:100%; object-fit:cover;}
+  .movie-card .poster .placeholder-init{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(160deg, var(--gold), var(--marvel-red));
+    font-family:'Bangers', cursive; color:#fff; text-align:center; padding:10px;
+    text-shadow:2px 2px 0 var(--ink);
+  }
+  .movie-card .info{padding:12px 14px 16px; flex:1; display:flex; flex-direction:column;}
+  .movie-card .info h3{
+    margin:0 0 4px; font-size:1.15rem; color:var(--marvel-red-dark);
+    -webkit-text-stroke:0; text-shadow:none; line-height:1.1;
+  }
+  .movie-card .info .yr{
+    font-family:'Bangers', cursive; color:#666; font-size:.95rem; margin-bottom:8px;
+  }
+  .movie-card .caption{
+    font-size:.92rem; color:#333; flex:1;
+  }
+  .movie-card.upcoming .poster{filter:grayscale(.3) brightness(.9);}
+  .movie-card.upcoming .info h3:after{
+    content:" ⏳";
+  }
+
+  /* ---------- characters ---------- */
+  .char-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(190px, 1fr));
+    gap:26px;
+  }
+  .char-card{text-align:center;}
+  .char-card h3{
+    margin:10px 0 2px; font-size:1.2rem; color:var(--marvel-red-dark);
+    -webkit-text-stroke:0; text-shadow:none;
+  }
+  .char-card .alt-name{font-size:.85rem; color:#666; margin-bottom:6px;}
+  .char-card p{font-size:.9rem; margin:0;}
+
+  /* ---------- modal ---------- */
+  .modal-backdrop{
+    display:none;
+    position:fixed; inset:0; background:rgba(0,0,0,.75);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:#fff; border:5px solid var(--ink); box-shadow:10px 10px 0 var(--marvel-red);
+    max-width:520px; width:100%; max-height:85vh; overflow:auto;
+    padding:26px; position:relative;
+  }
+  .modal .close-btn{
+    position:absolute; top:10px; right:14px;
+    background:var(--marvel-red); color:#fff; border:3px solid var(--ink);
+    font-family:'Bangers', cursive; font-size:1.2rem; width:34px; height:34px;
+    cursor:pointer; line-height:1;
+  }
+  .modal h2{color:var(--marvel-red-dark); -webkit-text-stroke:0; text-shadow:none; margin-top:0;}
+  .modal .yr{font-family:'Bangers', cursive; color:#777;}
+
+  footer{
+    background:var(--ink);
+    color:#ccc;
+    text-align:center;
+    padding:36px 20px;
+    font-size:.85rem;
+  }
+  footer a{color:var(--gold);}
+
+  @media (max-width:600px){
+    .stan-lee-block{flex-direction:column; text-align:center;}
+    .burst{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <a class="brand" href="#top">MARVEL&nbsp;UNIVERSE</a>
+  <nav>
+    <a href="#history">Origin Story</a>
+    <a href="#timeline">MCU Timeline</a>
+    <a href="#characters">Characters</a>
+  </nav>
+  <a class="home-link" href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a>
+</div>
+
+<header class="hero" id="top">
+  <div class="burst left comic-font">POW!</div>
+  <div class="burst right comic-font">EXCELSIOR!</div>
+  <h1>MARVEL<br>UNIVERSE</h1>
+  <p class="tagline">A comic-book tour through the MCU timeline &amp; Marvel history</p>
+</header>
+
+<section id="history">
+  <h2 class="section-title">Origin Story</h2>
+  <p class="section-sub">Before there were Avengers, there were guys in a cramped New York office making comics on a deadline.</p>
+
+  <div class="history-grid">
+    <div class="panel history-card">
+      <span class="year-badge">1939</span>
+      <h3>Timely Comics</h3>
+      <p>Publisher Martin Goodman launches Timely Comics. Its first issue introduces the Human Torch and Namor the Sub-Mariner — pulpy, two-fisted heroes for a Depression-era audience hungry for escapism.</p>
+    </div>
+    <div class="panel history-card">
+      <span class="year-badge">1941</span>
+      <h3>Captain America Punches Hitler</h3>
+      <p>Joe Simon and Jack Kirby's Captain America Comics #1 hits newsstands with Cap decking Adolf Hitler on the cover — months before the U.S. even entered WWII.</p>
+    </div>
+    <div class="panel history-card">
+      <span class="year-badge">1961</span>
+      <h3>Marvel Comics Is Born</h3>
+      <p>Writer-editor Stan Lee, tired of formulaic heroes, teams with artist Jack Kirby on Fantastic Four #1 — flawed, bickering heroes with real personalities. The company rebrands as Marvel Comics.</p>
+    </div>
+    <div class="panel history-card">
+      <span class="year-badge">1962&ndash;63</span>
+      <h3>The Golden Run</h3>
+      <p>In a two-year sprint, Lee and his collaborators (Kirby, Steve Ditko, and others) introduce Spider-Man, the Hulk, Thor, Iron Man, and the X-Men — the bedrock of the entire Marvel Universe.</p>
+    </div>
+    <div class="panel history-card">
+      <span class="year-badge">1998&ndash;2008</span>
+      <h3>Movies, Then a Gamble</h3>
+      <p>Marvel licenses out characters (X-Men, Spider-Man) to other studios for cash while near-bankrupt. In 2005 it mortgages its own heroes to fund films directly — producer Kevin Feige and Marvel Studios are born.</p>
+    </div>
+    <div class="panel history-card">
+      <span class="year-badge">2008</span>
+      <h3>Iron Man Starts It All</h3>
+      <p>A mid-budget movie about a lesser-known hero, starring a comeback-story Robert Downey Jr., becomes a smash hit — and ends with Nick Fury uttering "Avenger Initiative." The MCU is officially underway.</p>
+    </div>
+  </div>
+
+  <div class="stan-lee-block panel">
+    <div class="photo-frame" id="stanlee-photo">
+      <span class="placeholder-init">STAN<br>LEE</span>
+    </div>
+    <div class="text">
+      <h3 style="color:var(--marvel-red-dark); font-size:1.6rem; margin:0 0 6px;">Stan Lee (1922&ndash;2018)</h3>
+      <p>Editor, writer, and Marvel's public face for six decades. Alongside artists like Jack Kirby and Steve Ditko, Lee co-created a universe of imperfect, relatable heroes — and made a habit of cameoing in nearly every MCU film, from a security guard in <em>Iron Man</em> to a Watcher in <em>What If...?</em>.</p>
+      <div class="speech-bubble">"With great power there must also come great responsibility!"</div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline" style="background:#fff; border-top:6px solid var(--ink); border-bottom:6px solid var(--ink);">
+  <h2 class="section-title">MCU Timeline</h2>
+  <p class="section-sub">By release order, phase by phase. Click any panel for the full rundown. Posters load live from The Movie Database.</p>
+  <div id="timeline-root"></div>
+</section>
+
+<section id="characters">
+  <h2 class="section-title">Character Spotlight</h2>
+  <p class="section-sub">A few of the faces that built this universe.</p>
+  <div class="char-grid" id="char-root"></div>
+</section>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <button class="close-btn" id="modal-close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Built by Pickle Phil &mdash; a fan project, not affiliated with or endorsed by Marvel or Disney.</p>
+  <p>Movie posters and film data via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p><a href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a></p>
+</footer>
+
+<script>
+const IMG_BASE = "https://image.tmdb.org/t/p/w500";
+const IMG_BASE_PROFILE = "https://image.tmdb.org/t/p/w300";
+
+const MCU_MOVIES = [
+  {phase:1, title:"Iron Man", year:2008, blurb:"Tony Stark builds his first suit of armor in a cave — \"with a box of scraps\" — and a genre is reborn."},
+  {phase:1, title:"The Incredible Hulk", year:2008, blurb:"Bruce Banner runs from the military, and his own rage, after a gamma experiment goes wrong."},
+  {phase:1, title:"Iron Man 2", year:2010, blurb:"Stark battles palladium poisoning and a vengeful rival — while S.H.I.E.L.D. quietly builds something bigger."},
+  {phase:1, title:"Thor", year:2011, blurb:"An arrogant god of thunder is cast out of Asgard and learns humility on Earth."},
+  {phase:1, title:"Captain America: The First Avenger", year:2011, blurb:"Scrawny Steve Rogers becomes a super-soldier and takes the fight to HYDRA in WWII."},
+  {phase:1, title:"The Avengers", year:2012, blurb:"Loki brings an alien army to Earth, and Earth's Mightiest Heroes assemble for the first time."},
+
+  {phase:2, title:"Iron Man 3", year:2013, blurb:"Stark rebuilds himself — suits and psyche — after the Mandarin brings the fight to his front door."},
+  {phase:2, title:"Thor: The Dark World", year:2013, blurb:"Ancient Dark Elves return, and Thor teams up with Loki to save the Nine Realms."},
+  {phase:2, title:"Captain America: The Winter Soldier", year:2014, blurb:"Cap uncovers HYDRA hiding inside S.H.I.E.L.D. — and faces a ghost from his past."},
+  {phase:2, title:"Guardians of the Galaxy", year:2014, blurb:"A ragtag crew of misfits and a talking raccoon save the galaxy to an awesome soundtrack."},
+  {phase:2, title:"Avengers: Age of Ultron", year:2015, blurb:"Tony Stark's AI peacekeeper goes rogue with plans to \"save\" humanity by ending it."},
+  {phase:2, title:"Ant-Man", year:2015, blurb:"A cat burglar dons a shrinking suit and pulls off the ultimate heist."},
+
+  {phase:3, title:"Captain America: Civil War", year:2016, blurb:"The Avengers split over accountability, and Cap and Stark come to blows."},
+  {phase:3, title:"Doctor Strange", year:2016, blurb:"A brilliant, arrogant surgeon loses the use of his hands — and finds magic instead."},
+  {phase:3, title:"Guardians of the Galaxy Vol. 2", year:2017, blurb:"Star-Lord finally meets his mysterious father. He is, unfortunately, a planet."},
+  {phase:3, title:"Spider-Man: Homecoming", year:2017, blurb:"Peter Parker juggles homework and web-slinging under Stark's watchful eye."},
+  {phase:3, title:"Thor: Ragnarok", year:2017, blurb:"Thor loses his hammer, gains a gladiator arena, and gets a very good haircut."},
+  {phase:3, title:"Black Panther", year:2018, blurb:"T'Challa returns home to Wakanda to claim the throne — and defend a hidden nation."},
+  {phase:3, title:"Avengers: Infinity War", year:2018, blurb:"Thanos hunts six Infinity Stones, and half the universe pays the price."},
+  {phase:3, title:"Ant-Man and the Wasp", year:2018, blurb:"Scott Lang teams with Hope van Dyne on a rescue mission into the Quantum Realm."},
+  {phase:3, title:"Captain Marvel", year:2019, blurb:"Carol Danvers discovers her true power — and just how far Kree deception really goes."},
+  {phase:3, title:"Avengers: Endgame", year:2019, blurb:"The survivors mount a time heist for the fight of their lives."},
+  {phase:3, title:"Spider-Man: Far From Home", year:2019, blurb:"Peter just wants a normal European vacation. It does not stay normal."},
+
+  {phase:4, title:"Black Widow", year:2021, blurb:"Natasha Romanoff confronts her Red Room past — and the family she never chose."},
+  {phase:4, title:"Shang-Chi and the Legend of the Ten Rings", year:2021, blurb:"A man trained as an assassin confronts his father's legacy and the power of the Ten Rings."},
+  {phase:4, title:"Eternals", year:2021, blurb:"Ancient immortal beings reveal themselves to protect Earth from a threat older than the MCU itself."},
+  {phase:4, title:"Spider-Man: No Way Home", year:2021, blurb:"A spell gone wrong tears open the multiverse — and brings some very familiar faces home."},
+  {phase:4, title:"Doctor Strange in the Multiverse of Madness", year:2022, blurb:"Strange chases a dimension-hopping teenager through a multiverse gone mad."},
+  {phase:4, title:"Thor: Love and Thunder", year:2022, blurb:"Thor teams up with ex-girlfriend-turned-Mighty-Thor Jane Foster against a god-butcher."},
+  {phase:4, title:"Black Panther: Wakanda Forever", year:2022, blurb:"Wakanda mourns and rises again against a new threat rising from the sea."},
+
+  {phase:5, title:"Ant-Man and the Wasp: Quantumania", year:2023, blurb:"The Lang-van Dyne family gets stranded in the Quantum Realm and meets Kang the Conqueror."},
+  {phase:5, title:"Guardians of the Galaxy Vol. 3", year:2023, blurb:"The Guardians fight to save Rocket's life — and confront the High Evolutionary."},
+  {phase:5, title:"The Marvels", year:2023, blurb:"Carol Danvers, Kamala Khan, and Monica Rambeau get their powers tangled together."},
+  {phase:5, title:"Deadpool & Wolverine", year:2024, blurb:"The Merc with a Mouth drags a reluctant Wolverine into a multiversal buddy comedy."},
+  {phase:5, title:"Captain America: Brave New World", year:2025, blurb:"Sam Wilson steps fully into the shield amid a new global crisis."},
+  {phase:5, title:"Thunderbolts*", year:2025, blurb:"A team of morally gray antiheroes gets thrown together on a mission gone sideways."},
+
+  {phase:6, title:"The Fantastic Four: First Steps", year:2025, blurb:"Marvel's First Family finally arrives in the MCU with a retro-future flair."},
+  {phase:6, title:"Avengers: Doomsday", year:2026, blurb:"The next great Avengers team-up, with Victor von Doom entering the saga.", upcoming:true},
+  {phase:6, title:"Avengers: Secret Wars", year:2027, blurb:"The Multiverse Saga's finale — worlds collide.", upcoming:true},
+];
+
+const PHASE_NAMES = {
+  1:"Phase One", 2:"Phase Two", 3:"Phase Three",
+  4:"Phase Four", 5:"Phase Five", 6:"Phase Six"
+};
+
+const CHARACTERS = [
+  {name:"Tony Stark", alt:"Iron Man", actor:"Robert Downey Jr.", blurb:"Genius. Billionaire. Playboy. Philanthropist. Built the armor that started it all."},
+  {name:"Steve Rogers", alt:"Captain America", actor:"Chris Evans", blurb:"A scrawny kid from Brooklyn who never learned how to lose — or back down."},
+  {name:"Thor Odinson", alt:"God of Thunder", actor:"Chris Hemsworth", blurb:"Asgard's exiled prince, wielder of Mjolnir, worthy of the title \"strongest Avenger.\""},
+  {name:"Natasha Romanoff", alt:"Black Widow", actor:"Scarlett Johansson", blurb:"Ex-KGB assassin turned S.H.I.E.L.D. agent turned founding Avenger."},
+  {name:"Bruce Banner", alt:"The Hulk", actor:"Mark Ruffalo", blurb:"Brilliant scientist with an anger management problem the size of a building."},
+  {name:"Clint Barton", alt:"Hawkeye", actor:"Jeremy Renner", blurb:"No powers, no armor — just a bow, an arrow, and perfect aim."},
+  {name:"Peter Parker", alt:"Spider-Man", actor:"Tom Holland", blurb:"Your friendly neighborhood web-slinger, still figuring out the whole \"hero\" thing."},
+  {name:"T'Challa", alt:"Black Panther", actor:"Chadwick Boseman", blurb:"King of Wakanda, protector of a nation the world never knew existed."},
+  {name:"Carol Danvers", alt:"Captain Marvel", actor:"Brie Larson", blurb:"Ex-Air Force pilot turned one of the most powerful beings in the universe."},
+  {name:"Stephen Strange", alt:"Doctor Strange", actor:"Benedict Cumberbatch", blurb:"Former surgeon, current Sorcerer Supreme, protector of reality itself."},
+  {name:"Wanda Maximoff", alt:"Scarlet Witch", actor:"Elizabeth Olsen", blurb:"Chaos magic given human form — grief made her one of the most powerful beings alive."},
+  {name:"Peter Quill", alt:"Star-Lord", actor:"Chris Pratt", blurb:"Half-human, half-Celestial, all mixtape. Leader of the galaxy's most dysfunctional family."},
+];
+
+async function tmdb(path, params){
+  const usp = new URLSearchParams(params || {});
+  usp.set("path", path);
+  const res = await fetch("/api/marvel-data?" + usp.toString());
+  if(!res.ok) throw new Error("tmdb fetch failed: " + res.status);
+  return res.json();
+}
+
+function initials(str){
+  return str.split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase();
+}
+
+function renderTimeline(){
+  const root = document.getElementById("timeline-root");
+  const byPhase = {};
+  MCU_MOVIES.forEach(m => { (byPhase[m.phase] = byPhase[m.phase] || []).push(m); });
+
+  Object.keys(byPhase).sort((a,b)=>a-b).forEach(phase => {
+    const block = document.createElement("div");
+    block.className = "phase-block";
+    block.innerHTML = `
+      <div class="phase-header">
+        <span class="num comic-font">${phase}</span>
+        <h2 class="comic-font">${PHASE_NAMES[phase] || ("Phase " + phase)}</h2>
+      </div>
+      <div class="movie-row"></div>
+    `;
+    const row = block.querySelector(".movie-row");
+    byPhase[phase].forEach(movie => {
+      const card = document.createElement("div");
+      card.className = "movie-card" + (movie.upcoming ? " upcoming" : "");
+      card.innerHTML = `
+        <div class="poster">
+          <span class="placeholder-init comic-font">${initials(movie.title)}</span>
+        </div>
+        <div class="info">
+          <h3>${movie.title}</h3>
+          <div class="yr">${movie.year}${movie.upcoming ? " · Announced" : ""}</div>
+          <div class="caption">${movie.blurb}</div>
+        </div>
+      `;
+      card.addEventListener("click", () => openModal(movie));
+      row.appendChild(card);
+
+      loadPoster(movie.title, movie.year).then(path => {
+        if(!path) return;
+        const posterDiv = card.querySelector(".poster");
+        posterDiv.innerHTML = `<img loading="lazy" src="${IMG_BASE + path}" alt="${movie.title} poster">`;
+      }).catch(()=>{});
+    });
+    root.appendChild(block);
+  });
+}
+
+const posterCache = {};
+async function loadPoster(title, year){
+  const key = title + year;
+  if(posterCache[key] !== undefined) return posterCache[key];
+  try{
+    const data = await tmdb("/search/movie", {query:title, year:year});
+    const hit = (data.results || [])[0];
+    posterCache[key] = hit && hit.poster_path ? hit.poster_path : null;
+  }catch(e){
+    posterCache[key] = null;
+  }
+  return posterCache[key];
+}
+
+function openModal(movie){
+  const body = document.getElementById("modal-body");
+  body.innerHTML = `
+    <div class="yr comic-font">${movie.year}${movie.upcoming ? " · Announced" : ""}</div>
+    <h2>${movie.title}</h2>
+    <p>${movie.blurb}</p>
+  `;
+  document.getElementById("modal-backdrop").classList.add("open");
+}
+document.getElementById("modal-close").addEventListener("click", () => {
+  document.getElementById("modal-backdrop").classList.remove("open");
+});
+document.getElementById("modal-backdrop").addEventListener("click", (e) => {
+  if(e.target.id === "modal-backdrop") e.target.classList.remove("open");
+});
+
+function renderCharacters(){
+  const root = document.getElementById("char-root");
+  CHARACTERS.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "char-card";
+    card.innerHTML = `
+      <div class="photo-frame">
+        <span class="placeholder-init comic-font">${initials(c.alt)}</span>
+      </div>
+      <h3>${c.alt}</h3>
+      <div class="alt-name">${c.name} &middot; ${c.actor}</div>
+      <p>${c.blurb}</p>
+    `;
+    root.appendChild(card);
+
+    loadPersonPhoto(c.actor).then(path => {
+      if(!path) return;
+      const frame = card.querySelector(".photo-frame");
+      frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
+    }).catch(()=>{});
+  });
+}
+
+async function loadPersonPhoto(name){
+  try{
+    const data = await tmdb("/search/person", {query:name});
+    const hit = (data.results || [])[0];
+    return hit && hit.profile_path ? hit.profile_path : null;
+  }catch(e){
+    return null;
+  }
+}
+
+loadPersonPhoto("Stan Lee").then(path => {
+  if(!path) return;
+  document.getElementById("stanlee-photo").innerHTML = `<img src="${IMG_BASE_PROFILE + path}" alt="Stan Lee">`;
+}).catch(()=>{});
+
+renderTimeline();
+renderCharacters();
+</script>
+</body>
+</html>
