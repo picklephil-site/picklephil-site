@@ -31,10 +31,20 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   }
   upstream.searchParams.set("api_key", env.TMDB_API_KEY);
 
+  // Edge-cache successful responses so a burst of page loads (this page
+  // fires dozens of these on first paint) doesn't re-hit TMDB's rate
+  // limiter for the same query every time.
+  const cache = (caches as any).default;
+  const cacheKey = new Request(url.toString(), { method: "GET" });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
   try {
     const res = await fetch(upstream.toString());
     const body = await res.text();
-    return new Response(body, { status: res.status, headers });
+    const response = new Response(body, { status: res.status, headers });
+    if (res.ok) await cache.put(cacheKey, response.clone());
+    return response;
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err?.message ?? "TMDB request failed" }), { status: 502, headers });
   }

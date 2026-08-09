@@ -170,6 +170,20 @@ function tmdbSearchTitle(title){
   return title.replace(/\s*\(Season\s*\d+\)\s*$/i, "");
 }
 
+// Runs `worker` over `items` with at most `concurrency` in flight at once,
+// so a page with 50+ image lookups doesn't fire them all simultaneously
+// and trip TMDB/ComicVine rate limits.
+async function runPool(items, worker, concurrency){
+  let i = 0;
+  async function next(){
+    while(i < items.length){
+      const item = items[i++];
+      await worker(item);
+    }
+  }
+  await Promise.all(Array.from({length: Math.min(concurrency, items.length)}, next));
+}
+
 const posterCache = {};
 async function loadPoster(entry){
   const key = entry.type + entry.title + entry.year;
@@ -199,6 +213,8 @@ function renderTimeline(){
     byEra[entry.era].push(entry);
   });
 
+  const posterJobs = [];
+
   eras.forEach((era, eraIdx) => {
     const block = document.createElement("div");
     block.className = "era-block";
@@ -227,23 +243,28 @@ function renderTimeline(){
         </div>
       `;
       row.appendChild(card);
-
-      loadPoster(entry).then(path => {
-        if(!path) return;
-        const posterDiv = card.querySelector(".poster");
-        const img = document.createElement("img");
-        img.loading = "lazy";
-        img.src = IMG_BASE + path;
-        img.alt = entry.title + " poster";
-        posterDiv.appendChild(img);
-      }).catch(()=>{});
+      posterJobs.push({entry, card});
     });
     root.appendChild(block);
   });
+
+  runPool(posterJobs, async ({entry, card}) => {
+    try{
+      const path = await loadPoster(entry);
+      if(!path) return;
+      const posterDiv = card.querySelector(".poster");
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = IMG_BASE + path;
+      img.alt = entry.title + " poster";
+      posterDiv.appendChild(img);
+    }catch(e){}
+  }, 6);
 }
 
 function renderCharacters(){
   const root = document.getElementById("char-root");
+  const jobs = [];
   CHARACTERS.forEach(c => {
     const card = document.createElement("div");
     card.className = "char-card";
@@ -256,24 +277,26 @@ function renderCharacters(){
       <p>${c.blurb}</p>
     `;
     root.appendChild(card);
+    jobs.push({c, card});
+  });
 
+  runPool(jobs, async ({c, card}) => {
     const frame = card.querySelector(".photo-frame");
-    loadCharacterArt(c.alt).then(url => {
+    try{
+      const url = await loadCharacterArt(c.alt);
       if(url){
         frame.innerHTML = `<img loading="lazy" src="${url}" alt="${c.alt}">`;
         return;
       }
-      loadPersonPhoto(c.actor).then(path => {
-        if(!path) return;
-        frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
-      }).catch(()=>{});
-    }).catch(()=>{
-      loadPersonPhoto(c.actor).then(path => {
-        if(!path) return;
-        frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
-      }).catch(()=>{});
-    });
-  });
+      const path = await loadPersonPhoto(c.actor);
+      if(path) frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
+    }catch(e){
+      try{
+        const path = await loadPersonPhoto(c.actor);
+        if(path) frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
+      }catch(e2){}
+    }
+  }, 4);
 }
 
 async function loadPersonPhoto(name){

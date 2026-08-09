@@ -33,12 +33,22 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   upstream.searchParams.set("api_key", env.COMICVINE_API_KEY);
   upstream.searchParams.set("format", "json");
 
+  // Edge-cache successful responses so a burst of page loads (this page
+  // fires a dozen-plus of these on first paint) doesn't chew through
+  // ComicVine's 200-requests-per-hour limit for the same query every time.
+  const cache = (caches as any).default;
+  const cacheKey = new Request(url.toString(), { method: "GET" });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
   try {
     const res = await fetch(upstream.toString(), {
       headers: { "User-Agent": "PicklePhilMarvelSite/1.0 (+https://philliphinshaw.com/marvel)" },
     });
     const body = await res.text();
-    return new Response(body, { status: res.status, headers });
+    const response = new Response(body, { status: res.status, headers });
+    if (res.ok) await cache.put(cacheKey, response.clone());
+    return response;
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err?.message ?? "ComicVine request failed" }), { status: 502, headers });
   }
