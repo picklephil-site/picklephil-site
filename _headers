@@ -18,3 +18,6 @@
 
 /marvel-style.css
   Cache-Control: no-cache
+
+/marvel-flying-ironman.js
+  Cache-Control: no-cache

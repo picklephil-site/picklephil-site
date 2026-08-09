@@ -341,3 +341,37 @@ footer a{color:var(--gold);}
   .stan-lee-block{flex-direction:column; text-align:center;}
   .burst{display:none;}
 }
+
+/* ---------- flying Iron Man ---------- */
+.flying-ironman{
+  position:fixed; top:0; left:0;
+  width:72px; height:72px;
+  z-index:400;
+  pointer-events:none;
+  will-change:transform;
+  animation:fim-bob 1.6s ease-in-out infinite;
+}
+.fim-img{
+  width:100%; height:100%; object-fit:cover; border-radius:50%;
+  border:3px solid var(--outline);
+  box-shadow:4px 4px 0 #000, 0 0 24px rgba(255,80,20,.55);
+  background:var(--ink);
+}
+.fim-glow{
+  position:absolute; left:50%; bottom:-6px; width:22px; height:14px;
+  transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(255,190,60,.9), rgba(255,90,20,.4) 60%, transparent 75%);
+  filter:blur(2px);
+  animation:fim-thrust .35s ease-in-out infinite alternate;
+}
+@keyframes fim-bob{
+  0%, 100%{ margin-top:0; }
+  50%{ margin-top:-8px; }
+}
+@keyframes fim-thrust{
+  0%{ opacity:.6; transform:translateX(-50%) scaleY(.8); }
+  100%{ opacity:1; transform:translateX(-50%) scaleY(1.3); }
+}
+@media (max-width:600px){
+  .flying-ironman{width:52px; height:52px;}
+}
