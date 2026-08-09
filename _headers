@@ -1,0 +1,20 @@
+# Marvel pages/data are under active development — force revalidation so
+# deploys show up immediately instead of getting stuck behind stale browser
+# caches of marvel-timeline-data.js / marvel-style.css / the HTML pages.
+/marvel
+  Cache-Control: no-cache
+
+/marvel.html
+  Cache-Control: no-cache
+
+/marvel-movie.html
+  Cache-Control: no-cache
+
+/marvel-character.html
+  Cache-Control: no-cache
+
+/marvel-timeline-data.js
+  Cache-Control: no-cache
+
+/marvel-style.css
+  Cache-Control: no-cache
