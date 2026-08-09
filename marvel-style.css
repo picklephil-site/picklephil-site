@@ -345,7 +345,7 @@ footer a{color:var(--gold);}
 /* ---------- flying 8-bit Iron Man ---------- */
 .flying-ironman{
   position:fixed; top:0; left:0;
-  width:54px; height:72px;
+  width:66px; height:70px;
   z-index:400;
   pointer-events:none;
   will-change:transform;
@@ -373,5 +373,5 @@ footer a{color:var(--gold);}
   100%{ opacity:1; transform:translateX(-50%) scaleY(1.25); }
 }
 @media (max-width:600px){
-  .flying-ironman{width:42px; height:56px;}
+  .flying-ironman{width:50px; height:53px;}
 }
