@@ -56,7 +56,7 @@
   place();
 
   function flyToRandom(){
-    const size = el.offsetWidth || 54;
+    const size = el.offsetWidth || 126;
     const margin = size;
     const nx = margin + Math.random() * Math.max(1, window.innerWidth - margin * 2);
     const ny = margin + Math.random() * Math.max(1, window.innerHeight - margin * 2);
