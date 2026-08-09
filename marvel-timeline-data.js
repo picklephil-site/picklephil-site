@@ -61,10 +61,10 @@ const MCU_TIMELINE = [
   {type:"series", title:"Ironheart", year:2025, era:"The Multiverse Saga Continues", blurb:"Genius engineer Riri Williams builds her own armor — and gets tangled up with a very literal devil."},
   {type:"movie", title:"Thunderbolts*", year:2025, era:"The Multiverse Saga Continues", blurb:"A team of morally gray antiheroes gets thrown together on a mission gone sideways."},
   {type:"movie", title:"The Fantastic Four: First Steps", year:2025, era:"The Multiverse Saga Continues", blurb:"Marvel's First Family finally arrives in the MCU with a retro-future flair."},
+  {type:"series", title:"Wonder Man", year:2026, era:"The Multiverse Saga Continues", blurb:"Stuntman-turned-hero Simon Williams chases his big break in a Hollywood that's stranger than it looks."},
+  {type:"movie", title:"Spider-Man: Brand New Day", year:2026, era:"The Multiverse Saga Continues", blurb:"Peter Parker's next chapter swings into theaters."},
 
-  {type:"series", title:"Wonder Man", year:2026, era:"Coming Soon", blurb:"Stuntman-turned-hero Simon Williams chases his big break in a Hollywood that's stranger than it looks.", upcoming:true},
   {type:"movie", title:"Avengers: Doomsday", year:2026, era:"Coming Soon", blurb:"The next great Avengers team-up, with Victor von Doom entering the saga.", upcoming:true},
-  {type:"movie", title:"Spider-Man: Brand New Day", year:2026, era:"Coming Soon", blurb:"Peter Parker's next chapter swings into theaters.", upcoming:true},
   {type:"movie", title:"Avengers: Secret Wars", year:2027, era:"Coming Soon", blurb:"The Multiverse Saga's finale — worlds collide.", upcoming:true},
 ];
 

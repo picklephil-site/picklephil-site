@@ -114,6 +114,12 @@ async function loadDetail(){
   }catch(e){ detail = null; }
   if(!detail){ return; }
 
+  // TMDB's real release date beats a hand-typed "upcoming" flag that can go
+  // stale the moment something actually releases.
+  const realDate = detail.release_date || detail.first_air_date || null;
+  const stillUpcoming = realDate ? new Date(realDate) > new Date() : !!entry.upcoming;
+  document.getElementById("dh-year").textContent = entry.year + (stillUpcoming ? " · Announced" : "") + " · " + entry.era;
+
   if(detail.backdrop_path){
     document.getElementById("detail-hero").style.backgroundImage = `url(${IMG_BASE_ORIG + detail.backdrop_path})`;
   } else if(detail.poster_path){

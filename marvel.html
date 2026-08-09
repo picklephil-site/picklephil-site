@@ -213,9 +213,20 @@ async function loadPoster(entry){
       : {query:searchTitle, year:entry.year};
     const data = await tmdb(path, params);
     const hit = (data.results || [])[0];
-    posterCache[key] = hit && hit.poster_path ? hit.poster_path : null;
-  }catch(e){ posterCache[key] = null; }
+    posterCache[key] = hit
+      ? {path: hit.poster_path || null, releaseDate: hit.release_date || hit.first_air_date || null}
+      : {path: null, releaseDate: null};
+  }catch(e){ posterCache[key] = {path: null, releaseDate: null}; }
   return posterCache[key];
+}
+
+// TMDB's real release date is the source of truth for whether something has
+// actually come out — a hand-typed "upcoming" flag in the data file can go
+// stale the moment a movie or show actually releases. Fall back to the
+// static flag only when TMDB has no date for this title yet.
+function isStillUpcoming(entry, releaseDate){
+  if(releaseDate) return new Date(releaseDate) > new Date();
+  return !!entry.upcoming;
 }
 
 function renderTimeline(){
@@ -270,7 +281,13 @@ function renderTimeline(){
   runPool(posterJobs, async ({entry, card}) => {
     const posterDiv = card.querySelector(".poster");
     try{
-      const path = await loadPoster(entry);
+      const {path, releaseDate} = await loadPoster(entry);
+
+      const upcoming = isStillUpcoming(entry, releaseDate);
+      card.classList.toggle("upcoming", upcoming);
+      const yrDiv = card.querySelector(".yr");
+      if(yrDiv) yrDiv.textContent = entry.year + (upcoming ? " · Announced" : "");
+
       if(!path) return;
       const placeholder = posterDiv.querySelector(".placeholder-init");
       if(placeholder) placeholder.remove();
