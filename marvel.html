@@ -425,7 +425,7 @@
 <footer>
   <p>Built by Pickle Phil &mdash; a fan project, not affiliated with or endorsed by Marvel or Disney.</p>
   <p>Movie posters and film data via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
-  <p>Data provided by Marvel. © 2026 MARVEL</p>
+  <p>Character and comic cover images via <a href="https://comicvine.gamespot.com/" target="_blank" rel="noopener">Comic Vine</a>.</p>
   <p><a href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a></p>
 </footer>
 
@@ -508,26 +508,19 @@ async function tmdb(path, params){
   return res.json();
 }
 
-async function marvelApi(path, params){
+async function comicVine(path, params){
   const usp = new URLSearchParams(params || {});
   usp.set("path", path);
-  const res = await fetch("/api/marvel-comics?" + usp.toString());
-  if(!res.ok) throw new Error("marvel api fetch failed: " + res.status);
+  const res = await fetch("/api/comicvine-data?" + usp.toString());
+  if(!res.ok) throw new Error("comicvine fetch failed: " + res.status);
   return res.json();
-}
-
-function marvelImageUrl(thumbnail, variant){
-  if(!thumbnail || !thumbnail.path) return null;
-  if(thumbnail.path.includes("image_not_available")) return null;
-  const httpsPath = thumbnail.path.replace(/^http:/, "https:");
-  return `${httpsPath}/${variant}.${thumbnail.extension}`;
 }
 
 async function loadCharacterArt(name){
   try{
-    const data = await marvelApi("/characters", {nameStartsWith:name, limit:1});
-    const hit = (data.data && data.data.results || [])[0];
-    return hit ? marvelImageUrl(hit.thumbnail, "portrait_xlarge") : null;
+    const data = await comicVine("/search/", {query:name, resources:"character", field_list:"name,image", limit:1});
+    const hit = (data.results || [])[0];
+    return hit && hit.image ? (hit.image.medium_url || hit.image.small_url) : null;
   }catch(e){
     return null;
   }
@@ -535,9 +528,9 @@ async function loadCharacterArt(name){
 
 async function loadComicCover(title, issueNumber){
   try{
-    const data = await marvelApi("/comics", {titleStartsWith:title, issueNumber, format:"comic", limit:1, orderBy:"issueNumber"});
-    const hit = (data.data && data.data.results || [])[0];
-    return hit ? marvelImageUrl(hit.thumbnail, "portrait_medium") : null;
+    const data = await comicVine("/search/", {query:`${title} ${issueNumber}`, resources:"issue", field_list:"name,issue_number,image", limit:1});
+    const hit = (data.results || [])[0];
+    return hit && hit.image ? (hit.image.medium_url || hit.image.small_url) : null;
   }catch(e){
     return null;
   }
