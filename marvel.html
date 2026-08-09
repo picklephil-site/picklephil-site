@@ -16,10 +16,10 @@
 <div class="topnav">
   <a class="brand" href="#top">MARVEL&nbsp;UNIVERSE</a>
   <nav>
+    <a href="#ask">Ask the Multiverse</a>
     <a href="#history">Origin Story</a>
     <a href="#timeline">MCU Timeline</a>
     <a href="#characters">Characters</a>
-    <a href="#ask">Ask the Multiverse</a>
   </nav>
   <a class="home-link" href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a>
 </div>
@@ -31,7 +31,20 @@
   <p class="tagline">A comic-book tour through the MCU timeline &amp; Marvel history</p>
 </header>
 
-<section id="history">
+<section id="ask">
+  <h2 class="section-title">Ask the Multiverse</h2>
+  <p class="section-sub">Got a Marvel question? The Oracle is listening.</p>
+  <div class="chat-panel">
+    <div class="chat-log" id="chat-log"></div>
+    <form class="chat-form" id="chat-form">
+      <input type="text" id="chat-input" placeholder="Ask about any MCU movie, show, or character..." maxlength="500" autocomplete="off">
+      <button type="submit" id="chat-send">Ask</button>
+    </form>
+    <p class="chat-hint">Powered by AI — for fun, not official Marvel canon confirmation.</p>
+  </div>
+</section>
+
+<section id="history" style="background:var(--panel-2); border-top:6px solid var(--ink); border-bottom:6px solid var(--ink);">
   <h2 class="section-title">Origin Story</h2>
   <p class="section-sub">Before there were Avengers, there were guys in a cramped New York office making comics on a deadline.</p>
 
@@ -92,19 +105,10 @@
 <section id="characters">
   <h2 class="section-title">Character Spotlight</h2>
   <p class="section-sub">A few of the faces that built this universe.</p>
-  <div class="char-grid" id="char-root"></div>
-</section>
-
-<section id="ask" style="background:var(--panel-2); border-top:6px solid var(--ink); border-bottom:6px solid var(--ink);">
-  <h2 class="section-title">Ask the Multiverse</h2>
-  <p class="section-sub">Got a Marvel question? The Oracle is listening.</p>
-  <div class="chat-panel">
-    <div class="chat-log" id="chat-log"></div>
-    <form class="chat-form" id="chat-form">
-      <input type="text" id="chat-input" placeholder="Ask about any MCU movie, show, or character..." maxlength="500" autocomplete="off">
-      <button type="submit" id="chat-send">Ask</button>
-    </form>
-    <p class="chat-hint">Powered by AI — for fun, not official Marvel canon confirmation.</p>
+  <div class="shelf">
+    <button class="shelf-nav prev" type="button" aria-label="Scroll left">&lsaquo;</button>
+    <button class="shelf-nav next" type="button" aria-label="Scroll right">&rsaquo;</button>
+    <div class="shelf-row" id="char-root"></div>
   </div>
 </section>
 
@@ -170,6 +174,16 @@ function tmdbSearchTitle(title){
   return title.replace(/\s*\(Season\s*\d+\)\s*$/i, "");
 }
 
+function wireShelfNav(shelfEl){
+  const row = shelfEl.querySelector(".shelf-row");
+  const prev = shelfEl.querySelector(".shelf-nav.prev");
+  const next = shelfEl.querySelector(".shelf-nav.next");
+  if(!row || !prev || !next) return;
+  const scrollAmount = () => Math.max(row.clientWidth * 0.8, 240);
+  prev.addEventListener("click", () => row.scrollBy({left: -scrollAmount(), behavior: "smooth"}));
+  next.addEventListener("click", () => row.scrollBy({left: scrollAmount(), behavior: "smooth"}));
+}
+
 // Runs `worker` over `items` with at most `concurrency` in flight at once,
 // so a page with 50+ image lookups doesn't fire them all simultaneously
 // and trip TMDB/ComicVine rate limits.
@@ -223,9 +237,13 @@ function renderTimeline(){
         <span class="marker comic-font">${eraIdx + 1}</span>
         <h2 class="comic-font">${era}</h2>
       </div>
-      <div class="movie-row"></div>
+      <div class="shelf">
+        <button class="shelf-nav prev" type="button" aria-label="Scroll left">&lsaquo;</button>
+        <button class="shelf-nav next" type="button" aria-label="Scroll right">&rsaquo;</button>
+        <div class="shelf-row"></div>
+      </div>
     `;
-    const row = block.querySelector(".movie-row");
+    const row = block.querySelector(".shelf-row");
     byEra[era].forEach(entry => {
       const globalIndex = MCU_TIMELINE.indexOf(entry);
       const card = document.createElement("a");
@@ -246,6 +264,7 @@ function renderTimeline(){
       posterJobs.push({entry, card});
     });
     root.appendChild(block);
+    wireShelfNav(block);
   });
 
   runPool(posterJobs, async ({entry, card}) => {
@@ -266,6 +285,7 @@ function renderTimeline(){
 
 function renderCharacters(){
   const root = document.getElementById("char-root");
+  wireShelfNav(root.closest(".shelf"));
   const jobs = [];
   CHARACTERS.forEach(c => {
     const card = document.createElement("div");
