@@ -200,7 +200,7 @@ async function loadPoster(entry){
     const data = await tmdb(path, params);
     const hit = (data.results || [])[0];
     posterCache[key] = hit && hit.poster_path ? hit.poster_path : null;
-  }catch(e){ posterCache[key] = null; throw e; }
+  }catch(e){ posterCache[key] = null; }
   return posterCache[key];
 }
 
@@ -252,28 +252,16 @@ function renderTimeline(){
     const posterDiv = card.querySelector(".poster");
     try{
       const path = await loadPoster(entry);
-      if(!path){
-        showDebugError(posterDiv, "no TMDB match");
-        return;
-      }
+      if(!path) return;
+      const placeholder = posterDiv.querySelector(".placeholder-init");
+      if(placeholder) placeholder.remove();
       const img = document.createElement("img");
       img.loading = "lazy";
       img.src = IMG_BASE + path;
       img.alt = entry.title + " poster";
       posterDiv.appendChild(img);
-    }catch(e){
-      showDebugError(posterDiv, (e && e.message) || String(e));
-    }
+    }catch(e){}
   }, 6);
-}
-
-// TEMPORARY: surfaces fetch failures directly on the page so they show up
-// in a screenshot, since some visitors can't easily get to devtools console.
-function showDebugError(container, message){
-  const el = document.createElement("div");
-  el.style.cssText = "position:absolute;bottom:0;left:0;right:0;background:rgba(180,0,0,.85);color:#fff;font-size:.65rem;line-height:1.3;padding:3px 5px;word-break:break-word;z-index:3;font-family:monospace;";
-  el.textContent = "ERR: " + message;
-  container.appendChild(el);
 }
 
 function renderCharacters(){
