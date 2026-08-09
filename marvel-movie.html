@@ -89,9 +89,12 @@ async function loadDetail(){
 
   const isSeries = entry.type === "series";
   const searchPath = isSeries ? "/search/tv" : "/search/movie";
+  const searchTitle = entry.title.replace(/\s*\(Season\s*\d+\)\s*$/i, "");
+  // TV search year filtering is unreliable for multi-season shows, so we
+  // rely on title-match relevance for series instead (see marvel.html).
   const searchParams = isSeries
-    ? {query:entry.title, first_air_date_year:entry.year}
-    : {query:entry.title, year:entry.year};
+    ? {query:searchTitle}
+    : {query:searchTitle, year:entry.year};
 
   let hit;
   try{

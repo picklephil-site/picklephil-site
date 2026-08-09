@@ -166,15 +166,23 @@ function initials(str){
   return str.split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase();
 }
 
+function tmdbSearchTitle(title){
+  return title.replace(/\s*\(Season\s*\d+\)\s*$/i, "");
+}
+
 const posterCache = {};
 async function loadPoster(entry){
   const key = entry.type + entry.title + entry.year;
   if(posterCache[key] !== undefined) return posterCache[key];
   try{
     const path = entry.type === "series" ? "/search/tv" : "/search/movie";
+    const searchTitle = tmdbSearchTitle(entry.title);
+    // TV search year filtering is unreliable for multi-season shows (a show's
+    // first_air_date is its earliest season, not necessarily this entry's
+    // year), so we rely on title-match relevance for series instead.
     const params = entry.type === "series"
-      ? {query:entry.title, first_air_date_year:entry.year}
-      : {query:entry.title, year:entry.year};
+      ? {query:searchTitle}
+      : {query:searchTitle, year:entry.year};
     const data = await tmdb(path, params);
     const hit = (data.results || [])[0];
     posterCache[key] = hit && hit.poster_path ? hit.poster_path : null;
