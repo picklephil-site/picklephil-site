@@ -147,6 +147,15 @@
     font-size:1.5rem;
     margin:0 0 8px;
   }
+  .cover-slot{
+    float:right;
+    width:84px;
+    margin:0 0 10px 12px;
+  }
+  .cover-slot img{
+    border:3px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+  }
   .history-card .year-badge{
     display:inline-block;
     background:var(--marvel-red);
@@ -352,19 +361,22 @@
       <h3>Timely Comics</h3>
       <p>Publisher Martin Goodman launches Timely Comics. Its first issue introduces the Human Torch and Namor the Sub-Mariner — pulpy, two-fisted heroes for a Depression-era audience hungry for escapism.</p>
     </div>
-    <div class="panel history-card">
+    <div class="panel history-card" id="hist-cap">
       <span class="year-badge">1941</span>
       <h3>Captain America Punches Hitler</h3>
+      <div class="cover-slot" data-comic-title="Captain America Comics" data-issue="1"></div>
       <p>Joe Simon and Jack Kirby's Captain America Comics #1 hits newsstands with Cap decking Adolf Hitler on the cover — months before the U.S. even entered WWII.</p>
     </div>
-    <div class="panel history-card">
+    <div class="panel history-card" id="hist-ff1">
       <span class="year-badge">1961</span>
       <h3>Marvel Comics Is Born</h3>
+      <div class="cover-slot" data-comic-title="Fantastic Four" data-issue="1"></div>
       <p>Writer-editor Stan Lee, tired of formulaic heroes, teams with artist Jack Kirby on Fantastic Four #1 — flawed, bickering heroes with real personalities. The company rebrands as Marvel Comics.</p>
     </div>
-    <div class="panel history-card">
+    <div class="panel history-card" id="hist-golden">
       <span class="year-badge">1962&ndash;63</span>
       <h3>The Golden Run</h3>
+      <div class="cover-slot" data-comic-title="Amazing Fantasy" data-issue="15"></div>
       <p>In a two-year sprint, Lee and his collaborators (Kirby, Steve Ditko, and others) introduce Spider-Man, the Hulk, Thor, Iron Man, and the X-Men — the bedrock of the entire Marvel Universe.</p>
     </div>
     <div class="panel history-card">
@@ -413,6 +425,7 @@
 <footer>
   <p>Built by Pickle Phil &mdash; a fan project, not affiliated with or endorsed by Marvel or Disney.</p>
   <p>Movie posters and film data via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p>Data provided by Marvel. © 2026 MARVEL</p>
   <p><a href="https://philliphinshaw.com">&larr; back to philliphinshaw.com</a></p>
 </footer>
 
@@ -493,6 +506,54 @@ async function tmdb(path, params){
   const res = await fetch("/api/marvel-data?" + usp.toString());
   if(!res.ok) throw new Error("tmdb fetch failed: " + res.status);
   return res.json();
+}
+
+async function marvelApi(path, params){
+  const usp = new URLSearchParams(params || {});
+  usp.set("path", path);
+  const res = await fetch("/api/marvel-comics?" + usp.toString());
+  if(!res.ok) throw new Error("marvel api fetch failed: " + res.status);
+  return res.json();
+}
+
+function marvelImageUrl(thumbnail, variant){
+  if(!thumbnail || !thumbnail.path) return null;
+  if(thumbnail.path.includes("image_not_available")) return null;
+  const httpsPath = thumbnail.path.replace(/^http:/, "https:");
+  return `${httpsPath}/${variant}.${thumbnail.extension}`;
+}
+
+async function loadCharacterArt(name){
+  try{
+    const data = await marvelApi("/characters", {nameStartsWith:name, limit:1});
+    const hit = (data.data && data.data.results || [])[0];
+    return hit ? marvelImageUrl(hit.thumbnail, "portrait_xlarge") : null;
+  }catch(e){
+    return null;
+  }
+}
+
+async function loadComicCover(title, issueNumber){
+  try{
+    const data = await marvelApi("/comics", {titleStartsWith:title, issueNumber, format:"comic", limit:1, orderBy:"issueNumber"});
+    const hit = (data.data && data.data.results || [])[0];
+    return hit ? marvelImageUrl(hit.thumbnail, "portrait_medium") : null;
+  }catch(e){
+    return null;
+  }
+}
+
+function renderComicCovers(){
+  document.querySelectorAll(".cover-slot").forEach(async slot => {
+    const title = slot.dataset.comicTitle;
+    const issue = slot.dataset.issue;
+    const url = await loadComicCover(title, issue);
+    if(url){
+      slot.innerHTML = `<img src="${url}" alt="${title} #${issue} cover">`;
+    } else {
+      slot.remove();
+    }
+  });
 }
 
 function initials(str){
@@ -586,11 +647,23 @@ function renderCharacters(){
     `;
     root.appendChild(card);
 
-    loadPersonPhoto(c.actor).then(path => {
-      if(!path) return;
-      const frame = card.querySelector(".photo-frame");
-      frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
-    }).catch(()=>{});
+    const frame = card.querySelector(".photo-frame");
+    loadCharacterArt(c.alt).then(url => {
+      if(url){
+        frame.innerHTML = `<img loading="lazy" src="${url}" alt="${c.alt}">`;
+        return;
+      }
+      // No comic art found — fall back to the actor's photo via TMDB.
+      loadPersonPhoto(c.actor).then(path => {
+        if(!path) return;
+        frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
+      }).catch(()=>{});
+    }).catch(()=>{
+      loadPersonPhoto(c.actor).then(path => {
+        if(!path) return;
+        frame.innerHTML = `<img loading="lazy" src="${IMG_BASE_PROFILE + path}" alt="${c.actor}">`;
+      }).catch(()=>{});
+    });
   });
 }
 
@@ -611,6 +684,7 @@ loadPersonPhoto("Stan Lee").then(path => {
 
 renderTimeline();
 renderCharacters();
+renderComicCovers();
 </script>
 </body>
 </html>
