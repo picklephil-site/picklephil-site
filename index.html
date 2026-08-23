@@ -308,7 +308,7 @@
 
       <article class="card" style="background:linear-gradient(165deg,rgba(46,204,113,.22),rgba(8,40,24,.30)); border-color:rgba(46,204,113,.35);">
         <h3 style="font-size:1.35rem;">📖 God's Word</h3>
-        <p class="meta">Read the Bible — KJV, WEB, and LSV. Pick up wherever you left off.</p>
+        <p class="meta">Read the Bible in NIV, ESV, NLT and more, powered by YouVersion. Pick up wherever you left off.</p>
         <p><a class="btn" href="/bible.html">Open Bible Reader</a></p>
       </article>
 
@@ -444,15 +444,67 @@
         var v=fallback[day%fallback.length];
         txt.textContent=v.t; if(ref) ref.textContent=v.r; setVotdLink(v.r);
       }
-      try{
+      // USFM book codes → display names, so a YouVersion passage id like
+      // "ISA.12.2" becomes "Isaiah 12:2" (which /bible.html?ref= can resolve).
+      var USFM={GEN:'Genesis',EXO:'Exodus',LEV:'Leviticus',NUM:'Numbers',DEU:'Deuteronomy',JOS:'Joshua',JDG:'Judges',RUT:'Ruth','1SA':'1 Samuel','2SA':'2 Samuel','1KI':'1 Kings','2KI':'2 Kings','1CH':'1 Chronicles','2CH':'2 Chronicles',EZR:'Ezra',NEH:'Nehemiah',EST:'Esther',JOB:'Job',PSA:'Psalms',PRO:'Proverbs',ECC:'Ecclesiastes',SNG:'Song of Solomon',ISA:'Isaiah',JER:'Jeremiah',LAM:'Lamentations',EZK:'Ezekiel',DAN:'Daniel',HOS:'Hosea',JOL:'Joel',AMO:'Amos',OBA:'Obadiah',JON:'Jonah',MIC:'Micah',NAM:'Nahum',HAB:'Habakkuk',ZEP:'Zephaniah',HAG:'Haggai',ZEC:'Zechariah',MAL:'Malachi',MAT:'Matthew',MRK:'Mark',LUK:'Luke',JHN:'John',ACT:'Acts',ROM:'Romans','1CO':'1 Corinthians','2CO':'2 Corinthians',GAL:'Galatians',EPH:'Ephesians',PHP:'Philippians',COL:'Colossians','1TH':'1 Thessalonians','2TH':'2 Thessalonians','1TI':'1 Timothy','2TI':'2 Timothy',TIT:'Titus',PHM:'Philemon',HEB:'Hebrews',JAS:'James','1PE':'1 Peter','2PE':'2 Peter','1JN':'1 John','2JN':'2 John','3JN':'3 John',JUD:'Jude',REV:'Revelation'};
+
+      function humanRef(passageId){
+        var first=String(passageId||'').split('+')[0].split('-')[0];
+        var parts=first.split('.');
+        if(parts.length<2) return '';
+        var book=USFM[parts[0].toUpperCase()]||parts[0];
+        return book+' '+parts[1]+(parts[2]?(':'+parts[2]):'');
+      }
+
+      function show(verse, reference){
+        txt.textContent=verse;
+        if(ref) ref.textContent=reference;
+        setVotdLink(reference);
+      }
+
+      // Older source, kept as the middle rung of the fallback ladder.
+      function tryOurManna(){
         fetch('https://beta.ourmanna.com/api/v1/get/?format=json')
           .then(function(r){ return r.json(); })
           .then(function(j){
             var d=(j.verse&&(j.verse.details||j.verse))||{};
             var verse=(d.text||'').trim(), reference=(d.reference||'').trim();
-            if(verse){ txt.textContent=verse; if(ref) ref.textContent=reference; setVotdLink(reference); } else { showFallback(); }
+            if(verse){ show(verse, reference); } else { showFallback(); }
           })
           .catch(showFallback);
+      }
+
+      // Primary: YouVersion's official Verse of the Day, via the /api/youversion
+      // proxy (which holds the app key). Falls through to OurManna, then to the
+      // baked-in list, so this card never sticks on "Loading".
+      function tryYouVersion(){
+        var day=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
+        fetch('/api/youversion/verse_of_the_days/'+day, {headers:{'Accept':'application/json'}})
+          .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+          .then(function(j){
+            var d=(j&&j.data)||j||{};
+            var v=d.verse||{};
+            // Some responses carry the text inline; others only a passage id.
+            var text=String(v.text||d.text||'').trim();
+            var reference=String(v.human_reference||d.human_reference||'').trim();
+            var pid=String(d.passage_id||(v.usfms&&v.usfms[0])||'').trim();
+            if(text){ show(text, reference||humanRef(pid)); return; }
+            if(!pid) throw new Error('no passage');
+            // Second hop: resolve the passage id to actual text (NIV).
+            return fetch('/api/youversion/bibles/111/passages/'+encodeURIComponent(pid), {headers:{'Accept':'application/json'}})
+              .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+              .then(function(pj){
+                var pd=(pj&&pj.data)||pj||{};
+                var body=String(pd.text||pd.content||pd.html||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+                if(!body) throw new Error('empty');
+                show(body, reference||humanRef(pid));
+              });
+          })
+          .catch(tryOurManna);
+      }
+
+      try{
+        tryYouVersion();
       }catch(e){ showFallback(); }
     })();
 

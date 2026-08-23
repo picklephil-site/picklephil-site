@@ -268,9 +268,7 @@ footer{margin:40px 0 60px;opacity:.7;font-size:.9rem;}
       <div class="controls-main">
         <label for="xlat">Translation</label>
         <select id="xlat" title="Choose translation">
-          <option value="de4e12af7f28f599-02">KJV — King James Version</option>
-          <option value="9879dbb7cfe39e4d-01">WEB — World English Bible</option>
-          <option value="01b29f4b342acc35-01">LSV — Literal Standard Version</option>
+          <option value="">Loading translations…</option>
         </select>
 
         <label for="book">Book</label>
@@ -298,7 +296,7 @@ footer{margin:40px 0 60px;opacity:.7;font-size:.9rem;}
   </div>
 
   <footer>
-    Powered by <a href="https://scripture.api.bible" target="_blank" rel="noopener" style="text-decoration:underline;opacity:.8;">API.Bible</a>
+    <span id="providerNote">Powered by <a href="https://developers.youversion.com" target="_blank" rel="noopener" style="text-decoration:underline;opacity:.8;">YouVersion</a></span>
     &nbsp;·&nbsp; Pickle Phil · Stay Crunchy 🥒
   </footer>
 </div>
@@ -316,8 +314,56 @@ footer{margin:40px 0 60px;opacity:.7;font-size:.9rem;}
 (function(){
   'use strict';
 
-  var API_BASE = 'https://api.scripture.api.bible/v1';
-  var API_KEY  = '1gEPrQGfcM6g4G92PefXe';
+  // ── Providers ─────────────────────────────────────────────────────────────
+  // Primary source is the YouVersion Platform API, proxied through
+  // /api/youversion so the app key stays server-side (see
+  // functions/api/youversion/[[path]].ts). API.Bible stays wired up as an
+  // automatic fallback: if the proxy has no key or errors out, the reader
+  // silently keeps working on KJV/WEB/LSV exactly as it did before.
+  var AB_BASE = 'https://api.scripture.api.bible/v1';
+  var AB_KEY  = '1gEPrQGfcM6g4G92PefXe';
+  var YV_BASE = '/api/youversion';
+
+  var provider = 'apibible';   // flipped to 'youversion' by bootProvider()
+
+  // The three original API.Bible translations, used when YouVersion is off.
+  var AB_VERSIONS = [
+    { id:'de4e12af7f28f599-02', label:'KJV — King James Version' },
+    { id:'9879dbb7cfe39e4d-01', label:'WEB — World English Bible' },
+    { id:'01b29f4b342acc35-01', label:'LSV — Literal Standard Version' }
+  ];
+
+  // Well-known YouVersion version ids, used if the /bibles listing is
+  // unavailable or returns a shape we don't recognise.
+  var YV_FALLBACK_VERSIONS = [
+    { id:'111', label:'NIV — New International Version' },
+    { id:'59',  label:'ESV — English Standard Version' },
+    { id:'116', label:'NLT — New Living Translation' },
+    { id:'114', label:'NKJV — New King James Version' },
+    { id:'1',   label:'KJV — King James Version' },
+    { id:'97',  label:'MSG — The Message' },
+    { id:'100', label:'NASB — New American Standard' },
+    { id:'206', label:'WEB — World English Bible' }
+  ];
+
+  // YouVersion's JSON field names aren't guaranteed stable across routes, so
+  // read defensively rather than hard-coding one spelling.
+  function pick(obj, keys){
+    for(var i=0;i<keys.length;i++){
+      var v = obj[keys[i]];
+      if(v !== undefined && v !== null && v !== '') return v;
+    }
+    return '';
+  }
+  function listOf(res){
+    if(Array.isArray(res)) return res;
+    if(!res || typeof res !== 'object') return [];
+    var keys = ['data','books','chapters','bibles','versions','items','results'];
+    for(var i=0;i<keys.length;i++){
+      if(Array.isArray(res[keys[i]])) return res[keys[i]];
+    }
+    return [];
+  }
 
   var state = {
     books: [], chapters: [],
@@ -337,6 +383,7 @@ footer{margin:40px 0 60px;opacity:.7;font-size:.9rem;}
   var collapseBtn   = document.getElementById('collapseBtn');
   var controlsEl    = document.getElementById('controls');
   var collapsedLabel= document.getElementById('collapsedLabel');
+  var providerNote  = document.getElementById('providerNote');
   var searchToggle  = document.getElementById('searchToggle');
   var searchWrap    = document.getElementById('searchWrap');
   var searchInput   = document.getElementById('searchInput');
@@ -438,9 +485,117 @@ footer{margin:40px 0 60px;opacity:.7;font-size:.9rem;}
 
   // ── API ──────────────────────────────────────────────────────────────────
 
-  function apiGet(path){
-    return fetch(API_BASE + path, { headers:{'api-key': API_KEY} })
+  function abGet(path){
+    return fetch(AB_BASE + path, { headers:{'api-key': AB_KEY} })
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+  }
+
+  function yvGet(path){
+    return fetch(YV_BASE + path, { headers:{'Accept':'application/json'} })
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+  }
+
+  // Routing adapter. Every caller still speaks API.Bible-shaped paths and gets
+  // back an API.Bible-shaped {data:...} payload; when the YouVersion provider
+  // is active we translate the request and normalise the response. Both APIs
+  // already agree on USFM ids (book 'GEN', chapter 'GEN.1'), so the internal
+  // model doesn't change.
+  function apiGet(path){
+    if(provider !== 'youversion') return abGet(path);
+
+    var m;
+
+    // /bibles/{id}/books
+    if((m = path.match(/^\/bibles\/([^\/?]+)\/books$/))){
+      return yvGet('/bibles/'+m[1]+'/books').then(function(res){
+        var out = listOf(res).map(function(b){
+          var id = String(pick(b,['usfm','book_usfm','id','code']) || '').toUpperCase();
+          return {
+            id: id,
+            name: String(pick(b,['human_long','human','name','title','local_title']) || id),
+            abbreviation: String(pick(b,['abbreviation','usfm','id']) || id),
+            _chapters: b.chapters
+          };
+        }).filter(function(b){ return b.id; });
+        if(!out.length) throw new Error('no books');
+        yvBookCache = out;
+        return { data: out };
+      });
+    }
+
+    // /bibles/{id}/books/{bookId}/chapters
+    if((m = path.match(/^\/bibles\/([^\/?]+)\/books\/([^\/?]+)\/chapters$/))){
+      var bId = m[2];
+      // Some YouVersion book payloads already embed their chapter list, which
+      // saves a round trip.
+      var cached = yvBookCache.find(function(b){ return b.id === bId; });
+      if(cached && Array.isArray(cached._chapters) && cached._chapters.length){
+        var inline = yvNormalizeChapters(cached._chapters, bId);
+        if(inline.length) return Promise.resolve({ data: inline });
+      }
+      return yvGet('/bibles/'+m[1]+'/books/'+bId+'/chapters').then(function(res){
+        var out = yvNormalizeChapters(listOf(res), bId);
+        if(!out.length) throw new Error('no chapters');
+        return { data: out };
+      });
+    }
+
+    // /bibles/{id}/chapters/{chapterId}?...  → YouVersion passage lookup
+    if((m = path.match(/^\/bibles\/([^\/?]+)\/chapters\/([^\/?]+)/))){
+      return yvGet('/bibles/'+m[1]+'/passages/'+m[2]).then(function(res){
+        var d = (res && typeof res === 'object' && res.data && typeof res.data === 'object') ? res.data : res;
+        var content = String(pick(d,['content','html','body','text']) || '');
+        if(!content) throw new Error('empty passage');
+        // The plain-text variant arrives without markup; wrap it so the
+        // renderer's paragraph handling still has something to work with.
+        if(content.indexOf('<') === -1){
+          content = '<p>'+content.replace(/\n{2,}/g,'</p><p>').replace(/\n/g,' ')+'</p>';
+        }
+        return { data: { content: content, copyright: String(pick(d,['copyright','publisher','attribution']) || '') } };
+      });
+    }
+
+    // Search has no YouVersion Platform equivalent yet — keep it on API.Bible,
+    // mapping the current YouVersion version back to a comparable translation.
+    if(path.indexOf('/search') !== -1){
+      return abGet(path.replace(/^\/bibles\/[^\/?]+/, '/bibles/'+AB_VERSIONS[0].id));
+    }
+
+    return yvGet(path);
+  }
+
+  var yvBookCache = [];
+
+  function yvNormalizeChapters(raw, bookId){
+    return raw.map(function(c){
+      if(typeof c === 'string') c = { usfm: c };
+      var usfm = String(pick(c,['usfm','id','chapter_usfm']) || '');
+      var num  = String(pick(c,['human','number','chapter']) || (usfm.split('.')[1] || ''));
+      if(!usfm && num) usfm = bookId+'.'+num;
+      return { id: usfm, number: num };
+    }).filter(function(c){
+      return c.id && c.number && c.number.toLowerCase() !== 'intro' && /^\d+$/.test(c.number);
+    });
+  }
+
+  // Ask the proxy whether YouVersion is configured. Resolves to the option
+  // list the translation picker should show.
+  function bootProvider(){
+    return yvGet('/bibles?page_size=100').then(function(res){
+      var versions = listOf(res).map(function(v){
+        var id = String(pick(v,['id','version_id']) || '');
+        var abbr = String(pick(v,['abbreviation','local_abbreviation']) || '').toUpperCase();
+        var title = String(pick(v,['local_title','title','name','local_name']) || '');
+        if(!id) return null;
+        return { id: id, label: (abbr ? abbr+' — ' : '')+(title || abbr || id) };
+      }).filter(Boolean);
+      provider = 'youversion';
+      return versions.length ? versions : YV_FALLBACK_VERSIONS;
+    }).catch(function(){
+      // No key set, or YouVersion unreachable — stay on API.Bible.
+      provider = 'apibible';
+      return AB_VERSIONS;
+    });
   }
 
   function showMsg(emoji, text){
@@ -766,12 +921,26 @@ function updateCollapsedLabel(){
 
   try{ state.fontSize = parseInt(localStorage.getItem('pb_fontSize'))||17; }catch(e){}
 
-  var savedBible;
-  try{ savedBible = localStorage.getItem('pb_bibleId'); }catch(e){}
-  var validIds = ['de4e12af7f28f599-02','9879dbb7cfe39e4d-01','01b29f4b342acc35-01'];
-  if(savedBible && validIds.indexOf(savedBible) !== -1){
-    xlatSel.value = savedBible;
-  }
+  function startApp(versions){
+    // Rebuild the translation picker for whichever provider answered.
+    xlatSel.innerHTML = '';
+    versions.forEach(function(v){
+      var o = document.createElement('option');
+      o.value = v.id; o.textContent = v.label;
+      xlatSel.appendChild(o);
+    });
+    if(providerNote){
+      providerNote.innerHTML = provider === 'youversion'
+        ? 'Powered by <a href="https://developers.youversion.com" target="_blank" rel="noopener" style="text-decoration:underline;opacity:.8;">YouVersion</a>'
+        : 'Powered by <a href="https://scripture.api.bible" target="_blank" rel="noopener" style="text-decoration:underline;opacity:.8;">API.Bible</a>';
+    }
+
+    // Restore the last translation, but only if this provider still offers it.
+    var savedBible;
+    try{ savedBible = localStorage.getItem('pb_bibleId'); }catch(e){}
+    if(savedBible && xlatSel.querySelector('option[value="'+savedBible.replace(/"/g,'\\"')+'"]')){
+      xlatSel.value = savedBible;
+    }
 
   // Parse ?ref=Book Chapter:Verse from homepage votd link
   var refParam = '';
@@ -814,6 +983,9 @@ function updateCollapsedLabel(){
   } else {
     onTranslationChange();
   }
+  }
+
+  bootProvider().then(startApp);
 
 })();
 </script>
