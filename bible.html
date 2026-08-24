@@ -17,6 +17,7 @@
   --panel-b:rgba(8,40,24,.28);
 }
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0; font-family:Segoe UI,Tahoma,sans-serif; color:var(--text);
   background:
@@ -27,15 +28,18 @@ body{
   background-attachment:fixed;
   min-height:100vh; display:flex; flex-direction:column; align-items:center;
 }
-.wrap{width:min(1100px,100%); padding:22px; display:flex; flex-direction:column; flex:1;}
+.wrap{
+  width:min(1100px,100%); padding:14px 22px 22px;
+  display:flex; flex-direction:column; flex:1; min-height:100vh;
+}
 
 .btn{
   color:var(--btnText); text-decoration:none;
   background:linear-gradient(180deg,#ffffff 0%,#e6efe8 100%);
-  padding:10px 18px; border-radius:12px; font-weight:700; margin:4px;
+  padding:10px 18px; border-radius:12px; font-weight:700;
   display:inline-block; border:1px solid rgba(255,255,255,.6);
   box-shadow:0 8px 20px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.9);
-  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+  transition:transform .18s ease,box-shadow .18s ease;
   cursor:pointer; font-size:.95rem;
 }
 .btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.38),0 0 0 2px rgba(46,204,113,.35),inset 0 1px 0 rgba(255,255,255,.9);}
@@ -46,117 +50,50 @@ body{
   border:1px solid var(--glass-border); box-shadow:none;
 }
 .btn.ghost:hover{background:rgba(255,255,255,.18);}
-.btn[disabled]{opacity:.4; cursor:not-allowed; transform:none; box-shadow:none;}
 
-.icon-btn{
-  background:rgba(255,255,255,.12); border:1px solid var(--glass-border);
-  color:var(--text); border-radius:10px; padding:8px 12px; cursor:pointer;
-  font-size:.9rem; transition:background .15s;
-}
-.icon-btn:hover{background:rgba(255,255,255,.22);}
-
-/* TOP NAV */
-.topnav{display:flex;align-items:center;gap:10px;padding:14px 0 4px;flex-wrap:wrap;}
+/* TOP NAV — kept deliberately thin so the reader starts as high as possible */
+.topnav{display:flex;align-items:center;gap:8px;padding:6px 0 10px;flex-wrap:wrap;}
 .topnav h1{
-  font-family:"Amatic SC",sans-serif; font-size:2.4rem; font-weight:700; margin:0;
+  font-family:"Amatic SC",sans-serif; font-size:2rem; font-weight:700; margin:0;
   background:linear-gradient(180deg,#ffffff,#c7f2d8);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
 }
 .topnav-right{margin-left:auto; display:flex; gap:8px; align-items:center;}
 
-/* STICKY CONTROLS */
-.controls-wrap{position:sticky; top:10px; z-index:100; margin-bottom:16px;}
-.controls{
-  display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-  background:linear-gradient(165deg, rgba(12,58,34,.96), rgba(8,40,24,.97));
-  border:1px solid var(--glass-border); border-radius:var(--radius);
-  padding:14px 18px;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  box-shadow:0 8px 28px rgba(0,0,0,.45);
-  overflow:hidden;
-  transition: padding .25s ease, max-height .35s ease, opacity .2s ease;
-  max-height:600px;
-}
-.controls.collapsed{padding:10px 18px; max-height:56px; flex-wrap:nowrap; align-items:center; gap:8px;}
-.controls.collapsed .controls-main{display:none;}
-.controls.collapsed .collapsed-label{display:flex;}
-
-.controls-always{display:flex; align-items:center; gap:8px; width:100%; flex-wrap:nowrap;}
-.controls-main{display:flex; flex-wrap:wrap; gap:10px; align-items:center; width:100%;}
-.collapsed-label{
-  display:none; flex:1; justify-content:center;
-  font-size:.95rem; font-weight:700; opacity:.9;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center;
-}
-.nav-btns{display:flex;gap:6px;margin-left:auto;align-items:center;}
-
-.controls select{
-  background:#0f2d18; color:var(--text); border:1px solid var(--glass-border);
-  border-radius:10px; padding:8px 12px; font-size:.95rem; cursor:pointer;
-  appearance:none; -webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2388ccaa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 10px center; padding-right:30px;
-  min-width:140px;
-}
-.controls select:focus{outline:2px solid var(--accent); outline-offset:2px;}
-.controls select#version{min-width:210px;}
-.controls label{font-size:.88rem;opacity:.8;margin-right:-6px;}
-
-/* NOTICE */
-.notice{
-  display:none; align-items:flex-start; gap:10px;
-  background:linear-gradient(165deg, rgba(255,196,0,.14), rgba(255,196,0,.07));
-  border:1px solid rgba(255,196,0,.35); border-radius:14px;
-  padding:12px 16px; margin-bottom:14px; font-size:.9rem; line-height:1.55;
-}
-.notice.show{display:flex;}
-.notice a{color:#ffe08a;}
-.notice code{background:rgba(0,0,0,.28); padding:1px 5px; border-radius:5px; font-size:.85em;}
-.notice .n-emoji{font-size:1.1rem; flex-shrink:0;}
-
-/* READER */
+/* READER — YouVersion's own reader, with its own version and chapter controls */
 .reader-card{
   background:linear-gradient(165deg,var(--glass),var(--panel-b));
   border:1px solid var(--glass-border); border-radius:var(--radius);
   box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.18);
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   overflow:hidden; position:relative;
   display:flex; flex-direction:column;
-  flex:1; min-height:620px;
+  flex:1; min-height:70vh;
 }
-.reader-frame{
-  width:100%; flex:1; border:0; display:block;
-  background:#fff; min-height:620px;
-}
+.reader-frame{width:100%; flex:1; border:0; display:block; background:#fff;}
 .reader-loading{
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:10px; padding:0 24px;
   text-align:center; background:rgba(8,40,24,.94); font-size:1.02rem; opacity:.9;
   transition:opacity .3s ease; pointer-events:none;
 }
-.reader-loading.hidden{opacity:0; pointer-events:none;}
+.reader-loading.hidden{opacity:0;}
 .reader-loading .emoji{font-size:2.2rem;}
 .reader-loading a{color:#c7f2d8;}
 
-.attribution{
-  margin-top:12px; font-size:.82rem; opacity:.65; line-height:1.6;
-  border-top:1px solid var(--glass-border); padding-top:10px; min-height:1px;
-}
-
-footer{margin:26px 0 40px;opacity:.7;font-size:.9rem;text-align:center;}
+footer{margin:14px 0 18px;opacity:.7;font-size:.85rem;text-align:center;}
 footer a{color:#c7f2d8;}
-.footer-alt{margin-top:6px;font-size:.78rem;opacity:.55;}
+.footer-alt{margin-top:5px;font-size:.76rem;opacity:.55;}
 .footer-alt a{color:inherit;text-decoration:underline;}
 .footer-alt a:hover{opacity:.85;}
 
 @media(max-width:700px){
-  .wrap{padding:14px;}
-  .controls-main{gap:8px;}
-  .controls select{min-width:unset;width:100%;}
-  .controls select#version{min-width:unset;}
-  .nav-btns{margin-left:0;width:100%;justify-content:space-between;}
-  .reader-card,.reader-frame{min-height:520px;}
-  .topnav h1{font-size:2rem;}
+  .wrap{padding:8px 10px 12px;}
+  .topnav{padding:2px 0 8px; gap:6px;}
+  .topnav h1{font-size:1.6rem;}
+  .topnav-right{gap:6px;}
+  .btn.sm{padding:6px 10px; font-size:.78rem;}
+  .reader-card{min-height:76vh; border-radius:14px;}
+  footer{margin:10px 0 14px; font-size:.8rem;}
 }
 </style>
 </head>
@@ -171,38 +108,6 @@ footer a{color:#c7f2d8;}
     </div>
   </nav>
 
-  <!-- NOTICE — only shown when something needs attention -->
-  <div class="notice" id="notice">
-    <span class="n-emoji">🔑</span>
-    <span id="noticeText"></span>
-  </div>
-
-  <!-- CONTROLS -->
-  <div class="controls-wrap">
-    <div class="controls" id="controls">
-      <div class="controls-always">
-        <button class="icon-btn" id="collapseBtn" title="Toggle controls" style="flex-shrink:0;">▲</button>
-        <div class="nav-btns">
-          <button class="btn sm" id="prevBtn">◀ Prev</button>
-          <span class="collapsed-label" id="collapsedLabel">Loading…</span>
-          <button class="btn sm" id="nextBtn">Next ▶</button>
-        </div>
-      </div>
-
-      <div class="controls-main">
-        <label for="version">Version</label>
-        <select id="version" title="Choose Bible version"></select>
-
-        <label for="book">Book</label>
-        <select id="book" title="Choose book"></select>
-
-        <label for="chap">Chapter</label>
-        <select id="chap" title="Choose chapter"></select>
-      </div>
-    </div>
-  </div>
-
-  <!-- READER -->
   <div class="reader-card">
     <iframe id="reader" class="reader-frame" title="YouVersion Bible reader"
             referrerpolicy="no-referrer-when-downgrade"
@@ -212,8 +117,6 @@ footer a{color:#c7f2d8;}
       <span id="readerLoadingText">Loading the Word…</span>
     </div>
   </div>
-
-  <div class="attribution" id="attribution"></div>
 
   <footer>
     Powered by <a href="https://www.youversion.com/" target="_blank" rel="noopener">YouVersion</a>
@@ -226,439 +129,140 @@ footer a{color:#c7f2d8;}
 (function(){
   'use strict';
 
-  // The reader is YouVersion's own bible.com page in an iframe. Everything in
-  // here exists to drive that iframe's URL, which looks like:
-  //   https://www.bible.com/bible/{versionId}/{BOOK}.{CHAPTER}.{ABBREV}
+  // This page is a thin frame around YouVersion's own bible.com reader. That
+  // reader carries its own version and chapter pickers, so this file only picks
+  // the STARTING passage — anything after that happens inside the iframe, which
+  // is cross-origin and deliberately not driven from here.
   var YV_BASE = 'https://www.bible.com/bible/';
-  var STORE_KEY = 'pp-bible-loc';
 
-  // Config problems are Phil's business, not a visitor's — the page still reads
-  // fine without the API, so those notices only surface locally or with ?debug=1.
-  var DEBUG = /[?&]debug=1\b/.test(location.search) ||
-              /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  // Where the reader opens. Change these two to change the default translation.
+  // ids verified on bible.com: NIV 111, NLT 116, NKJV 114, AMP 1588,
+  // MSG 97, GNT 68 (Good News is 68 — 72 is HCSB).
+  var DEFAULT_VERSION = 97;
+  var DEFAULT_ABBREV  = 'MSG';
+  var DEFAULT_BOOK    = 'JHN';
+  var DEFAULT_CHAPTER = 3;
 
-  // The six translations Phil wants offered, English only. This is the whole
-  // picker — deliberately a fixed list rather than the Platform catalogue, which
-  // runs to 1,479 versions across every language.
-  //
-  // `platform:false` means the YouVersion *Platform API* does not carry it: MSG,
-  // NLT, NKJV and GNT all 404 from /v1/bibles. That limits the API only. The
-  // reader is an embed of bible.com, which serves them, so they render fine —
-  // they just get no copyright line and no API chapter counts, which is why
-  // loadBooks() skips the call for them and uses the canon table instead.
-  //
-  // Every id and abbreviation below was checked against bible.com; note 68 is
-  // Good News, NOT 72 (that is HCSB, which still returns 200 for a GNT URL).
-  var VERSIONS = [
-    {id:111,  abbreviation:'NIV',  title:'New International Version', platform:true },
-    {id:116,  abbreviation:'NLT',  title:'New Living Translation',    platform:false},
-    {id:114,  abbreviation:'NKJV', title:'New King James Version',    platform:false},
-    {id:1588, abbreviation:'AMP',  title:'Amplified Bible',           platform:true },
-    {id:97,   abbreviation:'MSG',  title:'The Message',               platform:false},
-    {id:68,   abbreviation:'GNT',  title:'Good News Translation',     platform:false}
-  ];
+  // Book titles for resolving ?ref=John 3:16 into USFM. No chapter counts are
+  // needed any more — bible.com handles navigation once the frame is loaded.
+  var BOOKS = ('GEN:Genesis,EXO:Exodus,LEV:Leviticus,NUM:Numbers,DEU:Deuteronomy,JOS:Joshua,' +
+    'JDG:Judges,RUT:Ruth,1SA:1 Samuel,2SA:2 Samuel,1KI:1 Kings,2KI:2 Kings,1CH:1 Chronicles,' +
+    '2CH:2 Chronicles,EZR:Ezra,NEH:Nehemiah,EST:Esther,JOB:Job,PSA:Psalms,PRO:Proverbs,' +
+    'ECC:Ecclesiastes,SNG:Song of Solomon,ISA:Isaiah,JER:Jeremiah,LAM:Lamentations,EZK:Ezekiel,' +
+    'DAN:Daniel,HOS:Hosea,JOL:Joel,AMO:Amos,OBA:Obadiah,JON:Jonah,MIC:Micah,NAM:Nahum,' +
+    'HAB:Habakkuk,ZEP:Zephaniah,HAG:Haggai,ZEC:Zechariah,MAL:Malachi,MAT:Matthew,MRK:Mark,' +
+    'LUK:Luke,JHN:John,ACT:Acts,ROM:Romans,1CO:1 Corinthians,2CO:2 Corinthians,GAL:Galatians,' +
+    'EPH:Ephesians,PHP:Philippians,COL:Colossians,1TH:1 Thessalonians,2TH:2 Thessalonians,' +
+    '1TI:1 Timothy,2TI:2 Timothy,TIT:Titus,PHM:Philemon,HEB:Hebrews,JAS:James,1PE:1 Peter,' +
+    '2PE:2 Peter,1JN:1 John,2JN:2 John,3JN:3 John,JUD:Jude,REV:Revelation').split(',')
+    .map(function(row){ var p = row.split(':'); return { id:p[0], title:p[1] }; });
 
-  // The 66-book Protestant canon as USFM:Title:ChapterCount. Chapter counts do
-  // not vary between translations of it, so this keeps book and chapter
-  // navigation working before (or without) a reply from /api/yv-books.
-  var FALLBACK_CANON = ('GEN:Genesis:50,EXO:Exodus:40,LEV:Leviticus:27,NUM:Numbers:36,DEU:Deuteronomy:34,' +
-    'JOS:Joshua:24,JDG:Judges:21,RUT:Ruth:4,1SA:1 Samuel:31,2SA:2 Samuel:24,1KI:1 Kings:22,2KI:2 Kings:25,' +
-    '1CH:1 Chronicles:29,2CH:2 Chronicles:36,EZR:Ezra:10,NEH:Nehemiah:13,EST:Esther:10,JOB:Job:42,' +
-    'PSA:Psalms:150,PRO:Proverbs:31,ECC:Ecclesiastes:12,SNG:Song of Solomon:8,ISA:Isaiah:66,JER:Jeremiah:52,' +
-    'LAM:Lamentations:5,EZK:Ezekiel:48,DAN:Daniel:12,HOS:Hosea:14,JOL:Joel:3,AMO:Amos:9,OBA:Obadiah:1,' +
-    'JON:Jonah:4,MIC:Micah:7,NAM:Nahum:3,HAB:Habakkuk:3,ZEP:Zephaniah:3,HAG:Haggai:2,ZEC:Zechariah:14,' +
-    'MAL:Malachi:4,MAT:Matthew:28,MRK:Mark:16,LUK:Luke:24,JHN:John:21,ACT:Acts:28,ROM:Romans:16,' +
-    '1CO:1 Corinthians:16,2CO:2 Corinthians:13,GAL:Galatians:6,EPH:Ephesians:6,PHP:Philippians:4,' +
-    'COL:Colossians:4,1TH:1 Thessalonians:5,2TH:2 Thessalonians:3,1TI:1 Timothy:6,2TI:2 Timothy:4,' +
-    'TIT:Titus:3,PHM:Philemon:1,HEB:Hebrews:13,JAS:James:5,1PE:1 Peter:5,2PE:2 Peter:3,1JN:1 John:5,' +
-    '2JN:2 John:1,3JN:3 John:1,JUD:Jude:1,REV:Revelation:22').split(',').map(function(row){
-      var p = row.split(':');
-      return { id:p[0], title:p[1], chapters:parseInt(p[2],10) };
-    });
-
-  var state = {
-    versions: VERSIONS.slice(),
-    books: FALLBACK_CANON,
-    versionId: 97,
-    abbrev: 'MSG',
-    bookId: 'JHN',
-    chapter: 3,
-    verse: null,          // set only when arriving at a specific verse
-    controlsCollapsed: false
+  // Names in common use that are not a prefix of the canon title above.
+  var ALIASES = {
+    'psalm':'PSA', 'psalms':'PSA', 'canticles':'SNG', 'song of songs':'SNG', 'songs':'SNG',
+    'revelations':'REV', 'apocalypse':'REV', 'acts of the apostles':'ACT'
   };
 
-  var versionSel     = document.getElementById('version');
-  var bookSel        = document.getElementById('book');
-  var chapSel        = document.getElementById('chap');
-  var prevBtn        = document.getElementById('prevBtn');
-  var nextBtn        = document.getElementById('nextBtn');
-  var reader         = document.getElementById('reader');
-  var readerLoad     = document.getElementById('readerLoading');
-  var readerLoadText = document.getElementById('readerLoadingText');
-  var collapseBtn    = document.getElementById('collapseBtn');
-  var controlsEl     = document.getElementById('controls');
-  var collapsedLabel = document.getElementById('collapsedLabel');
-  var attribution    = document.getElementById('attribution');
-  var openYV         = document.getElementById('openYV');
-  var notice         = document.getElementById('notice');
-  var noticeText     = document.getElementById('noticeText');
+  var reader     = document.getElementById('reader');
+  var loader     = document.getElementById('readerLoading');
+  var loaderText = document.getElementById('readerLoadingText');
+  var openYV     = document.getElementById('openYV');
 
-  function showNotice(html){
-    noticeText.innerHTML = html;
-    notice.classList.add('show');
-  }
-
-  function bookById(id){
-    for (var i = 0; i < state.books.length; i++){
-      if (state.books[i].id === id) return state.books[i];
-    }
-    return null;
-  }
-
-  function bookIndex(id){
-    for (var i = 0; i < state.books.length; i++){
-      if (state.books[i].id === id) return i;
-    }
-    return -1;
-  }
-
-  // ── Reference parsing ────────────────────────────────────────────────────
-
-  // A few names in common use that are not a prefix of the canon title, so
-  // plain prefix matching would miss them.
-  var BOOK_ALIASES = {
-    'psalm':'PSA', 'psalms':'PSA', 'canticles':'SNG', 'song of songs':'SNG',
-    'songs':'SNG', 'ecclesiastes':'ECC', 'revelations':'REV', 'apocalypse':'REV',
-    'acts of the apostles':'ACT'
-  };
-
-  // Accepts "John", "1 Peter", "Psalm", "Jhn", or a raw USFM id like "JHN".
+  // Accepts "John", "1 Peter", "Psalm", "I John", "1st Corinthians", or "JHN".
   function resolveBook(name){
     var n = String(name || '').toLowerCase().replace(/\./g,'').replace(/\s+/g,' ').trim();
     if (!n) return null;
-    if (BOOK_ALIASES[n]) return BOOK_ALIASES[n];
+    if (ALIASES[n]) return ALIASES[n];
 
-    // Roman / ordinal prefixes used in the wild: "I John", "1st John".
     n = n.replace(/^i{1,3}\s+/, function(m){ return m.trim().length + ' '; })
          .replace(/^(\d)(?:st|nd|rd|th)\s+/, '$1 ');
 
-    var i, b, title;
-    for (i = 0; i < state.books.length; i++){
-      if (state.books[i].id.toLowerCase() === n) return state.books[i].id;
+    var i, title;
+    for (i = 0; i < BOOKS.length; i++){
+      if (BOOKS[i].id.toLowerCase() === n) return BOOKS[i].id;
     }
-    for (i = 0; i < state.books.length; i++){
-      title = state.books[i].title.toLowerCase().replace(/\s+/g,' ');
-      if (title === n) return state.books[i].id;
+    for (i = 0; i < BOOKS.length; i++){
+      if (BOOKS[i].title.toLowerCase() === n) return BOOKS[i].id;
     }
-    for (i = 0; i < state.books.length; i++){
-      b = state.books[i];
-      title = b.title.toLowerCase().replace(/\s+/g,' ');
-      if (title.indexOf(n) === 0 || n.indexOf(title) === 0) return b.id;
+    for (i = 0; i < BOOKS.length; i++){
+      title = BOOKS[i].title.toLowerCase();
+      if (title.indexOf(n) === 0 || n.indexOf(title) === 0) return BOOKS[i].id;
     }
     return null;
   }
 
-  // "John 3:16", "1 Peter 5:7", "Psalm 23", "JHN 3:16"
-  function parseRef(ref){
-    var m = /^(.+?)\s+(\d+)(?::(\d+))?/.exec(String(ref || '').trim());
+  // index.html's verse-of-the-day card and the journal widget both link here as
+  // /bible.html?ref=John%203:16, so that has to keep working.
+  function fromRefParam(){
+    var ref = '';
+    try { ref = new URLSearchParams(location.search).get('ref') || ''; } catch (e){}
+    if (!ref) return null;
+
+    var m = /^(.+?)\s+(\d+)(?::(\d+))?/.exec(ref.trim());
     if (!m) return null;
     var bookId = resolveBook(m[1]);
     if (!bookId) return null;
-    return { bookId: bookId, chapter: parseInt(m[2], 10), verse: m[3] ? parseInt(m[3], 10) : null };
+
+    return {
+      versionId: DEFAULT_VERSION,
+      abbrev: DEFAULT_ABBREV,
+      bookId: bookId,
+      chapter: parseInt(m[2], 10),
+      verse: m[3] ? parseInt(m[3], 10) : null
+    };
   }
 
-  // ── Location: ?ref= wins, then URL hash, then localStorage, then John 3 ──
-
-  function readHash(){
+  // Shareable deep links, e.g. #97/JHN.3 or #111/PSA.23.1
+  function fromHash(){
     var m = /^#(\d+)\/([A-Za-z0-9]{3})\.(\d+)(?:\.(\d+))?$/.exec(location.hash || '');
     if (!m) return null;
     return {
       versionId: parseInt(m[1], 10),
+      abbrev: '',
       bookId: m[2].toUpperCase(),
       chapter: parseInt(m[3], 10),
       verse: m[4] ? parseInt(m[4], 10) : null
     };
   }
 
-  // index.html's verse-of-the-day card and the journal widget both link here as
-  // /bible.html?ref=John%203:16, so that has to keep working.
-  function readRefParam(){
-    var ref = '';
-    try { ref = new URLSearchParams(location.search).get('ref') || ''; } catch (e){}
-    if (!ref) return null;
-    var parsed = parseRef(ref);
-    if (!parsed) return null;
-    return { versionId: state.versionId, bookId: parsed.bookId, chapter: parsed.chapter, verse: parsed.verse };
+  function startingPassage(){
+    return fromRefParam() || fromHash() || {
+      versionId: DEFAULT_VERSION,
+      abbrev: DEFAULT_ABBREV,
+      bookId: DEFAULT_BOOK,
+      chapter: DEFAULT_CHAPTER,
+      verse: null
+    };
   }
 
-  function restoreLocation(){
-    var loc = readRefParam();
-
-    // Arriving from a devotional link: get out of the way of the passage.
-    if (loc){
-      state.controlsCollapsed = true;
-      controlsEl.classList.add('collapsed');
-      collapseBtn.textContent = '▼';
-      collapseBtn.title = 'Show controls';
-    }
-
-    if (!loc) loc = readHash();
-    if (!loc){
-      try {
-        var saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-        if (saved && saved.versionId && saved.bookId && saved.chapter) loc = saved;
-      } catch (e){}
-    }
-    if (loc){
-      state.versionId = loc.versionId;
-      state.bookId    = loc.bookId;
-      state.chapter   = loc.chapter;
-      state.verse     = loc.verse || null;
-    }
+  function buildUrl(p){
+    var usfm = p.bookId + '.' + p.chapter + (p.verse ? '.' + p.verse : '');
+    return YV_BASE + p.versionId + '/' + usfm + (p.abbrev ? '.' + p.abbrev : '');
   }
 
-  function persistLocation(){
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({
-        versionId: state.versionId, bookId: state.bookId, chapter: state.chapter
-      }));
-    } catch (e){}
+  var passage = startingPassage();
+  var url = buildUrl(passage);
 
-    var hash = '#' + state.versionId + '/' + state.bookId + '.' + state.chapter +
-               (state.verse ? '.' + state.verse : '');
-    if (location.hash !== hash){
-      history.replaceState(null, '', location.pathname + location.search + hash);
-    }
-  }
+  var bookTitle = passage.bookId;
+  BOOKS.forEach(function(b){ if (b.id === passage.bookId) bookTitle = b.title; });
+  document.title = bookTitle + ' ' + passage.chapter +
+                   (passage.verse ? ':' + passage.verse : '') + ' — The Word';
 
-  // ── Rendering ────────────────────────────────────────────────────────────
+  reader.src = url;
+  openYV.href = url;
 
-  function fillVersions(){
-    versionSel.innerHTML = '';
-    state.versions.forEach(function(v){
-      var o = document.createElement('option');
-      o.value = v.id;
-      o.textContent = v.abbreviation + ' — ' + v.title;
-      o.setAttribute('data-abbrev', v.abbreviation);
-      versionSel.appendChild(o);
-    });
-
-    // Keep the restored version if the list still carries it.
-    var match = null;
-    for (var i = 0; i < state.versions.length; i++){
-      if (state.versions[i].id === state.versionId) match = state.versions[i];
-    }
-    if (!match && state.versions.length){
-      match = state.versions[0];
-      state.versionId = match.id;
-    }
-    if (match){
-      state.abbrev = match.abbreviation;
-      versionSel.value = String(state.versionId);
-    }
-  }
-
-  function fillBooks(){
-    bookSel.innerHTML = '';
-    state.books.forEach(function(b){
-      var o = document.createElement('option');
-      o.value = b.id;
-      o.textContent = b.title;
-      bookSel.appendChild(o);
-    });
-    if (!bookById(state.bookId) && state.books.length) state.bookId = state.books[0].id;
-    bookSel.value = state.bookId;
-  }
-
-  function fillChapters(){
-    var b = bookById(state.bookId);
-    var total = b ? b.chapters : 1;
-    if (state.chapter > total || state.chapter < 1) state.chapter = 1;
-
-    chapSel.innerHTML = '';
-    for (var i = 1; i <= total; i++){
-      var o = document.createElement('option');
-      o.value = i;
-      o.textContent = 'Chapter ' + i;
-      chapSel.appendChild(o);
-    }
-    chapSel.value = String(state.chapter);
-  }
-
-  function updateLabels(){
-    var b = bookById(state.bookId);
-    var ref = (b ? b.title : state.bookId) + ' ' + state.chapter +
-              (state.verse ? ':' + state.verse : '');
-    collapsedLabel.textContent = ref + (state.abbrev ? ' · ' + state.abbrev : '');
-    document.title = ref + ' — The Word';
-
-    var idx = bookIndex(state.bookId);
-    prevBtn.disabled = (idx === 0 && state.chapter <= 1);
-    nextBtn.disabled = (idx === state.books.length - 1 && !!b && state.chapter >= b.chapters);
-  }
-
-  function readerUrl(){
-    var usfm = state.bookId + '.' + state.chapter + (state.verse ? '.' + state.verse : '');
-    return YV_BASE + state.versionId + '/' + usfm + (state.abbrev ? '.' + state.abbrev : '');
-  }
-
-  function loadReader(){
-    var url = readerUrl();
-    readerLoad.classList.remove('hidden');
-    readerLoadText.textContent = 'Loading the Word…';
-    reader.src = url;
-    openYV.href = url;
-    persistLocation();
-    updateLabels();
-  }
-
-  reader.addEventListener('load', function(){
-    readerLoad.classList.add('hidden');
-  });
+  reader.addEventListener('load', function(){ loader.classList.add('hidden'); });
 
   // bible.com is a heavy page. If it still has not painted after 12s the usual
-  // cause is a browser or extension blocking third-party frames, so surface a
+  // cause is a browser or extension blocking third-party frames, so offer a
   // direct link rather than leaving a spinner up forever.
-  setInterval(function(){
-    if (readerLoad.classList.contains('hidden')) return;
-    if (!reader.src) return;
-    readerLoadText.innerHTML = 'Still loading… if nothing appears, your browser may be blocking ' +
-      'embedded frames — <a href="' + readerUrl() + '" target="_blank" rel="noopener">' +
+  setTimeout(function(){
+    if (loader.classList.contains('hidden')) return;
+    loaderText.innerHTML = 'Still loading… if nothing appears, your browser may be blocking ' +
+      'embedded frames — <a href="' + url + '" target="_blank" rel="noopener">' +
       'open this chapter on YouVersion ↗</a>';
-    readerLoad.style.pointerEvents = 'auto';
+    loader.style.pointerEvents = 'auto';
   }, 12000);
-
-  // ── Navigation ───────────────────────────────────────────────────────────
-
-  function step(delta){
-    var idx = bookIndex(state.bookId);
-    if (idx < 0) return;
-
-    // Stepping away from a linked verse returns to whole-chapter reading.
-    state.verse = null;
-
-    var target = state.chapter + delta;
-    if (target < 1){
-      if (idx === 0) return;
-      state.bookId  = state.books[idx - 1].id;
-      state.chapter = state.books[idx - 1].chapters;
-    } else if (target > state.books[idx].chapters){
-      if (idx === state.books.length - 1) return;
-      state.bookId  = state.books[idx + 1].id;
-      state.chapter = 1;
-    } else {
-      state.chapter = target;
-    }
-
-    fillBooks();
-    fillChapters();
-    loadReader();
-  }
-
-  prevBtn.addEventListener('click', function(){ step(-1); });
-  nextBtn.addEventListener('click', function(){ step(1); });
-
-  versionSel.addEventListener('change', function(){
-    state.versionId = parseInt(versionSel.value, 10);
-    var opt = versionSel.options[versionSel.selectedIndex];
-    state.abbrev = opt ? (opt.getAttribute('data-abbrev') || '') : '';
-    loadBooks(state.versionId).then(loadReader);
-  });
-
-  bookSel.addEventListener('change', function(){
-    state.bookId  = bookSel.value;
-    state.chapter = 1;
-    state.verse   = null;
-    fillChapters();
-    loadReader();
-  });
-
-  chapSel.addEventListener('change', function(){
-    state.chapter = parseInt(chapSel.value, 10);
-    state.verse   = null;
-    loadReader();
-  });
-
-  collapseBtn.addEventListener('click', function(){
-    state.controlsCollapsed = !state.controlsCollapsed;
-    controlsEl.classList.toggle('collapsed', state.controlsCollapsed);
-    collapseBtn.textContent = state.controlsCollapsed ? '▼' : '▲';
-  });
-
-  document.addEventListener('keydown', function(e){
-    if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
-    if (e.key === 'ArrowLeft')  step(-1);
-    if (e.key === 'ArrowRight') step(1);
-  });
-
-  window.addEventListener('hashchange', function(){
-    var loc = readHash();
-    if (!loc) return;
-
-    var versionChanged = loc.versionId !== state.versionId;
-    state.versionId = loc.versionId;
-    state.bookId    = loc.bookId;
-    state.chapter   = loc.chapter;
-    state.verse     = loc.verse || null;
-
-    if (versionChanged){
-      versionSel.value = String(state.versionId);
-      loadBooks(state.versionId).then(loadReader);
-      return;
-    }
-    fillBooks();
-    fillChapters();
-    loadReader();
-  });
-
-  // ── Data ─────────────────────────────────────────────────────────────────
-
-  function loadBooks(versionId){
-    // MSG, NLT, NKJV and GNT are bible.com-only — the Platform API 404s on
-    // them, so don't bother asking; the canon table covers their structure.
-    var known = null;
-    VERSIONS.forEach(function(v){ if (v.id === versionId) known = v; });
-    if (known && known.platform === false){
-      state.books = FALLBACK_CANON;
-      attribution.textContent = '';
-      fillBooks();
-      fillChapters();
-      return Promise.resolve();
-    }
-
-    return fetch('/api/yv-books?version=' + encodeURIComponent(versionId))
-      .then(function(r){
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function(data){
-        if (data.error || !data.books || !data.books.length) throw new Error(data.error || 'no books');
-        state.books = data.books;
-        if (data.abbreviation) state.abbrev = data.abbreviation;
-        // Showing the copyright line is a condition of the publisher licence.
-        attribution.textContent = data.copyright
-          ? (data.title ? data.title + ' — ' : '') + data.copyright
-          : '';
-      })
-      .catch(function(){
-        state.books = FALLBACK_CANON;
-        attribution.textContent = '';
-      })
-      .then(function(){
-        fillBooks();
-        fillChapters();
-      });
-  }
-
-  // ── Boot ─────────────────────────────────────────────────────────────────
-
-  restoreLocation();
-  fillVersions();
-  fillBooks();
-  fillChapters();
-  updateLabels();
-
-  loadBooks(state.versionId).then(loadReader);
 
 })();
 </script>
