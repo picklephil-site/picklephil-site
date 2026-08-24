@@ -145,6 +145,9 @@ body{
 
 footer{margin:26px 0 40px;opacity:.7;font-size:.9rem;text-align:center;}
 footer a{color:#c7f2d8;}
+.footer-alt{margin-top:6px;font-size:.78rem;opacity:.55;}
+.footer-alt a{color:inherit;text-decoration:underline;}
+.footer-alt a:hover{opacity:.85;}
 
 @media(max-width:700px){
   .wrap{padding:14px;}
@@ -164,7 +167,6 @@ footer a{color:#c7f2d8;}
     <h1>📖 The Word</h1>
     <div class="topnav-right">
       <a class="btn ghost sm" id="openYV" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion ↗</a>
-      <a class="btn ghost sm" href="/bible-classic.html">Classic reader</a>
       <a class="btn ghost sm" href="/">← Home</a>
     </div>
   </nav>
@@ -216,6 +218,7 @@ footer a{color:#c7f2d8;}
   <footer>
     Powered by <a href="https://www.youversion.com/" target="_blank" rel="noopener">YouVersion</a>
     &nbsp;·&nbsp; Pickle Phil · Stay Crunchy 🥒
+    <div class="footer-alt"><a href="/bible-classic.html">Prefer the classic reader?</a></div>
   </footer>
 </div>
 
@@ -234,28 +237,25 @@ footer a{color:#c7f2d8;}
   var DEBUG = /[?&]debug=1\b/.test(location.search) ||
               /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
-  // Versions pinned to the top of the picker. These are always present, even if
-  // /api/yv-versions is unreachable, so the everyday reading translations never
-  // disappear because of a config problem.
+  // The six translations Phil wants offered, English only. This is the whole
+  // picker — deliberately a fixed list rather than the Platform catalogue, which
+  // runs to 1,479 versions across every language.
   //
-  // `platform:false` means the YouVersion *Platform API* does not carry it — MSG,
-  // KJV, ESV, NLT and NKJV all return 404 from /v1/bibles. That only limits the
-  // API; bible.com serves them, and the reader is an embed of bible.com, so they
-  // render fine. It does mean no copyright line and no API chapter counts for
-  // them, which is why loadBooks() skips the call and uses the canon table.
-  var CORE_VERSIONS = [
-    {id:97,   abbreviation:'MSG',      title:'The Message',                      platform:false},
-    {id:111,  abbreviation:'NIV11',    title:'New International Version',        platform:true },
-    {id:1,    abbreviation:'KJV',      title:'King James Version',               platform:false},
-    {id:59,   abbreviation:'ESV',      title:'English Standard Version',         platform:false},
-    {id:116,  abbreviation:'NLT',      title:'New Living Translation',           platform:false},
-    {id:114,  abbreviation:'NKJV',     title:'New King James Version',           platform:false},
-    {id:1588, abbreviation:'AMP',      title:'Amplified Bible',                  platform:true },
-    {id:2692, abbreviation:'NASB2020', title:'New American Standard Bible',      platform:true },
-    {id:12,   abbreviation:'ASV',      title:'American Standard Version',        platform:true },
-    {id:3034, abbreviation:'BSB',      title:'Berean Standard Bible',            platform:true },
-    {id:2660, abbreviation:'LSV',      title:'Literal Standard Version',         platform:true },
-    {id:110,  abbreviation:'NIrV',     title:'New International Reader’s Version', platform:true }
+  // `platform:false` means the YouVersion *Platform API* does not carry it: MSG,
+  // NLT, NKJV and GNT all 404 from /v1/bibles. That limits the API only. The
+  // reader is an embed of bible.com, which serves them, so they render fine —
+  // they just get no copyright line and no API chapter counts, which is why
+  // loadBooks() skips the call for them and uses the canon table instead.
+  //
+  // Every id and abbreviation below was checked against bible.com; note 68 is
+  // Good News, NOT 72 (that is HCSB, which still returns 200 for a GNT URL).
+  var VERSIONS = [
+    {id:111,  abbreviation:'NIV',  title:'New International Version', platform:true },
+    {id:116,  abbreviation:'NLT',  title:'New Living Translation',    platform:false},
+    {id:114,  abbreviation:'NKJV', title:'New King James Version',    platform:false},
+    {id:1588, abbreviation:'AMP',  title:'Amplified Bible',           platform:true },
+    {id:97,   abbreviation:'MSG',  title:'The Message',               platform:false},
+    {id:68,   abbreviation:'GNT',  title:'Good News Translation',     platform:false}
   ];
 
   // The 66-book Protestant canon as USFM:Title:ChapterCount. Chapter counts do
@@ -277,7 +277,7 @@ footer a{color:#c7f2d8;}
     });
 
   var state = {
-    versions: CORE_VERSIONS.slice(),
+    versions: VERSIONS.slice(),
     books: FALLBACK_CANON,
     versionId: 97,
     abbrev: 'MSG',
@@ -433,34 +433,17 @@ footer a{color:#c7f2d8;}
 
   // ── Rendering ────────────────────────────────────────────────────────────
 
-  function addVersionOption(parent, v){
-    var o = document.createElement('option');
-    o.value = v.id;
-    o.textContent = v.abbreviation + ' — ' + v.title;
-    o.setAttribute('data-abbrev', v.abbreviation);
-    parent.appendChild(o);
-  }
-
   function fillVersions(){
     versionSel.innerHTML = '';
+    state.versions.forEach(function(v){
+      var o = document.createElement('option');
+      o.value = v.id;
+      o.textContent = v.abbreviation + ' — ' + v.title;
+      o.setAttribute('data-abbrev', v.abbreviation);
+      versionSel.appendChild(o);
+    });
 
-    // Everyday translations first, then the long tail from the Platform API.
-    var coreIds = CORE_VERSIONS.map(function(v){ return v.id; });
-    var rest = state.versions.filter(function(v){ return coreIds.indexOf(v.id) === -1; });
-
-    var gCore = document.createElement('optgroup');
-    gCore.label = 'Popular';
-    CORE_VERSIONS.forEach(function(v){ addVersionOption(gCore, v); });
-    versionSel.appendChild(gCore);
-
-    if (rest.length){
-      var gRest = document.createElement('optgroup');
-      gRest.label = 'More versions';
-      rest.forEach(function(v){ addVersionOption(gRest, v); });
-      versionSel.appendChild(gRest);
-    }
-
-    // Keep the restored version if this catalogue still carries it.
+    // Keep the restored version if the list still carries it.
     var match = null;
     for (var i = 0; i < state.versions.length; i++){
       if (state.versions[i].id === state.versionId) match = state.versions[i];
@@ -630,53 +613,12 @@ footer a{color:#c7f2d8;}
 
   // ── Data ─────────────────────────────────────────────────────────────────
 
-  function loadVersions(){
-    return fetch('/api/yv-versions?lang=en')
-      .then(function(r){
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function(data){
-        if (data.error) throw new Error(data.error);
-        if (!data.versions || !data.versions.length) throw new Error('empty catalogue');
-
-        // Merge, never replace: the core list must survive an API hiccup, and
-        // MSG/KJV/ESV/NLT/NKJV are not in the Platform catalogue at all.
-        var seen = {};
-        var merged = CORE_VERSIONS.slice();
-        merged.forEach(function(v){ seen[v.id] = true; });
-        data.versions.forEach(function(v){
-          if (!seen[v.id]){ seen[v.id] = true; merged.push(v); }
-        });
-        state.versions = merged;
-
-        if (!data.licensed && DEBUG){
-          showNotice('No Bible licences are accepted for this app key, so this is YouVersion’s ' +
-            'full English catalogue rather than your licensed set. Accept the agreements at ' +
-            '<a href="https://platform.youversion.com" target="_blank" rel="noopener">' +
-            'platform.youversion.com</a>. The reader works either way.');
-        }
-      })
-      .catch(function(err){
-        // The core list still covers everyday reading, so this is a quiet
-        // degradation for visitors — but say so where Phil will see it.
-        state.versions = CORE_VERSIONS.slice();
-        if (DEBUG){
-          showNotice('Could not reach the version catalogue (' + err.message + '), so only the ' +
-            'built-in list is showing. The live site needs <code>YOUVERSION_APP_KEY</code> set in ' +
-            'the Cloudflare Pages environment variables.');
-        }
-        if (window.console) console.warn('[bible] version catalogue unavailable:', err.message);
-      })
-      .then(fillVersions);
-  }
-
   function loadBooks(versionId){
-    // MSG, KJV, ESV and friends are bible.com-only — the Platform API 404s on
+    // MSG, NLT, NKJV and GNT are bible.com-only — the Platform API 404s on
     // them, so don't bother asking; the canon table covers their structure.
-    var core = null;
-    CORE_VERSIONS.forEach(function(v){ if (v.id === versionId) core = v; });
-    if (core && core.platform === false){
+    var known = null;
+    VERSIONS.forEach(function(v){ if (v.id === versionId) known = v; });
+    if (known && known.platform === false){
       state.books = FALLBACK_CANON;
       attribution.textContent = '';
       fillBooks();
@@ -711,13 +653,12 @@ footer a{color:#c7f2d8;}
   // ── Boot ─────────────────────────────────────────────────────────────────
 
   restoreLocation();
+  fillVersions();
   fillBooks();
   fillChapters();
   updateLabels();
 
-  loadVersions()
-    .then(function(){ return loadBooks(state.versionId); })
-    .then(loadReader);
+  loadBooks(state.versionId).then(loadReader);
 
 })();
 </script>
