@@ -111,7 +111,9 @@ footer a{color:#c7f2d8;}
 @media(max-width:700px){
   .wrap{padding:8px 10px 12px;}
   .topnav{padding:2px 0 8px; gap:6px;}
-  .topnav h1{font-size:1.6rem;}
+  /* Small enough that the title and all three buttons share one row at 375px
+     — wrapping them costs ~28px of reading area. */
+  .topnav h1{font-size:1.35rem;}
   .topnav-right{gap:6px;}
   .btn.sm{padding:6px 10px; font-size:.78rem;}
   .reader-card{min-height:76vh; border-radius:14px;}
@@ -125,7 +127,12 @@ footer a{color:#c7f2d8;}
   <nav class="topnav">
     <h1>📖 The Word</h1>
     <div class="topnav-right">
-      <a class="btn ghost sm" id="openYV" href="https://www.bible.com/" target="_blank" rel="noopener">Open in YouVersion ↗</a>
+      <!-- Plans open in a new tab on purpose. Starting or tracking one needs a
+           YouVersion login, and login.youversion.com sends X-Frame-Options: DENY,
+           so it can never render in the embed below — and third-party cookie
+           partitioning would drop the session even if it could. -->
+      <a class="btn ghost sm" href="https://www.bible.com/reading-plans" target="_blank" rel="noopener">Plans ↗</a>
+      <a class="btn ghost sm" id="openYV" href="https://www.bible.com/" target="_blank" rel="noopener">YouVersion ↗</a>
       <a class="btn ghost sm" href="/">← Home</a>
     </div>
   </nav>
