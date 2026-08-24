@@ -127,11 +127,12 @@ footer a{color:#c7f2d8;}
   <nav class="topnav">
     <h1>📖 The Word</h1>
     <div class="topnav-right">
-      <!-- Plans open in a new tab on purpose. Starting or tracking one needs a
-           YouVersion login, and login.youversion.com sends X-Frame-Options: DENY,
-           so it can never render in the embed below — and third-party cookie
-           partitioning would drop the session even if it could. -->
-      <a class="btn ghost sm" href="https://www.bible.com/reading-plans" target="_blank" rel="noopener">Plans ↗</a>
+      <!-- No Plans link here. YouVersion plans need an account, and they cannot
+           run on this page by any route: login.youversion.com sends
+           X-Frame-Options: DENY so the sign-in can never render in the embed,
+           and the Platform API has no plans endpoint (/v1/plans is a 404). On a
+           phone the link also hands off to the installed app, which defeats the
+           point of keeping people here. -->
       <a class="btn ghost sm" id="openYV" href="https://www.bible.com/" target="_blank" rel="noopener">YouVersion ↗</a>
       <a class="btn ghost sm" href="/">← Home</a>
     </div>
