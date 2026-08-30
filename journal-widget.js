@@ -456,16 +456,19 @@
   ];
 
   // ── In-journal Bible browser ─────────────────────────────────────────
-  // Embeds the site's full reader (/bible.html — book/chapter picker,
-  // translations, keyword search, tap-to-highlight). Same-origin, so we
-  // read the highlighted selection straight out of the iframe.
+  // Embeds /bible-classic.html, NOT /bible.html. This picker works by reading
+  // the highlighted verses straight out of the iframe's DOM, which needs a
+  // same-origin reader that renders the text itself (#copyBarRef and
+  // .verse-block.selected). /bible.html is now an embed of bible.com — the
+  // scripture there lives in a cross-origin frame we are not allowed to read,
+  // so pointing this at it silently breaks "Use highlighted verse".
   function openBibleBrowser(onPick) {
     const bo = document.createElement('div');
     bo.className = 'jw-overlay';
     bo.style.zIndex = '1000000';
     bo.innerHTML = `
       <div style="width:96%;max-width:640px;height:88vh;display:flex;flex-direction:column;background:#141414;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden;">
-        <iframe src="/bible.html" style="flex:1;width:100%;border:none;"></iframe>
+        <iframe src="/bible-classic.html" style="flex:1;width:100%;border:none;"></iframe>
         <div style="display:flex;gap:8px;padding:10px;background:#1c1c1c;">
           <button class="jw-btn jw-bible-use" style="flex:1;">✓ Use highlighted verse</button>
           <button class="jw-minibtn jw-bible-cancel">Cancel</button>
