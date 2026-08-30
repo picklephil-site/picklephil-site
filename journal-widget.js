@@ -765,6 +765,13 @@
     }, { passive: false });
   }
 
+  // Lets a page open the journal from its own control instead of the hidden
+  // double-tap. The Bible page uses this for its Notes link; the double-tap on
+  // #site-footer keeps working everywhere regardless.
+  window.openJournal = function () {
+    if (!overlay) showLockScreen();
+  };
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

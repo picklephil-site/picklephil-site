@@ -150,10 +150,16 @@ footer a{color:#c7f2d8;}
     </div>
   </div>
 
-  <footer>
+  <!-- id="site-footer" is the journal's hidden trigger: double-tap it to open
+       the PIN-locked notepad. Deliberately invisible — no button, no space. -->
+  <footer id="site-footer">
     Powered by <a href="https://www.youversion.com/" target="_blank" rel="noopener">YouVersion</a>
     &nbsp;·&nbsp; Pickle Phil · Stay Crunchy 🥒
-    <div class="footer-alt"><a href="/bible-classic.html">Prefer the classic reader?</a></div>
+    <div class="footer-alt">
+      <a href="#" id="notesLink">📝 My notes</a>
+      &nbsp;·&nbsp;
+      <a href="/bible-classic.html">Prefer the classic reader?</a>
+    </div>
   </footer>
 </div>
 
@@ -347,8 +353,22 @@ footer a{color:#c7f2d8;}
 
   show();
 
+  // Notes link — opens the site's existing PIN-locked journal. The double-tap
+  // on the footer still works too; this just makes it findable while reading.
+  var notesLink = document.getElementById('notesLink');
+  if (notesLink){
+    notesLink.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();          // don't also feed the footer double-tap
+      if (typeof window.openJournal === 'function') window.openJournal();
+    });
+  }
+
 })();
 </script>
+<!-- The PIN-locked notepad. It adds no visible UI — it opens on a double-tap
+     of #site-footer above, so it costs no screen space. -->
+<script src="/journal-widget.js"></script>
 <!-- No /chat-widget.js here on purpose: the pickle button floats over the
      bottom-right of the reader and eats screen on a phone. Every other page
      still loads it. -->
